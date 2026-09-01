@@ -2,6 +2,10 @@
 export default defineNuxtConfig({
   modules: ["@nuxtjs/supabase", "@nuxt/eslint", "@nuxt/ui"],
 
+  supabase: {
+    redirect: false,
+  },
+
   devtools: {
     enabled: true,
   },

@@ -1,0 +1,23 @@
+[
+  {
+    "id": "e0b0f8cb-f861-41f8-8642-a540bc631f95",
+    "title": "Carrie",
+    "type": "novel",
+    "original_publish_year": 1974,
+    "open_library_work_key": "OL81626W"
+  },
+  {
+    "id": "6e27c80a-38d4-4fdb-aeac-393a09586710",
+    "title": "'Salem's Lot",
+    "type": "novel",
+    "original_publish_year": 1975,
+    "open_library_work_key": "OL81632W"
+  },
+  {
+    "id": "3c869450-78af-4b47-9154-b3b92b59c55f",
+    "title": "Cujo",
+    "type": "novel",
+    "original_publish_year": 1981,
+    "open_library_work_key": "OL81610W"
+  }
+]
