@@ -8,6 +8,9 @@ interface KingWorkSeed {
   type: string;
   original_publish_year: number;
   open_library_work_key: string | null;
+  dark_tower: boolean;
+  bachman: boolean;
+  dark_tower_relation: string | null;
 }
 
 const supabaseUrl = process.env.SUPABASE_URL;

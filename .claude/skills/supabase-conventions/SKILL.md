@@ -21,6 +21,9 @@ No `.vue` file ever calls `supabase.from(...)` directly. Every table gets a comp
 | `type` | text | `novel` / `short_story` / `collection` / etc. |
 | `original_publish_year` | int | |
 | `open_library_work_key` | text, nullable | for matching against Open Library search |
+| `dark_tower` | boolean, default `false` | `true` only for works that are part of the core Dark Tower series — not for works merely connected to it (see `dark_tower_relation`) |
+| `bachman` | boolean, default `false` | `true` for works published under the Richard Bachman pseudonym |
+| `dark_tower_relation` | text, nullable | free-text note on how the work connects to the Dark Tower series (for series-proper works and for outside works sharing characters/settings/events with it); `null` means no connection worth noting |
 
 Maintained in `supabase/seed/king_works.json` (or `.sql`), checked into the repo. Adding a new King book = editing the seed file + redeploying the seed — **never** a runtime insert/update from the app, and there is no UI for editing this table.
 

@@ -4,20 +4,859 @@
     "title": "Carrie",
     "type": "novel",
     "original_publish_year": 1974,
-    "open_library_work_key": "OL81626W"
+    "open_library_work_key": "OL81626W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
   },
   {
     "id": "6e27c80a-38d4-4fdb-aeac-393a09586710",
     "title": "'Salem's Lot",
     "type": "novel",
     "original_publish_year": 1975,
-    "open_library_work_key": "OL81632W"
+    "open_library_work_key": "OL81632W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "75ee4bae-c201-4dc5-b033-f6a4d1cc391f",
+    "title": "The Shining",
+    "type": "novel",
+    "original_publish_year": 1977,
+    "open_library_work_key": "OL81633W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "20ecdda3-77b0-4774-b304-6c52d76c2a47",
+    "title": "Rage",
+    "type": "novel",
+    "original_publish_year": 1977,
+    "open_library_work_key": "OL149154W",
+    "dark_tower": false,
+    "bachman": true,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "e47ffae1-dfe6-44d1-9a72-19a5e110e119",
+    "title": "Night Shift",
+    "type": "collection",
+    "original_publish_year": 1978,
+    "open_library_work_key": "OL81608W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "112d1b01-837c-4f35-9412-88e544bfa8d8",
+    "title": "The Stand",
+    "type": "novel",
+    "original_publish_year": 1978,
+    "open_library_work_key": "OL81618W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "c5d94528-614c-47e8-a99d-4cc57788f3ea",
+    "title": "The Long Walk",
+    "type": "novel",
+    "original_publish_year": 1979,
+    "open_library_work_key": "OL9973101W",
+    "dark_tower": false,
+    "bachman": true,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "8cf089d5-6b17-447d-9f96-c250b7f47942",
+    "title": "The Dead Zone",
+    "type": "novel",
+    "original_publish_year": 1979,
+    "open_library_work_key": "OL81630W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "dc0a62e1-ad9a-49c3-9f51-97779a527271",
+    "title": "Firestarter",
+    "type": "novel",
+    "original_publish_year": 1980,
+    "open_library_work_key": "OL81623W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "9f4fc7e1-4cbe-492e-8683-543616307c17",
+    "title": "Roadwork",
+    "type": "novel",
+    "original_publish_year": 1981,
+    "open_library_work_key": "OL149102W",
+    "dark_tower": false,
+    "bachman": true,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "1dca612f-7a8b-4f5a-b2f1-f3371ef19b84",
+    "title": "Danse Macabre",
+    "type": "nonfiction",
+    "original_publish_year": 1981,
+    "open_library_work_key": "OL16252010W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
   },
   {
     "id": "3c869450-78af-4b47-9154-b3b92b59c55f",
     "title": "Cujo",
     "type": "novel",
     "original_publish_year": 1981,
-    "open_library_work_key": "OL81610W"
+    "open_library_work_key": "OL81610W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "afab78d0-7ec6-4f52-b5ca-1bf01191747f",
+    "title": "The Running Man",
+    "type": "novel",
+    "original_publish_year": 1982,
+    "open_library_work_key": "OL149188W",
+    "dark_tower": false,
+    "bachman": true,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "3fee5bd4-0a16-4539-b9a5-0ad442a4e0f1",
+    "title": "The Dark Tower: The Gunslinger",
+    "type": "novel",
+    "original_publish_year": 1982,
+    "open_library_work_key": "OL81628W",
+    "dark_tower": true,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "27c3a938-2afa-4817-af71-e579aa670c33",
+    "title": "Different Seasons",
+    "type": "collection",
+    "original_publish_year": 1982,
+    "open_library_work_key": "OL81621W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "2dc964a8-1861-41fb-9d84-451126c9d5da",
+    "title": "Christine",
+    "type": "novel",
+    "original_publish_year": 1983,
+    "open_library_work_key": "OL81619W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "a76bac6a-e403-4e27-b37b-1bccc51884bd",
+    "title": "Cycle of the Werewolf",
+    "type": "novella",
+    "original_publish_year": 1983,
+    "open_library_work_key": "OL81583W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "4dd1403f-2de1-478b-80b1-615ee3ebbb35",
+    "title": "Pet Sematary",
+    "type": "novel",
+    "original_publish_year": 1983,
+    "open_library_work_key": "OL81631W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "e8b31b5f-05d4-45e9-8848-daaea5b51193",
+    "title": "The Eyes of the Dragon",
+    "type": "novel",
+    "original_publish_year": 1984,
+    "open_library_work_key": "OL81602W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "2d5fee88-05d7-475e-985a-17326f2116f8",
+    "title": "The Talisman",
+    "type": "novel",
+    "original_publish_year": 1984,
+    "open_library_work_key": "OL81599W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "4ff7928c-7714-4c5d-9369-502f14f08412",
+    "title": "Thinner",
+    "type": "novel",
+    "original_publish_year": 1984,
+    "open_library_work_key": "OL149210W",
+    "dark_tower": false,
+    "bachman": true,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "b63506d6-67bb-443a-bfef-e9f460f7c439",
+    "title": "Skeleton Crew",
+    "type": "collection",
+    "original_publish_year": 1985,
+    "open_library_work_key": "OL81627W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "a99a5f7e-7e9b-45c2-8c9d-67bcef9326cf",
+    "title": "IT",
+    "type": "novel",
+    "original_publish_year": 1986,
+    "open_library_work_key": "OL81613W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "3c2f538e-3787-4d9e-8359-12b109e6f97d",
+    "title": "The Dark Tower: The Drawing of the Three",
+    "type": "novel",
+    "original_publish_year": 1987,
+    "open_library_work_key": "OL81616W",
+    "dark_tower": true,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "9f8efc46-0eac-49dc-949a-d994c56284eb",
+    "title": "Misery",
+    "type": "novel",
+    "original_publish_year": 1987,
+    "open_library_work_key": "OL81634W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "12a356c1-8360-4ab0-9508-d1be61b1ac56",
+    "title": "The Tommyknockers",
+    "type": "novel",
+    "original_publish_year": 1987,
+    "open_library_work_key": "OL81593W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "7e64edd1-2ef4-4daa-887f-c2e2d895aea9",
+    "title": "The Dark Half",
+    "type": "novel",
+    "original_publish_year": 1989,
+    "open_library_work_key": "OL81620W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "ab577990-5dc5-4e08-ad75-f11febd3809f",
+    "title": "The Stand: The Complete & Uncut Edition",
+    "type": "novel",
+    "original_publish_year": 1990,
+    "open_library_work_key": "OL81618W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "6ec56d57-7a73-4d6e-bd45-16121a22b774",
+    "title": "Four Past Midnight",
+    "type": "collection",
+    "original_publish_year": 1990,
+    "open_library_work_key": "OL81606W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "02169cb4-7e16-454d-94c6-c64fb195c7c7",
+    "title": "The Dark Tower: The Waste Lands",
+    "type": "novel",
+    "original_publish_year": 1991,
+    "open_library_work_key": "OL81625W",
+    "dark_tower": true,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "aac3dc80-c4e9-4eac-a4fc-8c3486ec2045",
+    "title": "Needful Things",
+    "type": "novel",
+    "original_publish_year": 1991,
+    "open_library_work_key": "OL81607W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "3192fd6b-f87f-49b1-8770-486ae5fa1669",
+    "title": "Gerald's Game",
+    "type": "novel",
+    "original_publish_year": 1992,
+    "open_library_work_key": "OL81617W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "05ac5b6d-b462-4ada-a04c-3eeb2134253d",
+    "title": "Dolores Claiborne",
+    "type": "novel",
+    "original_publish_year": 1992,
+    "open_library_work_key": "OL81622W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "f8bd691b-5b1c-43a4-9ccb-152717acad87",
+    "title": "Nightmares & Dreamscapes",
+    "type": "collection",
+    "original_publish_year": 1993,
+    "open_library_work_key": "OL81604W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "3061a032-91b4-4f00-bef4-df9f80ba4d2a",
+    "title": "Insomnia",
+    "type": "novel",
+    "original_publish_year": 1994,
+    "open_library_work_key": "OL81603W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "b2bf8e7b-a51d-42d3-8c5c-98c1cf9ea340",
+    "title": "Rose Madder",
+    "type": "novel",
+    "original_publish_year": 1995,
+    "open_library_work_key": "OL81614W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "e4518faf-0757-4706-8ca3-7b2c300889b8",
+    "title": "The Green Mile",
+    "type": "novel",
+    "original_publish_year": 1996,
+    "open_library_work_key": "OL81629W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "3c7d5edf-6fb4-468f-8eb3-a1bb51f0e730",
+    "title": "Desperation",
+    "type": "novel",
+    "original_publish_year": 1996,
+    "open_library_work_key": "OL81611W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "05aca202-667d-4c28-bd32-320a195c9e48",
+    "title": "The Regulators",
+    "type": "novel",
+    "original_publish_year": 1996,
+    "open_library_work_key": "OL2794740W",
+    "dark_tower": false,
+    "bachman": true,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "f1289580-4375-4643-b4b8-8efb9955495c",
+    "title": "The Dark Tower: Wizard and Glass",
+    "type": "novel",
+    "original_publish_year": 1997,
+    "open_library_work_key": "OL81615W",
+    "dark_tower": true,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "ab80e8c5-ec9b-46fb-832c-fdec75aa17d2",
+    "title": "Bag of Bones",
+    "type": "novel",
+    "original_publish_year": 1998,
+    "open_library_work_key": "OL81609W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "2295c51e-1f1f-4dd8-bb5a-70896cec2f7e",
+    "title": "The Girl Who Loved Tom Gordon",
+    "type": "novel",
+    "original_publish_year": 1999,
+    "open_library_work_key": "OL81612W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "8605a880-3316-4bf3-adca-ca6e9774adcf",
+    "title": "Hearts in Atlantis",
+    "type": "collection",
+    "original_publish_year": 1999,
+    "open_library_work_key": "OL81624W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "207e446f-f003-44e0-8079-efbbac07dc58",
+    "title": "Storm of the Century",
+    "type": "screenplay",
+    "original_publish_year": 1999,
+    "open_library_work_key": "OL81592W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "67eb8f38-c873-4be1-9c9b-226a6c604e12",
+    "title": "On Writing: A Memoir of the Craft",
+    "type": "nonfiction",
+    "original_publish_year": 2000,
+    "open_library_work_key": "OL81601W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "50904d13-33a6-4b7c-8df1-eb24bdc31d9d",
+    "title": "Dreamcatcher",
+    "type": "novel",
+    "original_publish_year": 2001,
+    "open_library_work_key": "OL81598W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "eb5f6428-7a85-4d87-afee-2f2d6606180a",
+    "title": "Black House",
+    "type": "novel",
+    "original_publish_year": 2001,
+    "open_library_work_key": "OL81596W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "5510bbee-e9b6-4510-b647-3dcbf24fc2c6",
+    "title": "Everything's Eventual",
+    "type": "collection",
+    "original_publish_year": 2002,
+    "open_library_work_key": "OL81584W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "1148e043-a888-4f7b-8b55-3ee67d061cab",
+    "title": "From a Buick 8",
+    "type": "novel",
+    "original_publish_year": 2002,
+    "open_library_work_key": "OL81586W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "3b3da16f-cebc-43bb-afb2-d0da1c111965",
+    "title": "The Dark Tower: Wolves of the Calla",
+    "type": "novel",
+    "original_publish_year": 2003,
+    "open_library_work_key": "OL81594W",
+    "dark_tower": true,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "a4976be9-e19c-4764-90f5-abb40cb64785",
+    "title": "The Dark Tower: Song of Susannah",
+    "type": "novel",
+    "original_publish_year": 2004,
+    "open_library_work_key": "OL149200W",
+    "dark_tower": true,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "5517cee8-1845-44d8-a85d-af5afe58dcbc",
+    "title": "The Dark Tower: The Dark Tower",
+    "type": "novel",
+    "original_publish_year": 2004,
+    "open_library_work_key": "OL81600W",
+    "dark_tower": true,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "aa3cf9b9-3edd-407e-a9cd-da4d7d2a235d",
+    "title": "Faithful",
+    "type": "nonfiction",
+    "original_publish_year": 2004,
+    "open_library_work_key": "OL14916794W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "20d7faf3-3579-4365-8af8-17f280168d08",
+    "title": "The Colorado Kid",
+    "type": "novel",
+    "original_publish_year": 2005,
+    "open_library_work_key": "OL149171W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "63ca1754-5d53-4a87-a1df-83958f89c1f7",
+    "title": "Cell",
+    "type": "novel",
+    "original_publish_year": 2006,
+    "open_library_work_key": "OL81597W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "da049057-c56b-4bd0-a867-3ba645c0f9b4",
+    "title": "Lisey's Story",
+    "type": "novel",
+    "original_publish_year": 2006,
+    "open_library_work_key": "OL81589W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "fdfe038e-cd44-444e-93b0-d788da9cfed5",
+    "title": "Blaze",
+    "type": "novel",
+    "original_publish_year": 2007,
+    "open_library_work_key": "OL2794739W",
+    "dark_tower": false,
+    "bachman": true,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "26add84f-98bc-4405-a8c8-423bbf5f42c8",
+    "title": "Duma Key",
+    "type": "novel",
+    "original_publish_year": 2008,
+    "open_library_work_key": "OL149119W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "8adc7b84-2e3e-44fa-84a2-86f1741f587d",
+    "title": "Just After Sunset",
+    "type": "collection",
+    "original_publish_year": 2008,
+    "open_library_work_key": "OL81588W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "7983e891-8ca4-462d-a8a3-cc962d909045",
+    "title": "Under the Dome",
+    "type": "novel",
+    "original_publish_year": 2009,
+    "open_library_work_key": "OL14917748W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "4e4f7592-8330-4f4b-97ce-d31e1a4bd6d2",
+    "title": "Blockade Billy",
+    "type": "novella",
+    "original_publish_year": 2010,
+    "open_library_work_key": "OL15165826W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "eba23e94-5d8a-47ce-a4bc-8c99ef237053",
+    "title": "Full Dark, No Stars",
+    "type": "collection",
+    "original_publish_year": 2010,
+    "open_library_work_key": "OL15374110W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "500527bc-aa90-4968-aeb6-00e4be74c23b",
+    "title": "11/22/63",
+    "type": "novel",
+    "original_publish_year": 2011,
+    "open_library_work_key": "OL16152981W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "252179e5-9a97-413f-b3c7-7dbe5f825fd9",
+    "title": "The Dark Tower: The Wind Through the Keyhole",
+    "type": "novel",
+    "original_publish_year": 2012,
+    "open_library_work_key": "OL16451416W",
+    "dark_tower": true,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "5d51c5f5-a617-4d1d-9e99-a185f36aaa0c",
+    "title": "Joyland",
+    "type": "novel",
+    "original_publish_year": 2013,
+    "open_library_work_key": "OL16806826W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "1ee5652d-63d6-41ed-98fa-aaa68f1e2bd9",
+    "title": "Doctor Sleep",
+    "type": "novel",
+    "original_publish_year": 2013,
+    "open_library_work_key": "OL16806877W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "6dd0ad9d-71f2-4670-b564-669ffa83944e",
+    "title": "Mr. Mercedes",
+    "type": "novel",
+    "original_publish_year": 2014,
+    "open_library_work_key": "OL16820059W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "d91ef432-e852-4fc6-8fe3-0a2d0bec619d",
+    "title": "Revival",
+    "type": "novel",
+    "original_publish_year": 2014,
+    "open_library_work_key": "OL17200413W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "79f42045-5811-488a-a849-cfddf60fb298",
+    "title": "Finders Keepers",
+    "type": "novel",
+    "original_publish_year": 2015,
+    "open_library_work_key": "OL17333186W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "dd80acc1-2a3f-4da4-9ae4-587af1ebd54d",
+    "title": "The Bazaar of Bad Dreams",
+    "type": "collection",
+    "original_publish_year": 2015,
+    "open_library_work_key": "OL17823750W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "8fa443ce-d143-41c0-9da0-eb6380304515",
+    "title": "End of Watch",
+    "type": "novel",
+    "original_publish_year": 2016,
+    "open_library_work_key": "OL17357373W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "70c674e2-1e46-40ff-80b0-58225cc61af5",
+    "title": "Charlie the Choo-Choo",
+    "type": "childrens_book",
+    "original_publish_year": 2016,
+    "open_library_work_key": "OL24230181W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "d3192a42-9872-4be3-9983-0e81cd81483b",
+    "title": "Gwendy's Button Box",
+    "type": "novella",
+    "original_publish_year": 2017,
+    "open_library_work_key": "OL18092161W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "0778d384-4d00-42c8-8d45-0b5b295f3990",
+    "title": "Sleeping Beauties",
+    "type": "novel",
+    "original_publish_year": 2017,
+    "open_library_work_key": "OL17930363W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "865368bf-3e90-4f99-b4ec-2b05b4e0c1f3",
+    "title": "The Outsider",
+    "type": "novel",
+    "original_publish_year": 2018,
+    "open_library_work_key": "OL17937105W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "02d2425d-b47d-4efe-8fe6-3772f4535f33",
+    "title": "Elevation",
+    "type": "novella",
+    "original_publish_year": 2018,
+    "open_library_work_key": "OL18021898W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "f83e7b23-0da3-44e8-9b0c-67abc0a04234",
+    "title": "The Institute",
+    "type": "novel",
+    "original_publish_year": 2019,
+    "open_library_work_key": "OL20126932W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "d1dec749-9f18-4bf5-acfc-23779b5727a9",
+    "title": "If It Bleeds",
+    "type": "collection",
+    "original_publish_year": 2020,
+    "open_library_work_key": "OL20663157W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "62b7d3d5-3e77-4c50-81cc-a96de82ff3c7",
+    "title": "Later",
+    "type": "novel",
+    "original_publish_year": 2021,
+    "open_library_work_key": "OL21229708W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "a18dbf2e-4e58-4b46-a0de-9f18159dd328",
+    "title": "Billy Summers",
+    "type": "novel",
+    "original_publish_year": 2021,
+    "open_library_work_key": "OL24229351W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "7c6d6f25-6d1c-407f-8806-31923abb6956",
+    "title": "Gwendy's Final Task",
+    "type": "novel",
+    "original_publish_year": 2022,
+    "open_library_work_key": "OL24790867W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "bafca932-fdf9-4098-93b0-756ac8219718",
+    "title": "Fairy Tale",
+    "type": "novel",
+    "original_publish_year": 2022,
+    "open_library_work_key": "OL27589863W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "d0cec3c8-d3e9-4b29-a201-28dd85c1458b",
+    "title": "Holly",
+    "type": "novel",
+    "original_publish_year": 2023,
+    "open_library_work_key": "OL34057778W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "b2ddef7e-95be-43c4-a53f-0d1997e53b60",
+    "title": "You Like It Darker",
+    "type": "collection",
+    "original_publish_year": 2024,
+    "open_library_work_key": "OL36914473W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "65ec57d1-c122-44bc-af01-c1f02e95b613",
+    "title": "Never Flinch",
+    "type": "novel",
+    "original_publish_year": 2025,
+    "open_library_work_key": "OL42443236W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "6df5aeea-19b1-4fc5-8173-6b3b5974c56a",
+    "title": "Other Worlds Than These",
+    "type": "novel",
+    "original_publish_year": 2026,
+    "open_library_work_key": null,
+    "dark_tower": true,
+    "bachman": false,
+    "dark_tower_relation": null
   }
 ]
