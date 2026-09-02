@@ -27,6 +27,7 @@ A personal library app for Stephen King's works. Users can:
 ## Project structure
 
 - `app/` or `pages/` — Nuxt routes (confirm actual convention once repo is scaffolded)
+- `app/layouts/` — Nuxt layouts; only `default` exists for now (header, footer, and a contained page area that pages opt into)
 - `components/` — Nuxt UI-based components
 - `server/` — Nuxt server routes / API handlers (if used instead of calling Supabase directly from client)
 - `composables/` — shared reactive logic (e.g. `useBooks`, `useAdaptations`)

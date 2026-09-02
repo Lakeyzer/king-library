@@ -55,8 +55,8 @@ The system's initial King works data SHALL include Carrie (1974), 'Salem's Lot (
 - **THEN** the list includes exactly Carrie, 'Salem's Lot, and Cujo with their correct type, publish year, Open Library work key, Dark Tower flag of false, Bachman flag of false, and no Dark Tower relation note
 
 ### Requirement: Retrieve all King works for display
-The system SHALL provide a way for application code to fetch the full list of King works for display.
+The system SHALL provide a way for application code to fetch the full list of King works for display, including each work's title, original publish year, type, Dark Tower flag, and Bachman flag.
 
 #### Scenario: Fetching all works
 - **WHEN** application code requests all King works
-- **THEN** it receives every King work currently in storage, including title and original publish year
+- **THEN** it receives every King work currently in storage, including title, original publish year, type, Dark Tower flag, and Bachman flag

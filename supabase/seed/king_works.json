@@ -715,7 +715,7 @@
     "type": "childrens_book",
     "original_publish_year": 2016,
     "open_library_work_key": "OL24230181W",
-    "dark_tower": false,
+    "dark_tower": true,
     "bachman": false,
     "dark_tower_relation": null
   },
