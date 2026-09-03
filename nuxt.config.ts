@@ -1,9 +1,16 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  modules: ["@nuxtjs/supabase", "@nuxt/eslint", "@nuxt/ui"],
+  modules: ["@nuxtjs/supabase", "@nuxt/eslint", "@nuxt/ui", "@nuxt/image"],
 
   supabase: {
     redirect: false,
+  },
+
+  // Registers the built-in "none" provider so <NuxtImg provider="none"> type-checks.
+  // Used for images already pre-sized by their source (Open Library, TMDb) that
+  // don't need IPX processing - see app/components/ImageThumbnail.vue.
+  image: {
+    none: {},
   },
 
   devtools: {

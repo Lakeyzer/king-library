@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { h } from "vue";
 import type { TableColumn } from "@nuxt/ui";
+import { ImageThumbnail } from "#components";
 import type { KingWork } from "~/composables/useKingWorks";
 
 definePageMeta({ layout: "default" });
@@ -37,6 +39,20 @@ const filteredWorks = computed(() => {
 });
 
 const columns: TableColumn<KingWork>[] = [
+  {
+    id: "cover",
+    header: "",
+    meta: { class: { th: "w-px", td: "p-0 py-0.5 w-px" } },
+    cell: ({ row }) =>
+      h(ImageThumbnail, {
+        src: row.original.cover_id
+          ? getOpenLibraryCoverUrl(row.original.cover_id, "M")
+          : null,
+        alt: `${row.original.title} cover`,
+        placeholderIcon: "i-lucide-book",
+        loading: "lazy",
+      }),
+  },
   {
     accessorKey: "title",
     header: sortableHeader<KingWork>("Title"),
