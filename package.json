@@ -4,12 +4,16 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev",
+    "dev": "node scripts/dev.mjs",
+    "dev:hosted": "nuxt dev --dotenv .env",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
     "typecheck": "nuxt typecheck",
-    "seed:king-works": "node supabase/seed/load-king-works.ts"
+    "seed:king-works": "node --env-file=.env.development.local supabase/seed/load-king-works.ts",
+    "seed:king-works:hosted": "node --env-file=.env supabase/seed/load-king-works.ts",
+    "seed:bibliography": "node --env-file=.env.development.local supabase/seed/load-bibliography.ts",
+    "seed:bibliography:hosted": "node --env-file=.env supabase/seed/load-bibliography.ts"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.127",

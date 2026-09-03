@@ -1,0 +1,744 @@
+[
+  {
+    "id": "3d6d10d4-a090-4a0c-b585-a624909400f1",
+    "title": "Carrie",
+    "type": "movie",
+    "release_year": 1976,
+    "tmdb_id": 7340,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "f6f45f52-1799-4625-83a5-d0d734b217d4",
+    "title": "Salem's Lot",
+    "type": "movie",
+    "release_year": 1979,
+    "tmdb_id": 16118,
+    "is_universe_only": false,
+    "tmdb_media_type": "tv"
+  },
+  {
+    "id": "b64fcd6b-1b47-46e9-9f7f-ccbcba103d6e",
+    "title": "The Shining",
+    "type": "movie",
+    "release_year": 1980,
+    "tmdb_id": 694,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "e00e5dbd-f575-4a51-9bd0-b3d7f74d7d2f",
+    "title": "Creepshow",
+    "type": "movie",
+    "release_year": 1982,
+    "tmdb_id": 16281,
+    "is_universe_only": false,
+    "notes": "Anthology film; segments adapt the short stories 'Weeds', 'The Crate', 'Father's Day', 'Something to Tide You Over', and 'They're Creeping Up on You'.",
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "7857034a-3f45-480d-a707-e156bc2e50ef",
+    "title": "The Dead Zone",
+    "type": "movie",
+    "release_year": 1983,
+    "tmdb_id": 11336,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "de542966-043d-4335-bf4a-d927dc0c90e3",
+    "title": "Christine",
+    "type": "movie",
+    "release_year": 1983,
+    "tmdb_id": 8769,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "103f9923-96a3-4a2a-9a19-9dec154e9633",
+    "title": "Cujo",
+    "type": "movie",
+    "release_year": 1983,
+    "tmdb_id": 10489,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "078079cd-445a-4693-9290-0f7a284702dd",
+    "title": "Children of the Corn",
+    "type": "movie",
+    "release_year": 1984,
+    "tmdb_id": 10823,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "eb143250-ce8d-4b31-b6f2-5ac3d895f237",
+    "title": "Firestarter",
+    "type": "movie",
+    "release_year": 1984,
+    "tmdb_id": 11495,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "499bdc96-6e45-43e5-8552-6b2df7e3e9d5",
+    "title": "Cat's Eye",
+    "type": "movie",
+    "release_year": 1985,
+    "tmdb_id": 10552,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "4f8bb7cc-0b55-4eac-a564-6c0f0d097df7",
+    "title": "Silver Bullet",
+    "type": "movie",
+    "release_year": 1985,
+    "tmdb_id": 17898,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "4fb4c15c-9079-47bc-ab57-3768b27fb8e3",
+    "title": "Maximum Overdrive",
+    "type": "movie",
+    "release_year": 1986,
+    "tmdb_id": 9980,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "fb992346-624d-46b6-a40c-12cb9d71c723",
+    "title": "Stand By Me",
+    "type": "movie",
+    "release_year": 1986,
+    "tmdb_id": 235,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "be1d7bbd-f087-45e5-bfb2-da23ff7b74bb",
+    "title": "Creepshow 2",
+    "type": "movie",
+    "release_year": 1987,
+    "tmdb_id": 16288,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "eb4f077d-21d0-4699-869f-c1cdf6643161",
+    "title": "The Running Man",
+    "type": "movie",
+    "release_year": 1987,
+    "tmdb_id": 865,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "eae56fc7-7463-4e1e-9873-1e9643b44e50",
+    "title": "Pet Sematary",
+    "type": "movie",
+    "release_year": 1989,
+    "tmdb_id": 8913,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "c81ec258-87f7-472f-94c4-edd36a27cabc",
+    "title": "Graveyard Shift",
+    "type": "movie",
+    "release_year": 1990,
+    "tmdb_id": 19158,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "eec3ce69-9045-45f4-af56-30e8801cdf8d",
+    "title": "It",
+    "type": "miniseries",
+    "release_year": 1990,
+    "tmdb_id": 19614,
+    "is_universe_only": false,
+    "tmdb_media_type": "tv"
+  },
+  {
+    "id": "2f100094-b5ca-4cab-aa8e-d971b87dddb1",
+    "title": "Misery",
+    "type": "movie",
+    "release_year": 1990,
+    "tmdb_id": 1700,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "b847cd25-9104-45e4-81f0-c0336365a93e",
+    "title": "Sometimes They Come Back",
+    "type": "tv_movie",
+    "release_year": 1991,
+    "tmdb_id": 27769,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "93e1b181-65c9-42fc-a46e-66c1eb3f40c7",
+    "title": "Golden Years",
+    "type": "series",
+    "release_year": 1991,
+    "tmdb_id": 24404,
+    "is_universe_only": true,
+    "notes": "Original teleplay, not adapted from a published work.",
+    "tmdb_media_type": "tv"
+  },
+  {
+    "id": "de075554-d624-4610-a57b-c4543ec1f1a1",
+    "title": "The Lawnmower Man",
+    "type": "movie",
+    "release_year": 1992,
+    "tmdb_id": 10163,
+    "is_universe_only": false,
+    "notes": "Loosely 'inspired by'; King had his name removed from marketing.",
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "cdbb0796-b168-467c-b7c5-68a8966fb868",
+    "title": "The Tommyknockers",
+    "type": "miniseries",
+    "release_year": 1993,
+    "tmdb_id": 16089,
+    "is_universe_only": false,
+    "tmdb_media_type": "tv"
+  },
+  {
+    "id": "cc8655ef-14b8-48e5-b5b2-f73f955c5a1f",
+    "title": "The Dark Half",
+    "type": "movie",
+    "release_year": 1993,
+    "tmdb_id": 10349,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "b908def7-718b-4a09-b975-44f97f9ac636",
+    "title": "Needful Things",
+    "type": "movie",
+    "release_year": 1993,
+    "tmdb_id": 10657,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "425b4ee4-68b4-4536-9fcb-265bd975b844",
+    "title": "The Shawshank Redemption",
+    "type": "movie",
+    "release_year": 1994,
+    "tmdb_id": 278,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "66948cd7-094e-4cfe-a599-ee839a9e356b",
+    "title": "The Stand",
+    "type": "miniseries",
+    "release_year": 1994,
+    "tmdb_id": 9045,
+    "is_universe_only": false,
+    "tmdb_media_type": "tv"
+  },
+  {
+    "id": "3d82d029-0aec-4155-a3fc-73eb774e5aea",
+    "title": "The Mangler",
+    "type": "movie",
+    "release_year": 1995,
+    "tmdb_id": 13559,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "b75e9e36-dc9e-43e3-8fb0-75c6cd545f39",
+    "title": "The Langoliers",
+    "type": "miniseries",
+    "release_year": 1995,
+    "tmdb_id": 18197,
+    "is_universe_only": false,
+    "tmdb_media_type": "tv"
+  },
+  {
+    "id": "32ee7ca5-a835-4ccc-953e-d62c5f6d6852",
+    "title": "Dolores Claiborne",
+    "type": "movie",
+    "release_year": 1995,
+    "tmdb_id": 11929,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "e02087f0-47dd-4d7b-9337-3b8a23f01856",
+    "title": "Thinner",
+    "type": "movie",
+    "release_year": 1996,
+    "tmdb_id": 10280,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "df6b7beb-a544-4780-8985-211b70cbdcd5",
+    "title": "The Shining",
+    "type": "miniseries",
+    "release_year": 1997,
+    "tmdb_id": 1867,
+    "is_universe_only": false,
+    "tmdb_media_type": "tv"
+  },
+  {
+    "id": "9d406229-b6bf-492f-b369-8dbea6edd207",
+    "title": "Trucks",
+    "type": "tv_movie",
+    "release_year": 1997,
+    "tmdb_id": 17100,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "4cf0eb46-fcc1-4909-b214-fb3c197ba3c5",
+    "title": "Apt Pupil",
+    "type": "movie",
+    "release_year": 1998,
+    "tmdb_id": 9445,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "e6ed84cf-9a47-49da-bc53-f17247eafaa3",
+    "title": "Storm of the Century",
+    "type": "miniseries",
+    "release_year": 1999,
+    "tmdb_id": 5028,
+    "is_universe_only": false,
+    "notes": "Original teleplay, published afterward as a screenplay.",
+    "tmdb_media_type": "tv"
+  },
+  {
+    "id": "89be56bd-345c-4b35-bf7e-86ee8befe89e",
+    "title": "The Green Mile",
+    "type": "movie",
+    "release_year": 1999,
+    "tmdb_id": 497,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "eba7d578-4f84-4f74-9eaf-40b6ff71b692",
+    "title": "Hearts in Atlantis",
+    "type": "movie",
+    "release_year": 2001,
+    "tmdb_id": 11313,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "bef821b2-3d94-4c41-b5eb-3239765c02ef",
+    "title": "The Dead Zone",
+    "type": "series",
+    "release_year": 2002,
+    "tmdb_id": 1475,
+    "is_universe_only": false,
+    "tmdb_media_type": "tv"
+  },
+  {
+    "id": "06f28151-d553-4ff9-aff1-f607eb929cc8",
+    "title": "The Diary of Ellen Rimbauer",
+    "type": "tv_movie",
+    "release_year": 2003,
+    "tmdb_id": 16175,
+    "is_universe_only": true,
+    "notes": "Spin-off of King's Rose Red miniseries, written by others; not based on a King work.",
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "f4eceba0-3673-4f47-b393-a1aab1166733",
+    "title": "Dreamcatcher",
+    "type": "movie",
+    "release_year": 2003,
+    "tmdb_id": 6171,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "7386da49-a91c-4788-98dc-fe870ff6cca9",
+    "title": "Salem's Lot",
+    "type": "movie",
+    "release_year": 2004,
+    "tmdb_id": 19531,
+    "is_universe_only": false,
+    "tmdb_media_type": "tv"
+  },
+  {
+    "id": "7dbc8ade-91ee-4297-a219-54ec57754b71",
+    "title": "Secret Window",
+    "type": "movie",
+    "release_year": 2004,
+    "tmdb_id": 1586,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "df4228a0-82f5-49cf-bcb8-5e4708a562bc",
+    "title": "Kingdom Hospital",
+    "type": "series",
+    "release_year": 2004,
+    "tmdb_id": 1617,
+    "is_universe_only": true,
+    "notes": "Original series created by King, based on Lars von Trier's Riget.",
+    "tmdb_media_type": "tv"
+  },
+  {
+    "id": "6c2e0fbe-eaff-4395-8088-d32a294ff24c",
+    "title": "Desperation",
+    "type": "tv_movie",
+    "release_year": 2006,
+    "tmdb_id": 10004,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "42f8a213-abfe-4f2b-9313-aa723176155b",
+    "title": "Nightmares & Dreamscapes: From the Stories of Stephen King",
+    "type": "miniseries",
+    "release_year": 2006,
+    "tmdb_id": 4340,
+    "is_universe_only": false,
+    "notes": "Sources span Nightmares & Dreamscapes and Everything's Eventual.",
+    "tmdb_media_type": "tv"
+  },
+  {
+    "id": "31871d03-52d8-401a-9ed3-44fb102decca",
+    "title": "The Mist",
+    "type": "movie",
+    "release_year": 2007,
+    "tmdb_id": 5876,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "675774db-5031-4473-a945-a3829ece1dd2",
+    "title": "1408",
+    "type": "movie",
+    "release_year": 2007,
+    "tmdb_id": 3021,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "f65d5ef2-f5eb-4b1e-9ae0-4486ecfb187a",
+    "title": "Children of the Corn",
+    "type": "tv_movie",
+    "release_year": 2009,
+    "tmdb_id": 25754,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "ed719529-a0f2-4fb8-9e3a-498e5f9f2962",
+    "title": "Haven",
+    "type": "series",
+    "release_year": 2010,
+    "tmdb_id": 33001,
+    "is_universe_only": false,
+    "notes": "Very loose adaptation.",
+    "tmdb_media_type": "tv"
+  },
+  {
+    "id": "22b0470f-9e0c-4fc6-846b-020f1f80b4c3",
+    "title": "Bag of Bones",
+    "type": "miniseries",
+    "release_year": 2011,
+    "tmdb_id": 39758,
+    "is_universe_only": false,
+    "tmdb_media_type": "tv"
+  },
+  {
+    "id": "db05261c-3c06-4627-bac7-d1b4da36d61e",
+    "title": "Carrie",
+    "type": "movie",
+    "release_year": 2013,
+    "tmdb_id": 133805,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "7fff1fe3-9155-49a0-a72a-6958eb687dd0",
+    "title": "Under the Dome",
+    "type": "series",
+    "release_year": 2013,
+    "tmdb_id": 46331,
+    "is_universe_only": false,
+    "tmdb_media_type": "tv"
+  },
+  {
+    "id": "806e95fd-7dbb-4e3b-a9a4-0759244453d9",
+    "title": "Big Driver",
+    "type": "tv_movie",
+    "release_year": 2014,
+    "tmdb_id": 297961,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "a5abaa2b-1e97-4667-b883-fddc94622e24",
+    "title": "Cell",
+    "type": "movie",
+    "release_year": 2016,
+    "tmdb_id": 168098,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "90218ab1-eac5-489b-b64c-46704150f2e7",
+    "title": "11/22/63",
+    "type": "miniseries",
+    "release_year": 2016,
+    "tmdb_id": 64464,
+    "is_universe_only": false,
+    "tmdb_media_type": "tv"
+  },
+  {
+    "id": "02cb2e14-8eac-46ba-a7e2-79d61e9c1287",
+    "title": "1922",
+    "type": "movie",
+    "release_year": 2017,
+    "tmdb_id": 452507,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "a2b73809-0112-49aa-9d0e-61dcb80a8d05",
+    "title": "The Dark Tower",
+    "type": "movie",
+    "release_year": 2017,
+    "tmdb_id": 353491,
+    "is_universe_only": false,
+    "notes": "Loosely combines elements from across the eight-book series.",
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "13dec247-7383-4bde-ac4b-0e545e49524c",
+    "title": "It",
+    "type": "movie",
+    "release_year": 2017,
+    "tmdb_id": 346364,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "933b48e2-2424-45d1-ac0e-7b09df4a4777",
+    "title": "The Mist",
+    "type": "series",
+    "release_year": 2017,
+    "tmdb_id": 68315,
+    "is_universe_only": false,
+    "notes": "Expands the novella into an ongoing series.",
+    "tmdb_media_type": "tv"
+  },
+  {
+    "id": "041214bd-111d-4ddd-a84d-a8201eac2a11",
+    "title": "Mr. Mercedes",
+    "type": "series",
+    "release_year": 2017,
+    "tmdb_id": 70485,
+    "is_universe_only": false,
+    "tmdb_media_type": "tv"
+  },
+  {
+    "id": "5f5c5f76-8149-42c9-abca-fbed2a188c2b",
+    "title": "Gerald's Game",
+    "type": "movie",
+    "release_year": 2017,
+    "tmdb_id": 343674,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "322c6702-93aa-4717-90e0-ecb8590aae97",
+    "title": "Castle Rock",
+    "type": "series",
+    "release_year": 2018,
+    "tmdb_id": 71116,
+    "is_universe_only": true,
+    "notes": "Anthology series drawing on characters/settings across King's bibliography, not one specific work.",
+    "tmdb_media_type": "tv"
+  },
+  {
+    "id": "8a4b9c4b-f64b-4018-99a9-db5f98ee424f",
+    "title": "In the Tall Grass",
+    "type": "movie",
+    "release_year": 2019,
+    "tmdb_id": 523139,
+    "is_universe_only": false,
+    "notes": "Co-written by King and Joe Hill.",
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "1b4338f4-fbcf-4e10-8740-3023d8991beb",
+    "title": "Doctor Sleep",
+    "type": "movie",
+    "release_year": 2019,
+    "tmdb_id": 501170,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "2e3a7ead-fad5-4309-bf14-85e3d5697d70",
+    "title": "It: Chapter Two",
+    "type": "movie",
+    "release_year": 2019,
+    "tmdb_id": 474350,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "28d96e1a-9f8a-43ee-9aac-e5c33c36dbd0",
+    "title": "Pet Sematary",
+    "type": "movie",
+    "release_year": 2019,
+    "tmdb_id": 157433,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "9f46b585-c764-45b7-8ed1-568311de7cf2",
+    "title": "The Stand",
+    "type": "miniseries",
+    "release_year": 2020,
+    "tmdb_id": 86382,
+    "is_universe_only": false,
+    "tmdb_media_type": "tv"
+  },
+  {
+    "id": "e95d99fb-78bd-44bb-98bc-dd5a4dbfb7b5",
+    "title": "The Outsider",
+    "type": "series",
+    "release_year": 2020,
+    "tmdb_id": 84661,
+    "is_universe_only": false,
+    "tmdb_media_type": "tv"
+  },
+  {
+    "id": "f52944ab-dcb1-4658-9c6c-b163da915b63",
+    "title": "Chapelwaite",
+    "type": "series",
+    "release_year": 2021,
+    "tmdb_id": 126118,
+    "is_universe_only": false,
+    "tmdb_media_type": "tv"
+  },
+  {
+    "id": "7c993b95-6d1d-4407-a6c2-eb6a6a839719",
+    "title": "Lisey's Story",
+    "type": "miniseries",
+    "release_year": 2021,
+    "tmdb_id": 95839,
+    "is_universe_only": false,
+    "tmdb_media_type": "tv"
+  },
+  {
+    "id": "97430cb4-7391-4a4e-aa5c-0eae6fec106f",
+    "title": "Firestarter",
+    "type": "movie",
+    "release_year": 2022,
+    "tmdb_id": 532710,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "b82ffea6-5da5-4412-8c18-678389ce10cc",
+    "title": "Mr. Harrigan's Phone",
+    "type": "movie",
+    "release_year": 2022,
+    "tmdb_id": 723419,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "27a0bcca-1dcb-405b-a672-23adf21ad59c",
+    "title": "The Boogeyman",
+    "type": "movie",
+    "release_year": 2023,
+    "tmdb_id": 532408,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "98cf2f4f-7f80-4571-bea2-6c57de78b00d",
+    "title": "Salem's Lot",
+    "type": "movie",
+    "release_year": 2024,
+    "tmdb_id": 748230,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "21904f16-3089-4355-a57e-8e81c194d38f",
+    "title": "The Life of Chuck",
+    "type": "movie",
+    "release_year": 2024,
+    "tmdb_id": 842924,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "05f7155d-47fa-4bbd-bc58-0e9fe1176079",
+    "title": "The Monkey",
+    "type": "movie",
+    "release_year": 2025,
+    "tmdb_id": 1124620,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "a8dd096e-6b70-4b17-9f4d-f7a53a307aef",
+    "title": "The Running Man",
+    "type": "movie",
+    "release_year": 2025,
+    "tmdb_id": 798645,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "d082cd54-4782-46c6-b930-2cc5b7cff932",
+    "title": "The Long Walk",
+    "type": "movie",
+    "release_year": 2025,
+    "tmdb_id": 604079,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie"
+  },
+  {
+    "id": "bb5e3cf6-1063-47d2-9d81-04aa9247416a",
+    "title": "The Institute",
+    "type": "series",
+    "release_year": 2025,
+    "tmdb_id": 253372,
+    "is_universe_only": false,
+    "tmdb_media_type": "tv"
+  },
+  {
+    "id": "ea7c5bee-da39-4f84-b285-0744e5edac0a",
+    "title": "IT: Welcome to Derry",
+    "type": "series",
+    "release_year": 2025,
+    "tmdb_id": 200875,
+    "is_universe_only": false,
+    "notes": "Prequel series set in the IT universe.",
+    "tmdb_media_type": "tv"
+  },
+  {
+    "id": "98cb7c05-c691-4904-83c0-dc2b9da47cad",
+    "title": "Carrie",
+    "type": "series",
+    "release_year": 2026,
+    "tmdb_id": 288673,
+    "is_universe_only": false,
+    "tmdb_media_type": "tv"
+  }
+]

@@ -1,0 +1,1316 @@
+[
+  {
+    "id": "7aa24bca-3e3b-476a-aece-4796b410af4f",
+    "title": "The Mist",
+    "type": "novella",
+    "original_publish_year": 1980,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "c33c1c4e-3f7f-4257-91eb-248d1de5efcc",
+    "title": "Apt Pupil",
+    "type": "novella",
+    "original_publish_year": 1982,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "7493d906-8350-4315-a32f-1ce876496c14",
+    "title": "The Body",
+    "type": "novella",
+    "original_publish_year": 1982,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "ce40aec2-f1b8-4486-9023-faf5189fd0e7",
+    "title": "The Breathing Method",
+    "type": "novella",
+    "original_publish_year": 1982,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "a10bc9f5-5e74-477e-90a0-d2c81603b473",
+    "title": "Rita Hayworth and Shawshank Redemption",
+    "type": "novella",
+    "original_publish_year": 1982,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "afb48b4d-64b4-4d55-a521-f01ba38d249f",
+    "title": "The Langoliers",
+    "type": "novella",
+    "original_publish_year": 1990,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "28e4843a-a38d-450f-afeb-cc3ea54e0b00",
+    "title": "The Library Policeman",
+    "type": "novella",
+    "original_publish_year": 1990,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "747f1141-7b3a-4033-8588-bdf469f8b9cc",
+    "title": "Secret Window, Secret Garden",
+    "type": "novella",
+    "original_publish_year": 1990,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "616891ab-2160-4e0d-9f8d-e868e0902ebe",
+    "title": "The Sun Dog",
+    "type": "novella",
+    "original_publish_year": 1990,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "9bf82fcd-ab4d-4376-a1c4-8d4226ba3dba",
+    "title": "Hearts in Atlantis",
+    "type": "novella",
+    "original_publish_year": 1999,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "e16f0656-9c88-4f21-ad6f-56777d9ba573",
+    "title": "Heavenly Shades of Night Are Falling",
+    "type": "novella",
+    "original_publish_year": 1999,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "a60f01ca-6c75-4721-a90e-9b10cabb5b31",
+    "title": "Low Men in Yellow Coats",
+    "type": "novella",
+    "original_publish_year": 1999,
+    "first_published_in": null,
+    "dark_tower": true,
+    "dark_tower_relation": "Dark Tower short fiction"
+  },
+  {
+    "id": "9210ed38-2295-448d-badd-b1372bc41bc0",
+    "title": "Why We're in Vietnam",
+    "type": "novella",
+    "original_publish_year": 1999,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "25abe1ba-4c10-42ed-8498-8fa3eec5eeaf",
+    "title": "Blind Willie",
+    "type": "novella",
+    "original_publish_year": 1994,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "bfe9bb34-2713-4009-a67e-323bfed4418d",
+    "title": "A Very Tight Place",
+    "type": "short_story",
+    "original_publish_year": 2008,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "73b7c8ad-55ee-466b-96c0-f69d0f6cc61e",
+    "title": "Mr. Harrigan's Phone",
+    "type": "novella",
+    "original_publish_year": 2020,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "26cc897c-b399-445a-b229-fbfbfff035e2",
+    "title": "Rat",
+    "type": "novella",
+    "original_publish_year": 2020,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "66e498d0-d5b7-4734-8ec1-f80891a76454",
+    "title": "The Life of Chuck",
+    "type": "novella",
+    "original_publish_year": 2020,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "a16f9f00-7b17-498b-9fa4-0961ae5377e3",
+    "title": "If It Bleeds",
+    "type": "novella",
+    "original_publish_year": 2020,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "062db500-fd3a-4e66-af12-374af3dd7a08",
+    "title": "1922",
+    "type": "novella",
+    "original_publish_year": 2010,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "f38c2b3b-564b-4250-8796-e0801568c1a1",
+    "title": "A Good Marriage",
+    "type": "novella",
+    "original_publish_year": 2010,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "a1a396e2-6ad3-4000-b98d-99ba50bfe0b7",
+    "title": "Big Driver",
+    "type": "novella",
+    "original_publish_year": 2010,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "62a94550-2dde-47cb-9a85-e014e9715d64",
+    "title": "Fair Extension",
+    "type": "short_story",
+    "original_publish_year": 2010,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "89224f4e-9ffc-42a2-aae9-93cf9437d2bf",
+    "title": "1408",
+    "type": "short_story",
+    "original_publish_year": 2002,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "917c741c-0afc-40e3-a8cd-d109aed24422",
+    "title": "All That You Love Will Be Carried Away",
+    "type": "short_story",
+    "original_publish_year": 2002,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "d7267d0c-03a4-4503-9185-a55fe18027bc",
+    "title": "The Death of Jack Hamilton",
+    "type": "short_story",
+    "original_publish_year": 2002,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "04447ef5-0e86-45d1-941e-e9a52e0def16",
+    "title": "Everything's Eventual",
+    "type": "short_story",
+    "original_publish_year": 2002,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "4f75f6b4-9d57-46a6-822e-fb04b3ce34e4",
+    "title": "In the Deathroom",
+    "type": "short_story",
+    "original_publish_year": 2002,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "011e9842-7a54-4496-8879-cecfa8c9749e",
+    "title": "Luckey Quarter",
+    "type": "short_story",
+    "original_publish_year": 2002,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "9167aa35-3ab5-43e4-bd72-7c3ee2a827fb",
+    "title": "Lunch at the Gotham Caf\u00e9",
+    "type": "short_story",
+    "original_publish_year": 2002,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "8d6deae1-0595-4d87-8fee-99ecab7ef62a",
+    "title": "The Man in the Black Suit",
+    "type": "short_story",
+    "original_publish_year": 2002,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "af4a99c3-7cf9-4373-877f-2f6d7b00ded6",
+    "title": "Riding the Bullet",
+    "type": "short_story",
+    "original_publish_year": 2002,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "442bc590-99cb-4c92-8b01-d861acfbd68f",
+    "title": "The Road Virus Heads North",
+    "type": "short_story",
+    "original_publish_year": 2002,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "9d945f34-2d96-43bb-abe4-6d8c7f4cf19f",
+    "title": "You Know They Got a Hell of a Band",
+    "type": "short_story",
+    "original_publish_year": 2002,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "72a70fc0-2b2f-4b8f-99e5-f4f180f62b2a",
+    "title": "That Feeling, You Can Only Say What It Is in French",
+    "type": "short_story",
+    "original_publish_year": 2002,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "763e43c7-eaa1-453d-9828-1b2f62ac7918",
+    "title": "Autopsy Room Four",
+    "type": "short_story",
+    "original_publish_year": 2002,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "6ec2fab6-2060-4930-aed5-a4c881abfade",
+    "title": "The Little Sisters of Eluria",
+    "type": "short_story",
+    "original_publish_year": 2002,
+    "first_published_in": null,
+    "dark_tower": true,
+    "dark_tower_relation": "Dark Tower short fiction"
+  },
+  {
+    "id": "966b8a4a-ff4a-4cf3-ac01-2dd4f2472ad0",
+    "title": "Ayana",
+    "type": "short_story",
+    "original_publish_year": 2008,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "031e68b1-fe83-4583-867a-ed19141636a6",
+    "title": "The Cat from Hell",
+    "type": "short_story",
+    "original_publish_year": 2008,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "64fe1bad-525c-4f61-ba42-077fa7ad8d8d",
+    "title": "The Gingerbread Girl",
+    "type": "short_story",
+    "original_publish_year": 2008,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "e688e728-b14d-426e-a843-d71e865fb600",
+    "title": "Graduation Afternoon",
+    "type": "short_story",
+    "original_publish_year": 2008,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "746e31f5-f54d-4cf1-951e-3e94b5892139",
+    "title": "Harvey's Dream",
+    "type": "short_story",
+    "original_publish_year": 2008,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "087a95f4-7cc1-4416-9690-1e7debe4beea",
+    "title": "Mute",
+    "type": "short_story",
+    "original_publish_year": 2008,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "d6835f63-aef3-4e5b-9204-1c06c0a9dda6",
+    "title": "N.",
+    "type": "short_story",
+    "original_publish_year": 2008,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "a193a0c2-f797-47aa-a7fc-25af8658ca45",
+    "title": "The New York Times at Special Bargain Rates",
+    "type": "short_story",
+    "original_publish_year": 2008,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "55f7771e-7327-40ba-b09c-7f35661b7d4b",
+    "title": "Rest Stop",
+    "type": "short_story",
+    "original_publish_year": 2008,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "e4ddb52a-4664-4797-b421-2b8babf4c813",
+    "title": "Stationary Bike",
+    "type": "short_story",
+    "original_publish_year": 2008,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "dc294495-8a41-4740-a280-c3ddf7794c69",
+    "title": "The Things They Left Behind",
+    "type": "short_story",
+    "original_publish_year": 2008,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "e7a5124a-8a1b-49f6-b909-f0f934909af4",
+    "title": "Willa",
+    "type": "short_story",
+    "original_publish_year": 2008,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "f3621beb-a902-4780-a24d-6ae2c331cbf2",
+    "title": "Battleground",
+    "type": "short_story",
+    "original_publish_year": 1978,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "7c3dc52c-22bc-4acb-abda-7577a40c29e5",
+    "title": "The Boogeyman",
+    "type": "short_story",
+    "original_publish_year": 1978,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "5f741cdd-37b9-46de-82f4-2592a477a4bd",
+    "title": "Cain Rose Up",
+    "type": "short_story",
+    "original_publish_year": 1978,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "de457b46-19f0-4232-bc0f-1a001eabf19d",
+    "title": "Children of the Corn",
+    "type": "short_story",
+    "original_publish_year": 1978,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "03932463-f5aa-4326-933e-9d908dac0184",
+    "title": "The Crate",
+    "type": "short_story",
+    "original_publish_year": 1978,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "fde3e790-14e3-4d4b-9a9c-9234b2484f7d",
+    "title": "The Glass Floor",
+    "type": "short_story",
+    "original_publish_year": 1978,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "a8e724ee-c6a6-45e3-8eea-33a0057196f2",
+    "title": "Graveyard Shift",
+    "type": "short_story",
+    "original_publish_year": 1978,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "d89f365f-3929-4a47-b792-69eaaa40fb81",
+    "title": "Grey Matter",
+    "type": "short_story",
+    "original_publish_year": 1978,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "e6741e34-fec1-4b52-891f-a5d703e22060",
+    "title": "Here There Be Tygers",
+    "type": "short_story",
+    "original_publish_year": 1978,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "9eaa4f59-9ba7-4f75-afcb-9c0707c372df",
+    "title": "I Am the Doorway",
+    "type": "short_story",
+    "original_publish_year": 1978,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "d2c648f6-9d0c-4673-8307-812b42439c54",
+    "title": "I Know What You Need",
+    "type": "short_story",
+    "original_publish_year": 1978,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "83f60735-a90b-4c0a-967d-9cd13b836d18",
+    "title": "Jerusalem's Lot",
+    "type": "short_story",
+    "original_publish_year": 1978,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "b40101aa-a397-4e91-ae23-1576fd33f70b",
+    "title": "The Last Rung on the Ladder",
+    "type": "short_story",
+    "original_publish_year": 1978,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "4fb2776d-8449-422f-89a1-1a4ee9d683cf",
+    "title": "The Lawnmower Man",
+    "type": "short_story",
+    "original_publish_year": 1978,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "82c350e3-e92e-4283-b480-f936a8591e5f",
+    "title": "The Ledge",
+    "type": "short_story",
+    "original_publish_year": 1978,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "33c0d1b7-85a9-4207-9c03-2ccefb21741f",
+    "title": "The Man Who Loved Flowers",
+    "type": "short_story",
+    "original_publish_year": 1978,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "f412ab95-7cce-4e84-b757-497b452dd78a",
+    "title": "The Mangler",
+    "type": "short_story",
+    "original_publish_year": 1978,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "ed8f64e7-eaf0-42aa-92c8-d9f0bedd0b20",
+    "title": "Night Surf",
+    "type": "short_story",
+    "original_publish_year": 1978,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "5170ed11-3246-456d-9bb3-3d6e6d1606d9",
+    "title": "One for the Road",
+    "type": "short_story",
+    "original_publish_year": 1978,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "378c77d1-1d20-4bd8-99f8-dbf08315a50d",
+    "title": "Paranoid: A Chant",
+    "type": "short_story",
+    "original_publish_year": 1978,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "03533c94-8019-4640-8830-a8924427c7f0",
+    "title": "Quitters Inc.",
+    "type": "short_story",
+    "original_publish_year": 1978,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "7e789753-180b-4783-9215-7bb9f9ee0cc1",
+    "title": "Sometimes They Come Back",
+    "type": "short_story",
+    "original_publish_year": 1978,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "2ce38a68-ee8c-426a-86b1-ad03b8a18f0f",
+    "title": "Strawberry Spring",
+    "type": "short_story",
+    "original_publish_year": 1978,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "0e310394-b042-483c-adc4-b88714fea5a1",
+    "title": "Trucks",
+    "type": "short_story",
+    "original_publish_year": 1978,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "7dde6844-88ef-42a5-9b56-a7ff792e5bd7",
+    "title": "The Woman in the Room",
+    "type": "short_story",
+    "original_publish_year": 1978,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "8335c40a-2850-407b-abc1-012474c608a9",
+    "title": "Big Wheels: A Tale of the Laundry Game (Milkman #2)",
+    "type": "short_story",
+    "original_publish_year": 1993,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "cbef72bb-91e9-456b-800e-fff683ab53cc",
+    "title": "Chattery Teeth",
+    "type": "short_story",
+    "original_publish_year": 1993,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "15c1e57b-0bb8-47d8-98ff-824baafa9800",
+    "title": "Crouch End",
+    "type": "short_story",
+    "original_publish_year": 1993,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "f8492a1f-986e-462a-80e2-98aad8350b45",
+    "title": "Dedication",
+    "type": "short_story",
+    "original_publish_year": 1993,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "a328d073-6683-4e5e-816c-644c42510241",
+    "title": "The Doctor's Case",
+    "type": "short_story",
+    "original_publish_year": 1993,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "807eeb88-c6a2-4c9f-85f5-c89c1e4b5a9f",
+    "title": "Dolan's Cadillac",
+    "type": "short_story",
+    "original_publish_year": 1993,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "743f04cb-1ef1-4919-b638-9f05c90fbf26",
+    "title": "The End of the Whole Mess",
+    "type": "short_story",
+    "original_publish_year": 1993,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "500cabe7-edd0-447d-8014-1c4be070a47b",
+    "title": "The Fifth Quarter",
+    "type": "short_story",
+    "original_publish_year": 1993,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "aecb1f47-6b42-490d-b9c3-dbb3b258200b",
+    "title": "It Grows on You",
+    "type": "short_story",
+    "original_publish_year": 1993,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "82377600-1089-4278-a1f6-fab56ddd950d",
+    "title": "The Moving Finger",
+    "type": "short_story",
+    "original_publish_year": 1993,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "0abfe68e-12b8-4810-8e4d-7e37acadfe99",
+    "title": "My Pretty Pony",
+    "type": "short_story",
+    "original_publish_year": 1993,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "bd252cb2-a530-4a9a-b84b-990305c699b4",
+    "title": "The Night Flier",
+    "type": "short_story",
+    "original_publish_year": 1993,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "fc41f132-59a4-4774-8e7c-eaff79f3030d",
+    "title": "Popsy",
+    "type": "short_story",
+    "original_publish_year": 1993,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "bceadf7c-8c92-4eec-9f24-0e17bdd20e45",
+    "title": "Rainy Season",
+    "type": "short_story",
+    "original_publish_year": 1993,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "fb8546ad-4f4a-499d-b2f4-a787affd6211",
+    "title": "The Revelations of 'Becka Paulson",
+    "type": "short_story",
+    "original_publish_year": 1993,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "643aee3d-f3d1-42e1-bd05-a3aefe6122f2",
+    "title": "Sneakers",
+    "type": "short_story",
+    "original_publish_year": 1993,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "e76f2a79-1186-4da9-8095-2de7634caac3",
+    "title": "Suffer the Little Children",
+    "type": "short_story",
+    "original_publish_year": 1993,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "d600d675-5001-4b0c-9b92-b7876d16cbc7",
+    "title": "The Ten O'Clock People",
+    "type": "short_story",
+    "original_publish_year": 1993,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "181ab8ad-525e-446d-b26e-68651e177a99",
+    "title": "Umney's Last Case",
+    "type": "short_story",
+    "original_publish_year": 1993,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "82131c18-b13a-49d6-a293-fc6ce3ee9209",
+    "title": "Beachworld",
+    "type": "short_story",
+    "original_publish_year": 1985,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "b95aed24-fca2-45a3-99d5-34aa5eaba1d8",
+    "title": "Gramma",
+    "type": "short_story",
+    "original_publish_year": 1985,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "cc76b572-68fc-4250-a19a-7d1bdf711b34",
+    "title": "Home Delivery",
+    "type": "short_story",
+    "original_publish_year": 1985,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "fd704d1f-d75c-4506-bf24-9e541dd1612c",
+    "title": "The Jaunt",
+    "type": "short_story",
+    "original_publish_year": 1985,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "90946562-223c-410d-a31c-a34c9f891f27",
+    "title": "The Lonesome Death of Jordy Verrill",
+    "type": "short_story",
+    "original_publish_year": 1985,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "c6ae0ee0-3fd3-4a7e-b27e-66d3a39c530c",
+    "title": "The Man Who Would Not Shake Hands",
+    "type": "short_story",
+    "original_publish_year": 1985,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "011f81c6-abd3-48fd-b1f1-c373ca283905",
+    "title": "The Monkey",
+    "type": "short_story",
+    "original_publish_year": 1985,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "fa222162-3936-47a0-9455-b14bc2f4b7a0",
+    "title": "Morning Deliveries (Milkman #1)",
+    "type": "short_story",
+    "original_publish_year": 1985,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "f7093a4b-5992-4789-8627-8bb6f58faa75",
+    "title": "Mrs. Todd's Shortcut",
+    "type": "short_story",
+    "original_publish_year": 1985,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "1b643258-d8ee-44a4-99db-dfe3a022ebe2",
+    "title": "Nona",
+    "type": "short_story",
+    "original_publish_year": 1985,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "fd6154b7-51a4-45e7-869c-a1d2d3e844a5",
+    "title": "The Raft",
+    "type": "short_story",
+    "original_publish_year": 1985,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "e9c51940-95a4-47fd-9675-4c4a3125f46f",
+    "title": "The Reach",
+    "type": "short_story",
+    "original_publish_year": 1985,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "85eec638-5eb3-463e-a96d-6f669647edcb",
+    "title": "The Reaper's Image",
+    "type": "short_story",
+    "original_publish_year": 1985,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "5c4f0474-9e11-4695-ae02-e59dc51c447f",
+    "title": "Survivor Type",
+    "type": "short_story",
+    "original_publish_year": 1985,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "156570c2-99b8-4f50-8e16-46413f08a6d9",
+    "title": "Uncle Otto's Truck",
+    "type": "short_story",
+    "original_publish_year": 1985,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "297ea36d-f8f5-4b5b-8a45-f65a8b411768",
+    "title": "The Wedding Gig",
+    "type": "short_story",
+    "original_publish_year": 1985,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "75dcf9c9-8f8c-405b-a529-7251d8cefd15",
+    "title": "Weeds",
+    "type": "short_story",
+    "original_publish_year": 1985,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "fd5b6c11-0f88-400f-a1ea-77fc7955acdc",
+    "title": "Word Processor of the Gods",
+    "type": "short_story",
+    "original_publish_year": 1985,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "dfa74185-7993-4da0-96c4-bbe48946824d",
+    "title": "A Death",
+    "type": "short_story",
+    "original_publish_year": 2015,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "f11cd9e0-9d4e-4e49-9a84-6ffee23b76fe",
+    "title": "Afterlife",
+    "type": "short_story",
+    "original_publish_year": 2015,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "60a3c7eb-2a09-45b3-85df-84032d490f47",
+    "title": "The Blue Air Compressor",
+    "type": "short_story",
+    "original_publish_year": 2015,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "eb00ce07-f9be-43cf-8e07-d60078779fde",
+    "title": "Cookie Jar",
+    "type": "short_story",
+    "original_publish_year": 2015,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "414a19c7-2e65-49cb-a964-0ff0f757cd2a",
+    "title": "Drunken Fireworks",
+    "type": "short_story",
+    "original_publish_year": 2015,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "0cef6552-b620-4514-9c80-64999db5bf37",
+    "title": "The Dune",
+    "type": "short_story",
+    "original_publish_year": 2015,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "5358411c-14ab-48c7-984d-dfc50b667f7a",
+    "title": "The Fifth Step",
+    "type": "short_story",
+    "original_publish_year": 2015,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "07f9656c-7da2-40de-a53d-c4d5d44b78f7",
+    "title": "Herman Wouk Is Still Alive",
+    "type": "short_story",
+    "original_publish_year": 2015,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "f263432b-4901-40aa-9284-0cbaaf0f3964",
+    "title": "In the Tall Grass",
+    "type": "short_story",
+    "original_publish_year": 2015,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "0450734e-5e55-4abf-be7f-2323832ca47e",
+    "title": "Laurie",
+    "type": "short_story",
+    "original_publish_year": 2015,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "9fded919-c795-4c8c-af65-65ebca05a8e9",
+    "title": "Little Green God of Agony",
+    "type": "short_story",
+    "original_publish_year": 2015,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "595c3485-661d-43b4-89d9-775457e9d3d4",
+    "title": "Memory",
+    "type": "short_story",
+    "original_publish_year": 2015,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "5b0e7516-3580-4a05-9767-df0f6e4d2ae7",
+    "title": "Mile 81",
+    "type": "short_story",
+    "original_publish_year": 2015,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "c51a9905-8ae5-44aa-9c3c-ba96ed1f602e",
+    "title": "Mister Yummy",
+    "type": "short_story",
+    "original_publish_year": 2015,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "f780988b-ce43-4a0a-babc-7543840c03a2",
+    "title": "Morality",
+    "type": "short_story",
+    "original_publish_year": 2015,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "b8e4acd4-fc78-448d-8557-478e6050c503",
+    "title": "Obits",
+    "type": "short_story",
+    "original_publish_year": 2015,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "18c2e0c8-019c-49f4-a4bd-193a9f541daf",
+    "title": "Premium Harmony",
+    "type": "short_story",
+    "original_publish_year": 2015,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "96e1c768-0a30-4de1-a268-7756761c102d",
+    "title": "Summer Thunder",
+    "type": "short_story",
+    "original_publish_year": 2015,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "4ea47b84-5925-4723-aeef-2be0a6bcafaa",
+    "title": "That Bus Is Another World",
+    "type": "short_story",
+    "original_publish_year": 2015,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "1335728c-8aec-4451-aa01-7128a1e5810b",
+    "title": "Throttle",
+    "type": "short_story",
+    "original_publish_year": 2015,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "1a2a5f41-11ae-4f84-9bfb-bdbd65e5feac",
+    "title": "Tommy",
+    "type": "short_story",
+    "original_publish_year": 2015,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "cb2c840f-98ee-4da0-822a-657fdef1b5c4",
+    "title": "Under the Weather",
+    "type": "short_story",
+    "original_publish_year": 2015,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "634e6829-e8f7-4ba3-915f-64b8297bb208",
+    "title": "Father's Day",
+    "type": "short_story",
+    "original_publish_year": null,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "d81523f1-33d3-4ddb-bf5c-877d3404f5a9",
+    "title": "Something to Tide You Over",
+    "type": "short_story",
+    "original_publish_year": null,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "e3e4a700-edb8-4325-bb3a-b3856773a9f7",
+    "title": "They're Creeping Up on You",
+    "type": "short_story",
+    "original_publish_year": null,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "fbd8664a-f1e4-4610-a33d-b3b1fdad0683",
+    "title": "A Face in the Crowd",
+    "type": "short_story",
+    "original_publish_year": null,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "5df85127-a314-484e-8028-5cc5d32e310a",
+    "title": "Bad Little Kid",
+    "type": "short_story",
+    "original_publish_year": null,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "aa39bf01-1cf1-4c9f-b0e7-9a176fd00a9f",
+    "title": "Before the Play",
+    "type": "short_story",
+    "original_publish_year": null,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "3fbb3423-7fb1-4189-a4c1-74ffec2febc2",
+    "title": "The Dark Man",
+    "type": "short_story",
+    "original_publish_year": null,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "ce9b793e-bdd0-449e-be3c-a9daf2b8c1a7",
+    "title": "Finn",
+    "type": "short_story",
+    "original_publish_year": null,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "9aed474d-170d-402e-b5c4-c8d9b025bf7e",
+    "title": "The Old Dude's Ticker",
+    "type": "short_story",
+    "original_publish_year": null,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "7beca928-c55b-49a0-93dc-b41eb9f4fbba",
+    "title": "Rattlesnakes",
+    "type": "short_story",
+    "original_publish_year": null,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "84877f94-67f1-4dfd-a4c1-cbdb10c6b331",
+    "title": "Red Screen",
+    "type": "short_story",
+    "original_publish_year": null,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "3de07dc5-58f0-49d9-af26-2a45053a8a50",
+    "title": "The Reploids",
+    "type": "short_story",
+    "original_publish_year": null,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  },
+  {
+    "id": "ac590ccc-cf29-45f1-8c2f-876a636b9d8b",
+    "title": "The Turbulence Expert",
+    "type": "short_story",
+    "original_publish_year": null,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null
+  }
+]

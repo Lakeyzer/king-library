@@ -1,6 +1,6 @@
 ---
 name: supabase-conventions
-description: Database schema, RLS policies, and query conventions for the Stephen King Library app's Supabase backend. Use this whenever writing or modifying anything that touches the database — Supabase queries, composables, migrations, RLS policies, seed files, or the tables king_works, adaptations, adaptation_works, profiles, user_books, user_book_editions, or user_adaptations. Also use when adding any feature that reads or writes user collections, wishlists, read status, watch status, cover images, or statistics/leaderboards, since these all depend on this schema. Consult this skill before writing a single `supabase.from(...)` call anywhere in the app.
+description: Database schema, RLS policies, and query conventions for the Stephen King Library app's Supabase backend. Use this whenever writing or modifying anything that touches the database — Supabase queries, composables, migrations, RLS policies, seed files, or the tables king_works, adaptations, adaptation_works, adaptation_short_stories, king_short_stories, king_short_story_collections, profiles, user_books, user_book_editions, user_adaptations, or user_short_story_reads. Also use when adding any feature that reads or writes user collections, wishlists, read status, watch status, short story reads, cover images, or statistics/leaderboards, since these all depend on this schema. Consult this skill before writing a single `supabase.from(...)` call anywhere in the app.
 ---
 
 # Supabase Conventions — Stephen King Library
@@ -10,6 +10,16 @@ This skill is the source of truth for the database schema and how to interact wi
 ## Core rule: queries only via composables
 
 No `.vue` file ever calls `supabase.from(...)` directly. Every table gets a composable (e.g. `useBooks`, `useAdaptations`, `useProfile`) that wraps reads/writes for that table. This keeps RLS-dependent query logic (see below) in one place instead of scattered across components.
+
+## Local development & deployment workflow
+
+Any task that touches migrations, RLS policies, triggers, or seed data follows this sequence — the hosted Supabase project is never the first place a schema change is tried:
+
+1. **Develop and test against a local Supabase instance in Docker** (`supabase start`), not directly against the hosted project. Write migrations, apply them locally, load seed data locally, and verify the feature works there first.
+2. **Treat the local Supabase instance as persistent, not disposable.** Stopping it between sessions is fine (`supabase stop`, which preserves the Docker volume) — tearing it down in a way that discards that volume is not. The local instance should never need to be rebuilt from scratch as a routine step; `supabase start` should resume the existing state, migrations and seed data already applied.
+3. **Keep local in sync with hosted, or ahead of it — never behind.** Before starting new schema work, confirm local has every migration hosted has (`supabase migration list` shows both sides) — hosted should only ever move ahead of local via a push that originated from local in the first place, so drift shouldn't happen in normal use, but check rather than assume if something seems off. While a feature is in progress, it's expected and fine for local to be ahead of hosted (new migrations applied locally, not yet pushed) — that gap is exactly what "test locally before touching hosted" means. Only use `supabase db reset` (wipes local and reapplies every migration + seed from scratch) when local state is actually suspect — not as a routine reset between features.
+4. **Local dev and the deployed app point at permanently separate Supabase targets — nothing gets switched.** `.env` (or `.env.local`, gitignored) holds local Supabase's URL and anon key from `supabase status`, and never changes — running `pnpm dev` always talks to local Supabase. The deployed app never reads that file at all; it gets hosted's URL and anon key from Vercel's own environment variables, configured once in the Vercel dashboard, not something this workflow touches. Because the two are already separate, "ask the person to test" just means asking them to run `pnpm dev` — no config change needed first, and none needed to revert afterward.
+5. **Never write to the hosted/linked project without asking first.** Once the person confirms local testing looks good and gives an explicit go-ahead, push the migrations (and re-seed if needed) to hosted — this should happen _before_ merging the feature branch to main, since Vercel auto-deploys on merge and the deployed code shouldn't go live expecting a schema hosted doesn't have yet. Treat the go-ahead as a distinct, explicit checkpoint, not something implied by an earlier "looks good" in the conversation — local Docker is the sandbox for iterating freely, but the hosted project holds real data other features may already depend on.
 
 ## Schema
 
@@ -30,15 +40,18 @@ Maintained in `supabase/seed/king_works.json` (or `.sql`), checked into the repo
 
 ### `adaptations` (seed-file-driven, read-only at runtime)
 
-| column         | type          | notes                                   |
-| -------------- | ------------- | --------------------------------------- |
-| `id`           | uuid, PK      |                                         |
-| `title`        | text          |                                         |
-| `type`         | text          | `movie` / `tv_series` / `tv_movie` etc. |
-| `release_year` | int           |                                         |
-| `tmdb_id`      | int, nullable | for matching against TMDb               |
+| column             | type                     | notes                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| ------------------ | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`               | uuid, PK                 |                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `title`            | text                     |                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `type`             | text                     | `movie` / `series` / `miniseries` / `tv_movie`                                                                                                                                                                                                                                                                                                                                                                                         |
+| `release_year`     | int                      |                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `tmdb_id`          | int, nullable            | numeric TMDb id, for matching against TMDb                                                                                                                                                                                                                                                                                                                                                                                             |
+| `tmdb_media_type`  | text, nullable           | `movie` or `tv` — TMDb keeps separate ID namespaces for movies and TV shows, so `tmdb_id` alone is ambiguous for building an API call or a link; this says which endpoint it belongs to                                                                                                                                                                                                                                                |
+| `is_universe_only` | boolean, default `false` | `true` for adaptations that draw on King's characters, settings, or "universe" without adapting a specific plot — e.g. Castle Rock, Kingdom Hospital, Golden Years, The Diary of Ellen Rimbauer. These rows have **no** entries in `adaptation_works` or `adaptation_short_stories` (see below); the flag is what a UI checks before showing an empty "based on" section as "loosely set in King's universe" rather than as a data gap |
+| `notes`            | text, nullable           | free-text context for loose, composite, or non-obvious adaptations — which specific stories an anthology episode draws from, why something is marked `is_universe_only`, etc. `null` when the adaptation is a straightforward single-source case that doesn't need explaining                                                                                                                                                          |
 
-Same maintenance pattern as `king_works`: seed file in the repo (`supabase/seed/adaptations.json`), redeployed on change, no runtime CRUD. Its relationship to source works is handled by `adaptation_works` below, not by a column on this table.
+Same maintenance pattern as `king_works`: seed file in the repo (`supabase/seed/adaptations.json`), redeployed on change, no runtime CRUD. Its relationship to source material is handled entirely by `adaptation_works` and `adaptation_short_stories` below, not by a column on this table.
 
 ### `adaptation_works` (seed-file-driven, read-only at runtime — links adaptations to works)
 
@@ -52,7 +65,67 @@ A proper many-to-many join, not a single FK column on `adaptations`, because som
 
 Unique constraint on `(adaptation_id, king_work_id)`. Same seed-file maintenance pattern as `king_works`/`adaptations` — this is curated bibliography data, not user data, so it's maintained in `supabase/seed/adaptation_works.json` and redeployed on change, never written at runtime.
 
-A work's detail page queries this table filtered by `king_work_id` to list its adaptations; an adaptation's detail page queries it filtered by `adaptation_id` to list its source work(s).
+### `adaptation_short_stories` (seed-file-driven, read-only at runtime — links adaptations to short stories)
+
+The same join, one table over, for adaptations sourced from an individual short story or novella rather than a full book/collection. This is a distinct, common case — The Shawshank Redemption (from the novella "Rita Hayworth and Shawshank Redemption"), Stand By Me (from "The Body"), Creepshow (from five separate Night Shift/Skeleton Crew/uncollected stories) — and matters for stats: without it, an adaptation like Shawshank would appear to have no source in `adaptation_works` at all, since its source was never a `king_works` row to begin with.
+
+| column           | type                               | notes |
+| ---------------- | ---------------------------------- | ----- |
+| `id`             | uuid, PK                           |       |
+| `adaptation_id`  | uuid, FK → `adaptations.id`        |       |
+| `short_story_id` | uuid, FK → `king_short_stories.id` |       |
+
+Unique constraint on `(adaptation_id, short_story_id)`. Same seed-file maintenance pattern — `supabase/seed/adaptation_short_stories.json`, no runtime CRUD.
+
+Kept as its own table rather than folding into `adaptation_works` with a nullable `short_story_id` alongside a nullable `king_work_id`, or a polymorphic `source_type`/`source_id` pair on one shared table — this schema already prefers explicit typed FKs over polymorphic associations elsewhere (see `king_short_story_collections`), and a single join table with two nullable target columns would let a row reference neither or both, which is exactly the kind of state a schema shouldn't be able to represent in the first place.
+
+An adaptation can have rows in `adaptation_works`, `adaptation_short_stories`, both (uncommon, but not disallowed — nothing stops an adaptation from citing both a full work and a specific short story as sources), or neither (`is_universe_only = true` on `adaptations`, see above).
+
+A work's or short story's detail page queries the matching table filtered by `king_work_id`/`short_story_id` to list its adaptations. An adaptation's detail page queries **both** `adaptation_works` and `adaptation_short_stories` filtered by `adaptation_id` and combines the results to build its full "based on" list.
+
+### `king_short_stories` (seed-file-driven, read-only at runtime)
+
+Short stories are **not** rows in `king_works` — that table represents things a user independently collects (owns/wishlists/reads as a standalone unit), and a short story only exists _inside_ a collection, never acquired on its own. Mixing them in would break the "1 row = 1 shelf-able thing" semantics `user_books` is built around.
+
+| column                  | type                     | notes                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| ----------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                    | uuid, PK                 |                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `title`                 | text                     |                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `type`                  | text                     | `short_story` or `novella` — distinguishes shorter pieces from novella-length ones (e.g. "The Boogeyman" vs. "The Body"). Looser than `king_works.type`: everything in this table is, by definition, a piece that only exists inside a collection rather than being independently shelved, so this column exists purely for display/filtering, not to gate any behavior the way `king_works.type = 'collection'` does elsewhere |
+| `original_publish_year` | int, nullable            |                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `first_published_in`    | text, nullable           | magazine/anthology if it debuted outside a King collection                                                                                                                                                                                                                                                                                                                                                                      |
+| `dark_tower`            | boolean, default `false` | same meaning as `king_works.dark_tower` — counts toward Dark Tower completion tracking (see "Reading progress by category" below)                                                                                                                                                                                                                                                                                               |
+| `dark_tower_relation`   | text, nullable           | same meaning as `king_works.dark_tower_relation`                                                                                                                                                                                                                                                                                                                                                                                |
+
+**No `bachman` column here** — Richard Bachman was a pseudonym used for novels only; no short story was ever published under it. Adding a column that can never meaningfully be `true` would just be clutter. Revisit only if that historical fact turns out to be wrong.
+
+Same seed-file maintenance pattern as `king_works` — `supabase/seed/king_short_stories.json`, no runtime CRUD.
+
+### `king_short_story_collections` (seed-file-driven, links short stories to the collections containing them)
+
+Many-to-many, not a single FK on `king_short_stories`, because stories get reprinted across multiple collections over the years (e.g. a story could appear in its original collection and later in a "best of" anthology).
+
+| column                | type                               | notes                                                                                                                                                                                                                                                                                |
+| --------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `id`                  | uuid, PK                           |                                                                                                                                                                                                                                                                                      |
+| `short_story_id`      | uuid, FK → `king_short_stories.id` |                                                                                                                                                                                                                                                                                      |
+| `king_work_id`        | uuid, FK → `king_works.id`         | expected to reference a row where `type = 'collection'` — this is a seed-file authoring convention, not a DB-enforced constraint (Postgres can't easily check a value against another table's column without a trigger, and it's not worth one for curated, developer-authored data) |
+| `order_in_collection` | int, nullable                      |                                                                                                                                                                                                                                                                                      |
+
+Unique constraint on `(short_story_id, king_work_id)`. Same seed-file maintenance pattern, no runtime CRUD. A story's detail page shows "appears in: X, Y" by querying this filtered on `short_story_id`.
+
+### `user_short_story_reads` (read-tracking for individual short stories)
+
+Unlike `user_books`, a short story has exactly one meaningful state — read or not — so this is a **row-existence table**, not a boolean-flags row: a row existing _is_ "has read this story." No `wishlisted`/`want_to_read` equivalent, since wanting to read a story is already covered by wanting to read the collection it's in.
+
+| column           | type                               | notes |
+| ---------------- | ---------------------------------- | ----- |
+| `id`             | uuid, PK                           |       |
+| `user_id`        | uuid, FK → `auth.users.id`         |       |
+| `short_story_id` | uuid, FK → `king_short_stories.id` |       |
+| `read_at`        | timestamptz, default `now()`       |       |
+
+Unique constraint on `(user_id, short_story_id)`. Same reread limitation as `user_books`/`user_adaptations`: `read_at` holds only the most recent value, no history — see the note under `user_books` above.
 
 ### `profiles` (public directory of users)
 
@@ -216,17 +289,48 @@ create trigger user_adaptations_clear_want_to_watch
   execute function clear_want_to_watch_on_watched();
 ```
 
+**`cascade_short_story_reads_on_collection_read()`** — on `user_books`, after insert/update, when a row for a work of type `collection` is marked `read = true`, inserts a `user_short_story_reads` row for every short story linked to that collection via `king_short_story_collections`. This is an `after` trigger, not `before` — it writes to a _different_ table as a side effect rather than modifying the row being saved, so it can't use the same `before`/mutate-`new` shape as the other triggers.
+
+```sql
+create or replace function cascade_short_story_reads_on_collection_read()
+returns trigger
+language plpgsql
+as $$
+begin
+  if new.read = true and (tg_op = 'insert' or old.read is distinct from true) then
+    if exists (select 1 from king_works where id = new.king_work_id and type = 'collection') then
+      insert into user_short_story_reads (user_id, short_story_id)
+      select new.user_id, ksc.short_story_id
+      from king_short_story_collections ksc
+      where ksc.king_work_id = new.king_work_id
+      on conflict (user_id, short_story_id) do nothing;
+    end if;
+  end if;
+  return new;
+end;
+$$;
+
+create trigger user_books_cascade_short_story_reads
+  after insert or update on user_books
+  for each row
+  execute function cascade_short_story_reads_on_collection_read();
+```
+
+`on conflict do nothing` matters here: if a user already individually marked a story as read (with its own, possibly earlier, `read_at`) before marking the whole collection read, the cascade doesn't overwrite that date.
+
+**Open product decision, not yet resolved:** if a user un-marks a collection as read, should that un-mark the individual stories? Current lean is **no** — they still read the stories, they just reconsidered the collection-level checkbox — so no "un-cascade" trigger exists. Revisit this deliberately if it turns out to feel wrong in practice; it's a product call more than a schema one.
+
 ## Row Level Security
 
 RLS is mandatory on every table below — never disable it to "make it work" locally. All policies are enforced at the database level, not just filtered in composables.
 
-**`king_works` / `adaptations` / `adaptation_works`** — public read for everyone (including anon), no INSERT/UPDATE/DELETE policies at all (seed data is loaded via the Supabase CLI / migrations using the service role, which bypasses RLS — the app itself never writes to these tables).
+**`king_works` / `adaptations` / `adaptation_works` / `adaptation_short_stories`** — public read for everyone (including anon), no INSERT/UPDATE/DELETE policies at all (seed data is loaded via the Supabase CLI / migrations using the service role, which bypasses RLS — the app itself never writes to these tables).
 
 ```sql
 create policy "king_works readable by everyone"
   on king_works for select
   using (true);
--- same pattern for adaptations and adaptation_works
+-- same pattern for adaptations, adaptation_works, and adaptation_short_stories
 ```
 
 **`profiles`** — readable by everyone (needed for search/profile pages to resolve a username at all); writable only by the owning user.
@@ -241,7 +345,7 @@ create policy "profiles updatable by owner"
   using (id = auth.uid());
 ```
 
-**`user_books` / `user_book_editions` / `user_adaptations`** — the important one. A row is readable if you own it, _or_ if the owner's profile is public. Writes (insert/update/delete) are owner-only, full stop — `is_public` never affects write access. The pattern is identical across all three tables.
+**`user_books` / `user_book_editions` / `user_adaptations` / `user_short_story_reads`** — the important one. A row is readable if you own it, _or_ if the owner's profile is public. Writes (insert/update/delete) are owner-only, full stop — `is_public` never affects write access. The pattern is identical across all four tables.
 
 ```sql
 create policy "user_books readable by owner or if profile public"
@@ -266,7 +370,7 @@ create policy "user_books updatable by owner only"
 create policy "user_books deletable by owner only"
   on user_books for delete
   using (user_id = auth.uid());
--- identical four-policy set for user_book_editions and user_adaptations
+-- identical four-policy set for user_book_editions, user_adaptations, and user_short_story_reads
 ```
 
 ### Why this shape
@@ -336,6 +440,20 @@ limit 5;
 
 **Why the guard moves to `read_count >= 5` for the second query:** here the ratio's numerator is what's small-sample-prone — a single person reading a book nobody owns produces a technically-enormous but meaningless ratio. Guard whichever side of the ratio represents the "a lot of this happened" claim being made, not the same column every time.
 
+### `short_story_stats` — read counts per short story
+
+Short stories carry no ownership concept of their own (see `king_short_stories` above — they're never independently shelved), so this view is simpler than `work_stats`: just a read count, sourced from `user_short_story_reads` rather than `user_books`. Exists specifically so an adaptation sourced from a short story (see `adaptation_short_stories`) has something to compare its watch numbers against — without it, `adaptation_vs_source_stats` below would have no read-side data for those adaptations at all.
+
+```sql
+create view short_story_stats as
+select
+  s.id as short_story_id,
+  count(*) as read_count
+from king_short_stories s
+left join user_short_story_reads usr on usr.short_story_id = s.id
+group by s.id;
+```
+
 ### `adaptation_stats` — want-to-watch/watched counts per adaptation
 
 Same shape as `work_stats`, one table over:
@@ -355,45 +473,131 @@ group by a.id;
 
 ### Book vs. adaptation: popularity mismatch
 
-The interesting stat — "this adaptation is watched a lot but its source book isn't read much" and the mirror — compares `work_stats` and `adaptation_stats` across the `adaptation_works` link, per linked pair (not collapsed to one number per adaptation, since an adaptation can link to more than one work):
+The interesting stat — "this adaptation is watched a lot but its source isn't read much" and the mirror — compares `adaptation_stats` against **both** `work_stats` and `short_story_stats`, since an adaptation's source can be either kind (see `adaptation_works` and `adaptation_short_stories` above). The view unions both source types into one shape, tagged with `source_type`, rather than producing two separate, differently-shaped stats views that every consumer would need to know to check both of:
 
 ```sql
-create view adaptation_vs_work_stats as
+create view adaptation_vs_source_stats as
 select
   aw.adaptation_id,
-  aw.king_work_id,
+  'work' as source_type,
+  aw.king_work_id as source_id,
   a_stats.watched_count,
   w_stats.read_count
 from adaptation_works aw
 join adaptation_stats a_stats on a_stats.adaptation_id = aw.adaptation_id
-join work_stats w_stats on w_stats.king_work_id = aw.king_work_id;
+join work_stats w_stats on w_stats.king_work_id = aw.king_work_id
+union all
+select
+  ass.adaptation_id,
+  'short_story' as source_type,
+  ass.short_story_id as source_id,
+  a_stats.watched_count,
+  ss_stats.read_count
+from adaptation_short_stories ass
+join adaptation_stats a_stats on a_stats.adaptation_id = ass.adaptation_id
+join short_story_stats ss_stats on ss_stats.short_story_id = ass.short_story_id;
 ```
 
-Same ratio-with-a-guard-on-the-numerator-side pattern as the owned-vs-read stat, just spanning two tables now:
+This is why `adaptation_short_stories` and `short_story_stats` exist at all rather than the app just tolerating a gap: without this union, an adaptation whose only source is a short story or novella — Stand By Me, The Shawshank Redemption, Creepshow — would join to nothing in the old `adaptation_works`-only version of this view and silently disappear from every "book popular, movie under-watched" or "movie popular, book under-read" leaderboard, despite some of those being among the most iconic King adaptations that exist.
+
+Same ratio-with-a-guard-on-the-numerator-side pattern as the owned-vs-read stat, just spanning `source_type` now instead of a single fixed table:
 
 ```sql
--- Adaptation popular, source book under-read (e.g. "everyone's seen the movie, few read the book")
-select king_work_id, adaptation_id, watched_count, read_count,
+-- Adaptation popular, source under-read (e.g. "everyone's seen the movie, few read the book/story")
+select source_type, source_id, adaptation_id, watched_count, read_count,
        watched_count::numeric / nullif(read_count, 0) as watched_to_read_ratio
-from adaptation_vs_work_stats
+from adaptation_vs_source_stats
 where watched_count >= 5
 order by watched_to_read_ratio desc
 limit 5;
 
--- Book well-read, its adaptation under-watched (the mirror)
-select king_work_id, adaptation_id, watched_count, read_count,
+-- Source well-read, its adaptation under-watched (the mirror)
+select source_type, source_id, adaptation_id, watched_count, read_count,
        read_count::numeric / nullif(watched_count, 0) as read_to_watched_ratio
-from adaptation_vs_work_stats
+from adaptation_vs_source_stats
 where read_count >= 5
 order by read_to_watched_ratio desc
 limit 5;
 ```
 
-Guard on whichever count is making the "popular" claim in each direction — `watched_count` for the first query, `read_count` for the second — same reasoning as the least-owned-most-read stat: a ratio is only meaningful once its "big" side has enough samples to not be noise.
+Guard on whichever count is making the "popular" claim in each direction — `watched_count` for the first query, `read_count` for the second — same reasoning as the least-owned-most-read stat: a ratio is only meaningful once its "big" side has enough samples to not be noise. `source_type` in the result tells the composable whether `source_id` resolves against `king_works` or `king_short_stories` when it goes to fetch the title to display.
+
+## Reading progress by category
+
+A different kind of stat from everything above: **per-user completion percentage** ("42% through the Dark Tower"), not an aggregate across users. Categories: all works, Bachman, Dark Tower — and Dark Tower completion must include short stories now that they carry `dark_tower`, or a user could own/read every `king_works` Dark Tower entry and still never see 100%.
+
+The complication is that "read" is represented differently in each table (a boolean on `user_books`, row-existence in `user_short_story_reads`), so both need normalizing into one shape before they can be counted together. Two views:
+
+**`bibliography_items`** — every work and every short story, unioned into one list with consistent category flags. This is the denominator for any category.
+
+```sql
+create view bibliography_items as
+select
+  id,
+  'work' as item_type,
+  dark_tower,
+  bachman
+from king_works
+union all
+select
+  id,
+  'short_story' as item_type,
+  dark_tower,
+  false as bachman  -- no short story was published under the Bachman pseudonym
+from king_short_stories;
+```
+
+**`user_read_items`** — the same union, restricted to what a given user has actually read. This is the numerator.
+
+```sql
+create view user_read_items as
+select
+  ub.user_id,
+  bi.item_type,
+  bi.dark_tower,
+  bi.bachman
+from bibliography_items bi
+join user_books ub on ub.king_work_id = bi.id and bi.item_type = 'work' and ub.read = true
+union all
+select
+  usr.user_id,
+  bi.item_type,
+  bi.dark_tower,
+  false as bachman
+from bibliography_items bi
+join user_short_story_reads usr on usr.short_story_id = bi.id and bi.item_type = 'short_story';
+```
+
+This inherits RLS the same way every other view here does — no `security definer`, so it only ever shows read rows the querying user is allowed to see (their own, or a public profile's). That's what lets this same view power _either_ "my progress" _or_ "Alice's progress" on her public profile page, just by changing which `user_id` you filter on — the composable should accept a `userId` param here exactly like `useProfile()` does, rather than assuming `auth.uid()`.
+
+Percentage itself is a query-time calculation, not a fourth view — the category filter changes per use case, and baking each one in would mean a new view every time someone wants a different slice:
+
+```sql
+-- Dark Tower completion for a given user (works + qualifying short stories)
+select
+  (select count(*) from user_read_items where user_id = $1 and dark_tower = true) as read_count,
+  (select count(*) from bibliography_items where dark_tower = true) as total_count;
+
+-- Bachman completion — short stories never match, so this is
+-- effectively king_works-only without needing special-case logic
+select
+  (select count(*) from user_read_items where user_id = $1 and bachman = true) as read_count,
+  (select count(*) from bibliography_items where bachman = true) as total_count;
+
+-- All works (no category filter)
+select
+  (select count(*) from user_read_items where user_id = $1) as read_count,
+  (select count(*) from bibliography_items) as total_count;
+```
+
+The composable divides `read_count / total_count` client-side (or in a small SQL function if you'd rather keep it server-side) — either is fine, since it's cheap arithmetic on two already-computed integers, not a query optimization concern.
 
 ## Conventions for composables
 
-- One composable per table/domain: `useBooks()` (owned/wishlist/read flags on `user_books`), `useBookshelf()` (edition detail on `user_book_editions`), `useAdaptations()` (want-to-watch/watched flags on `user_adaptations`, plus read-only lookups against `adaptations`/`adaptation_works`), `useProfile()`.
+- One composable per table/domain: `useBooks()` (owned/wishlist/read flags on `user_books`), `useBookshelf()` (edition detail on `user_book_editions`), `useAdaptations()` (want-to-watch/watched flags on `user_adaptations`, plus read-only lookups against `adaptations`/`adaptation_works`/`adaptation_short_stories`), `useShortStories()` (read-only lookups against `king_short_stories`/`king_short_story_collections`, plus read tracking on `user_short_story_reads`), `useProfile()`.
+- Building an adaptation's full "based on" list is `useAdaptations()`'s job: query `adaptation_works` and `adaptation_short_stories` for the same `adaptation_id` and merge the two result sets — never assume a given adaptation has rows in only one of the two tables. Check `is_universe_only` on the `adaptations` row itself before treating an empty result from both as a data gap rather than the expected state.
+- Marking a collection as read (`useBooks()`) never needs to also touch `user_short_story_reads` directly — the DB trigger handles the cascade. Don't duplicate it in the composable.
+- Category completion (`useReadingProgress()` or similar) queries `bibliography_items`/`user_read_items` and accepts a `userId` param rather than assuming `auth.uid()`, so it works identically for "my progress" and "their public-profile progress."
 - Adding an edition is a two-write operation owned by `useBookshelf()`: insert the `user_book_editions` row, and upsert `owned = true` on the corresponding `user_books` row. Never let a component call one without the other — that's exactly the kind of duplicated logic composables exist to prevent.
 - Composables should accept a `userId` param when reading _someone else's_ public data (e.g. viewing another user's profile page/bookshelf) rather than assuming `auth.uid()` — the RLS policy handles whether that read is actually allowed; the composable shouldn't duplicate that logic.
 - Never write client-side checks like `if (profile.is_public)` to decide whether to _make_ a query — just make the query and let RLS return zero rows if it's not allowed. Duplicating the privacy check in JS invites the two getting out of sync.
@@ -403,4 +607,9 @@ Guard on whichever count is making the "popular" claim in each direction — `wa
 ## Migrations & seed files
 
 - Schema changes go through Supabase CLI migrations (`supabase migration new ...`), never edited directly in the dashboard for anything beyond local experimentation.
-- `king_works` and `adaptations` seed files live in `supabase/seed/` as JSON, applied via `supabase db seed` or a small loader script — not SQL `insert` statements hand-maintained inline in a migration, so the canonical bibliography stays easy to diff and edit.
+- Seed files live in `supabase/seed/` as JSON, applied via `supabase db seed` or a small loader script — not SQL `insert` statements hand-maintained inline in a migration, so the canonical bibliography stays easy to diff and edit. Current set: `king_works.json`, `king_short_stories.json`, `king_short_story_collections.json`, `adaptations.json`, `adaptation_works.json`, `adaptation_short_stories.json`.
+- **A loader script needs the service role key, not the anon key.** These tables have no insert policy at all — not even for authenticated users — so a normal client call can't write to them regardless of whose key it uses; only the service role key bypasses RLS. That means the anon-key env files used for local dev and for the deployed app (see below) can never seed anything on their own.
+- **Local and hosted seeding are separate, explicitly-named `package.json` scripts, not one script with a runtime flag** — e.g. `seed:king-works` / `seed:king-works:hosted`, `seed:bibliography` / `seed:bibliography:hosted`. Given a fat-fingered target here means writing to a database with real user data, the cost of two near-identical script entries is worth it over one script where "which environment" is a flag someone has to remember to set correctly every time.
+  - `seed:*` (no suffix) reads the local dev env file and seeds local Supabase — safe to run repeatedly, part of normal local iteration.
+  - `seed:*:hosted` reads a **separate, gitignored admin env file** — not the local dev file, and not anything Vercel reads — holding hosted's URL and hosted's service role key specifically. This file is never loaded by the running app in any context (local or deployed); it exists solely for these scripts to read when deliberately run.
+- **The deployed app's env (Vercel) never has a service role key at all.** It only needs the anon key, since the app itself never needs to bypass RLS — only a one-off admin script does, and that script runs from a developer's machine, not from the deployed app.

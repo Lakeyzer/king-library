@@ -1,20 +1,20 @@
 <script setup lang="ts">
 import type { TableColumn } from "@nuxt/ui";
-import type { KingWork } from "~/composables/useKingWorks";
+import type { KingShortStory } from "~/composables/useShortStories";
 
 definePageMeta({ layout: "default" });
 
-const { fetchKingWorks } = useKingWorks();
-const { data: works } = await useAsyncData("works", fetchKingWorks);
+const { fetchShortStories } = useShortStories();
+const { data: shortStories } = await useAsyncData(
+  "short-stories",
+  fetchShortStories
+);
 
 const search = ref("");
 
-const bachmanFilter = ref(false);
-const darkTowerFilter = ref(false);
-
 const typeOptions = computed(() => {
   const types = [
-    ...new Set((works.value ?? []).map((work) => work.type)),
+    ...new Set((shortStories.value ?? []).map((story) => story.type)),
   ].sort();
   return [
     { label: "All types", value: "all" },
@@ -23,37 +23,30 @@ const typeOptions = computed(() => {
 });
 const typeFilter = ref("all");
 
-const filteredWorks = computed(() => {
+const filteredShortStories = computed(() => {
   const term = search.value.trim().toLowerCase();
 
-  return (works.value ?? []).filter((work) => {
-    if (term && !work.title.toLowerCase().includes(term)) return false;
-    if (bachmanFilter.value && !work.bachman) return false;
-    if (darkTowerFilter.value && !work.dark_tower) return false;
-    if (typeFilter.value !== "all" && work.type !== typeFilter.value)
+  return (shortStories.value ?? []).filter((story) => {
+    if (term && !story.title.toLowerCase().includes(term)) return false;
+    if (typeFilter.value !== "all" && story.type !== typeFilter.value)
       return false;
     return true;
   });
 });
 
-const columns: TableColumn<KingWork>[] = [
+const columns: TableColumn<KingShortStory>[] = [
   {
     accessorKey: "title",
-    header: sortableHeader<KingWork>("Title"),
+    header: sortableHeader<KingShortStory>("Title"),
   },
   {
     accessorKey: "original_publish_year",
-    header: sortableHeader<KingWork>("Release year"),
+    header: sortableHeader<KingShortStory>("Original publish year"),
   },
   {
     accessorKey: "type",
     header: "Type",
     cell: ({ row }) => formatTypeLabel(row.original.type),
-  },
-  {
-    accessorKey: "bachman",
-    header: "Bachman",
-    cell: ({ row }) => flagIndicator(row.original.bachman),
   },
   {
     accessorKey: "dark_tower",
@@ -66,8 +59,8 @@ const columns: TableColumn<KingWork>[] = [
 <template>
   <div>
     <UPageHeader
-      title="Works"
-      description="Browse the canonical Stephen King bibliography."
+      title="Short Stories"
+      description="Browse Stephen King's short stories and novellas."
     />
 
     <UPageBody>
@@ -82,11 +75,9 @@ const columns: TableColumn<KingWork>[] = [
         <UFormField label="Type">
           <USelect v-model="typeFilter" :items="typeOptions" class="w-48" />
         </UFormField>
-        <UCheckbox v-model="bachmanFilter" label="Bachman" />
-        <UCheckbox v-model="darkTowerFilter" label="Dark Tower" />
       </div>
 
-      <UTable :data="filteredWorks" :columns="columns" />
+      <UTable :data="filteredShortStories" :columns="columns" />
     </UPageBody>
   </div>
 </template>
