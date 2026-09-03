@@ -1,6 +1,6 @@
 {
   "name": "king-library",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -14,11 +14,14 @@
     "seed:king-works": "node --env-file=.env.development.local supabase/seed/load-king-works.ts",
     "seed:king-works:hosted": "node --env-file=.env supabase/seed/load-king-works.ts",
     "seed:bibliography": "node --env-file=.env.development.local supabase/seed/load-bibliography.ts",
-    "seed:bibliography:hosted": "node --env-file=.env supabase/seed/load-bibliography.ts"
+    "seed:bibliography:hosted": "node --env-file=.env supabase/seed/load-bibliography.ts",
+    "backfill:cover-ids": "node supabase/seed/backfill-cover-ids.ts",
+    "backfill:tmdb-posters": "node --env-file=.env supabase/seed/backfill-tmdb-posters.ts"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.127",
     "@iconify-json/simple-icons": "^1.2.94",
+    "@nuxt/image": "^2.1.0",
     "@nuxt/ui": "^4.11.0",
     "@nuxtjs/supabase": "^2.0.10",
     "@supabase/supabase-js": "^2.112.4",

@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { h } from "vue";
 import type { TableColumn } from "@nuxt/ui";
+import { ImageThumbnail } from "#components";
 import type { Adaptation } from "~/composables/useAdaptations";
 
 definePageMeta({ layout: "default" });
@@ -7,7 +9,7 @@ definePageMeta({ layout: "default" });
 const { fetchAdaptations } = useAdaptations();
 const { data: adaptations } = await useAsyncData(
   "adaptations",
-  fetchAdaptations
+  fetchAdaptations,
 );
 
 const search = ref("");
@@ -35,6 +37,19 @@ const filteredAdaptations = computed(() => {
 });
 
 const columns: TableColumn<Adaptation>[] = [
+  {
+    id: "poster",
+    header: "",
+    meta: { class: { th: "w-px", td: "p-0 py-0.5 w-px" } },
+    cell: ({ row }) =>
+      h(ImageThumbnail, {
+        src: row.original.tmdb_poster_path
+          ? getTmdbPosterUrl(row.original.tmdb_poster_path, "w154")
+          : null,
+        alt: `${row.original.title} poster`,
+        placeholderIcon: "i-lucide-film",
+      }),
+  },
   {
     accessorKey: "title",
     header: sortableHeader<Adaptation>("Title"),
