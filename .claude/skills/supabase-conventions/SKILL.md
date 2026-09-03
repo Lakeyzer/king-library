@@ -134,12 +134,14 @@ Unique constraint on `(user_id, short_story_id)`. Same reread limitation as `use
 | column       | type                           | notes                                                                                                                  |
 | ------------ | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
 | `id`         | uuid, PK, FK → `auth.users.id` |                                                                                                                        |
-| `username`   | text, unique                   |                                                                                                                        |
+| `username`   | text, unique, nullable         | `null` until the user completes onboarding — enforced format via a `check` constraint (3–24 lowercase letters/digits/underscore), see `user-onboarding` capability |
 | `avatar_url` | text, nullable                 |                                                                                                                        |
 | `is_public`  | boolean, default `true`        | gates visibility of this user's **collections** (see RLS below) — the profile row itself (username) is always readable |
 | `created_at` | timestamptz, default `now()`   |                                                                                                                        |
 
 `auth.users` is never exposed to the client directly (it holds emails, password hashes, etc.), which is exactly why `profiles` exists — it's the public-safe mirror. A row is created automatically via a trigger on `auth.users` insert (`handle_new_user()` function, `SECURITY DEFINER`) — never insert into `profiles` from client code.
+
+Implemented in `supabase/migrations/20260903120000_create_profiles_table.sql`.
 
 ### `user_books` (join table: user ↔ king_work — the single source of truth for the relationship)
 
@@ -622,4 +624,4 @@ The composable divides `read_count / total_count` client-side (or in a small SQL
 - **Local and hosted seeding are separate, explicitly-named `package.json` scripts, not one script with a runtime flag** — e.g. `seed:king-works` / `seed:king-works:hosted`, `seed:bibliography` / `seed:bibliography:hosted`. Given a fat-fingered target here means writing to a database with real user data, the cost of two near-identical script entries is worth it over one script where "which environment" is a flag someone has to remember to set correctly every time.
   - `seed:*` (no suffix) reads the local dev env file and seeds local Supabase — safe to run repeatedly, part of normal local iteration.
   - `seed:*:hosted` reads a **separate, gitignored admin env file** — not the local dev file, and not anything Vercel reads — holding hosted's URL and hosted's service role key specifically. This file is never loaded by the running app in any context (local or deployed); it exists solely for these scripts to read when deliberately run.
-- **The deployed app's env (Vercel) never has a service role key at all.** It only needs the anon key, since the app itself never needs to bypass RLS — only a one-off admin script does, and that script runs from a developer's machine, not from the deployed app.
+- **The deployed app's env (Vercel) never has a service role key at all** — with one narrow, deliberate exception: account deletion (`server/api/account.delete.ts`) must call `auth.admin.deleteUser`, which only an elevated key can do. That route reads a server-only `NUXT_SUPABASE_SECRET_KEY` env var (the `@nuxtjs/supabase` module's own admin-key convention, via its `serverSupabaseServiceRole()` helper) — distinct from `SUPABASE_SERVICE_ROLE_KEY` above, which stays script-only and is never read by the running app. `NUXT_SUPABASE_SECRET_KEY` is never in `runtimeConfig.public`, so it's never bundled to the client, and it's used only after verifying the caller's own session — never to act on an arbitrary user ID from the client. Every other table/feature still follows the plain rule: no service-role key in the deployed app.

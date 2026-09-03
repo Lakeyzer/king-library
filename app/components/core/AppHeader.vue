@@ -1,10 +1,19 @@
 <script setup lang="ts">
-import type { NavigationMenuItem } from '@nuxt/ui'
+import type { DropdownMenuItem, NavigationMenuItem } from '@nuxt/ui'
 
 const links: NavigationMenuItem[] = [
   { label: 'Works', to: '/works' },
   { label: 'Short Stories', to: '/short-stories' },
   { label: 'Adaptations', to: '/adaptations' }
+]
+
+const user = useSupabaseUser()
+const supabase = useSupabaseClient()
+const { open: openAuthModal } = useAuthModal()
+
+const accountMenuItems: DropdownMenuItem[] = [
+  { label: 'Profile', icon: 'i-lucide-user', to: '/profile' },
+  { label: 'Sign out', icon: 'i-lucide-log-out', onSelect: () => supabase.auth.signOut() }
 ]
 </script>
 
@@ -23,6 +32,25 @@ const links: NavigationMenuItem[] = [
 
     <template #right>
       <UColorModeButton />
+
+      <UDropdownMenu
+        v-if="user"
+        :items="accountMenuItems"
+      >
+        <UButton
+          color="neutral"
+          variant="ghost"
+          icon="i-lucide-user"
+          aria-label="Account menu"
+        />
+      </UDropdownMenu>
+      <UButton
+        v-else
+        label="Sign in"
+        color="neutral"
+        variant="subtle"
+        @click="openAuthModal"
+      />
     </template>
 
     <template #body>

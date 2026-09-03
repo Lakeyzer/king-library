@@ -11,5 +11,7 @@
     </UMain>
 
     <CoreAppFooter />
+
+    <AuthModal />
   </div>
 </template>
