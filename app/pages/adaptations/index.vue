@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { h } from "vue";
-import type { TableColumn } from "@nuxt/ui";
-import { ImageThumbnail } from "#components";
 import type { Adaptation } from "~/composables/useAdaptations";
 
 definePageMeta({ layout: "default" });
@@ -11,83 +8,22 @@ const { data: adaptations } = await useAsyncData(
   "adaptations",
   fetchAdaptations,
 );
-
-const search = ref("");
-
-const typeOptions = computed(() => {
-  const types = [
-    ...new Set((adaptations.value ?? []).map((adaptation) => adaptation.type)),
-  ].sort();
-  return [
-    { label: "All types", value: "all" },
-    ...types.map((type) => ({ label: formatTypeLabel(type), value: type })),
-  ];
-});
-const typeFilter = ref("all");
-
-const filteredAdaptations = computed(() => {
-  const term = search.value.trim().toLowerCase();
-
-  return (adaptations.value ?? []).filter((adaptation) => {
-    if (term && !adaptation.title.toLowerCase().includes(term)) return false;
-    if (typeFilter.value !== "all" && adaptation.type !== typeFilter.value)
-      return false;
-    return true;
-  });
-});
-
-const columns: TableColumn<Adaptation>[] = [
-  {
-    id: "poster",
-    header: "",
-    meta: { class: { th: "w-px", td: "p-0 py-0.5 w-px" } },
-    cell: ({ row }) =>
-      h(ImageThumbnail, {
-        src: row.original.tmdb_poster_path
-          ? getTmdbPosterUrl(row.original.tmdb_poster_path, "w154")
-          : null,
-        alt: `${row.original.title} poster`,
-        placeholderIcon: "i-lucide-film",
-      }),
-  },
-  {
-    accessorKey: "title",
-    header: sortableHeader<Adaptation>("Title"),
-  },
-  {
-    accessorKey: "release_year",
-    header: sortableHeader<Adaptation>("Release year"),
-  },
-  {
-    accessorKey: "type",
-    header: "Type",
-    cell: ({ row }) => formatTypeLabel(row.original.type),
-  },
-];
 </script>
 
 <template>
-  <div>
-    <UPageHeader
-      title="Adaptations"
-      description="Browse film and television adaptations of Stephen King's work."
-    />
-
-    <UPageBody>
-      <div class="flex flex-wrap items-end gap-4 mb-4">
-        <UFormField label="Search">
-          <UInput
-            v-model="search"
-            placeholder="Search by title"
-            icon="i-lucide-search"
-          />
-        </UFormField>
-        <UFormField label="Type">
-          <USelect v-model="typeFilter" :items="typeOptions" class="w-48" />
-        </UFormField>
-      </div>
-
-      <UTable :data="filteredAdaptations" :columns="columns" />
-    </UPageBody>
-  </div>
+  <BibliographyBrowsePage
+    title="Adaptations"
+    description="Browse film and television adaptations of Stephen King's work."
+    :items="adaptations ?? []"
+    :year-of="(adaptation: Adaptation) => adaptation.release_year"
+    :image-src-of="
+      (adaptation: Adaptation) =>
+        adaptation.tmdb_poster_path
+          ? getTmdbPosterUrl(adaptation.tmdb_poster_path, 'w154')
+          : null
+    "
+    :image-alt-of="(adaptation: Adaptation) => `${adaptation.title} poster`"
+    placeholder-icon="i-lucide-film"
+    sort-year-label="Release year"
+  />
 </template>

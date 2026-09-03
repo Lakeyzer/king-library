@@ -1,10 +1,4 @@
-# works-browsing Specification
-
-## Purpose
-
-Gives visitors a page to browse the full canonical King bibliography as a sortable, searchable, filterable table.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Works page lists all canonical King works
 The system SHALL provide a page that displays every King work from the canonical bibliography as a vertically stacked list, where each list item is laid out horizontally, showing a cover thumbnail on the left and, to its right, the title above a metadata row. The metadata row groups the original publish year and type at its leading edge, justified against an actions area reserved at its trailing edge.
@@ -86,6 +80,8 @@ The system SHALL lazy-load cover thumbnails in the works list and SHALL fall bac
 #### Scenario: A cover image fails to load
 - **WHEN** a work's cover thumbnail image cannot be retrieved from its image source
 - **THEN** the list shows the generic placeholder image for that item instead of a broken image
+
+## ADDED Requirements
 
 ### Requirement: Works list item reserves space for action buttons
 Each works list item SHALL reserve an actions area at the trailing edge of its metadata row, justified opposite the release year and type at the leading edge. This change does not populate the actions area with any functional buttons.

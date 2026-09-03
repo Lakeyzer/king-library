@@ -1,10 +1,4 @@
-# adaptations-browsing Specification
-
-## Purpose
-
-Gives visitors a page to browse the canonical list of King screen adaptations as a searchable, sortable, filterable table, mirroring how `/works` lets visitors browse full-length works.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Adaptations page lists all canonical adaptations
 The system SHALL provide a page that displays every adaptation from the canonical list as a vertically stacked list, where each list item is laid out horizontally, showing a poster thumbnail on the left and, to its right, the title above a metadata row. The metadata row groups the release year and type at its leading edge, justified against an actions area reserved at its trailing edge.
@@ -71,6 +65,8 @@ The system SHALL lazy-load poster thumbnails in the adaptations list and SHALL f
 #### Scenario: A poster image fails to load
 - **WHEN** an adaptation's poster thumbnail image cannot be retrieved from its image source
 - **THEN** the list shows the generic placeholder image for that item instead of a broken image
+
+## ADDED Requirements
 
 ### Requirement: Adaptations list item reserves space for action buttons
 Each adaptations list item SHALL reserve an actions area at the trailing edge of its metadata row, justified opposite the release year and type at the leading edge. This change does not populate the actions area with any functional buttons.

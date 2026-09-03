@@ -1,10 +1,4 @@
-# short-stories-browsing Specification
-
-## Purpose
-
-Gives visitors a page to browse the canonical short story bibliography as a searchable, sortable, filterable table, mirroring how `/works` lets visitors browse full-length works.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Short stories page lists all canonical short stories
 The system SHALL provide a page that displays every King short story from the canonical bibliography as a vertically stacked list, where each list item is laid out horizontally, showing a placeholder image on the left (short stories have no cover image data source) and, to its right, the title above a metadata row. The metadata row groups the original publish year and type at its leading edge, justified against an actions area reserved at its trailing edge.
@@ -56,6 +50,8 @@ The system SHALL apply the title search and the type filter together, showing on
 #### Scenario: Combining search and type filter
 - **WHEN** a visitor has a search term and the type filter both active
 - **THEN** the list shows only short stories that match the search term and the selected type
+
+## ADDED Requirements
 
 ### Requirement: Short stories list item reserves space for action buttons
 Each short stories list item SHALL reserve an actions area at the trailing edge of its metadata row, justified opposite the original publish year and type at the leading edge. This change does not populate the actions area with any functional buttons.
