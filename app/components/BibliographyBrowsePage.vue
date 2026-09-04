@@ -123,7 +123,11 @@ const filteredItems = computed(() => {
           :title="item.title"
           :release-year="yearOf(item)"
           :type-label="formatTypeLabel(item.type)"
-        />
+        >
+          <template #actions>
+            <slot name="item-actions" :item="item" />
+          </template>
+        </BibliographyListItem>
       </ul>
     </UPageBody>
   </div>

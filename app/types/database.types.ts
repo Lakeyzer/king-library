@@ -262,6 +262,56 @@ export type Database = {
         }
         Relationships: []
       }
+      user_books: {
+        Row: {
+          currently_reading: boolean
+          finished_on: string | null
+          id: string
+          king_work_id: string
+          owned: boolean
+          read: boolean
+          read_year: number | null
+          started_on: string | null
+          user_id: string
+          want_to_read: boolean
+          wishlisted: boolean
+        }
+        Insert: {
+          currently_reading?: boolean
+          finished_on?: string | null
+          id?: string
+          king_work_id: string
+          owned?: boolean
+          read?: boolean
+          read_year?: number | null
+          started_on?: string | null
+          user_id: string
+          want_to_read?: boolean
+          wishlisted?: boolean
+        }
+        Update: {
+          currently_reading?: boolean
+          finished_on?: string | null
+          id?: string
+          king_work_id?: string
+          owned?: boolean
+          read?: boolean
+          read_year?: number | null
+          started_on?: string | null
+          user_id?: string
+          want_to_read?: boolean
+          wishlisted?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_books_king_work_id_fkey"
+            columns: ["king_work_id"]
+            isOneToOne: false
+            referencedRelation: "king_works"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

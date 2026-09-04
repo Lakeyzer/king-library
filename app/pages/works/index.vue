@@ -6,6 +6,9 @@ definePageMeta({ layout: "default" });
 const { fetchKingWorks } = useKingWorks();
 const { data: works } = await useAsyncData("works", fetchKingWorks);
 
+const { fetchUserBooks } = useBooks();
+await useAsyncData("user-books", fetchUserBooks);
+
 const flagOptions = [
   { label: "All", value: "all" },
   { label: "Bachman", value: "bachman" },
@@ -44,6 +47,10 @@ function extraFilter(work: KingWork) {
         indicator="hidden"
         size="sm"
       />
+    </template>
+
+    <template #item-actions="{ item }">
+      <BookReadingActions :work-id="(item as KingWork).id" />
     </template>
   </BibliographyBrowsePage>
 </template>
