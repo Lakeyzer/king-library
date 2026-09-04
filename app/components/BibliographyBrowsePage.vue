@@ -8,6 +8,7 @@ const props = defineProps<{
   description: string;
   items: T[];
   yearOf: (item: T) => number | null;
+  sortValueOf?: (item: T) => number | null;
   imageSrcOf: (item: T) => string | null;
   imageAltOf: (item: T) => string;
   placeholderIcon: string;
@@ -62,7 +63,8 @@ const filteredItems = computed(() => {
       const cmp = a.title.localeCompare(b.title);
       return sortDir.value === "asc" ? cmp : -cmp;
     }
-    return compareYear(props.yearOf(a), props.yearOf(b), sortDir.value);
+    const valueOf = props.sortValueOf ?? props.yearOf;
+    return compareYear(valueOf(a), valueOf(b), sortDir.value);
   });
   return sorted;
 });

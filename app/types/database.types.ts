@@ -210,7 +210,7 @@ export type Database = {
           dark_tower_relation: string | null
           id: string
           open_library_work_key: string | null
-          original_publish_year: number
+          publish_date: string
           title: string
           type: string
         }
@@ -221,7 +221,7 @@ export type Database = {
           dark_tower_relation?: string | null
           id?: string
           open_library_work_key?: string | null
-          original_publish_year: number
+          publish_date: string
           title: string
           type: string
         }
@@ -232,7 +232,7 @@ export type Database = {
           dark_tower_relation?: string | null
           id?: string
           open_library_work_key?: string | null
-          original_publish_year?: number
+          publish_date?: string
           title?: string
           type?: string
         }

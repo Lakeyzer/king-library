@@ -1,10 +1,4 @@
-# king-works Specification
-
-## Purpose
-
-Defines the canonical Stephen King bibliography: a publicly readable, seed-file-driven list of King's works that every other feature (collections, wishlist, read tracking, stats) treats as the source of truth for "what counts as a King book."
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Canonical King works storage
 The system SHALL persist a canonical list of King works, each with a title, a type, an original publish date, an optional Open Library work key for matching against Open Library search results, an optional Open Library cover identifier (a numeric cover ID) for building a cover image URL, a Dark Tower flag indicating whether the work is one of the core Dark Tower series works, a Bachman flag, and an optional Dark Tower relation note describing how the work connects to the Dark Tower series.
@@ -28,28 +22,6 @@ The system SHALL persist a canonical list of King works, each with a title, a ty
 #### Scenario: A work with no known cover has no cover identifier
 - **WHEN** a King work has no cover art known on Open Library (or is not the kind of work Open Library covers, such as an unreleased title)
 - **THEN** its Open Library cover identifier is absent (null)
-
-### Requirement: Public read access to King works
-Anyone, including unauthenticated visitors, SHALL be able to read the full list of King works.
-
-#### Scenario: Anonymous visitor reads the list
-- **WHEN** an unauthenticated visitor requests the list of King works
-- **THEN** the system returns all King works in storage
-
-#### Scenario: Authenticated user reads the list
-- **WHEN** an authenticated user requests the list of King works
-- **THEN** the system returns all King works in storage
-
-### Requirement: No client-side writes to King works
-The system SHALL NOT allow any client, authenticated or not, to create, modify, or delete King works through the application.
-
-#### Scenario: Authenticated user attempts to write
-- **WHEN** an authenticated user's client attempts to insert, update, or delete a King work
-- **THEN** the system rejects the operation
-
-#### Scenario: Anonymous visitor attempts to write
-- **WHEN** an unauthenticated visitor's client attempts to insert, update, or delete a King work
-- **THEN** the system rejects the operation
 
 ### Requirement: Seed data reflects the canonical bibliography
 The system's initial King works data SHALL include Carrie (published 1974-04-05), 'Salem's Lot (published 1975-10-17), and Cujo (published 1981-09-08), each recorded as type "novel" with its corresponding Open Library work key, a Dark Tower flag of false, a Bachman flag of false, and no Dark Tower relation note.

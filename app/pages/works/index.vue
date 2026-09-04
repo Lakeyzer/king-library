@@ -28,7 +28,8 @@ function extraFilter(work: KingWork) {
     title="Works"
     description="Browse the canonical Stephen King bibliography."
     :items="works ?? []"
-    :year-of="(work: KingWork) => work.original_publish_year"
+    :year-of="(work: KingWork) => Number(work.publish_date.slice(0, 4))"
+    :sort-value-of="(work: KingWork) => Date.parse(work.publish_date)"
     :image-src-of="
       (work: KingWork) =>
         work.cover_id ? getOpenLibraryCoverUrl(work.cover_id, 'M') : null

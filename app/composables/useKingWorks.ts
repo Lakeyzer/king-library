@@ -2,7 +2,7 @@ export interface KingWork {
   id: string
   title: string
   type: string
-  original_publish_year: number
+  publish_date: string
   open_library_work_key: string | null
   cover_id: number | null
   dark_tower: boolean
@@ -15,8 +15,8 @@ export function useKingWorks() {
   const fetchKingWorks = async () => {
     const { data, error } = await supabase
       .from("king_works")
-      .select("id, title, type, original_publish_year, open_library_work_key, cover_id, dark_tower, bachman")
-      .order("original_publish_year", { ascending: true })
+      .select("id, title, type, publish_date, open_library_work_key, cover_id, dark_tower, bachman")
+      .order("publish_date", { ascending: true })
 
     if (error) throw error
 
