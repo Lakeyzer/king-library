@@ -1,3 +1,12 @@
+export interface WorkStats {
+  want_to_read_count: number
+  currently_reading_count: number
+  read_count: number
+  owner_count: number
+  owners_who_read_count: number
+  read_through_rate: number | null
+}
+
 export interface UserBook {
   id: string
   user_id: string
@@ -36,6 +45,18 @@ export function useBooks() {
     userBooksByWorkId.value = Object.fromEntries(rows.map((row) => [row.king_work_id, row]))
 
     return rows
+  }
+
+  const fetchWorkStats = async (workId: string) => {
+    const { data, error } = await supabase
+      .from('work_stats')
+      .select('want_to_read_count, currently_reading_count, read_count, owner_count, owners_who_read_count, read_through_rate')
+      .eq('king_work_id', workId)
+      .maybeSingle()
+
+    if (error) throw error
+
+    return data as WorkStats | null
   }
 
   const toggleWantToRead = async (workId: string) => {
@@ -155,5 +176,5 @@ export function useBooks() {
     return row
   }
 
-  return { userBooksByWorkId, fetchUserBooks, toggleWantToRead, startReading, finishReading, markRead, unmarkRead }
+  return { userBooksByWorkId, fetchUserBooks, fetchWorkStats, toggleWantToRead, startReading, finishReading, markRead, unmarkRead }
 }

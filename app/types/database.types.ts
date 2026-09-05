@@ -55,6 +55,13 @@ export type Database = {
             foreignKeyName: "adaptation_short_stories_adaptation_id_fkey"
             columns: ["adaptation_id"]
             isOneToOne: false
+            referencedRelation: "adaptation_stats"
+            referencedColumns: ["adaptation_id"]
+          },
+          {
+            foreignKeyName: "adaptation_short_stories_adaptation_id_fkey"
+            columns: ["adaptation_id"]
+            isOneToOne: false
             referencedRelation: "adaptations"
             referencedColumns: ["id"]
           },
@@ -88,6 +95,13 @@ export type Database = {
             foreignKeyName: "adaptation_works_adaptation_id_fkey"
             columns: ["adaptation_id"]
             isOneToOne: false
+            referencedRelation: "adaptation_stats"
+            referencedColumns: ["adaptation_id"]
+          },
+          {
+            foreignKeyName: "adaptation_works_adaptation_id_fkey"
+            columns: ["adaptation_id"]
+            isOneToOne: false
             referencedRelation: "adaptations"
             referencedColumns: ["id"]
           },
@@ -98,6 +112,13 @@ export type Database = {
             referencedRelation: "king_works"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "adaptation_works_king_work_id_fkey"
+            columns: ["king_work_id"]
+            isOneToOne: false
+            referencedRelation: "work_stats"
+            referencedColumns: ["king_work_id"]
+          },
         ]
       }
       adaptations: {
@@ -106,6 +127,7 @@ export type Database = {
           is_universe_only: boolean
           notes: string | null
           release_year: number
+          slug: string
           title: string
           tmdb_id: number | null
           tmdb_media_type: string | null
@@ -117,6 +139,7 @@ export type Database = {
           is_universe_only?: boolean
           notes?: string | null
           release_year: number
+          slug: string
           title: string
           tmdb_id?: number | null
           tmdb_media_type?: string | null
@@ -128,6 +151,7 @@ export type Database = {
           is_universe_only?: boolean
           notes?: string | null
           release_year?: number
+          slug?: string
           title?: string
           tmdb_id?: number | null
           tmdb_media_type?: string | null
@@ -143,6 +167,7 @@ export type Database = {
           first_published_in: string | null
           id: string
           original_publish_year: number | null
+          slug: string
           title: string
           type: string
         }
@@ -152,6 +177,7 @@ export type Database = {
           first_published_in?: string | null
           id?: string
           original_publish_year?: number | null
+          slug: string
           title: string
           type: string
         }
@@ -161,6 +187,7 @@ export type Database = {
           first_published_in?: string | null
           id?: string
           original_publish_year?: number | null
+          slug?: string
           title?: string
           type?: string
         }
@@ -194,6 +221,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "king_short_story_collections_king_work_id_fkey"
+            columns: ["king_work_id"]
+            isOneToOne: false
+            referencedRelation: "work_stats"
+            referencedColumns: ["king_work_id"]
+          },
+          {
             foreignKeyName: "king_short_story_collections_short_story_id_fkey"
             columns: ["short_story_id"]
             isOneToOne: false
@@ -205,34 +239,43 @@ export type Database = {
       king_works: {
         Row: {
           bachman: boolean
+          co_author: string | null
           cover_id: number | null
           dark_tower: boolean
           dark_tower_relation: string | null
+          description: string | null
           id: string
           open_library_work_key: string | null
           publish_date: string
+          slug: string
           title: string
           type: string
         }
         Insert: {
           bachman?: boolean
+          co_author?: string | null
           cover_id?: number | null
           dark_tower?: boolean
           dark_tower_relation?: string | null
+          description?: string | null
           id?: string
           open_library_work_key?: string | null
           publish_date: string
+          slug: string
           title: string
           type: string
         }
         Update: {
           bachman?: boolean
+          co_author?: string | null
           cover_id?: number | null
           dark_tower?: boolean
           dark_tower_relation?: string | null
+          description?: string | null
           id?: string
           open_library_work_key?: string | null
           publish_date?: string
+          slug?: string
           title?: string
           type?: string
         }
@@ -261,6 +304,48 @@ export type Database = {
           username?: string | null
         }
         Relationships: []
+      }
+      user_adaptations: {
+        Row: {
+          adaptation_id: string
+          id: string
+          user_id: string
+          want_to_watch: boolean
+          watched: boolean
+          watched_at: string | null
+        }
+        Insert: {
+          adaptation_id: string
+          id?: string
+          user_id: string
+          want_to_watch?: boolean
+          watched?: boolean
+          watched_at?: string | null
+        }
+        Update: {
+          adaptation_id?: string
+          id?: string
+          user_id?: string
+          want_to_watch?: boolean
+          watched?: boolean
+          watched_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_adaptations_adaptation_id_fkey"
+            columns: ["adaptation_id"]
+            isOneToOne: false
+            referencedRelation: "adaptation_stats"
+            referencedColumns: ["adaptation_id"]
+          },
+          {
+            foreignKeyName: "user_adaptations_adaptation_id_fkey"
+            columns: ["adaptation_id"]
+            isOneToOne: false
+            referencedRelation: "adaptations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_books: {
         Row: {
@@ -310,11 +395,37 @@ export type Database = {
             referencedRelation: "king_works"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "user_books_king_work_id_fkey"
+            columns: ["king_work_id"]
+            isOneToOne: false
+            referencedRelation: "work_stats"
+            referencedColumns: ["king_work_id"]
+          },
         ]
       }
     }
     Views: {
-      [_ in never]: never
+      adaptation_stats: {
+        Row: {
+          adaptation_id: string | null
+          want_to_watch_count: number | null
+          watched_count: number | null
+        }
+        Relationships: []
+      }
+      work_stats: {
+        Row: {
+          currently_reading_count: number | null
+          king_work_id: string | null
+          owner_count: number | null
+          owners_who_read_count: number | null
+          read_count: number | null
+          read_through_rate: number | null
+          want_to_read_count: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never

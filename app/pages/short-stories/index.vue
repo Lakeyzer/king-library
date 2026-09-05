@@ -14,6 +14,7 @@ const { data: shortStories } = await useAsyncData(
   <BibliographyBrowsePage
     title="Short Stories"
     description="Browse Stephen King's short stories and novellas."
+    detail-path-prefix="/short-stories"
     :items="shortStories ?? []"
     :year-of="(story: KingShortStory) => story.original_publish_year"
     :image-src-of="() => null"

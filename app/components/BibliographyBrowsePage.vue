@@ -1,7 +1,7 @@
 <script
   setup
   lang="ts"
-  generic="T extends { id: string; title: string; type: string }"
+  generic="T extends { id: string; title: string; type: string; slug?: string }"
 >
 const props = defineProps<{
   title: string;
@@ -14,6 +14,7 @@ const props = defineProps<{
   placeholderIcon: string;
   sortYearLabel: string;
   extraFilter?: (item: T) => boolean;
+  detailPathPrefix?: string;
 }>();
 
 const search = ref("");
@@ -125,6 +126,7 @@ const filteredItems = computed(() => {
           :title="item.title"
           :release-year="yearOf(item)"
           :type-label="formatTypeLabel(item.type)"
+          :to="detailPathPrefix && item.slug ? `${detailPathPrefix}/${item.slug}` : undefined"
         >
           <template #actions>
             <slot name="item-actions" :item="item" />

@@ -1,9 +1,14 @@
 <script setup lang="ts">
-const props = defineProps<{
+interface Props {
   src: string | null
   alt: string
   placeholderIcon: string
-}>()
+  size?: 'sm' | 'lg'
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  size: 'sm'
+})
 
 const hasError = ref(false)
 
@@ -13,11 +18,15 @@ watch(() => props.src, () => {
 </script>
 
 <template>
-  <div class="flex h-24 w-15 shrink-0 items-center justify-center overflow-hidden rounded bg-elevated">
+  <div
+    class="flex shrink-0 items-center justify-center overflow-hidden rounded bg-elevated"
+    :class="size === 'lg' ? 'h-40 w-28' : 'h-24 w-15'"
+  >
     <UIcon
       v-if="!src || hasError"
       :name="placeholderIcon"
-      class="size-6 text-muted"
+      :class="size === 'lg' ? 'size-10' : 'size-6'"
+      class="text-muted"
     />
     <NuxtImg
       v-else

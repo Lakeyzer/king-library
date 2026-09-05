@@ -8,7 +8,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 9256043,
-    "publish_date": "1974-04-05"
+    "publish_date": "1974-04-05",
+    "slug": "carrie",
+    "description": "A bullied, telekinetic teenager's high school torment ignites into a night of catastrophic revenge.",
+    "co_author": null
   },
   {
     "id": "6e27c80a-38d4-4fdb-aeac-393a09586710",
@@ -19,7 +22,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14654118,
-    "publish_date": "1975-10-17"
+    "publish_date": "1975-10-17",
+    "slug": "salems-lot",
+    "description": "A writer returns to his Maine hometown to find its residents falling prey, one by one, to a vampire who has settled into an old house on the hill.",
+    "co_author": null
   },
   {
     "id": "75ee4bae-c201-4dc5-b033-f6a4d1cc391f",
@@ -30,7 +36,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 12376585,
-    "publish_date": "1977-01-28"
+    "publish_date": "1977-01-28",
+    "slug": "the-shining",
+    "description": "A recovering alcoholic takes a winter caretaker job at an isolated mountain hotel, where its malevolent history begins to prey on his mind and endanger his psychic young son.",
+    "co_author": null
   },
   {
     "id": "20ecdda3-77b0-4774-b304-6c52d76c2a47",
@@ -41,7 +50,10 @@
     "bachman": true,
     "dark_tower_relation": null,
     "cover_id": 8565707,
-    "publish_date": "1977-09-13"
+    "publish_date": "1977-09-13",
+    "slug": "rage",
+    "description": "A troubled high schooler takes his algebra class hostage at gunpoint, and what begins as a standoff turns into a strange, tense group confession.",
+    "co_author": null
   },
   {
     "id": "e47ffae1-dfe6-44d1-9a72-19a5e110e119",
@@ -52,7 +64,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14651337,
-    "publish_date": "1978-02-17"
+    "publish_date": "1978-02-17",
+    "slug": "night-shift",
+    "description": "King's first collection of short fiction, gathering early stories of everyday people confronted by the uncanny and the monstrous.",
+    "co_author": null
   },
   {
     "id": "112d1b01-837c-4f35-9412-88e544bfa8d8",
@@ -63,7 +78,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 9255992,
-    "publish_date": "1978-10-03"
+    "publish_date": "1978-10-03",
+    "slug": "the-stand",
+    "description": "A weaponized strain of super-flu wipes out most of humanity, and the survivors are drawn into an epic, continent-spanning struggle between good and evil.",
+    "co_author": null
   },
   {
     "id": "c5d94528-614c-47e8-a99d-4cc57788f3ea",
@@ -74,7 +92,10 @@
     "bachman": true,
     "dark_tower_relation": null,
     "cover_id": 14653609,
-    "publish_date": "1979-07-03"
+    "publish_date": "1979-07-03",
+    "slug": "the-long-walk",
+    "description": "In a grim alternate America, one hundred teenage boys must keep walking without stopping, on pain of death, until only one remains.",
+    "co_author": null
   },
   {
     "id": "8cf089d5-6b17-447d-9f96-c250b7f47942",
@@ -85,7 +106,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14653991,
-    "publish_date": "1979-08-16"
+    "publish_date": "1979-08-16",
+    "slug": "the-dead-zone",
+    "description": "After waking from a five-year coma with the power to see a person's future by touch, a man is confronted with a vision of catastrophe tied to an ambitious politician.",
+    "co_author": null
   },
   {
     "id": "dc0a62e1-ad9a-49c3-9f51-97779a527271",
@@ -96,7 +120,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 12015446,
-    "publish_date": "1980-09-29"
+    "publish_date": "1980-09-29",
+    "slug": "firestarter",
+    "description": "A little girl born with the power to start fires with her mind goes on the run with her father from a secret government agency that wants to weaponize her.",
+    "co_author": null
   },
   {
     "id": "9f4fc7e1-4cbe-492e-8683-543616307c17",
@@ -107,7 +134,10 @@
     "bachman": true,
     "dark_tower_relation": null,
     "cover_id": 14651941,
-    "publish_date": "1981-03-03"
+    "publish_date": "1981-03-03",
+    "slug": "roadwork",
+    "description": "A man's quiet grief over his son's death curdles into obsession and violence when a highway project forces him from the only home he has left.",
+    "co_author": null
   },
   {
     "id": "1dca612f-7a8b-4f5a-b2f1-f3371ef19b84",
@@ -118,7 +148,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": null,
-    "publish_date": "1981-04-20"
+    "publish_date": "1981-04-20",
+    "slug": "danse-macabre",
+    "description": "King's own tour through the horror genre's history and inner workings, tracing its influence across fiction, film, radio, and television.",
+    "co_author": null
   },
   {
     "id": "3c869450-78af-4b47-9154-b3b92b59c55f",
@@ -129,7 +162,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 8570003,
-    "publish_date": "1981-09-08"
+    "publish_date": "1981-09-08",
+    "slug": "cujo",
+    "description": "A gentle family dog turns rabid, trapping a mother and her young son in a broken-down car under the summer sun.",
+    "co_author": null
   },
   {
     "id": "afab78d0-7ec6-4f52-b5ca-1bf01191747f",
@@ -140,18 +176,24 @@
     "bachman": true,
     "dark_tower_relation": null,
     "cover_id": 14651762,
-    "publish_date": "1982-05-04"
+    "publish_date": "1982-05-04",
+    "slug": "the-running-man",
+    "description": "In a bleak future America, a desperate man agrees to star on a deadly game show where he must survive as a hunted target for thirty days.",
+    "co_author": null
   },
   {
     "id": "3fee5bd4-0a16-4539-b9a5-0ad442a4e0f1",
-    "title": "The Dark Tower: The Gunslinger",
+    "title": "The Gunslinger",
     "type": "novel",
     "open_library_work_key": "OL81628W",
     "dark_tower": true,
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 8396638,
-    "publish_date": "1982-06-10"
+    "publish_date": "1982-06-10",
+    "slug": "the-gunslinger",
+    "description": "Gunslinger Roland Deschain begins his long pursuit of the man in black across a desert wasteland, the first step of his quest toward the Dark Tower.",
+    "co_author": null
   },
   {
     "id": "27c3a938-2afa-4817-af71-e579aa670c33",
@@ -162,7 +204,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14655761,
-    "publish_date": "1982-08-27"
+    "publish_date": "1982-08-27",
+    "slug": "different-seasons",
+    "description": "Four novellas exploring hope, revenge, memory, and the end of childhood, set largely outside King's usual horror territory.",
+    "co_author": null
   },
   {
     "id": "2dc964a8-1861-41fb-9d84-451126c9d5da",
@@ -173,7 +218,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14655985,
-    "publish_date": "1983-04-29"
+    "publish_date": "1983-04-29",
+    "slug": "christine",
+    "description": "A shy teenager's obsession with a beautifully restored, murderous vintage Plymouth Fury begins to consume, and endanger, everyone around him.",
+    "co_author": null
   },
   {
     "id": "a76bac6a-e403-4e27-b37b-1bccc51884bd",
@@ -184,7 +232,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14651552,
-    "publish_date": "1983-11-01"
+    "publish_date": "1983-11-01",
+    "slug": "cycle-of-the-werewolf",
+    "description": "Over the course of a year, a small Maine town is stalked, one full moon at a time, by a werewolf hiding in plain sight among its neighbors.",
+    "co_author": null
   },
   {
     "id": "4dd1403f-2de1-478b-80b1-615ee3ebbb35",
@@ -195,7 +246,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 12015500,
-    "publish_date": "1983-11-14"
+    "publish_date": "1983-11-14",
+    "slug": "pet-sematary",
+    "description": "After discovering a burial ground behind his new home that can bring the dead back wrong, a grieving father makes an unthinkable choice.",
+    "co_author": null
   },
   {
     "id": "e8b31b5f-05d4-45e9-8848-daaea5b51193",
@@ -206,7 +260,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 8524085,
-    "publish_date": "1987-02-02"
+    "publish_date": "1987-02-02",
+    "slug": "the-eyes-of-the-dragon",
+    "description": "A falsely accused prince must escape imprisonment and reclaim his kingdom from the treacherous magician who framed him, in this fantasy fable for readers young and old.",
+    "co_author": null
   },
   {
     "id": "2d5fee88-05d7-475e-985a-17326f2116f8",
@@ -217,7 +274,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14651566,
-    "publish_date": "1984-11-08"
+    "publish_date": "1984-11-08",
+    "slug": "the-talisman",
+    "description": "A boy crosses between our world and a parallel realm called the Territories on a quest to find a magical talisman that can save his dying mother.",
+    "co_author": "Peter Straub"
   },
   {
     "id": "4ff7928c-7714-4c5d-9369-502f14f08412",
@@ -228,7 +288,10 @@
     "bachman": true,
     "dark_tower_relation": null,
     "cover_id": 8274288,
-    "publish_date": "1984-11-19"
+    "publish_date": "1984-11-19",
+    "slug": "thinner",
+    "description": "A curse from a wronged old man leaves an overweight lawyer losing weight without end, and no explanation will make it stop.",
+    "co_author": null
   },
   {
     "id": "b63506d6-67bb-443a-bfef-e9f460f7c439",
@@ -239,7 +302,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14657166,
-    "publish_date": "1985-06-21"
+    "publish_date": "1985-06-21",
+    "slug": "skeleton-crew",
+    "description": "A wide-ranging collection of stories and novellas, from a fog that hides ravenous creatures to a raft besieged in a lake, showcasing King's range beyond the novel.",
+    "co_author": null
   },
   {
     "id": "a99a5f7e-7e9b-45c2-8c9d-67bcef9326cf",
@@ -250,18 +316,24 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 8569284,
-    "publish_date": "1986-09-15"
+    "publish_date": "1986-09-15",
+    "slug": "it",
+    "description": "Seven childhood friends who once defeated a shape-shifting evil haunting their town must reunite as adults when it returns, twenty-seven years later.",
+    "co_author": null
   },
   {
     "id": "3c2f538e-3787-4d9e-8359-12b109e6f97d",
-    "title": "The Dark Tower: The Drawing of the Three",
+    "title": "The Drawing of the Three",
     "type": "novel",
     "open_library_work_key": "OL81616W",
     "dark_tower": true,
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14651245,
-    "publish_date": "1987-05-01"
+    "publish_date": "1987-05-01",
+    "slug": "the-drawing-of-the-three",
+    "description": "Roland draws three companions from other worlds and other times through mysterious doors on a beach, forging the allies he'll need for his quest.",
+    "co_author": null
   },
   {
     "id": "9f8efc46-0eac-49dc-949a-d994c56284eb",
@@ -272,7 +344,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 8259296,
-    "publish_date": "1987-06-08"
+    "publish_date": "1987-06-08",
+    "slug": "misery",
+    "description": "A novelist is rescued from a car crash by his self-proclaimed 'number one fan', and then held captive by her when she discovers he has killed off her favorite character.",
+    "co_author": null
   },
   {
     "id": "12a356c1-8360-4ab0-9508-d1be61b1ac56",
@@ -283,7 +358,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 6997458,
-    "publish_date": "1987-11-10"
+    "publish_date": "1987-11-10",
+    "slug": "the-tommyknockers",
+    "description": "A writer unearths a buried alien spacecraft in the woods behind her home, and its strange influence begins transforming her entire town.",
+    "co_author": null
   },
   {
     "id": "7e64edd1-2ef4-4daa-887f-c2e2d895aea9",
@@ -294,7 +372,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 8530409,
-    "publish_date": "1989-10-31"
+    "publish_date": "1989-10-31",
+    "slug": "the-dark-half",
+    "description": "A novelist's violent pseudonym, publicly killed off, comes to murderous life of its own and begins hunting down everyone who helped end it.",
+    "co_author": null
   },
   {
     "id": "ab577990-5dc5-4e08-ad75-f11febd3809f",
@@ -305,7 +386,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 9255992,
-    "publish_date": "1990-05-01"
+    "publish_date": "1990-05-01",
+    "slug": "the-stand-the-complete-uncut-edition",
+    "description": "The expanded, restored edition of The Stand, returning scenes trimmed from the original publication to King's sweeping post-apocalyptic epic.",
+    "co_author": null
   },
   {
     "id": "6ec56d57-7a73-4d6e-bd45-16121a22b774",
@@ -316,18 +400,24 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 8413143,
-    "publish_date": "1990-09-24"
+    "publish_date": "1990-09-24",
+    "slug": "four-past-midnight",
+    "description": "Four novellas: a plane's passengers land in a world gone wrong, a writer is stalked by an accuser claiming plagiarism, a childhood library fine reveals something monstrous, and a cursed Polaroid camera captures a beast slowly breaking free.",
+    "co_author": null
   },
   {
     "id": "02169cb4-7e16-454d-94c6-c64fb195c7c7",
-    "title": "The Dark Tower: The Waste Lands",
+    "title": "The Waste Lands",
     "type": "novel",
     "open_library_work_key": "OL81625W",
     "dark_tower": true,
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 8443630,
-    "publish_date": "1991-09-03"
+    "publish_date": "1991-09-03",
+    "slug": "the-waste-lands",
+    "description": "Roland's growing band presses on toward the Tower through a poisoned, dying land and the ruined city of Lud, pursued by an increasingly unstable guide.",
+    "co_author": null
   },
   {
     "id": "aac3dc80-c4e9-4eac-a4fc-8c3486ec2045",
@@ -338,7 +428,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 8404327,
-    "publish_date": "1991-10-01"
+    "publish_date": "1991-10-01",
+    "slug": "needful-things",
+    "description": "A new shop selling exactly what each customer secretly desires opens in a quiet Maine town, and its charming owner's price sets neighbor against neighbor.",
+    "co_author": null
   },
   {
     "id": "3192fd6b-f87f-49b1-8770-486ae5fa1669",
@@ -349,7 +442,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 10705875,
-    "publish_date": "1992-05-01"
+    "publish_date": "1992-05-01",
+    "slug": "geralds-game",
+    "description": "Handcuffed to a bed after a sex game goes wrong and her husband dies, a woman is left alone to confront both her isolation and long-buried memories.",
+    "co_author": null
   },
   {
     "id": "05ac5b6d-b462-4ada-a04c-3eeb2134253d",
@@ -360,7 +456,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 9255997,
-    "publish_date": "1992-11-01"
+    "publish_date": "1992-11-01",
+    "slug": "dolores-claiborne",
+    "description": "During a solar eclipse, a housekeeper is suspected of murdering her wealthy employer, forcing her to finally reveal a dark secret from her own past.",
+    "co_author": null
   },
   {
     "id": "f8bd691b-5b1c-43a4-9ccb-152717acad87",
@@ -371,7 +470,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14654718,
-    "publish_date": "1993-10-01"
+    "publish_date": "1993-10-01",
+    "slug": "nightmares-dreamscapes",
+    "description": "A sprawling collection of short stories and novellas spanning horror, suspense, and the strange, including collaborations and non-horror detours.",
+    "co_author": null
   },
   {
     "id": "3061a032-91b4-4f00-bef4-df9f80ba4d2a",
@@ -382,7 +484,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 7886954,
-    "publish_date": "1994-09-15"
+    "publish_date": "1994-09-15",
+    "slug": "insomnia",
+    "description": "An elderly widower's crippling insomnia opens his eyes to invisible forces at war over the fate of a young boy, and perhaps the whole world.",
+    "co_author": null
   },
   {
     "id": "b2bf8e7b-a51d-42d3-8c5c-98c1cf9ea340",
@@ -393,7 +498,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 8578049,
-    "publish_date": "1995-06-19"
+    "publish_date": "1995-06-19",
+    "slug": "rose-madder",
+    "description": "Fleeing her abusive husband, a woman finds herself drawn into a mysterious painting that offers her both refuge and a path to confront him.",
+    "co_author": null
   },
   {
     "id": "e4518faf-0757-4706-8ca3-7b2c300889b8",
@@ -404,7 +512,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 9334567,
-    "publish_date": "1996-03-01"
+    "publish_date": "1996-03-01",
+    "slug": "the-green-mile",
+    "description": "A death row guard in 1930s Louisiana comes to believe that one of the inmates awaiting execution possesses a miraculous, healing gift.",
+    "co_author": null
   },
   {
     "id": "3c7d5edf-6fb4-468f-8eb3-a1bb51f0e730",
@@ -415,7 +526,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 8757374,
-    "publish_date": "1996-09-24"
+    "publish_date": "1996-09-24",
+    "slug": "desperation",
+    "description": "Travelers passing through a nearly abandoned Nevada mining town are rounded up by a corrupt sheriff possessed by an ancient evil unearthed from the mines.",
+    "co_author": null
   },
   {
     "id": "05aca202-667d-4c28-bd32-320a195c9e48",
@@ -426,18 +540,24 @@
     "bachman": true,
     "dark_tower_relation": null,
     "cover_id": null,
-    "publish_date": "1996-09-24"
+    "publish_date": "1996-09-24",
+    "slug": "the-regulators",
+    "description": "A quiet suburban street is besieged by impossible violence after a boy's dark imagination and a malevolent force merge into deadly reality.",
+    "co_author": null
   },
   {
     "id": "f1289580-4375-4643-b4b8-8efb9955495c",
-    "title": "The Dark Tower: Wizard and Glass",
+    "title": "Wizard and Glass",
     "type": "novel",
     "open_library_work_key": "OL81615W",
     "dark_tower": true,
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14657088,
-    "publish_date": "1997-11-04"
+    "publish_date": "1997-11-04",
+    "slug": "the-dark-tower-wizard-and-glass",
+    "description": "Roland recounts the tragic story of his youth and first love, a tale of betrayal that shaped the gunslinger he would become.",
+    "co_author": null
   },
   {
     "id": "ab80e8c5-ec9b-46fb-832c-fdec75aa17d2",
@@ -448,7 +568,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14653458,
-    "publish_date": "1998-09-22"
+    "publish_date": "1998-09-22",
+    "slug": "bag-of-bones",
+    "description": "A grieving widower retreats to his late wife's lake house, where he's drawn into a decades-old town secret and haunted by increasingly insistent ghosts.",
+    "co_author": null
   },
   {
     "id": "2295c51e-1f1f-4dd8-bb5a-70896cec2f7e",
@@ -459,7 +582,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14653580,
-    "publish_date": "1999-04-06"
+    "publish_date": "1999-04-06",
+    "slug": "the-girl-who-loved-tom-gordon",
+    "description": "A nine-year-old girl lost alone in the Maine woods clings to her love of baseball to survive, as something unseen seems to stalk her through the trees.",
+    "co_author": null
   },
   {
     "id": "8605a880-3316-4bf3-adca-ca6e9774adcf",
@@ -470,7 +596,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 8536326,
-    "publish_date": "1999-09-14"
+    "publish_date": "1999-09-14",
+    "slug": "hearts-in-atlantis",
+    "description": "Interconnected stories tracing a group of characters from a haunting 1960s childhood summer through the shadow the era casts over their later lives.",
+    "co_author": null
   },
   {
     "id": "207e446f-f003-44e0-8079-efbbac07dc58",
@@ -481,7 +610,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 8401475,
-    "publish_date": "1999-02-09"
+    "publish_date": "1999-02-09",
+    "slug": "storm-of-the-century",
+    "description": "A supernatural stranger arrives in a storm-cut-off Maine island town and offers its people an impossible bargain to spare their lives.",
+    "co_author": null
   },
   {
     "id": "67eb8f38-c873-4be1-9c9b-226a6c604e12",
@@ -492,7 +624,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 9255939,
-    "publish_date": "2000-10-03"
+    "publish_date": "2000-10-03",
+    "slug": "on-writing-a-memoir-of-the-craft",
+    "description": "Part memoir, part practical guide, King recounts his path to becoming a writer alongside his hard-won thoughts on the craft itself.",
+    "co_author": null
   },
   {
     "id": "50904d13-33a6-4b7c-8df1-eb24bdc31d9d",
@@ -503,7 +638,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14651654,
-    "publish_date": "2001-03-20"
+    "publish_date": "2001-03-20",
+    "slug": "dreamcatcher",
+    "description": "Four childhood friends on a hunting trip find their reunion upended by a horrifying alien threat and the strange bond that has connected them since childhood.",
+    "co_author": null
   },
   {
     "id": "eb5f6428-7a85-4d87-afee-2f2d6606180a",
@@ -514,7 +652,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14652973,
-    "publish_date": "2001-09-17"
+    "publish_date": "2001-09-17",
+    "slug": "black-house",
+    "description": "Years after his journey through the Territories, a retired detective is pulled back into that other world to save a kidnapped child from a serial killer.",
+    "co_author": "Peter Straub"
   },
   {
     "id": "5510bbee-e9b6-4510-b647-3dcbf24fc2c6",
@@ -525,7 +666,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 8585782,
-    "publish_date": "2002-03-18"
+    "publish_date": "2002-03-18",
+    "slug": "everythings-eventual",
+    "description": "A wide-ranging collection of stories blending horror, dark fantasy, and King's ongoing Dark Tower mythology.",
+    "co_author": null
   },
   {
     "id": "1148e043-a888-4f7b-8b55-3ee67d061cab",
@@ -536,40 +680,52 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 6502777,
-    "publish_date": "2002-09-24"
+    "publish_date": "2002-09-24",
+    "slug": "from-a-buick-8",
+    "description": "A Pennsylvania state police troop has spent decades quietly guarding a mysterious car in their garage that seems to be a door to somewhere else entirely.",
+    "co_author": null
   },
   {
     "id": "3b3da16f-cebc-43bb-afb2-d0da1c111965",
-    "title": "The Dark Tower: Wolves of the Calla",
+    "title": "Wolves of the Calla",
     "type": "novel",
     "open_library_work_key": "OL81594W",
     "dark_tower": true,
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14652470,
-    "publish_date": "2003-11-01"
+    "publish_date": "2003-11-01",
+    "slug": "wolves-of-the-calla",
+    "description": "Roland's ka-tet agrees to defend a farming village from child-stealing raiders, while a dangerous rift over an object from another story threatens to divide them.",
+    "co_author": null
   },
   {
     "id": "a4976be9-e19c-4764-90f5-abb40cb64785",
-    "title": "The Dark Tower: Song of Susannah",
+    "title": "Song of Susannah",
     "type": "novel",
     "open_library_work_key": "OL149200W",
     "dark_tower": true,
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 8393691,
-    "publish_date": "2004-06-01"
+    "publish_date": "2004-06-01",
+    "slug": "song-of-susannah",
+    "description": "As Susannah is drawn away pregnant with a monstrous child, the ka-tet splits apart to save her and to protect their author from beyond the story's edges.",
+    "co_author": null
   },
   {
     "id": "5517cee8-1845-44d8-a85d-af5afe58dcbc",
-    "title": "The Dark Tower: The Dark Tower",
+    "title": "The Dark Tower",
     "type": "novel",
     "open_library_work_key": "OL81600W",
     "dark_tower": true,
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14656148,
-    "publish_date": "2004-09-21"
+    "publish_date": "2004-09-21",
+    "slug": "the-dark-tower",
+    "description": "Roland's quest reaches its long-awaited climax as the surviving ka-tet make their final approach to the Tower at the heart of all worlds.",
+    "co_author": null
   },
   {
     "id": "aa3cf9b9-3edd-407e-a9cd-da4d7d2a235d",
@@ -580,7 +736,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 8288251,
-    "publish_date": "2004-12-02"
+    "publish_date": "2004-12-02",
+    "slug": "faithful",
+    "description": "A season-long diary of the Boston Red Sox's historic 2004 championship run, co-written by two die-hard fans.",
+    "co_author": "Stewart O'Nan"
   },
   {
     "id": "20d7faf3-3579-4365-8af8-17f280168d08",
@@ -591,7 +750,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 8380883,
-    "publish_date": "2005-10-04"
+    "publish_date": "2005-10-04",
+    "slug": "the-colorado-kid",
+    "description": "Two veteran newspapermen tell a young intern about the strangest unsolved case of their careers: a body on a beach with no explanation.",
+    "co_author": null
   },
   {
     "id": "63ca1754-5d53-4a87-a1df-83958f89c1f7",
@@ -602,7 +764,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14654054,
-    "publish_date": "2006-01-24"
+    "publish_date": "2006-01-24",
+    "slug": "cell",
+    "description": "A signal broadcast to cell phones instantly turns everyone who hears it into a mindless, violent killer, and the few who missed the call must survive the aftermath.",
+    "co_author": null
   },
   {
     "id": "da049057-c56b-4bd0-a867-3ba645c0f9b4",
@@ -613,7 +778,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 8387657,
-    "publish_date": "2006-10-24"
+    "publish_date": "2006-10-24",
+    "slug": "liseys-story",
+    "description": "Two years after her novelist husband's death, a widow is forced to confront both a dangerous stalker and the strange, private world her husband kept hidden from her.",
+    "co_author": null
   },
   {
     "id": "fdfe038e-cd44-444e-93b0-d788da9cfed5",
@@ -624,7 +792,10 @@
     "bachman": true,
     "dark_tower_relation": null,
     "cover_id": 14652676,
-    "publish_date": "2007-06-12"
+    "publish_date": "2007-06-12",
+    "slug": "blaze",
+    "description": "Guided by the voice of his dead partner in crime, a none-too-bright ex-con attempts one last desperate kidnapping scheme.",
+    "co_author": null
   },
   {
     "id": "26add84f-98bc-4405-a8c8-423bbf5f42c8",
@@ -635,7 +806,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14652203,
-    "publish_date": "2008-01-22"
+    "publish_date": "2008-01-22",
+    "slug": "duma-key",
+    "description": "Recovering from a devastating accident, a man retreats to a Florida island where his newfound talent for painting begins to reveal, and unleash, something dangerous.",
+    "co_author": null
   },
   {
     "id": "8adc7b84-2e3e-44fa-84a2-86f1741f587d",
@@ -646,7 +820,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 8494916,
-    "publish_date": "2008-11-11"
+    "publish_date": "2008-11-11",
+    "slug": "just-after-sunset",
+    "description": "A collection of short stories exploring ordinary lives interrupted by the uncanny, the desperate, and the inexplicable.",
+    "co_author": null
   },
   {
     "id": "7983e891-8ca4-462d-a8a3-cc962d909045",
@@ -657,7 +834,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14651549,
-    "publish_date": "2009-11-10"
+    "publish_date": "2009-11-10",
+    "slug": "under-the-dome",
+    "description": "A small Maine town is suddenly sealed off from the outside world by an invisible, impenetrable dome, and the power struggle within turns deadly.",
+    "co_author": null
   },
   {
     "id": "4e4f7592-8330-4f4b-97ce-d31e1a4bd6d2",
@@ -668,7 +848,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 9324873,
-    "publish_date": "2010-04-20"
+    "publish_date": "2010-04-20",
+    "slug": "blockade-billy",
+    "description": "An old-timer recalls the brief, forgotten career of the best catcher he ever saw, and the dark secret that ended it.",
+    "co_author": null
   },
   {
     "id": "eba23e94-5d8a-47ce-a4bc-8c99ef237053",
@@ -679,29 +862,38 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 12018685,
-    "publish_date": "2010-11-09"
+    "publish_date": "2010-11-09",
+    "slug": "full-dark-no-stars",
+    "description": "Four novellas of ordinary people driven to retribution and violence by betrayal, desperation, and quiet rage.",
+    "co_author": null
   },
   {
     "id": "500527bc-aa90-4968-aeb6-00e4be74c23b",
-    "title": "11/22/63",
+    "title": "11.22.63",
     "type": "novel",
-    "open_library_work_key": "OL16152981W",
+    "open_library_work_key": "OL16002468W",
     "dark_tower": false,
     "bachman": false,
     "dark_tower_relation": null,
-    "cover_id": null,
-    "publish_date": "2011-11-08"
+    "cover_id": 10713447,
+    "publish_date": "2011-11-08",
+    "slug": "11-22-63",
+    "description": "A high school teacher discovers a portal to 1958 and sets out on an obsessive mission to stop the assassination of John F. Kennedy.",
+    "co_author": null
   },
   {
     "id": "252179e5-9a97-413f-b3c7-7dbe5f825fd9",
-    "title": "The Dark Tower: The Wind Through the Keyhole",
+    "title": "The Wind Through the Keyhole",
     "type": "novel",
     "open_library_work_key": "OL16451416W",
     "dark_tower": true,
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14653576,
-    "publish_date": "2012-04-24"
+    "publish_date": "2012-04-24",
+    "slug": "the-wind-through-the-keyhole",
+    "description": "A story set between Wizard and Glass and Wolves of the Calla, as Roland recounts a formative early adventure and the fairy tale told to him as a boy.",
+    "co_author": null
   },
   {
     "id": "5d51c5f5-a617-4d1d-9e99-a185f36aaa0c",
@@ -712,7 +904,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 9154939,
-    "publish_date": "2013-06-04"
+    "publish_date": "2013-06-04",
+    "slug": "joyland",
+    "description": "A college student takes a summer job at a fading amusement park and becomes drawn into the decades-old unsolved murder of a young woman on one of its rides.",
+    "co_author": null
   },
   {
     "id": "1ee5652d-63d6-41ed-98fa-aaa68f1e2bd9",
@@ -723,7 +918,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14652972,
-    "publish_date": "2013-09-24"
+    "publish_date": "2013-09-24",
+    "slug": "doctor-sleep",
+    "description": "Decades after surviving the Overlook Hotel, an adult Danny Torrance uses his psychic gift to protect a girl with similar powers from a cult that feeds on children like her.",
+    "co_author": null
   },
   {
     "id": "6dd0ad9d-71f2-4670-b564-669ffa83944e",
@@ -734,7 +932,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14653120,
-    "publish_date": "2014-06-03"
+    "publish_date": "2014-06-03",
+    "slug": "mr-mercedes",
+    "description": "A retired detective is taunted by the still-at-large killer behind an unsolved mass-casualty attack, and sets out to catch him before he strikes again.",
+    "co_author": null
   },
   {
     "id": "d91ef432-e852-4fc6-8fe3-0a2d0bec619d",
@@ -745,7 +946,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14652892,
-    "publish_date": "2014-11-11"
+    "publish_date": "2014-11-11",
+    "slug": "revival",
+    "description": "A small-town minister's fall from faith leads him down a lifelong, increasingly dangerous obsession with a forbidden kind of electricity.",
+    "co_author": null
   },
   {
     "id": "79f42045-5811-488a-a849-cfddf60fb298",
@@ -756,7 +960,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 8339525,
-    "publish_date": "2015-06-02"
+    "publish_date": "2015-06-02",
+    "slug": "finders-keepers",
+    "description": "A stolen cache of notebooks containing a reclusive author's final work draws a young fan and a desperate ex-con into violent collision.",
+    "co_author": null
   },
   {
     "id": "dd80acc1-2a3f-4da4-9ae4-587af1ebd54d",
@@ -767,7 +974,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 12018432,
-    "publish_date": "2015-11-03"
+    "publish_date": "2015-11-03",
+    "slug": "the-bazaar-of-bad-dreams",
+    "description": "A collection of short stories, several written specifically for this volume, ranging across horror, suspense, and quiet tragedy.",
+    "co_author": null
   },
   {
     "id": "8fa443ce-d143-41c0-9da0-eb6380304515",
@@ -778,7 +988,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 12376085,
-    "publish_date": "2016-06-07"
+    "publish_date": "2016-06-07",
+    "slug": "end-of-watch",
+    "description": "Retired detective Bill Hodges faces one final case against his old nemesis, whose new scheme uses a sinister device to drive victims to suicide.",
+    "co_author": null
   },
   {
     "id": "70c674e2-1e46-40ff-80b0-58225cc61af5",
@@ -789,7 +1002,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14657246,
-    "publish_date": "2016-10-04"
+    "publish_date": "2016-10-04",
+    "slug": "charlie-the-choo-choo",
+    "description": "A picture book about a friendly train named Charlie and his engineer, presented as the storybook referenced within King's own Dark Tower series.",
+    "co_author": null
   },
   {
     "id": "d3192a42-9872-4be3-9983-0e81cd81483b",
@@ -800,7 +1016,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 9325640,
-    "publish_date": "2017-05-23"
+    "publish_date": "2017-05-23",
+    "slug": "gwendys-button-box",
+    "description": "A young girl is given a mysterious box whose buttons can bring good fortune or terrible destruction, and must decide whether she can be trusted with it.",
+    "co_author": "Richard Chizmar"
   },
   {
     "id": "0778d384-4d00-42c8-8d45-0b5b295f3990",
@@ -811,7 +1030,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": null,
-    "publish_date": "2017-09-26"
+    "publish_date": "2017-09-26",
+    "slug": "sleeping-beauties",
+    "description": "Women around the world begin falling into a mysterious sleep from which they cannot be woken, cocooned and left unrecognizable if disturbed, as the men left behind spiral toward violence.",
+    "co_author": "Owen King"
   },
   {
     "id": "865368bf-3e90-4f99-b4ec-2b05b4e0c1f3",
@@ -822,7 +1044,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 11412999,
-    "publish_date": "2018-05-22"
+    "publish_date": "2018-05-22",
+    "slug": "the-outsider",
+    "description": "A beloved coach is accused of a brutal murder with airtight evidence placing him at the scene, and equally airtight evidence placing him somewhere else entirely.",
+    "co_author": null
   },
   {
     "id": "02d2425d-b47d-4efe-8fe6-3772f4535f33",
@@ -833,7 +1058,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 12376066,
-    "publish_date": "2018-10-30"
+    "publish_date": "2018-10-30",
+    "slug": "elevation",
+    "description": "A man in a small Colorado town notices he's steadily losing weight with no visible change to his body, even as he works to befriend two neighbors the town has frozen out.",
+    "co_author": null
   },
   {
     "id": "f83e7b23-0da3-44e8-9b0c-67abc0a04234",
@@ -844,7 +1072,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 10712767,
-    "publish_date": "2019-09-10"
+    "publish_date": "2019-09-10",
+    "slug": "the-institute",
+    "description": "Children with budding psychic abilities are abducted and held in a secretive facility that tests the limits of their powers, and their will to escape.",
+    "co_author": null
   },
   {
     "id": "d1dec749-9f18-4bf5-acfc-23779b5727a9",
@@ -855,7 +1086,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14654512,
-    "publish_date": "2020-04-21"
+    "publish_date": "2020-04-21",
+    "slug": "if-it-bleeds",
+    "description": "Four novellas including a further outing for the psychic investigator Holly Gibney, who tracks a shape-shifting entity that feeds on tragedy.",
+    "co_author": null
   },
   {
     "id": "62b7d3d5-3e77-4c50-81cc-a96de82ff3c7",
@@ -866,7 +1100,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14654000,
-    "publish_date": "2021-03-02"
+    "publish_date": "2021-03-02",
+    "slug": "later",
+    "description": "A boy who can see and speak with the dead is pulled into a police investigation when his ability makes him useful to the wrong people.",
+    "co_author": null
   },
   {
     "id": "a18dbf2e-4e58-4b46-a0de-9f18159dd328",
@@ -877,7 +1114,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14654070,
-    "publish_date": "2021-08-03"
+    "publish_date": "2021-08-03",
+    "slug": "billy-summers",
+    "description": "A retiring hitman who only kills bad people takes one final job, only to find himself betrayed and on the run alongside a woman he rescues along the way.",
+    "co_author": null
   },
   {
     "id": "7c6d6f25-6d1c-407f-8806-31923abb6956",
@@ -888,7 +1128,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14655224,
-    "publish_date": "2022-02-15"
+    "publish_date": "2022-02-15",
+    "slug": "gwendys-final-task",
+    "description": "Now a US senator, Gwendy Peterson is reunited with her old button box for one last, world-spanning mission tied to the Dark Tower's fate.",
+    "co_author": "Richard Chizmar"
   },
   {
     "id": "bafca932-fdf9-4098-93b0-756ac8219718",
@@ -899,7 +1142,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14655682,
-    "publish_date": "2022-09-06"
+    "publish_date": "2022-09-06",
+    "slug": "fairy-tale",
+    "description": "A teenager inherits a portal to a decaying fantasy kingdom from a dying neighbor's backyard shed, and must journey there to save it from ancient tyranny.",
+    "co_author": null
   },
   {
     "id": "d0cec3c8-d3e9-4b29-a201-28dd85c1458b",
@@ -910,7 +1156,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14655773,
-    "publish_date": "2023-09-05"
+    "publish_date": "2023-09-05",
+    "slug": "holly",
+    "description": "Series detective Holly Gibney investigates the disappearance of a college student and uncovers a monstrous elderly couple with a horrifying secret.",
+    "co_author": null
   },
   {
     "id": "b2ddef7e-95be-43c4-a53f-0d1997e53b60",
@@ -921,7 +1170,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": 14544172,
-    "publish_date": "2024-05-21"
+    "publish_date": "2024-05-21",
+    "slug": "you-like-it-darker",
+    "description": "A collection of stories examining fate, mortality, and the unseen forces tugging at ordinary lives.",
+    "co_author": null
   },
   {
     "id": "65ec57d1-c122-44bc-af01-c1f02e95b613",
@@ -932,7 +1184,10 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": null,
-    "publish_date": "2025-05-20"
+    "publish_date": "2025-05-20",
+    "slug": "never-flinch",
+    "description": "Holly Gibney takes on a killer vowing to murder innocents in atonement for one wrongful execution, while also guarding a controversial speaker facing death threats.",
+    "co_author": null
   },
   {
     "id": "6df5aeea-19b1-4fc5-8173-6b3b5974c56a",
@@ -943,6 +1198,9 @@
     "bachman": false,
     "dark_tower_relation": null,
     "cover_id": null,
-    "publish_date": "2026-01-01"
+    "publish_date": "2026-01-01",
+    "slug": "other-worlds-than-these",
+    "description": null,
+    "co_author": null
   }
 ]

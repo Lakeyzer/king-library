@@ -19,6 +19,23 @@ export async function loadSeed(table: string, seedFileUrl: URL) {
     readFileSync(seedPath, "utf-8")
   );
 
+  if (rows.some((row) => "slug" in row)) {
+    const seenSlugs = new Map<string, number>();
+    rows.forEach((row, index) => {
+      const slug = row.slug;
+      if (typeof slug !== "string" || slug.length === 0) {
+        throw new Error(`${table} row ${index} (id ${row.id}) is missing a slug.`);
+      }
+      const firstIndex = seenSlugs.get(slug);
+      if (firstIndex !== undefined) {
+        throw new Error(
+          `${table} rows ${firstIndex} and ${index} both use slug "${slug}".`
+        );
+      }
+      seenSlugs.set(slug, index);
+    });
+  }
+
   const { data, error } = await supabase
     .from(table)
     .upsert(rows, { onConflict: "id" })

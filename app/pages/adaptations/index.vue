@@ -14,6 +14,7 @@ const { data: adaptations } = await useAsyncData(
   <BibliographyBrowsePage
     title="Adaptations"
     description="Browse film and television adaptations of Stephen King's work."
+    detail-path-prefix="/adaptations"
     :items="adaptations ?? []"
     :year-of="(adaptation: Adaptation) => adaptation.release_year"
     :image-src-of="

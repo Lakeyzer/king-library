@@ -14,11 +14,22 @@ The system SHALL provide a default layout that renders a header, a footer, and a
 - **THEN** the rendered page includes a header above the page content and a footer below it, with the page's own content constrained within a contained main area
 
 ### Requirement: Default layout is the only layout
-The system SHALL define exactly one layout, the default layout, for the current scope of the app.
+The system SHALL define exactly two layouts for the current scope of the app: the default layout, and the detail layout (see "Detail layout provides a right-side connections sidebar").
 
 #### Scenario: No alternate layout is available
 - **WHEN** a page is rendered
-- **THEN** the default layout is the only layout available for it to use
+- **THEN** the default layout and the detail layout are the only layouts available for it to use
+
+### Requirement: Detail layout provides a right-side connections sidebar
+The system SHALL provide a detail layout that renders the same header and footer as the default layout, plus a main content area paired with a sidebar on its trailing (right, in left-to-right reading order) side, and pages SHALL be able to opt into this layout to show related-item connections alongside their main content.
+
+#### Scenario: A page uses the detail layout
+- **WHEN** a page specifies the detail layout
+- **THEN** the rendered page includes the header above and footer below, with the page's main content and a trailing-side sidebar both visible within the contained page area
+
+#### Scenario: Detail layout on a narrow viewport
+- **WHEN** a page using the detail layout is viewed on a narrow (mobile-width) viewport
+- **THEN** the main content and sidebar are still both reachable, stacked rather than side-by-side
 
 ### Requirement: Header displays site branding and primary navigation
 The system SHALL render, on the leading side of the header, the site name "King Library", followed by a primary navigation menu with entries for Works, Short Stories, and Adaptations, each linking to its corresponding page. The system SHALL also render, on the trailing side of the header, an authentication entry point: a sign-in control when the visitor is signed out, or an account menu (linking to the profile page, with a sign-out action) when the visitor is signed in.

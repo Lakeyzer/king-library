@@ -3,9 +3,12 @@ import type { DropdownMenuItem } from "@nuxt/ui";
 
 interface Props {
   workId: string;
+  mode?: "compact" | "expanded";
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  mode: "compact",
+});
 
 const user = useSupabaseUser();
 const { userBooksByWorkId, toggleWantToRead, unmarkRead } = useBooks();
@@ -34,14 +37,14 @@ const PRIMARY_LABEL: Record<PrimaryState, string> = {
   neutral: "Mark as Read",
   want_to_read: "Start Reading",
   currently_reading: "Finish",
-  read: "Mark as Not Read",
+  read: "Mark as Unread",
 };
 
 const PRIMARY_ICON: Record<PrimaryState, string> = {
-  neutral: "i-lucide-check-check",
+  neutral: "i-lucide-circle-check",
   want_to_read: "i-lucide-book-open",
-  currently_reading: "i-lucide-check",
-  read: "i-lucide-rotate-ccw",
+  currently_reading: "i-lucide-book-open",
+  read: "i-lucide-circle-check",
 };
 
 const primaryLabel = computed(() => PRIMARY_LABEL[primaryState.value]);
@@ -69,7 +72,7 @@ const dropdownItems = computed<DropdownMenuItem[]>(() => {
     case "neutral":
       return [
         {
-          label: "Want to Read",
+          label: "Add to Readlist",
           icon: "i-lucide-bookmark",
           onSelect: () => toggleWantToRead(props.workId),
         },
@@ -84,13 +87,13 @@ const dropdownItems = computed<DropdownMenuItem[]>(() => {
     case "want_to_read":
       return [
         {
-          label: "Remove from Want to Read",
+          label: "Remove from Readlist",
           icon: "i-lucide-bookmark-x",
           onSelect: () => toggleWantToRead(props.workId),
         },
         {
           label: "Mark as Read",
-          icon: "i-lucide-check-check",
+          icon: "i-lucide-circle-check",
           onSelect: () => {
             showMarkReadModal.value = true;
           },
@@ -100,7 +103,7 @@ const dropdownItems = computed<DropdownMenuItem[]>(() => {
       return [
         {
           label: "Mark as Read",
-          icon: "i-lucide-check-check",
+          icon: "i-lucide-circle-check",
           onSelect: () => {
             showMarkReadModal.value = true;
           },
@@ -110,11 +113,49 @@ const dropdownItems = computed<DropdownMenuItem[]>(() => {
       return [];
   }
 });
+
+// Expanded mode shows every action always, disabling whichever don't apply
+// to the current state, rather than hiding them (see reading-status spec).
+const canToggleReadlistOrStart = computed(
+  () => primaryState.value === "neutral" || primaryState.value === "want_to_read",
+);
+
+const canStartOrFinishReading = computed(() => primaryState.value !== "read");
+
+const readlistLabel = computed(() =>
+  isWantToRead.value ? "Remove from Readlist" : "Add to Readlist",
+);
+
+const readLabel = computed(() => (isRead.value ? "Mark as Unread" : "Mark as Read"));
+
+const startFinishLabel = computed(() =>
+  isCurrentlyReading.value ? "Finish Reading" : "Start Reading",
+);
+
+function handleReadlistToggle() {
+  toggleWantToRead(props.workId);
+}
+
+function handleStartOrFinishReading() {
+  if (isCurrentlyReading.value) {
+    showFinishReadingModal.value = true;
+  } else {
+    showStartReadingModal.value = true;
+  }
+}
+
+function handleReadToggle() {
+  if (isRead.value) {
+    unmarkRead(props.workId);
+  } else {
+    showMarkReadModal.value = true;
+  }
+}
 </script>
 
 <template>
   <template v-if="user">
-    <UFieldGroup>
+    <UFieldGroup v-if="mode === 'compact'">
       <UButton
         :label="primaryLabel"
         :icon="primaryIcon"
@@ -147,6 +188,60 @@ const dropdownItems = computed<DropdownMenuItem[]>(() => {
         aria-label="No other reading actions available"
       />
     </UFieldGroup>
+
+    <template v-else>
+      <UFieldGroup class="hidden max-sm:flex max-sm:w-full">
+        <IconLabelButton
+          stacked
+          class="flex-1"
+          :label="readlistLabel"
+          icon="i-lucide-bookmark"
+          :filled="isWantToRead"
+          :disabled="!canToggleReadlistOrStart"
+          @click="handleReadlistToggle"
+        />
+        <IconLabelButton
+          stacked
+          class="flex-1"
+          :label="startFinishLabel"
+          icon="i-lucide-book-open"
+          :filled="isCurrentlyReading"
+          :disabled="!canStartOrFinishReading"
+          @click="handleStartOrFinishReading"
+        />
+        <IconLabelButton
+          stacked
+          class="flex-1"
+          :label="readLabel"
+          icon="i-lucide-circle-check"
+          :filled="isRead"
+          @click="handleReadToggle"
+        />
+      </UFieldGroup>
+
+      <div class="hidden flex-nowrap gap-2 sm:flex">
+        <IconLabelButton
+          :label="readlistLabel"
+          icon="i-lucide-bookmark"
+          :filled="isWantToRead"
+          :disabled="!canToggleReadlistOrStart"
+          @click="handleReadlistToggle"
+        />
+        <IconLabelButton
+          :label="startFinishLabel"
+          icon="i-lucide-book-open"
+          :filled="isCurrentlyReading"
+          :disabled="!canStartOrFinishReading"
+          @click="handleStartOrFinishReading"
+        />
+        <IconLabelButton
+          :label="readLabel"
+          icon="i-lucide-circle-check"
+          :filled="isRead"
+          @click="handleReadToggle"
+        />
+      </div>
+    </template>
 
     <BookStartReadingModal v-model:open="showStartReadingModal" :work-id="workId" />
     <BookFinishReadingModal v-model:open="showFinishReadingModal" :work-id="workId" />

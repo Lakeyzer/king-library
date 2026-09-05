@@ -36,6 +36,7 @@ All `date` columns (e.g. `publish_date`, `started_on`, `finished_on`) must use I
 | `title`                 | text                     |                                                                                                                                                                                                                                                                                |
 | `type`                  | text                     | `novel` / `short_story` / `collection` / etc.                                                                                                                                                                                                                                  |
 | `publish_date`          | date                     |                                                                                                                                                                                                                                                                                |
+| `slug`                  | text, unique             | kebab-case version of `title`, used for URL routing (e.g. `the-stand` → `/works/the-stand`). Apostrophes are stripped; other non-alphanumeric characters become hyphens. Set in the seed file — never computed at runtime.                                                     |
 | `open_library_work_key` | text, nullable           | for matching against Open Library search                                                                                                                                                                                                                                       |
 | `cover_id`              | integer, nullable        | Open Library numeric cover id, used to build `https://covers.openlibrary.org/b/id/{cover_id}-{size}.jpg` for the works-browsing table thumbnail. See "Cover images" below — this is a narrow, explicit exception to the "don't store a cover id" rule, not a general precedent |
 | `dark_tower`            | boolean, default `false` | `true` only for works that are part of the core Dark Tower series — not for works merely connected to it (see `dark_tower_relation`)                                                                                                                                           |
@@ -52,6 +53,7 @@ Maintained in `supabase/seed/king_works.json` (or `.sql`), checked into the repo
 | `title`            | text                     |                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | `type`             | text                     | `movie` / `series` / `miniseries` / `tv_movie`                                                                                                                                                                                                                                                                                                                                                                                         |
 | `release_year`     | int                      |                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `slug`             | text, unique             | kebab-case version of `title`, used for URL routing (e.g. `misery` → `/adaptations/misery`). When multiple adaptations share a title, the release year is appended to all entries in that group (e.g. `carrie-1976`, `carrie-2013`, `the-shining-1980`). Set in the seed file. |
 | `tmdb_id`          | int, nullable            | numeric TMDb id, for matching against TMDb                                                                                                                                                                                                                                                                                                                                                                                             |
 | `tmdb_media_type`  | text, nullable           | `movie` or `tv` — TMDb keeps separate ID namespaces for movies and TV shows, so `tmdb_id` alone is ambiguous for building an API call or a link; this says which endpoint it belongs to                                                                                                                                                                                                                                                |
 | `tmdb_poster_path` | text, nullable           | TMDb's own poster path (e.g. `/abc123.jpg`), used to build `https://image.tmdb.org/t/p/{size}{tmdb_poster_path}` for the adaptations-browsing table thumbnail. Same narrow exception as `king_works.cover_id` — see "Cover images" below                                                                                                                                                                                               |
@@ -84,11 +86,42 @@ The same join, one table over, for adaptations sourced from an individual short 
 
 Unique constraint on `(adaptation_id, short_story_id)`. Same seed-file maintenance pattern — `supabase/seed/adaptation_short_stories.json`, no runtime CRUD.
 
+**Collection implication:** a short story always belongs to one or more collections via `king_short_story_collections`. An adaptation of a short story is therefore implicitly related to every collection that contains it — this relationship is **not** duplicated as an explicit row in `adaptation_works` (that would create redundant, potentially drifting data). Instead it is derived at query time by joining through `king_short_story_collections` (see "Collection-level adaptation lookup" below). A collection's detail page must traverse this join to surface all adaptations whose source stories appear in it.
+
 Kept as its own table rather than folding into `adaptation_works` with a nullable `short_story_id` alongside a nullable `king_work_id`, or a polymorphic `source_type`/`source_id` pair on one shared table — this schema already prefers explicit typed FKs over polymorphic associations elsewhere (see `king_short_story_collections`), and a single join table with two nullable target columns would let a row reference neither or both, which is exactly the kind of state a schema shouldn't be able to represent in the first place.
 
 An adaptation can have rows in `adaptation_works`, `adaptation_short_stories`, both (uncommon, but not disallowed — nothing stops an adaptation from citing both a full work and a specific short story as sources), or neither (`is_universe_only = true` on `adaptations`, see above).
 
 A work's or short story's detail page queries the matching table filtered by `king_work_id`/`short_story_id` to list its adaptations. An adaptation's detail page queries **both** `adaptation_works` and `adaptation_short_stories` filtered by `adaptation_id` and combines the results to build its full "based on" list.
+
+### Collection-level adaptation lookup
+
+A `king_work` of `type = 'collection'` can be related to adaptations in two distinct ways — both must be queried to show the full picture:
+
+1. **Direct**: `adaptation_works` rows where `king_work_id` matches the collection (e.g. Creepshow, which draws on several Night Shift / Skeleton Crew stories and is explicitly linked to both collections as a whole).
+2. **Via short stories**: `adaptation_short_stories` rows for stories that belong to the collection, reached through `king_short_story_collections`.
+
+**Do not add explicit `adaptation_works` rows to represent the collection link** when the adaptation is already in `adaptation_short_stories` — that would duplicate the relationship and require keeping two rows in sync whenever a story's collection membership changes.
+
+Instead, derive the collection relationship at query time. The pattern, used both in composables and in the `adaptation_vs_source_stats` view family:
+
+```sql
+-- All adaptations touching a given collection (direct + via its short stories)
+select aw.adaptation_id, 'direct' as link_type
+from adaptation_works aw
+where aw.king_work_id = $collection_id
+
+union
+
+select ass.adaptation_id, 'via_short_story' as link_type
+from adaptation_short_stories ass
+join king_short_story_collections ksc on ksc.short_story_id = ass.short_story_id
+where ksc.king_work_id = $collection_id;
+```
+
+The `link_type` tag is optional but useful for display: a "direct" link might show as "Adaptation of this collection"; a "via_short_story" link might show as "Adaptation of a story in this collection" (with the specific short story title resolved from `king_short_stories`).
+
+Similarly, an adaptation's own detail page should show the collection context for its short-story sources — not just the story title, but also "appears in: Night Shift". `useAdaptations()` resolves this by joining `adaptation_short_stories` → `king_short_story_collections` → `king_works` for any short-story source, and including the collection title alongside the story title in the "based on" list.
 
 ### `king_short_stories` (seed-file-driven, read-only at runtime)
 
@@ -637,7 +670,8 @@ The composable divides `read_count / total_count` client-side (or in a small SQL
 ## Conventions for composables
 
 - One composable per table/domain: `useBooks()` (owned/wishlist/read flags on `user_books`), `useBookshelf()` (edition detail on `user_book_editions`), `useAdaptations()` (want-to-watch/watched flags on `user_adaptations`, plus read-only lookups against `adaptations`/`adaptation_works`/`adaptation_short_stories`), `useShortStories()` (read-only lookups against `king_short_stories`/`king_short_story_collections`, plus read tracking on `user_short_story_reads`), `useProfile()`.
-- Building an adaptation's full "based on" list is `useAdaptations()`'s job: query `adaptation_works` and `adaptation_short_stories` for the same `adaptation_id` and merge the two result sets — never assume a given adaptation has rows in only one of the two tables. Check `is_universe_only` on the `adaptations` row itself before treating an empty result from both as a data gap rather than the expected state.
+- Building an adaptation's full "based on" list is `useAdaptations()`'s job: query `adaptation_works` and `adaptation_short_stories` for the same `adaptation_id` and merge the two result sets — never assume a given adaptation has rows in only one of the two tables. Check `is_universe_only` on the `adaptations` row itself before treating an empty result from both as a data gap rather than the expected state. For each short-story source, also resolve its parent collection(s) via `king_short_story_collections` → `king_works` and surface them in the "based on" display (e.g. "Children of the Corn — from Night Shift") so the user sees both the story and the collection.
+- Building a collection's full "adapted in" list is also `useAdaptations()`'s job: query `adaptation_works` where `king_work_id` matches the collection **and** union in `adaptation_short_stories` joined through `king_short_story_collections` — see "Collection-level adaptation lookup" above. Never show only the direct `adaptation_works` results; that omits every single-story adaptation (e.g. Children of the Corn, Sometimes They Come Back) that makes the collection page worth having.
 - Marking a collection as read (`useBooks()`) never needs to also touch `user_short_story_reads` directly — the DB trigger handles the cascade. Don't duplicate it in the composable.
 - `useBooks()` needs three distinct write functions for the reading-date flows — `startReading(workId, startedOn)`, `finishReading(workId, finishedOn)`, and `markRead(workId, { startedOn?, finishedOn?, readYear? })` — rather than one generic "update status" function, since each corresponds to a different modal with different fields and different skip behavior (see "Reading dates" under `user_books` above). Compute the prefilled default date client-side from the browser's local date, never from a server timestamp.
 - Category completion (`useReadingProgress()` or similar) queries `bibliography_items`/`user_read_items` and accepts a `userId` param rather than assuming `auth.uid()`, so it works identically for "my progress" and "their public-profile progress."

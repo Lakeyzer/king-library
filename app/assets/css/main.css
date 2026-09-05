@@ -16,3 +16,26 @@
   --color-green-900: #0A5331;
   --color-green-950: #052E16;
 }
+
+/*
+ * Lucide icons ship as outlines with fill="none" set directly on the inner
+ * path/group - a presentation attribute, which a `fill-current` class on the
+ * icon root can't override through inheritance (the child already has its
+ * own specified fill). These descendant rules have real specificity, so they
+ * win. Only takes effect on icons rendered in svg mode - css-mode icons (the
+ * default) are a single-color mask with no fill/stroke distinction to toggle.
+ *
+ * Composite icons (e.g. circle-check) draw a background shape (circle/rect/
+ * etc.) plus a separate glyph path in the same currentColor stroke - filling
+ * the path too would make the glyph vanish into the now-solid background.
+ * So: always fill background shapes, but only fill bare paths/groups when
+ * there's no background shape to sit on top of (single-path icons like
+ * bookmark, where the path *is* the whole icon).
+ */
+.icon-filled :where(circle, rect, ellipse, polygon) {
+  fill: currentColor;
+}
+
+.icon-filled:not(:has(circle, rect, ellipse, polygon)) :where(path, g) {
+  fill: currentColor;
+}

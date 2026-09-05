@@ -27,6 +27,7 @@ function extraFilter(work: KingWork) {
   <BibliographyBrowsePage
     title="Works"
     description="Browse the canonical Stephen King bibliography."
+    detail-path-prefix="/works"
     :items="works ?? []"
     :year-of="(work: KingWork) => Number(work.publish_date.slice(0, 4))"
     :sort-value-of="(work: KingWork) => Date.parse(work.publish_date)"
