@@ -13,6 +13,7 @@ const { open: openAuthModal } = useAuthModal()
 
 const accountMenuItems: DropdownMenuItem[] = [
   { label: 'Profile', icon: 'i-lucide-user', to: '/profile' },
+  { label: 'Settings', icon: 'i-lucide-settings', to: '/settings' },
   { label: 'Sign out', icon: 'i-lucide-log-out', onSelect: () => supabase.auth.signOut() }
 ]
 </script>

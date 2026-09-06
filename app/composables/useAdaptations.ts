@@ -56,6 +56,11 @@ export interface AdaptationStats {
   watched_count: number
 }
 
+export interface ViewingProgress {
+  count: number
+  total: number
+}
+
 const ADAPTATION_COLUMNS =
   "id, title, type, release_year, slug, tmdb_id, tmdb_media_type, tmdb_poster_path, is_universe_only, notes"
 
@@ -200,6 +205,30 @@ export function useAdaptations() {
     return data as AdaptationStats | null
   }
 
+  // Accepts a userId (rather than assuming the signed-in user) so it powers
+  // both the owner's own showcase and a public profile's, same as
+  // fetchProfileBookStats in useBooks().
+  const fetchViewingProgress = async (userId: string): Promise<ViewingProgress> => {
+    const [{ data: adaptationRows, error: adaptationsError }, { data: userAdaptationRows, error: userAdaptationsError }] = await Promise.all([
+      supabase.from("adaptations").select("id"),
+      supabase.from("user_adaptations").select("adaptation_id, watched").eq("user_id", userId)
+    ])
+
+    if (adaptationsError) throw adaptationsError
+    if (userAdaptationsError) throw userAdaptationsError
+
+    const watchedIds = new Set(
+      (userAdaptationRows as { adaptation_id: string, watched: boolean }[])
+        .filter((row) => row.watched)
+        .map((row) => row.adaptation_id)
+    )
+
+    return {
+      count: watchedIds.size,
+      total: (adaptationRows as { id: string }[]).length
+    }
+  }
+
   const fetchUserAdaptations = async () => {
     if (!user.value) {
       userAdaptationsByAdaptationId.value = {}
@@ -293,6 +322,7 @@ export function useAdaptations() {
     fetchAdaptationsForWork,
     fetchAdaptationsForShortStory,
     fetchAdaptationStats,
+    fetchViewingProgress,
     userAdaptationsByAdaptationId,
     fetchUserAdaptations,
     toggleWantToWatch,

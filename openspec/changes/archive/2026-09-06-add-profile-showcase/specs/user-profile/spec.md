@@ -1,10 +1,4 @@
-# user-profile Specification
-
-## Purpose
-
-Gives a signed-in user a page to view their own account details, control whether their collections are publicly visible, and permanently delete their account.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Profile page requires sign-in
 The system SHALL only allow a signed-in user to view the account settings page, and SHALL require a username to be set (see the onboarding capability) before showing it.
@@ -52,21 +46,3 @@ The system SHALL display, on the account settings page, which sign-in identities
 #### Scenario: Viewing linked identities
 - **WHEN** a signed-in user with a username set navigates to the account settings page
 - **THEN** the page lists each of their currently linked sign-in identities
-
-### Requirement: Linking an additional OAuth sign-in method
-The system SHALL let a signed-in user link an additional OAuth provider (Google or Discord) not already linked to their account, without signing them out or requiring a new sign-up.
-
-#### Scenario: Linking a new provider
-- **WHEN** a signed-in user activates "Link" for an OAuth provider not yet linked to their account
-- **THEN** upon completing that provider's authorization flow, the provider is added to their linked identities and they remain signed in
-
-### Requirement: Unlinking a sign-in method requires at least one remaining
-The system SHALL let a signed-in user unlink one of their linked sign-in identities, provided at least one identity remains linked afterward, and SHALL prevent unlinking the last remaining identity.
-
-#### Scenario: Unlinking one of several linked identities
-- **WHEN** a signed-in user with more than one linked identity activates "Unlink" for one of them
-- **THEN** that identity is removed and they can no longer sign in using it, while their other identities and access remain unaffected
-
-#### Scenario: Attempting to unlink the only remaining identity
-- **WHEN** a signed-in user with exactly one linked identity attempts to unlink it
-- **THEN** the system prevents the unlink and the identity remains linked

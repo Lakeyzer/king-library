@@ -15,7 +15,10 @@ defineProps<Props>();
 </script>
 
 <template>
-  <li class="flex items-center gap-4 p-3 bg-neutral-500/5 dark:bg-black/10 rounded">
+  <li
+    class="flex items-center gap-4 p-3 bg-elevated rounded"
+    :class="{ 'hover:bg-neutral-700': to }"
+  >
     <component
       :is="to ? NuxtLink : 'div'"
       :to="to"
@@ -28,7 +31,7 @@ defineProps<Props>();
       />
 
       <div class="flex min-w-0 flex-1 flex-col justify-center gap-1">
-        <p class="truncate font-medium" :class="{ 'group-hover:underline': to }">
+        <p class="truncate font-medium">
           {{ title }}
         </p>
 

@@ -38,7 +38,7 @@ async function handleLink(provider: LinkableProvider) {
   linking.value = provider
 
   try {
-    await linkProvider(provider, `${window.location.origin}/confirm?next=/profile`)
+    await linkProvider(provider, `${window.location.origin}/confirm?next=/settings`)
   } catch {
     identitiesError.value = 'Could not start linking that provider. Please try again.'
     linking.value = null
@@ -101,7 +101,7 @@ async function deleteAccount() {
   <div class="max-w-md mx-auto py-16 space-y-8">
     <div>
       <h1 class="text-xl font-semibold">
-        Profile
+        Settings
       </h1>
       <p class="text-muted mt-1">
         {{ profile?.username }}
@@ -177,7 +177,7 @@ async function deleteAccount() {
           Public profile
         </p>
         <p class="text-muted text-sm">
-          When public, other users can see your collections.
+          When public, other users can see your collections and showcase.
         </p>
         <UAlert
           v-if="visibilityError"

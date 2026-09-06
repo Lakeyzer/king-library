@@ -3,7 +3,7 @@ interface Props {
   src: string | null
   alt: string
   placeholderIcon: string
-  size?: 'sm' | 'lg'
+  size?: 'sm' | 'lg' | 'full'
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -11,6 +11,18 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const hasError = ref(false)
+
+const SIZE_CLASSES: Record<NonNullable<Props['size']>, string> = {
+  sm: 'h-24 w-15',
+  lg: 'h-40 w-28',
+  full: 'w-full aspect-[2/3]'
+}
+
+const ICON_SIZE_CLASSES: Record<NonNullable<Props['size']>, string> = {
+  sm: 'size-6',
+  lg: 'size-10',
+  full: 'size-12'
+}
 
 watch(() => props.src, () => {
   hasError.value = false
@@ -20,12 +32,12 @@ watch(() => props.src, () => {
 <template>
   <div
     class="flex shrink-0 items-center justify-center overflow-hidden rounded bg-elevated"
-    :class="size === 'lg' ? 'h-40 w-28' : 'h-24 w-15'"
+    :class="SIZE_CLASSES[size]"
   >
     <UIcon
       v-if="!src || hasError"
       :name="placeholderIcon"
-      :class="size === 'lg' ? 'size-10' : 'size-6'"
+      :class="ICON_SIZE_CLASSES[size]"
       class="text-muted"
     />
     <NuxtImg
