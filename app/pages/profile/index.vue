@@ -3,9 +3,13 @@ definePageMeta({ layout: "default" });
 
 const user = useSupabaseUser();
 const { profile } = useProfile();
-const { fetchProfileBookStats, fetchCurrentlyReading, fetchReadingTimeline } =
-  useBooks();
-const { fetchViewingProgress } = useAdaptations();
+const {
+  fetchProfileBookStats,
+  fetchCurrentlyReading,
+  fetchReadingTimeline,
+  fetchUnreadRecommendation,
+} = useBooks();
+const { fetchViewingProgress, fetchUnwatchedRecommendation } = useAdaptations();
 
 const userId = computed(() => user.value?.sub ?? "");
 
@@ -14,6 +18,8 @@ const [
   { data: viewing },
   { data: currentlyReading },
   { data: readingTimeline },
+  { data: bookRecommendation },
+  { data: adaptationRecommendation },
 ] = await Promise.all([
   useAsyncData("own-profile-book-stats", () =>
     fetchProfileBookStats(userId.value),
@@ -26,6 +32,12 @@ const [
   ),
   useAsyncData("own-profile-reading-timeline", () =>
     fetchReadingTimeline(userId.value),
+  ),
+  useAsyncData("own-profile-book-recommendation", () =>
+    fetchUnreadRecommendation(userId.value),
+  ),
+  useAsyncData("own-profile-adaptation-recommendation", () =>
+    fetchUnwatchedRecommendation(userId.value),
   ),
 ]);
 
@@ -47,6 +59,8 @@ useSeoMeta({
       :viewing="viewing"
       :currently-reading="currentlyReading"
       :reading-timeline="readingTimeline"
+      :book-recommendation="bookRecommendation ?? null"
+      :adaptation-recommendation="adaptationRecommendation ?? null"
     />
   </div>
 </template>

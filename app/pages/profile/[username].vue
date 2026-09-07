@@ -19,9 +19,14 @@ const profile = viewedProfile.value;
 const isOwner = computed(() => user.value?.sub === profile.id);
 const isPrivate = computed(() => !profile.is_public && !isOwner.value);
 
-const { fetchProfileBookStats, fetchCurrentlyReading, fetchReadingTimeline } =
-  useBooks();
-const { fetchViewingProgress } = useAdaptations();
+const {
+  fetchProfileBookStats,
+  fetchCurrentlyReading,
+  fetchReadingTimeline,
+  fetchUnreadRecommendation,
+} = useBooks();
+const { fetchViewingProgress, fetchUnwatchedRecommendation } =
+  useAdaptations();
 
 // Always query, even when the profile turns out to be private - RLS on
 // user_books/user_adaptations already returns zero rows in that case, and
@@ -48,6 +53,24 @@ const [
   ),
 ]);
 
+// Unlike the fetches above, these two really are owner-gated (not just
+// privacy-gated) - they're personal "read/watch this next" nudges, never
+// shown on someone else's profile even when public, so the isOwner check
+// here is the actual product rule, not a shortcut around RLS.
+const [{ data: bookRecommendation }, { data: adaptationRecommendation }] =
+  await Promise.all([
+    useAsyncData(`profile-${username}-book-recommendation`, () =>
+      isOwner.value
+        ? fetchUnreadRecommendation(profile.id)
+        : Promise.resolve(null),
+    ),
+    useAsyncData(`profile-${username}-adaptation-recommendation`, () =>
+      isOwner.value
+        ? fetchUnwatchedRecommendation(profile.id)
+        : Promise.resolve(null),
+    ),
+  ]);
+
 useSeoMeta({ title: `${profile.username} — Profile` });
 </script>
 
@@ -68,6 +91,8 @@ useSeoMeta({ title: `${profile.username} — Profile` });
       :viewing="viewing"
       :currently-reading="currentlyReading"
       :reading-timeline="readingTimeline"
+      :book-recommendation="bookRecommendation ?? null"
+      :adaptation-recommendation="adaptationRecommendation ?? null"
     />
   </div>
 </template>

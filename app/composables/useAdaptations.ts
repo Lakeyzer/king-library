@@ -61,6 +61,31 @@ export interface ViewingProgress {
   total: number
 }
 
+export interface AdaptationRecommendation {
+  id: string
+  title: string
+  slug: string
+  tmdbPosterPath: string | null
+  becauseTitle: string
+}
+
+export interface AdaptationHighlight {
+  id: string
+  title: string
+  slug: string
+  tmdbPosterPath: string | null
+}
+
+export interface AdaptationLeaderboardEntry extends AdaptationHighlight {
+  count: number
+}
+
+export interface AdaptationHighlights {
+  mostWatchedAdaptations: AdaptationLeaderboardEntry[]
+  leastWatchedAdaptations: AdaptationLeaderboardEntry[]
+  mostAnticipatedAdaptation: AdaptationLeaderboardEntry | null
+}
+
 const ADAPTATION_COLUMNS =
   "id, title, type, release_year, slug, tmdb_id, tmdb_media_type, tmdb_poster_path, is_universe_only, notes"
 
@@ -205,6 +230,69 @@ export function useAdaptations() {
     return data as AdaptationStats | null
   }
 
+  // Fetches the full adaptations list plus adaptation_stats in parallel and
+  // joins them client-side - same pattern as useBooks().fetchWorkHighlights,
+  // one column apart. One round trip pair powers every adaptation
+  // leaderboard/spotlight, so callers (homepage, adaptations browsing
+  // sidebar) share one fetch rather than each running their own.
+  const fetchAdaptationHighlights = async (): Promise<AdaptationHighlights> => {
+    interface AdaptationRow {
+      id: string
+      title: string
+      slug: string
+      tmdb_poster_path: string | null
+    }
+
+    interface AdaptationStatsRow {
+      adaptation_id: string
+      watched_count: number
+      want_to_watch_count: number
+    }
+
+    const [{ data: adaptations, error: adaptationsError }, { data: stats, error: statsError }] = await Promise.all([
+      supabase.from("adaptations").select("id, title, slug, tmdb_poster_path"),
+      supabase.from("adaptation_stats").select("adaptation_id, watched_count, want_to_watch_count")
+    ])
+
+    if (adaptationsError) throw adaptationsError
+    if (statsError) throw statsError
+
+    const statsByAdaptationId = new Map((stats as AdaptationStatsRow[]).map((row) => [row.adaptation_id, row]))
+    const adaptationsWithStats = (adaptations as AdaptationRow[]).map((adaptation) => ({
+      ...adaptation,
+      watchedCount: statsByAdaptationId.get(adaptation.id)?.watched_count ?? 0,
+      wantToWatchCount: statsByAdaptationId.get(adaptation.id)?.want_to_watch_count ?? 0
+    }))
+
+    const toEntry = (adaptation: (typeof adaptationsWithStats)[number], count: number): AdaptationLeaderboardEntry => ({
+      id: adaptation.id,
+      title: adaptation.title,
+      slug: adaptation.slug,
+      tmdbPosterPath: adaptation.tmdb_poster_path,
+      count
+    })
+
+    const sortedByWatched = [...adaptationsWithStats].sort(
+      (a, b) => b.watchedCount - a.watchedCount || a.id.localeCompare(b.id)
+    )
+
+    // Same tie-break approach as least-read in useBooks(): a stable
+    // secondary key so the pick doesn't flip between identical loads when
+    // counts tie.
+    const mostAnticipated = [...adaptationsWithStats].sort(
+      (a, b) => b.wantToWatchCount - a.wantToWatchCount || a.id.localeCompare(b.id)
+    )[0]
+
+    return {
+      mostWatchedAdaptations: sortedByWatched.slice(0, 5).map((adaptation) => toEntry(adaptation, adaptation.watchedCount)),
+      leastWatchedAdaptations: [...sortedByWatched]
+        .reverse()
+        .slice(0, 5)
+        .map((adaptation) => toEntry(adaptation, adaptation.watchedCount)),
+      mostAnticipatedAdaptation: mostAnticipated ? toEntry(mostAnticipated, mostAnticipated.wantToWatchCount) : null
+    }
+  }
+
   // Accepts a userId (rather than assuming the signed-in user) so it powers
   // both the owner's own showcase and a public profile's, same as
   // fetchProfileBookStats in useBooks().
@@ -227,6 +315,139 @@ export function useAdaptations() {
       count: watchedIds.size,
       total: (adaptationRows as { id: string }[]).length
     }
+  }
+
+  // Recommends one unwatched adaptation whose source (a King work or short
+  // story) the given user has read - a personalized nudge, not a site-wide
+  // stat, so it only ever reads the given userId's own rows (always allowed
+  // under RLS regardless of profile privacy - a user can always read their
+  // own rows). Picks randomly among qualifying candidates on each call
+  // rather than a stable pick, since a "watch this next" suggestion
+  // benefits from variety across visits more than site-wide leaderboards do.
+  const fetchUnwatchedRecommendation = async (userId: string): Promise<AdaptationRecommendation | null> => {
+    interface AdaptationRef {
+      id: string
+      title: string
+      slug: string
+      tmdb_poster_path: string | null
+    }
+
+    const [
+      { data: readBooks, error: readBooksError },
+      { data: readShortStories, error: readShortStoriesError },
+      { data: watchedRows, error: watchedError }
+    ] = await Promise.all([
+      supabase
+        .from("user_books")
+        .select("king_work_id, king_works ( title )")
+        .eq("user_id", userId)
+        .eq("read", true),
+      supabase
+        .from("user_short_story_reads")
+        .select(
+          "short_story_id, king_short_stories ( title, king_short_story_collections ( king_works ( title, publish_date ) ) )"
+        )
+        .eq("user_id", userId),
+      supabase
+        .from("user_adaptations")
+        .select("adaptation_id")
+        .eq("user_id", userId)
+        .eq("watched", true)
+    ])
+
+    if (readBooksError) throw readBooksError
+    if (readShortStoriesError) throw readShortStoriesError
+    if (watchedError) throw watchedError
+
+    const readWorkRows = readBooks as unknown as { king_work_id: string, king_works: { title: string } | null }[]
+    const readShortStoryRows = readShortStories as unknown as {
+      short_story_id: string
+      king_short_stories: {
+        title: string
+        king_short_story_collections: { king_works: { title: string, publish_date: string } | null }[]
+      } | null
+    }[]
+
+    if (!readWorkRows.length && !readShortStoryRows.length) return null
+
+    const watchedIds = new Set((watchedRows as { adaptation_id: string }[]).map((row) => row.adaptation_id))
+    const workTitleById = new Map(readWorkRows.map((row) => [row.king_work_id, row.king_works?.title ?? ""]))
+
+    // Prefer the story's earliest collection (per fetchCollectionsForShortStory's
+    // same "take the first one" convention) as the recommendation's reason,
+    // since a reader is more likely to recognize the collection they read
+    // than an individual story's title - only fall back to the story's own
+    // title when it isn't linked to any collection.
+    const shortStoryBecauseTitleById = new Map<string, string>()
+    for (const row of readShortStoryRows) {
+      const story = row.king_short_stories
+      if (!story) continue
+
+      const collections = story.king_short_story_collections
+        .map((link) => link.king_works)
+        .filter((work): work is { title: string, publish_date: string } => work !== null)
+        .sort((a, b) => a.publish_date.localeCompare(b.publish_date))
+
+      shortStoryBecauseTitleById.set(row.short_story_id, collections[0]?.title ?? story.title)
+    }
+
+    const workIds = [...workTitleById.keys()]
+    const shortStoryIds = [...shortStoryBecauseTitleById.keys()]
+
+    const [viaWorksResult, viaShortStoriesResult] = await Promise.all([
+      workIds.length
+        ? supabase
+            .from("adaptation_works")
+            .select("king_work_id, adaptations ( id, title, slug, tmdb_poster_path )")
+            .in("king_work_id", workIds)
+        : { data: [], error: null },
+      shortStoryIds.length
+        ? supabase
+            .from("adaptation_short_stories")
+            .select("short_story_id, adaptations ( id, title, slug, tmdb_poster_path )")
+            .in("short_story_id", shortStoryIds)
+        : { data: [], error: null }
+    ])
+
+    if (viaWorksResult.error) throw viaWorksResult.error
+    if (viaShortStoriesResult.error) throw viaShortStoriesResult.error
+
+    const candidatesById = new Map<string, AdaptationRecommendation>()
+
+    for (const row of viaWorksResult.data as unknown as {
+      king_work_id: string
+      adaptations: AdaptationRef | null
+    }[]) {
+      if (row.adaptations && !watchedIds.has(row.adaptations.id) && !candidatesById.has(row.adaptations.id)) {
+        candidatesById.set(row.adaptations.id, {
+          id: row.adaptations.id,
+          title: row.adaptations.title,
+          slug: row.adaptations.slug,
+          tmdbPosterPath: row.adaptations.tmdb_poster_path,
+          becauseTitle: workTitleById.get(row.king_work_id) ?? ""
+        })
+      }
+    }
+
+    for (const row of viaShortStoriesResult.data as unknown as {
+      short_story_id: string
+      adaptations: AdaptationRef | null
+    }[]) {
+      if (row.adaptations && !watchedIds.has(row.adaptations.id) && !candidatesById.has(row.adaptations.id)) {
+        candidatesById.set(row.adaptations.id, {
+          id: row.adaptations.id,
+          title: row.adaptations.title,
+          slug: row.adaptations.slug,
+          tmdbPosterPath: row.adaptations.tmdb_poster_path,
+          becauseTitle: shortStoryBecauseTitleById.get(row.short_story_id) ?? ""
+        })
+      }
+    }
+
+    const candidates = [...candidatesById.values()]
+    if (!candidates.length) return null
+
+    return candidates[Math.floor(Math.random() * candidates.length)] ?? null
   }
 
   const fetchUserAdaptations = async () => {
@@ -323,6 +544,8 @@ export function useAdaptations() {
     fetchAdaptationsForShortStory,
     fetchAdaptationStats,
     fetchViewingProgress,
+    fetchAdaptationHighlights,
+    fetchUnwatchedRecommendation,
     userAdaptationsByAdaptationId,
     fetchUserAdaptations,
     toggleWantToWatch,

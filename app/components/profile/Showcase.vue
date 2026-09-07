@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import type {
+  BookRecommendation,
   CurrentlyReadingWork,
   ProfileBookStats,
   ReadingTimelineEntry,
 } from "~/composables/useBooks";
-import type { ViewingProgress } from "~/composables/useAdaptations";
+import type {
+  AdaptationRecommendation,
+  ViewingProgress,
+} from "~/composables/useAdaptations";
 
 interface Props {
   username: string;
@@ -14,9 +18,14 @@ interface Props {
   viewing: ViewingProgress;
   currentlyReading: CurrentlyReadingWork[];
   readingTimeline: ReadingTimelineEntry[];
+  bookRecommendation?: BookRecommendation | null;
+  adaptationRecommendation?: AdaptationRecommendation | null;
 }
 
-defineProps<Props>();
+withDefaults(defineProps<Props>(), {
+  bookRecommendation: null,
+  adaptationRecommendation: null,
+});
 </script>
 
 <template>
@@ -112,6 +121,15 @@ defineProps<Props>();
         <ProfileCurrentlyReading
           :items="currentlyReading"
           :is-owner="isOwner"
+        />
+
+        <WorkRecommendation
+          v-if="isOwner"
+          :recommendation="bookRecommendation"
+        />
+        <AdaptationRecommendation
+          v-if="isOwner"
+          :recommendation="adaptationRecommendation"
         />
       </div>
     </div>

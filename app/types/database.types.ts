@@ -247,6 +247,7 @@ export type Database = {
           id: string
           open_library_work_key: string | null
           publish_date: string
+          shuffle_position: number
           slug: string
           title: string
           type: string
@@ -261,6 +262,7 @@ export type Database = {
           id?: string
           open_library_work_key?: string | null
           publish_date: string
+          shuffle_position: number
           slug: string
           title: string
           type: string
@@ -275,6 +277,7 @@ export type Database = {
           id?: string
           open_library_work_key?: string | null
           publish_date?: string
+          shuffle_position?: number
           slug?: string
           title?: string
           type?: string
@@ -401,6 +404,35 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "work_stats"
             referencedColumns: ["king_work_id"]
+          },
+        ]
+      }
+      user_short_story_reads: {
+        Row: {
+          id: string
+          read_at: string
+          short_story_id: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          read_at?: string
+          short_story_id: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          read_at?: string
+          short_story_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_short_story_reads_short_story_id_fkey"
+            columns: ["short_story_id"]
+            isOneToOne: false
+            referencedRelation: "king_short_stories"
+            referencedColumns: ["id"]
           },
         ]
       }

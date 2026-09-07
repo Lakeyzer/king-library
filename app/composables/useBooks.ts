@@ -27,6 +27,36 @@ export interface ReadingTimelineEntry {
   readYear: number | null
 }
 
+export interface WorkHighlight {
+  id: string
+  title: string
+  slug: string
+  coverId: number | null
+  publishDate: string
+}
+
+export interface WorkLeaderboardEntry extends WorkHighlight {
+  count: number
+}
+
+export interface WorkHighlights {
+  bookOfTheWeek: WorkHighlight | null
+  bookBirthdays: WorkHighlight[]
+  mostReadBooks: WorkLeaderboardEntry[]
+  currentlyReadingLeaderboard: WorkLeaderboardEntry[]
+  leastReadBook: WorkLeaderboardEntry | null
+  mostWantedBook: WorkLeaderboardEntry | null
+}
+
+export interface BookRecommendation {
+  id: string
+  title: string
+  slug: string
+  coverId: number | null
+  publishDate: string
+  becauseTitle: string
+}
+
 export interface WorkStats {
   want_to_read_count: number
   currently_reading_count: number
@@ -51,6 +81,61 @@ export interface UserBook {
 }
 
 const USER_BOOK_COLUMNS = 'id, user_id, king_work_id, owned, wishlisted, want_to_read, currently_reading, started_on, read, finished_on, read_year'
+
+interface KingWorkRow {
+  id: string
+  title: string
+  slug: string
+  cover_id: number | null
+  publish_date: string
+  shuffle_position: number
+}
+
+interface WorkStatsRow {
+  king_work_id: string
+  read_count: number
+  currently_reading_count: number
+  want_to_read_count: number
+}
+
+interface WorkWithStats extends KingWorkRow {
+  readCount: number
+  currentlyReadingCount: number
+  wantToReadCount: number
+}
+
+function toWorkHighlight(work: WorkWithStats): WorkHighlight {
+  return {
+    id: work.id,
+    title: work.title,
+    slug: work.slug,
+    coverId: work.cover_id,
+    publishDate: work.publish_date
+  }
+}
+
+function toWorkLeaderboardEntry(work: WorkWithStats, count: number): WorkLeaderboardEntry {
+  return { ...toWorkHighlight(work), count }
+}
+
+function todayIsoDate(): string {
+  const now = new Date()
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+}
+
+// ISO 8601 week number (weeks 1-53, Monday-start, week 1 contains the year's
+// first Thursday) - the standard algorithm, operating on UTC dates so the
+// calendar day used for the calculation doesn't shift with time-of-day.
+function isoWeekNumber(): number {
+  const now = new Date()
+  const current = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()))
+  const dayNumber = (current.getUTCDay() + 6) % 7
+  current.setUTCDate(current.getUTCDate() - dayNumber + 3)
+  const firstThursday = new Date(Date.UTC(current.getUTCFullYear(), 0, 4))
+  const firstDayNumber = (firstThursday.getUTCDay() + 6) % 7
+  firstThursday.setUTCDate(firstThursday.getUTCDate() - firstDayNumber + 3)
+  return 1 + Math.round((current.getTime() - firstThursday.getTime()) / (7 * 24 * 60 * 60 * 1000))
+}
 
 export function useBooks() {
   const supabase = useSupabaseClient()
@@ -127,6 +212,174 @@ export function useBooks() {
     }
   }
 
+  // Fetches the full king_works list plus work_stats in parallel and joins
+  // them client-side - same "computed client-side at this data volume" call
+  // as fetchProfileBookStats above. One round trip pair powers book of the
+  // week, book birthday, and every book-related leaderboard/spotlight, so
+  // callers (homepage, works browsing sidebar) share one fetch rather than
+  // each running their own.
+  const fetchWorkHighlights = async (): Promise<WorkHighlights> => {
+    const [{ data: works, error: worksError }, { data: stats, error: statsError }] = await Promise.all([
+      supabase.from('king_works').select('id, title, slug, cover_id, publish_date, shuffle_position'),
+      supabase.from('work_stats').select('king_work_id, read_count, currently_reading_count, want_to_read_count')
+    ])
+
+    if (worksError) throw worksError
+    if (statsError) throw statsError
+
+    const statsByWorkId = new Map((stats as WorkStatsRow[]).map((row) => [row.king_work_id, row]))
+    const worksWithStats: WorkWithStats[] = (works as KingWorkRow[]).map((work) => ({
+      ...work,
+      readCount: statsByWorkId.get(work.id)?.read_count ?? 0,
+      currentlyReadingCount: statsByWorkId.get(work.id)?.currently_reading_count ?? 0,
+      wantToReadCount: statsByWorkId.get(work.id)?.want_to_read_count ?? 0
+    }))
+
+    const today = todayIsoDate()
+    const todayMonthDay = today.slice(5)
+
+    const bookOfTheWeekPosition = worksWithStats.length > 0 ? isoWeekNumber() % worksWithStats.length : 0
+    const bookOfTheWeekWork = worksWithStats.find((work) => work.shuffle_position === bookOfTheWeekPosition) ?? null
+
+    const bookBirthdayWorks = worksWithStats.filter((work) => work.publish_date.slice(5) === todayMonthDay)
+
+    const mostReadBooks = [...worksWithStats]
+      .sort((a, b) => b.readCount - a.readCount)
+      .slice(0, 5)
+      .map((work) => toWorkLeaderboardEntry(work, work.readCount))
+
+    const currentlyReadingLeaderboard = [...worksWithStats]
+      .sort((a, b) => b.currentlyReadingCount - a.currentlyReadingCount)
+      .slice(0, 5)
+      .map((work) => toWorkLeaderboardEntry(work, work.currentlyReadingCount))
+
+    // Released works only, lowest read count first, tie-broken by
+    // shuffle_position so the same work is picked on every load - see
+    // design.md "Least read book: tie-break on shuffle_position".
+    const releasedWorks = worksWithStats.filter((work) => work.publish_date <= today)
+    const leastReadWork = [...releasedWorks].sort(
+      (a, b) => a.readCount - b.readCount || a.shuffle_position - b.shuffle_position
+    )[0]
+
+    // Same tie-break approach as least-read: a stable secondary key so the
+    // pick doesn't flip between identical loads when counts tie.
+    const mostWantedWork = [...worksWithStats].sort(
+      (a, b) => b.wantToReadCount - a.wantToReadCount || a.shuffle_position - b.shuffle_position
+    )[0]
+
+    return {
+      bookOfTheWeek: bookOfTheWeekWork ? toWorkHighlight(bookOfTheWeekWork) : null,
+      bookBirthdays: bookBirthdayWorks.map(toWorkHighlight),
+      mostReadBooks,
+      currentlyReadingLeaderboard,
+      leastReadBook: leastReadWork ? toWorkLeaderboardEntry(leastReadWork, leastReadWork.readCount) : null,
+      mostWantedBook: mostWantedWork ? toWorkLeaderboardEntry(mostWantedWork, mostWantedWork.wantToReadCount) : null
+    }
+  }
+
+  // Mirror of useAdaptations().fetchUnwatchedRecommendation: recommends one
+  // unread King work whose adaptation the given user has watched - a
+  // personalized nudge, so it only ever reads the given userId's own rows
+  // (always allowed under RLS regardless of profile privacy). Picks
+  // randomly among qualifying candidates on each call, same reasoning as
+  // the adaptation-side recommendation.
+  //
+  // A watched adaptation sourced from a short story has no king_work of its
+  // own to recommend directly - the recommendable unit is the collection
+  // that contains the story (via king_short_story_collections), mirroring
+  // how the adaptation-side recommendation prefers a short story's
+  // collection as its "because" reason.
+  const fetchUnreadRecommendation = async (userId: string): Promise<BookRecommendation | null> => {
+    interface WorkRef {
+      id: string
+      title: string
+      slug: string
+      cover_id: number | null
+      publish_date: string
+    }
+
+    const [
+      { data: watchedRows, error: watchedError },
+      { data: readBooks, error: readBooksError }
+    ] = await Promise.all([
+      supabase
+        .from('user_adaptations')
+        .select('adaptation_id, adaptations ( title )')
+        .eq('user_id', userId)
+        .eq('watched', true),
+      supabase
+        .from('user_books')
+        .select('king_work_id')
+        .eq('user_id', userId)
+        .eq('read', true)
+    ])
+
+    if (watchedError) throw watchedError
+    if (readBooksError) throw readBooksError
+
+    const watchedAdaptationRows = watchedRows as unknown as {
+      adaptation_id: string
+      adaptations: { title: string } | null
+    }[]
+
+    if (!watchedAdaptationRows.length) return null
+
+    const readWorkIds = new Set((readBooks as { king_work_id: string }[]).map((row) => row.king_work_id))
+    const adaptationTitleById = new Map(
+      watchedAdaptationRows.map((row) => [row.adaptation_id, row.adaptations?.title ?? ''])
+    )
+    const adaptationIds = [...adaptationTitleById.keys()]
+
+    const [viaWorksResult, viaShortStoriesResult] = await Promise.all([
+      supabase
+        .from('adaptation_works')
+        .select('adaptation_id, king_works ( id, title, slug, cover_id, publish_date )')
+        .in('adaptation_id', adaptationIds),
+      supabase
+        .from('adaptation_short_stories')
+        .select(
+          'adaptation_id, king_short_stories ( king_short_story_collections ( king_works ( id, title, slug, cover_id, publish_date ) ) )'
+        )
+        .in('adaptation_id', adaptationIds)
+    ])
+
+    if (viaWorksResult.error) throw viaWorksResult.error
+    if (viaShortStoriesResult.error) throw viaShortStoriesResult.error
+
+    const candidatesById = new Map<string, BookRecommendation>()
+
+    const addCandidate = (work: WorkRef | null, adaptationId: string) => {
+      if (!work || readWorkIds.has(work.id) || candidatesById.has(work.id)) return
+
+      candidatesById.set(work.id, {
+        id: work.id,
+        title: work.title,
+        slug: work.slug,
+        coverId: work.cover_id,
+        publishDate: work.publish_date,
+        becauseTitle: adaptationTitleById.get(adaptationId) ?? ''
+      })
+    }
+
+    for (const row of viaWorksResult.data as unknown as { adaptation_id: string, king_works: WorkRef | null }[]) {
+      addCandidate(row.king_works, row.adaptation_id)
+    }
+
+    for (const row of viaShortStoriesResult.data as unknown as {
+      adaptation_id: string
+      king_short_stories: { king_short_story_collections: { king_works: WorkRef | null }[] } | null
+    }[]) {
+      for (const link of row.king_short_stories?.king_short_story_collections ?? []) {
+        addCandidate(link.king_works, row.adaptation_id)
+      }
+    }
+
+    const candidates = [...candidatesById.values()]
+    if (!candidates.length) return null
+
+    return candidates[Math.floor(Math.random() * candidates.length)] ?? null
+  }
+
   const fetchCurrentlyReading = async (userId: string): Promise<CurrentlyReadingWork[]> => {
     const { data, error } = await supabase
       .from('user_books')
@@ -157,7 +410,9 @@ export function useBooks() {
   // that "most recent date from whichever field is set" logic isn't expressible
   // as a single PostgREST .order() - see supabase-conventions "Building a
   // reading timeline". Accepts a userId like the other profile-stat fetchers.
-  const fetchReadingTimeline = async (userId: string, limit = 8): Promise<ReadingTimelineEntry[]> => {
+  // Returns every read work, not a capped page - the horizontal scroller
+  // this feeds already handles an arbitrary number of entries.
+  const fetchReadingTimeline = async (userId: string): Promise<ReadingTimelineEntry[]> => {
     const { data, error } = await supabase
       .from('user_books')
       .select('finished_on, started_on, read_year, king_works ( id, title, slug, cover_id )')
@@ -179,7 +434,6 @@ export function useBooks() {
     return rows
       .filter((row): row is typeof row & { king_works: NonNullable<typeof row.king_works> } => row.king_works !== null)
       .sort((a, b) => (sortKey(b) ?? '').localeCompare(sortKey(a) ?? ''))
-      .slice(0, limit)
       .map((row) => ({
         id: row.king_works.id,
         title: row.king_works.title,
@@ -264,6 +518,14 @@ export function useBooks() {
   ) => {
     if (!user.value) throw new Error('Not signed in')
 
+    // Explicitly null out any field not supplied, rather than omitting it
+    // from the upsert payload - per reading-status's "Marking read with no
+    // dates supplied" scenario, confirming with everything blank must leave
+    // start date, finish date, and year "all left unset". Omitting the key
+    // instead would only skip the *new* value while leaving an existing
+    // row's prior started_on/finished_on/read_year (e.g. from an earlier
+    // currently-reading session) in place - resurfacing a date the user
+    // deliberately didn't provide for this read.
     const { data, error } = await supabase
       .from('user_books')
       .upsert(
@@ -271,9 +533,9 @@ export function useBooks() {
           user_id: user.value.sub,
           king_work_id: workId,
           read: true,
-          ...(startedOn !== undefined && { started_on: startedOn }),
-          ...(finishedOn !== undefined && { finished_on: finishedOn }),
-          ...(readYear !== undefined && { read_year: readYear })
+          started_on: startedOn ?? null,
+          finished_on: finishedOn ?? null,
+          read_year: readYear ?? null
         },
         { onConflict: 'user_id,king_work_id' }
       )
@@ -314,6 +576,8 @@ export function useBooks() {
     fetchProfileBookStats,
     fetchCurrentlyReading,
     fetchReadingTimeline,
+    fetchWorkHighlights,
+    fetchUnreadRecommendation,
     toggleWantToRead,
     startReading,
     finishReading,

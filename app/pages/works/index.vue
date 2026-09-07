@@ -6,8 +6,25 @@ definePageMeta({ layout: "default" });
 const { fetchKingWorks } = useKingWorks();
 const { data: works } = await useAsyncData("works", fetchKingWorks);
 
-const { fetchUserBooks } = useBooks();
+const user = useSupabaseUser();
+
+const { fetchUserBooks, fetchWorkHighlights, fetchUnreadRecommendation } =
+  useBooks();
 await useAsyncData("user-books", fetchUserBooks);
+const { data: workHighlights } = await useAsyncData(
+  "works-page-highlights",
+  fetchWorkHighlights,
+);
+const { data: bookRecommendation } = await useAsyncData(
+  "works-page-recommendation",
+  () =>
+    user.value
+      ? fetchUnreadRecommendation(user.value.sub)
+      : Promise.resolve(null),
+);
+
+const readsCountLabel = (count: number) =>
+  `${count} ${count === 1 ? "read" : "reads"}`;
 
 const flagOptions = [
   { label: "All", value: "all" },
@@ -53,6 +70,25 @@ function extraFilter(work: KingWork) {
 
     <template #item-actions="{ item }">
       <BookReadingActions :work-id="(item as KingWork).id" />
+    </template>
+
+    <template v-if="workHighlights" #sidebar>
+      <WorkRecommendation :recommendation="bookRecommendation ?? null" />
+      <WorkLeaderboard
+        title="Most Read Books"
+        icon="i-lucide-trending-up"
+        :items="workHighlights.mostReadBooks"
+        :count-label="readsCountLabel"
+        empty-message="No books have been marked read yet."
+      />
+      <WorkSpotlight
+        title="Book of the Week"
+        icon="i-lucide-sparkles"
+        :work="workHighlights.bookOfTheWeek"
+        empty-message="No book is featured right now."
+      />
+      <WorkBirthday :works="workHighlights.bookBirthdays" />
+      <WorkLeastReadSpotlight :work="workHighlights.leastReadBook" />
     </template>
   </BibliographyBrowsePage>
 </template>

@@ -3,7 +3,7 @@ interface Props {
   src: string | null
   alt: string
   placeholderIcon: string
-  size?: 'sm' | 'lg' | 'full'
+  size?: 'xs' | 'sm' | 'lg' | 'full'
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -13,12 +13,14 @@ const props = withDefaults(defineProps<Props>(), {
 const hasError = ref(false)
 
 const SIZE_CLASSES: Record<NonNullable<Props['size']>, string> = {
+  xs: 'h-10 w-7',
   sm: 'h-24 w-15',
   lg: 'h-40 w-28',
   full: 'w-full aspect-[2/3]'
 }
 
 const ICON_SIZE_CLASSES: Record<NonNullable<Props['size']>, string> = {
+  xs: 'size-4',
   sm: 'size-6',
   lg: 'size-10',
   full: 'size-12'

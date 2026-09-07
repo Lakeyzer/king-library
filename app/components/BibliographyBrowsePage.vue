@@ -76,63 +76,71 @@ const filteredItems = computed(() => {
     <UPageHeader :title="title" :description="description" />
 
     <UPageBody>
-      <div class="flex flex-wrap items-end gap-4 mb-4">
-        <UFormField>
-          <UInput
-            v-model="search"
-            placeholder="Search by title"
-            icon="i-lucide-search"
-          />
-        </UFormField>
-        <UFormField>
-          <USelect
-            v-model="typeFilter"
-            icon="i-lucide-filter"
-            :items="typeOptions"
-            class="w-48"
-          />
-        </UFormField>
-        <UFormField>
-          <div class="flex items-center gap-1">
-            <USelect
-              v-if="sortOptions.length > 1"
-              v-model="sortBy"
-              :items="sortOptions"
-              icon="i-lucide-arrow-up-down"
-              class="w-44"
-              aria-label="Sort field"
-            />
-            <UButton
-              color="neutral"
-              variant="subtle"
-              :icon="
-                sortDir === 'asc' ? 'i-lucide-arrow-up' : 'i-lucide-arrow-down'
-              "
-              aria-label="Toggle sort direction"
-              @click="toggleSortDir"
-            />
+      <div class="flex flex-col-reverse gap-6 lg:flex-row lg:items-start">
+        <div class="min-w-0 flex-1">
+          <div class="flex flex-wrap items-end gap-4 mb-4">
+            <UFormField>
+              <UInput
+                v-model="search"
+                placeholder="Search by title"
+                icon="i-lucide-search"
+              />
+            </UFormField>
+            <UFormField>
+              <USelect
+                v-model="typeFilter"
+                icon="i-lucide-filter"
+                :items="typeOptions"
+                class="w-48"
+              />
+            </UFormField>
+            <UFormField>
+              <div class="flex items-center gap-1">
+                <USelect
+                  v-if="sortOptions.length > 1"
+                  v-model="sortBy"
+                  :items="sortOptions"
+                  icon="i-lucide-arrow-up-down"
+                  class="w-44"
+                  aria-label="Sort field"
+                />
+                <UButton
+                  color="neutral"
+                  variant="subtle"
+                  :icon="
+                    sortDir === 'asc' ? 'i-lucide-arrow-up' : 'i-lucide-arrow-down'
+                  "
+                  aria-label="Toggle sort direction"
+                  @click="toggleSortDir"
+                />
+              </div>
+            </UFormField>
+            <slot name="extra-filters" />
           </div>
-        </UFormField>
-        <slot name="extra-filters" />
-      </div>
 
-      <ul class="flex flex-col gap-2">
-        <BibliographyListItem
-          v-for="item in filteredItems"
-          :key="item.id"
-          :src="imageSrcOf(item)"
-          :image-alt="imageAltOf(item)"
-          :placeholder-icon="placeholderIcon"
-          :title="item.title"
-          :release-year="yearOf(item)"
-          :type-label="formatTypeLabel(item.type)"
-          :to="detailPathPrefix && item.slug ? `${detailPathPrefix}/${item.slug}` : undefined"
-        >
-          <template #actions>
-            <slot name="item-actions" :item="item" />
-          </template>
-        </BibliographyListItem>
-      </ul>
+          <ul class="flex flex-col gap-2">
+            <BibliographyListItem
+              v-for="item in filteredItems"
+              :key="item.id"
+              :src="imageSrcOf(item)"
+              :image-alt="imageAltOf(item)"
+              :placeholder-icon="placeholderIcon"
+              :title="item.title"
+              :release-year="yearOf(item)"
+              :type-label="formatTypeLabel(item.type)"
+              :to="detailPathPrefix && item.slug ? `${detailPathPrefix}/${item.slug}` : undefined"
+            >
+              <template #actions>
+                <slot name="item-actions" :item="item" />
+              </template>
+            </BibliographyListItem>
+          </ul>
+        </div>
+
+        <div v-if="$slots.sidebar" class="flex w-full flex-col gap-6 lg:w-96 lg:shrink-0">
+          <slot name="sidebar" />
+        </div>
+      </div>
     </UPageBody>
   </div>
 </template>

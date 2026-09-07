@@ -6,7 +6,8 @@ definePageMeta({ layout: false });
 const route = useRoute();
 const slug = route.params.slug as string;
 
-const { fetchShortStoryBySlug, fetchCollectionsForShortStory } = useShortStories();
+const { fetchShortStoryBySlug, fetchCollectionsForShortStory, fetchUserShortStoryReads } =
+  useShortStories();
 const { data: storyData } = await useAsyncData(`short-story-${slug}`, () =>
   fetchShortStoryBySlug(slug),
 );
@@ -16,6 +17,11 @@ if (!storyData.value) {
 }
 
 const story = storyData.value;
+
+// Not awaited: this only affects the reading-status button's displayed
+// state, which updates reactively once it resolves - same as user-books on
+// the work detail page.
+useAsyncData("user-short-story-reads", fetchUserShortStoryReads);
 
 const { data: collections } = await useAsyncData(`short-story-${slug}-collections`, () =>
   fetchCollectionsForShortStory(story.id),
@@ -96,6 +102,10 @@ useSeoMeta({ title: story.title });
 
         <template v-if="collectionItems.length" #related>
           <DetailConnectionList heading="Appears In" :items="collectionItems" />
+        </template>
+
+        <template #actions>
+          <ShortStoryReadingActions :short-story-id="story.id" />
         </template>
       </DetailHero>
     </template>

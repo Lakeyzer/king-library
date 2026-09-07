@@ -14,6 +14,14 @@ const SCROLL_LOAD_THRESHOLD = 200;
 
 const { fetchEditions } = useOpenLibraryEditions();
 
+// True until the first Open Library response lands. The fetch itself is
+// deliberately not blocking the page (see the onMounted comment below), but
+// that means this component renders nothing at all in the meantime - a
+// skeleton the same rough shape as the real content avoids the layout shift
+// that pop-in would otherwise cause once the response arrives.
+const initialLoading = ref(true);
+const SKELETON_COUNT = 5;
+
 const total = ref(0);
 
 // Horizontal (infinite-scroll) state - only rendered when orientation is "auto" (sm+).
@@ -44,6 +52,7 @@ onMounted(async () => {
   hasMore.value = firstPage.hasMore;
   // Page 1 is exactly what was just fetched - no need to fetch it again.
   pageEditions.value = firstPage.editions;
+  initialLoading.value = false;
 
   await nextTick();
   updateScrollState();
@@ -132,7 +141,37 @@ watch(currentPage, (page) => loadPage(page));
 </script>
 
 <template>
-  <div v-if="editions.length || pageEditions.length" class="flex flex-col gap-3">
+  <div v-if="initialLoading" class="flex flex-col gap-3">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <h3 class="text-sm font-semibold text-highlighted">Editions</h3>
+      <USkeleton v-if="orientation === 'auto'" class="hidden h-9 w-56 sm:block" />
+    </div>
+
+    <div v-if="orientation === 'auto'" class="hidden items-center gap-2 sm:flex">
+      <USkeleton class="size-9 shrink-0 rounded-full" />
+
+      <div class="flex flex-1 gap-3 overflow-hidden">
+        <div v-for="n in SKELETON_COUNT" :key="n" class="flex w-28 shrink-0 flex-col gap-1">
+          <USkeleton class="h-40 w-28" />
+          <USkeleton class="h-3 w-16 self-center" />
+        </div>
+      </div>
+
+      <USkeleton class="size-9 shrink-0 rounded-full" />
+    </div>
+
+    <div class="flex flex-col gap-2" :class="orientation === 'auto' && 'sm:hidden'">
+      <div v-for="n in 3" :key="n" class="flex items-center gap-4 rounded bg-elevated p-3">
+        <USkeleton class="h-24 w-15 shrink-0" />
+        <div class="flex flex-1 flex-col gap-2">
+          <USkeleton class="h-4 w-2/3" />
+          <USkeleton class="h-3 w-1/3" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div v-else-if="editions.length || pageEditions.length" class="flex flex-col gap-3">
     <div class="flex flex-wrap items-center justify-between gap-3">
       <h3 class="text-sm font-semibold text-highlighted">
         Editions
