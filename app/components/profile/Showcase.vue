@@ -2,6 +2,7 @@
 import type {
   BookRecommendation,
   CurrentlyReadingWork,
+  OwnedUnreadRecommendation,
   ProfileBookStats,
   ReadingTimelineEntry,
 } from "~/composables/useBooks";
@@ -9,6 +10,7 @@ import type {
   AdaptationRecommendation,
   ViewingProgress,
 } from "~/composables/useAdaptations";
+import type { BookshelfItem } from "~/composables/useBookshelf";
 
 interface Props {
   username: string;
@@ -18,12 +20,15 @@ interface Props {
   viewing: ViewingProgress;
   currentlyReading: CurrentlyReadingWork[];
   readingTimeline: ReadingTimelineEntry[];
+  bookshelf: BookshelfItem[];
   bookRecommendation?: BookRecommendation | null;
+  ownedUnreadRecommendation?: OwnedUnreadRecommendation | null;
   adaptationRecommendation?: AdaptationRecommendation | null;
 }
 
 withDefaults(defineProps<Props>(), {
   bookRecommendation: null,
+  ownedUnreadRecommendation: null,
   adaptationRecommendation: null,
 });
 </script>
@@ -43,7 +48,7 @@ withDefaults(defineProps<Props>(), {
         class="flex items-center gap-2 text-lg font-semibold text-highlighted"
       >
         <UIcon name="i-lucide-scroll-text" class="size-5" />
-        Previously Read
+        Reading Journey
       </h2>
       <ProfileReadingTimeline :items="readingTimeline" />
     </div>
@@ -95,20 +100,10 @@ withDefaults(defineProps<Props>(), {
             :count="stats.collection.count"
             :total="stats.collection.total"
             color="success"
-            hint="Bookshelf coming soon"
           />
         </div>
 
-        <h2
-          class="flex items-center gap-2 text-lg font-semibold text-highlighted"
-        >
-          <UIcon name="i-lucide-library" class="size-5" />
-          Bookshelf
-        </h2>
-
-        <div class="rounded-lg bg-elevated p-4 text-center text-sm text-muted">
-          Coming soon
-        </div>
+        <ProfileBookshelf :items="bookshelf" :is-owner="isOwner" />
       </div>
 
       <div class="flex w-full shrink-0 flex-col gap-3 lg:w-56">
@@ -126,6 +121,10 @@ withDefaults(defineProps<Props>(), {
         <WorkRecommendation
           v-if="isOwner"
           :recommendation="bookRecommendation"
+        />
+        <WorkOwnedRecommendation
+          v-if="isOwner"
+          :recommendation="ownedUnreadRecommendation"
         />
         <AdaptationRecommendation
           v-if="isOwner"

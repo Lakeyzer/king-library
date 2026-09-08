@@ -57,6 +57,17 @@ export interface BookRecommendation {
   becauseTitle: string
 }
 
+// No "because" reason to attach (unlike BookRecommendation, driven by a
+// watched adaptation) - the reason is always the same static fact ("it's on
+// your shelf"), so it isn't a field on the type.
+export interface OwnedUnreadRecommendation {
+  id: string
+  title: string
+  slug: string
+  coverId: number | null
+  publishDate: string
+}
+
 export interface WorkStats {
   want_to_read_count: number
   currently_reading_count: number
@@ -380,6 +391,47 @@ export function useBooks() {
     return candidates[Math.floor(Math.random() * candidates.length)] ?? null
   }
 
+  // A second, distinct personalized nudge from fetchUnreadRecommendation
+  // above: that one suggests a book based on a watched adaptation; this one
+  // suggests a book the user already owns but hasn't read yet - the
+  // simplest possible "you already have this" prompt, no adaptation
+  // involved. Same randomized-pick-among-candidates and userId-param
+  // reasoning as every other personalized recommendation here.
+  const fetchOwnedUnreadRecommendation = async (userId: string): Promise<OwnedUnreadRecommendation | null> => {
+    interface WorkRef {
+      id: string
+      title: string
+      slug: string
+      cover_id: number | null
+      publish_date: string
+    }
+
+    const { data, error } = await supabase
+      .from('user_books')
+      .select('king_works ( id, title, slug, cover_id, publish_date )')
+      .eq('user_id', userId)
+      .eq('owned', true)
+      .eq('read', false)
+
+    if (error) throw error
+
+    const candidates = (data as unknown as { king_works: WorkRef | null }[])
+      .map((row) => row.king_works)
+      .filter((work): work is WorkRef => work !== null)
+
+    if (!candidates.length) return null
+
+    const work = candidates[Math.floor(Math.random() * candidates.length)]!
+
+    return {
+      id: work.id,
+      title: work.title,
+      slug: work.slug,
+      coverId: work.cover_id,
+      publishDate: work.publish_date
+    }
+  }
+
   const fetchCurrentlyReading = async (userId: string): Promise<CurrentlyReadingWork[]> => {
     const { data, error } = await supabase
       .from('user_books')
@@ -569,6 +621,31 @@ export function useBooks() {
     return row
   }
 
+  // Exposed for useBookshelf(), which needs to flip the ownership flag as
+  // one half of its two-write add/remove-edition operations - keeps that
+  // write inside user_books' own composable rather than useBookshelf calling
+  // supabase.from('user_books') directly (see supabase-conventions "one
+  // composable per table").
+  const setOwned = async (workId: string, owned: boolean) => {
+    if (!user.value) throw new Error('Not signed in')
+
+    const { data, error } = await supabase
+      .from('user_books')
+      .upsert(
+        { user_id: user.value.sub, king_work_id: workId, owned },
+        { onConflict: 'user_id,king_work_id' }
+      )
+      .select(USER_BOOK_COLUMNS)
+      .single()
+
+    if (error) throw error
+
+    const row = data as UserBook
+    userBooksByWorkId.value = { ...userBooksByWorkId.value, [workId]: row }
+
+    return row
+  }
+
   return {
     userBooksByWorkId,
     fetchUserBooks,
@@ -578,10 +655,12 @@ export function useBooks() {
     fetchReadingTimeline,
     fetchWorkHighlights,
     fetchUnreadRecommendation,
+    fetchOwnedUnreadRecommendation,
     toggleWantToRead,
     startReading,
     finishReading,
     markRead,
-    unmarkRead
+    unmarkRead,
+    setOwned
   }
 }

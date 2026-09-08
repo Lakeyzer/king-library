@@ -3,17 +3,23 @@ import type { DropdownMenuItem } from "@nuxt/ui";
 
 interface Props {
   workId: string;
+  /** Open Library work key, needed to open the Add to Shelf editions picker - when absent, no Add to Shelf control is shown. */
+  workKey?: string | null;
   mode?: "compact" | "expanded";
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  workKey: null,
   mode: "compact",
 });
 
 const user = useSupabaseUser();
 const { userBooksByWorkId, toggleWantToRead, unmarkRead } = useBooks();
 
+const showEditionsModal = ref(false);
+
 const userBook = computed(() => userBooksByWorkId.value[props.workId]);
+const isOwned = computed(() => userBook.value?.owned ?? false);
 const isWantToRead = computed(() => userBook.value?.want_to_read ?? false);
 const isCurrentlyReading = computed(
   () => userBook.value?.currently_reading ?? false,
@@ -67,7 +73,7 @@ function handlePrimaryClick() {
   }
 }
 
-const dropdownItems = computed<DropdownMenuItem[]>(() => {
+const readingDropdownItems = computed<DropdownMenuItem[]>(() => {
   switch (primaryState.value) {
     case "neutral":
       return [
@@ -114,6 +120,24 @@ const dropdownItems = computed<DropdownMenuItem[]>(() => {
   }
 });
 
+// Owning a work is independent of reading status, so Add to Shelf is
+// available in every state - appended here rather than duplicated in each
+// readingDropdownItems branch above.
+const dropdownItems = computed<DropdownMenuItem[]>(() => {
+  if (!props.workKey) return readingDropdownItems.value;
+
+  return [
+    ...readingDropdownItems.value,
+    {
+      label: shelfLabel.value,
+      icon: "i-lucide-library",
+      onSelect: () => {
+        showEditionsModal.value = true;
+      },
+    },
+  ];
+});
+
 // Expanded mode shows every action always, disabling whichever don't apply
 // to the current state, rather than hiding them (see reading-status spec).
 const canToggleReadlistOrStart = computed(
@@ -131,6 +155,8 @@ const readLabel = computed(() => (isRead.value ? "Mark as Unread" : "Mark as Rea
 const startFinishLabel = computed(() =>
   isCurrentlyReading.value ? "Finish Reading" : "Start Reading",
 );
+
+const shelfLabel = computed(() => (isOwned.value ? "On Shelf" : "Add to Shelf"));
 
 function handleReadlistToggle() {
   toggleWantToRead(props.workId);
@@ -217,6 +243,15 @@ function handleReadToggle() {
           :filled="isRead"
           @click="handleReadToggle"
         />
+        <IconLabelButton
+          v-if="workKey"
+          stacked
+          class="flex-1"
+          :label="shelfLabel"
+          icon="i-lucide-library"
+          :filled="isOwned"
+          @click="showEditionsModal = true"
+        />
       </UFieldGroup>
 
       <div class="hidden flex-nowrap gap-2 sm:flex">
@@ -240,11 +275,24 @@ function handleReadToggle() {
           :filled="isRead"
           @click="handleReadToggle"
         />
+        <IconLabelButton
+          v-if="workKey"
+          :label="shelfLabel"
+          icon="i-lucide-library"
+          :filled="isOwned"
+          @click="showEditionsModal = true"
+        />
       </div>
     </template>
 
     <BookStartReadingModal v-model:open="showStartReadingModal" :work-id="workId" />
     <BookFinishReadingModal v-model:open="showFinishReadingModal" :work-id="workId" />
     <BookMarkReadModal v-model:open="showMarkReadModal" :work-id="workId" />
+    <BookEditionsPickerModal
+      v-if="workKey"
+      v-model:open="showEditionsModal"
+      :work-id="workId"
+      :work-key="workKey"
+    />
   </template>
 </template>

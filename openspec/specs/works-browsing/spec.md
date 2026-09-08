@@ -121,3 +121,18 @@ The dropdown lists whichever of Want to Read, Start Reading, Finish, Mark as Rea
 #### Scenario: Read work shows Mark as Not Read as the primary action
 - **WHEN** a signed-in user views a work that is read
 - **THEN** the split button's primary action is "Mark as Not Read", and its dropdown has no other applicable actions
+
+### Requirement: Signed-in visitors see a personalized owned-unread recommendation
+The system SHALL show a signed-in visitor, in the works page's sidebar, a recommendation for one King work they own but have not read. The system SHALL show nothing in its place when no such King work exists (rather than an empty state) and SHALL NOT show this recommendation to a signed-out visitor.
+
+#### Scenario: Signed-in visitor with an eligible recommendation
+- **WHEN** a signed-in visitor owns a King work they have not read
+- **THEN** the works page sidebar recommends one such King work
+
+#### Scenario: Signed-in visitor with no eligible recommendation
+- **WHEN** a signed-in visitor owns no King work they have not read
+- **THEN** no owned-unread recommendation card is shown
+
+#### Scenario: Signed-out visitor sees no owned-unread recommendation
+- **WHEN** a signed-out visitor views the works page
+- **THEN** no owned-unread recommendation card is shown

@@ -350,6 +350,48 @@ export type Database = {
           },
         ]
       }
+      user_book_editions: {
+        Row: {
+          added_at: string
+          edition_id: string
+          edition_title: string
+          id: string
+          king_work_id: string
+          user_id: string
+        }
+        Insert: {
+          added_at?: string
+          edition_id: string
+          edition_title: string
+          id?: string
+          king_work_id: string
+          user_id: string
+        }
+        Update: {
+          added_at?: string
+          edition_id?: string
+          edition_title?: string
+          id?: string
+          king_work_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_book_editions_king_work_id_fkey"
+            columns: ["king_work_id"]
+            isOneToOne: false
+            referencedRelation: "king_works"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_book_editions_king_work_id_fkey"
+            columns: ["king_work_id"]
+            isOneToOne: false
+            referencedRelation: "work_stats"
+            referencedColumns: ["king_work_id"]
+          },
+        ]
+      }
       user_books: {
         Row: {
           currently_reading: boolean

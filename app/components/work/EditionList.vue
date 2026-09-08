@@ -1,6 +1,8 @@
 <script setup lang="ts">
 interface Props {
   workKey: string;
+  /** King work id (our DB uuid, distinct from workKey's Open Library key) - needed to record add/remove-to-shelf actions against the right work. */
+  workId: string;
   /** "vertical" forces the paginated list view at every width; "auto" (default) shows the horizontal scroller at sm+ and falls back to the paginated list below it. */
   orientation?: "auto" | "vertical";
 }
@@ -69,6 +71,23 @@ const filteredEditions = computed(() => {
   );
 });
 
+// A search only makes sense against everything loaded, which is exactly
+// what filteredEditions already provides once loadAll() has run (see the
+// query watcher below) - vertical pagination switches from server-fetched
+// pages to paging over that filtered in-memory list while a term is active.
+const isSearching = computed(() => query.value.trim().length > 0);
+
+const verticalTotal = computed(() => (isSearching.value ? filteredEditions.value.length : total.value));
+
+const verticalItems = computed(() => {
+  if (!isSearching.value) return pageEditions.value;
+
+  const start = (currentPage.value - 1) * PAGE_SIZE;
+  return filteredEditions.value.slice(start, start + PAGE_SIZE);
+});
+
+const verticalLoading = computed(() => (isSearching.value ? loading.value : pageLoading.value));
+
 async function loadMore() {
   if (loading.value || !hasMore.value) return;
 
@@ -85,7 +104,11 @@ async function loadMore() {
 
 // A search only makes sense against everything, not just what's loaded so
 // far, so entering a filter term pulls in the remaining pages up front.
+// Resetting to page 1 on every change avoids landing on a page number that
+// no longer exists once the (now filtered, or un-filtered again) result set
+// changes size.
 watch(query, (value) => {
+  currentPage.value = 1;
   if (value.trim()) loadAll();
 });
 
@@ -137,14 +160,47 @@ async function loadPage(page: number) {
   pageLoading.value = false;
 }
 
-watch(currentPage, (page) => loadPage(page));
+// While searching, pagination pages over the already-loaded filteredEditions
+// in memory instead (see verticalItems) - no fetch needed.
+watch(currentPage, (page) => {
+  if (!isSearching.value) loadPage(page);
+});
+
+// Full-size cover preview, shared by both orientations - a click on any
+// edition's thumbnail (only when it actually has a cover) opens the same
+// modal rather than each layout building its own.
+const previewCoverId = ref<number | null>(null);
+const previewTitle = ref("");
+const showPreview = ref(false);
+
+function openPreview(edition: OpenLibraryEdition) {
+  if (!edition.coverId) return;
+
+  previewCoverId.value = edition.coverId;
+  previewTitle.value = edition.title;
+  showPreview.value = true;
+}
+
+const previewSrc = computed(() =>
+  previewCoverId.value ? getOpenLibraryCoverUrl(previewCoverId.value, "L") : null
+);
+
+// The vertical layout is shared by two different contexts that want
+// different densities: forced ("vertical") is the editions picker modal,
+// a dedicated picker where compactness helps scanning many rows, so it
+// stays small (xs); the on-page small-screen fallback of "auto" should
+// instead match the rest of the detail page's connection lists (e.g.
+// DetailConnectionList's own mobile fallback, ImageThumbnail's default
+// "sm" size) rather than looking oddly cramped next to them.
+const rowThumbnailSize = computed(() => (props.orientation === "vertical" ? "xs" : "sm"));
+const rowCoverSize = computed(() => (props.orientation === "vertical" ? "S" : "M"));
 </script>
 
 <template>
   <div v-if="initialLoading" class="flex flex-col gap-3">
     <div class="flex flex-wrap items-center justify-between gap-3">
       <h3 class="text-sm font-semibold text-highlighted">Editions</h3>
-      <USkeleton v-if="orientation === 'auto'" class="hidden h-9 w-56 sm:block" />
+      <USkeleton class="h-9 w-full sm:w-56" />
     </div>
 
     <div v-if="orientation === 'auto'" class="hidden items-center gap-2 sm:flex">
@@ -160,9 +216,9 @@ watch(currentPage, (page) => loadPage(page));
       <USkeleton class="size-9 shrink-0 rounded-full" />
     </div>
 
-    <div class="flex flex-col gap-2" :class="orientation === 'auto' && 'sm:hidden'">
-      <div v-for="n in 3" :key="n" class="flex items-center gap-4 rounded bg-elevated p-3">
-        <USkeleton class="h-24 w-15 shrink-0" />
+    <div class="flex flex-col divide-y divide-accented" :class="orientation === 'auto' && 'sm:hidden'">
+      <div v-for="n in 3" :key="n" class="flex items-center gap-3 py-2">
+        <USkeleton :class="orientation === 'vertical' ? 'h-10 w-7' : 'h-24 w-15'" class="shrink-0" />
         <div class="flex flex-1 flex-col gap-2">
           <USkeleton class="h-4 w-2/3" />
           <USkeleton class="h-3 w-1/3" />
@@ -179,12 +235,11 @@ watch(currentPage, (page) => loadPage(page));
       </h3>
 
       <UInput
-        v-if="orientation === 'auto'"
         v-model="query"
         icon="i-lucide-search"
         placeholder="Filter by year or publisher"
         size="sm"
-        class="hidden w-56 sm:block"
+        class="w-full sm:w-56"
       />
     </div>
 
@@ -205,12 +260,28 @@ watch(currentPage, (page) => loadPage(page));
         @scroll="onScroll"
       >
         <div v-for="edition in filteredEditions" :key="edition.key" class="w-28 shrink-0">
-          <ImageThumbnail
-            :src="edition.coverId ? getOpenLibraryCoverUrl(edition.coverId, 'M') : null"
-            :alt="`${edition.title} cover`"
-            placeholder-icon="i-lucide-book"
-            size="lg"
-          />
+          <div class="relative">
+            <button
+              type="button"
+              class="block w-full"
+              :class="edition.coverId ? 'cursor-zoom-in' : 'cursor-default'"
+              :aria-label="`View ${edition.title} cover full size`"
+              @click="openPreview(edition)"
+            >
+              <ImageThumbnail
+                :src="edition.coverId ? getOpenLibraryCoverUrl(edition.coverId, 'M') : null"
+                :alt="`${edition.title} cover`"
+                placeholder-icon="i-lucide-book"
+                size="lg"
+              />
+            </button>
+            <BookEditionToggle
+              :work-id="workId"
+              :edition-id="edition.key"
+              :edition-title="edition.title"
+              class="absolute right-1 top-1"
+            />
+          </div>
           <p class="mt-1 truncate text-center text-xs text-muted">
             <template v-if="edition.publisher || edition.publishYear">
               <span v-if="edition.publisher">{{ edition.publisher }}</span>
@@ -247,29 +318,68 @@ watch(currentPage, (page) => loadPage(page));
 
     <div
       class="flex flex-col gap-3"
-      :class="[orientation === 'auto' && 'sm:hidden', pageLoading && 'opacity-50']"
+      :class="[orientation === 'auto' && 'sm:hidden', verticalLoading && 'opacity-50']"
     >
-      <ul class="flex flex-col gap-2">
-        <BibliographyListItem
-          v-for="edition in pageEditions"
+      <ul class="flex flex-col divide-y divide-accented">
+        <li
+          v-for="edition in verticalItems"
           :key="edition.key"
-          :src="edition.coverId ? getOpenLibraryCoverUrl(edition.coverId, 'M') : null"
-          :image-alt="`${edition.title} cover`"
-          placeholder-icon="i-lucide-book"
-          :title="edition.title"
-          :release-year="edition.publishYear ? Number(edition.publishYear) : null"
-          :type-label="edition.publisher ?? ''"
-        />
+          class="flex items-center gap-3 py-2"
+        >
+          <button
+            type="button"
+            class="shrink-0"
+            :class="edition.coverId ? 'cursor-zoom-in' : 'cursor-default'"
+            :aria-label="`View ${edition.title} cover full size`"
+            @click="openPreview(edition)"
+          >
+            <ImageThumbnail
+              :src="edition.coverId ? getOpenLibraryCoverUrl(edition.coverId, rowCoverSize) : null"
+              :alt="`${edition.title} cover`"
+              placeholder-icon="i-lucide-book"
+              :size="rowThumbnailSize"
+            />
+          </button>
+
+          <div class="min-w-0 flex-1">
+            <p class="truncate text-sm font-medium text-highlighted">{{ edition.title }}</p>
+            <p class="truncate text-xs text-muted">
+              <template v-if="edition.publisher || edition.publishYear">
+                <span v-if="edition.publisher">{{ edition.publisher }}</span>
+                <span v-if="edition.publisher && edition.publishYear"> · </span>
+                <span v-if="edition.publishYear">{{ edition.publishYear }}</span>
+              </template>
+            </p>
+          </div>
+
+          <BookEditionToggle
+            :work-id="workId"
+            :edition-id="edition.key"
+            :edition-title="edition.title"
+            class="shrink-0"
+          />
+        </li>
       </ul>
 
       <UPagination
-        v-if="total > PAGE_SIZE"
+        v-if="verticalTotal > PAGE_SIZE"
         v-model:page="currentPage"
-        :total="total"
+        :total="verticalTotal"
         :items-per-page="PAGE_SIZE"
-        :disabled="pageLoading"
+        :disabled="verticalLoading"
         class="self-center"
       />
     </div>
   </div>
+
+  <UModal v-model:open="showPreview" :title="previewTitle">
+    <template #body>
+      <img
+        v-if="previewSrc"
+        :src="previewSrc"
+        :alt="`${previewTitle} cover`"
+        class="mx-auto max-h-[75vh] w-auto rounded"
+      >
+    </template>
+  </UModal>
 </template>

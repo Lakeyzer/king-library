@@ -8,8 +8,10 @@ const {
   fetchCurrentlyReading,
   fetchReadingTimeline,
   fetchUnreadRecommendation,
+  fetchOwnedUnreadRecommendation,
 } = useBooks();
 const { fetchViewingProgress, fetchUnwatchedRecommendation } = useAdaptations();
+const { fetchBookshelf } = useBookshelf();
 
 const userId = computed(() => user.value?.sub ?? "");
 
@@ -18,7 +20,9 @@ const [
   { data: viewing },
   { data: currentlyReading },
   { data: readingTimeline },
+  { data: bookshelf },
   { data: bookRecommendation },
+  { data: ownedUnreadRecommendation },
   { data: adaptationRecommendation },
 ] = await Promise.all([
   useAsyncData("own-profile-book-stats", () =>
@@ -33,8 +37,12 @@ const [
   useAsyncData("own-profile-reading-timeline", () =>
     fetchReadingTimeline(userId.value),
   ),
+  useAsyncData("own-profile-bookshelf", () => fetchBookshelf(userId.value)),
   useAsyncData("own-profile-book-recommendation", () =>
     fetchUnreadRecommendation(userId.value),
+  ),
+  useAsyncData("own-profile-owned-unread-recommendation", () =>
+    fetchOwnedUnreadRecommendation(userId.value),
   ),
   useAsyncData("own-profile-adaptation-recommendation", () =>
     fetchUnwatchedRecommendation(userId.value),
@@ -59,7 +67,9 @@ useSeoMeta({
       :viewing="viewing"
       :currently-reading="currentlyReading"
       :reading-timeline="readingTimeline"
+      :bookshelf="bookshelf ?? []"
       :book-recommendation="bookRecommendation ?? null"
+      :owned-unread-recommendation="ownedUnreadRecommendation ?? null"
       :adaptation-recommendation="adaptationRecommendation ?? null"
     />
   </div>

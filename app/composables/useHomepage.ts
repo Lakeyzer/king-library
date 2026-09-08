@@ -1,6 +1,7 @@
 export interface HomepageStats {
   fanCount: number
   booksReadCount: number
+  booksOwnedCount: number
   adaptationsWatchedCount: number
 }
 
@@ -36,7 +37,7 @@ export function useHomepage() {
       supabase.from('king_short_stories').select('id', { count: 'exact', head: true }),
       supabase.from('king_works').select('id', { count: 'exact', head: true }),
       supabase.from('adaptations').select('id', { count: 'exact', head: true }),
-      supabase.from('work_stats').select('read_count'),
+      supabase.from('work_stats').select('read_count, owner_count'),
       supabase.from('adaptation_stats').select('watched_count')
     ])
 
@@ -47,10 +48,13 @@ export function useHomepage() {
     if (workStatsError) throw workStatsError
     if (adaptationStatsError) throw adaptationStatsError
 
+    const workStats = workStatsRows as { read_count: number, owner_count: number }[]
+
     return {
       stats: {
         fanCount: fanCount ?? 0,
-        booksReadCount: (workStatsRows as { read_count: number }[]).reduce((sum, row) => sum + row.read_count, 0),
+        booksReadCount: workStats.reduce((sum, row) => sum + row.read_count, 0),
+        booksOwnedCount: workStats.reduce((sum, row) => sum + row.owner_count, 0),
         adaptationsWatchedCount: (adaptationStatsRows as { watched_count: number }[]).reduce(
           (sum, row) => sum + row.watched_count,
           0

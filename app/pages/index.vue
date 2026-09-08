@@ -5,10 +5,20 @@ const user = useSupabaseUser();
 const { open: openAuthModal } = useAuthModal();
 
 const { fetchHomepageMeta } = useHomepage();
-const { fetchWorkHighlights, fetchUserBooks, fetchUnreadRecommendation } = useBooks();
-const { fetchAdaptationHighlights, fetchUnwatchedRecommendation } = useAdaptations();
+const {
+  fetchWorkHighlights,
+  fetchUserBooks,
+  fetchUnreadRecommendation,
+  fetchOwnedUnreadRecommendation,
+} = useBooks();
+const { fetchAdaptationHighlights, fetchUnwatchedRecommendation } =
+  useAdaptations();
 
-const [{ data: meta }, { data: workHighlights }, { data: adaptationHighlights }] = await Promise.all([
+const [
+  { data: meta },
+  { data: workHighlights },
+  { data: adaptationHighlights },
+] = await Promise.all([
   useAsyncData("homepage-meta", fetchHomepageMeta),
   useAsyncData("homepage-work-highlights", fetchWorkHighlights),
   useAsyncData("homepage-adaptation-highlights", fetchAdaptationHighlights),
@@ -16,14 +26,25 @@ const [{ data: meta }, { data: workHighlights }, { data: adaptationHighlights }]
 
 await useAsyncData("user-books", fetchUserBooks);
 
-const [{ data: bookRecommendation }, { data: adaptationRecommendation }] = await Promise.all([
-  useAsyncData(
-    "book-recommendation",
-    () => (user.value ? fetchUnreadRecommendation(user.value.sub) : Promise.resolve(null)),
+const [
+  { data: bookRecommendation },
+  { data: ownedUnreadRecommendation },
+  { data: adaptationRecommendation },
+] = await Promise.all([
+  useAsyncData("book-recommendation", () =>
+    user.value
+      ? fetchUnreadRecommendation(user.value.sub)
+      : Promise.resolve(null),
   ),
-  useAsyncData(
-    "adaptation-recommendation",
-    () => (user.value ? fetchUnwatchedRecommendation(user.value.sub) : Promise.resolve(null)),
+  useAsyncData("owned-unread-recommendation", () =>
+    user.value
+      ? fetchOwnedUnreadRecommendation(user.value.sub)
+      : Promise.resolve(null),
+  ),
+  useAsyncData("adaptation-recommendation", () =>
+    user.value
+      ? fetchUnwatchedRecommendation(user.value.sub)
+      : Promise.resolve(null),
   ),
 ]);
 
@@ -61,7 +82,10 @@ const wantToWatchCountLabel = (count: number) => `${count} want to watch this`;
       </div>
     </UPageHero>
 
-    <div v-if="meta && workHighlights && adaptationHighlights" class="flex flex-col gap-6 py-8">
+    <div
+      v-if="meta && workHighlights && adaptationHighlights"
+      class="flex flex-col gap-6 py-8"
+    >
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <HomepageCatalogLinkCard
           to="/works"
@@ -142,35 +166,22 @@ const wantToWatchCountLabel = (count: number) => `${count} want to watch this`;
             :adaptation="adaptationHighlights.mostAnticipatedAdaptation"
             :meta="
               adaptationHighlights.mostAnticipatedAdaptation
-                ? wantToWatchCountLabel(adaptationHighlights.mostAnticipatedAdaptation.count)
+                ? wantToWatchCountLabel(
+                    adaptationHighlights.mostAnticipatedAdaptation.count,
+                  )
                 : undefined
             "
             empty-message="No one is looking forward to an adaptation yet."
           />
           <WorkRecommendation :recommendation="bookRecommendation ?? null" />
-          <AdaptationRecommendation :recommendation="adaptationRecommendation ?? null" />
+          <WorkOwnedRecommendation
+            :recommendation="ownedUnreadRecommendation ?? null"
+          />
+          <AdaptationRecommendation
+            :recommendation="adaptationRecommendation ?? null"
+          />
         </div>
       </div>
     </div>
-
-    <UPageCTA
-      title="Works"
-      description="Browse the canonical Stephen King bibliography and add books to your collection."
-      :links="[{
-        label: 'Browse works',
-        to: '/works',
-        trailingIcon: 'i-lucide-arrow-right'
-      }]"
-    />
-
-    <UPageCTA
-      title="Adaptations"
-      description="Discover film and television adaptations of Stephen King's work and keep tabs on what you've watched."
-      :links="[{
-        label: 'Browse adaptations',
-        to: '/adaptations',
-        trailingIcon: 'i-lucide-arrow-right'
-      }]"
-    />
   </div>
 </template>

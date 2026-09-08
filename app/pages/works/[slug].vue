@@ -21,6 +21,7 @@ const isCollection = work.type === "collection";
 const { fetchAdaptationsForWork } = useAdaptations();
 const { fetchShortStoriesForCollection } = useShortStories();
 const { fetchWorkStats, fetchUserBooks } = useBooks();
+const { fetchUserEditions } = useBookshelf();
 
 // These three are independent of each other, so kick them all off together
 // (useAsyncData starts fetching as soon as it's called) rather than
@@ -38,6 +39,7 @@ const [{ data: adaptations }, { data: shortStories }, { data: stats }] = await P
 // state, which updates reactively once it resolves - no reason to hold up
 // the rest of the page for it.
 useAsyncData("user-books", fetchUserBooks);
+useAsyncData("user-editions", fetchUserEditions);
 
 const publishYear = computed(() => Number(work.publish_date.slice(0, 4)));
 
@@ -126,7 +128,11 @@ useSeoMeta({ title: work.title });
         </template>
 
         <template #actions>
-          <BookReadingActions :work-id="work.id" mode="expanded" />
+          <BookReadingActions
+            :work-id="work.id"
+            :work-key="work.open_library_work_key"
+            mode="expanded"
+          />
         </template>
 
         <template v-if="stats" #stats>
@@ -155,6 +161,15 @@ useSeoMeta({ title: work.title });
               read</span
             >
           </div>
+          <div class="flex items-center gap-1.5">
+            <UIcon name="i-lucide-library" class="size-4" />
+            <span
+              ><strong class="text-highlighted">{{
+                stats.owner_count
+              }}</strong>
+              owned</span
+            >
+          </div>
         </template>
       </DetailHero>
     </template>
@@ -163,6 +178,7 @@ useSeoMeta({ title: work.title });
       <WorkEditionList
         v-if="work.open_library_work_key"
         :work-key="work.open_library_work_key"
+        :work-id="work.id"
       />
 
       <DetailConnectionList

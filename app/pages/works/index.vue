@@ -8,9 +8,15 @@ const { data: works } = await useAsyncData("works", fetchKingWorks);
 
 const user = useSupabaseUser();
 
-const { fetchUserBooks, fetchWorkHighlights, fetchUnreadRecommendation } =
-  useBooks();
+const {
+  fetchUserBooks,
+  fetchWorkHighlights,
+  fetchUnreadRecommendation,
+  fetchOwnedUnreadRecommendation,
+} = useBooks();
 await useAsyncData("user-books", fetchUserBooks);
+const { fetchUserEditions } = useBookshelf();
+await useAsyncData("user-editions", fetchUserEditions);
 const { data: workHighlights } = await useAsyncData(
   "works-page-highlights",
   fetchWorkHighlights,
@@ -20,6 +26,13 @@ const { data: bookRecommendation } = await useAsyncData(
   () =>
     user.value
       ? fetchUnreadRecommendation(user.value.sub)
+      : Promise.resolve(null),
+);
+const { data: ownedUnreadRecommendation } = await useAsyncData(
+  "works-page-owned-unread-recommendation",
+  () =>
+    user.value
+      ? fetchOwnedUnreadRecommendation(user.value.sub)
       : Promise.resolve(null),
 );
 
@@ -69,11 +82,17 @@ function extraFilter(work: KingWork) {
     </template>
 
     <template #item-actions="{ item }">
-      <BookReadingActions :work-id="(item as KingWork).id" />
+      <BookReadingActions
+        :work-id="(item as KingWork).id"
+        :work-key="(item as KingWork).open_library_work_key"
+      />
     </template>
 
     <template v-if="workHighlights" #sidebar>
       <WorkRecommendation :recommendation="bookRecommendation ?? null" />
+      <WorkOwnedRecommendation
+        :recommendation="ownedUnreadRecommendation ?? null"
+      />
       <WorkLeaderboard
         title="Most Read Books"
         icon="i-lucide-trending-up"

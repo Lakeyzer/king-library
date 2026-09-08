@@ -10,6 +10,7 @@ const props = defineProps<Props>();
 const tiles = computed(() => [
   { label: "King Fans", icon: "i-lucide-users", value: props.stats.fanCount },
   { label: "Books Read", icon: "i-lucide-book-open", value: props.stats.booksReadCount },
+  { label: "Books Owned", icon: "i-lucide-library", value: props.stats.booksOwnedCount },
   { label: "Adaptations Watched", icon: "i-lucide-film", value: props.stats.adaptationsWatchedCount },
 ]);
 </script>
