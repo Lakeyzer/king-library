@@ -1,6 +1,6 @@
 {
   "name": "king-library",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -16,7 +16,9 @@
     "seed:bibliography": "node --env-file=.env.development.local supabase/seed/load-bibliography.ts",
     "seed:bibliography:hosted": "node --env-file=.env supabase/seed/load-bibliography.ts",
     "backfill:cover-ids": "node supabase/seed/backfill-cover-ids.ts",
-    "backfill:tmdb-posters": "node --env-file=.env supabase/seed/backfill-tmdb-posters.ts"
+    "backfill:tmdb-posters": "node --env-file=.env supabase/seed/backfill-tmdb-posters.ts",
+    "backfill:shuffle-positions": "node --env-file=.env.development.local supabase/seed/backfill-shuffle-positions.ts",
+    "backfill:shuffle-positions:hosted": "node --env-file=.env supabase/seed/backfill-shuffle-positions.ts"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.127",

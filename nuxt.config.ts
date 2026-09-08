@@ -9,6 +9,9 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
 
   runtimeConfig: {
+    // Server-only: never exposed to the client. Used by server/api/tmdb/[mediaType]/[id].get.ts
+    // to proxy TMDb detail lookups so the API key never ships to the browser.
+    tmdbApiKey: process.env.TMDB_API_KEY,
     public: {
       supabaseUrl: process.env.SUPABASE_URL,
       supabaseKey: process.env.SUPABASE_KEY

@@ -31,6 +31,18 @@ export function useProfile() {
     return profile.value
   }
 
+  const fetchProfileByUsername = async (username: string) => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select(PROFILE_COLUMNS)
+      .eq('username', username)
+      .maybeSingle()
+
+    if (error) throw error
+
+    return data as Profile | null
+  }
+
   const updateUsername = async (username: string) => {
     if (!user.value) throw new Error('Not signed in')
 
@@ -63,5 +75,5 @@ export function useProfile() {
     return profile.value
   }
 
-  return { profile, fetchProfile, updateUsername, updateVisibility }
+  return { profile, fetchProfile, fetchProfileByUsername, updateUsername, updateVisibility }
 }

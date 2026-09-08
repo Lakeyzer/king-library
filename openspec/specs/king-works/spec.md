@@ -7,11 +7,11 @@ Defines the canonical Stephen King bibliography: a publicly readable, seed-file-
 ## Requirements
 
 ### Requirement: Canonical King works storage
-The system SHALL persist a canonical list of King works, each with a title, a type, an original publish year, an optional Open Library work key for matching against Open Library search results, an optional Open Library cover identifier (a numeric cover ID) for building a cover image URL, a Dark Tower flag indicating whether the work is one of the core Dark Tower series works, a Bachman flag, and an optional Dark Tower relation note describing how the work connects to the Dark Tower series.
+The system SHALL persist a canonical list of King works, each with a title, a type, an original publish date, a unique URL slug, an optional Open Library work key for matching against Open Library search results, an optional Open Library cover identifier (a numeric cover ID) for building a cover image URL, a Dark Tower flag indicating whether the work is one of the core Dark Tower series works, a Bachman flag, an optional Dark Tower relation note describing how the work connects to the Dark Tower series, and a shuffle position: a unique integer used to deterministically rotate which work is featured as "Book of the week."
 
 #### Scenario: A work has the expected fields
 - **WHEN** a King work is stored in the canonical list
-- **THEN** it has a title, a type, an original publish year, either an Open Library work key or no key, either an Open Library cover identifier or no cover identifier, a Dark Tower flag, a Bachman flag, and either a Dark Tower relation note or no note
+- **THEN** it has a title, a type, an original publish date, a unique URL slug, either an Open Library work key or no key, either an Open Library cover identifier or no cover identifier, a Dark Tower flag, a Bachman flag, either a Dark Tower relation note or no note, and a shuffle position
 
 #### Scenario: A work defaults to not Dark Tower and not Bachman
 - **WHEN** a King work is stored without an explicit Dark Tower flag or Bachman flag
@@ -28,6 +28,21 @@ The system SHALL persist a canonical list of King works, each with a title, a ty
 #### Scenario: A work with no known cover has no cover identifier
 - **WHEN** a King work has no cover art known on Open Library (or is not the kind of work Open Library covers, such as an unreleased title)
 - **THEN** its Open Library cover identifier is absent (null)
+
+#### Scenario: No two works share a slug
+- **WHEN** a King work is stored in the canonical list
+- **THEN** its slug is unique among all King works' slugs
+
+### Requirement: Retrieve a single King work by slug
+The system SHALL provide a way for application code to fetch a single King work by its slug, including the same fields returned when fetching the full list, or to determine that no work matches that slug.
+
+#### Scenario: Fetching a work that exists
+- **WHEN** application code requests a King work by a slug that matches an existing work
+- **THEN** it receives that work's stored fields
+
+#### Scenario: Fetching a work that does not exist
+- **WHEN** application code requests a King work by a slug that matches no existing work
+- **THEN** it receives an indication that no work matches
 
 ### Requirement: Public read access to King works
 Anyone, including unauthenticated visitors, SHALL be able to read the full list of King works.
@@ -52,15 +67,33 @@ The system SHALL NOT allow any client, authenticated or not, to create, modify, 
 - **THEN** the system rejects the operation
 
 ### Requirement: Seed data reflects the canonical bibliography
-The system's initial King works data SHALL include Carrie (1974), 'Salem's Lot (1975), and Cujo (1981), each recorded as type "novel" with its corresponding Open Library work key, a Dark Tower flag of false, a Bachman flag of false, and no Dark Tower relation note.
+The system's initial King works data SHALL include Carrie (published 1974-04-05), 'Salem's Lot (published 1975-10-17), and Cujo (published 1981-09-08), each recorded as type "novel" with its corresponding Open Library work key, a Dark Tower flag of false, a Bachman flag of false, and no Dark Tower relation note.
 
 #### Scenario: Initial dataset is loaded
 - **WHEN** the canonical King works data is loaded into the system
-- **THEN** the list includes exactly Carrie, 'Salem's Lot, and Cujo with their correct type, publish year, Open Library work key, Dark Tower flag of false, Bachman flag of false, and no Dark Tower relation note
+- **THEN** the list includes exactly Carrie, 'Salem's Lot, and Cujo with their correct type, publish date, Open Library work key, Dark Tower flag of false, Bachman flag of false, and no Dark Tower relation note
 
 ### Requirement: Retrieve all King works for display
-The system SHALL provide a way for application code to fetch the full list of King works for display, including each work's title, original publish year, type, Open Library cover identifier, Dark Tower flag, and Bachman flag.
+The system SHALL provide a way for application code to fetch the full list of King works for display, including each work's title, original publish date, type, Open Library cover identifier, Dark Tower flag, and Bachman flag.
 
 #### Scenario: Fetching all works
 - **WHEN** application code requests all King works
-- **THEN** it receives every King work currently in storage, including title, original publish year, type, Open Library cover identifier, Dark Tower flag, and Bachman flag
+- **THEN** it receives every King work currently in storage, including title, original publish date, type, Open Library cover identifier, Dark Tower flag, and Bachman flag
+
+### Requirement: Shuffle position is unique and densely assigned
+The system SHALL assign every King work a unique shuffle position, with the full set of shuffle positions across all King works forming a contiguous range with no gaps and no two works sharing the same value.
+
+#### Scenario: No two works share a shuffle position
+- **WHEN** a King work is stored in the canonical list
+- **THEN** its shuffle position is unique among all King works' shuffle positions
+
+#### Scenario: Shuffle positions have no gaps
+- **WHEN** the full set of King works' shuffle positions is examined
+- **THEN** it forms a contiguous range with no skipped values
+
+### Requirement: New King works are auto-assigned the next available shuffle position
+The system SHALL automatically assign a newly added King work the next available shuffle position (one past the current highest assigned value) when no shuffle position is explicitly supplied, so adding a new book to the canonical list requires no manual update to any rotation schedule.
+
+#### Scenario: Adding a new King work without an explicit shuffle position
+- **WHEN** a new King work is added to the canonical list without an explicit shuffle position
+- **THEN** the system assigns it the next available shuffle position automatically

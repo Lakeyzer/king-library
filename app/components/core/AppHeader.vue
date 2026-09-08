@@ -3,7 +3,7 @@ import type { DropdownMenuItem, NavigationMenuItem } from '@nuxt/ui'
 
 const links: NavigationMenuItem[] = [
   { label: 'Works', to: '/works' },
-  { label: 'Short Stories', to: '/short-stories' },
+  { label: 'Short Works', to: '/short-stories' },
   { label: 'Adaptations', to: '/adaptations' }
 ]
 
@@ -13,6 +13,7 @@ const { open: openAuthModal } = useAuthModal()
 
 const accountMenuItems: DropdownMenuItem[] = [
   { label: 'Profile', icon: 'i-lucide-user', to: '/profile' },
+  { label: 'Settings', icon: 'i-lucide-settings', to: '/settings' },
   { label: 'Sign out', icon: 'i-lucide-log-out', onSelect: () => supabase.auth.signOut() }
 ]
 </script>

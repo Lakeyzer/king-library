@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { h } from "vue";
-import type { TableColumn } from "@nuxt/ui";
-import { ImageThumbnail } from "#components";
 import type { KingWork } from "~/composables/useKingWorks";
 
 definePageMeta({ layout: "default" });
@@ -9,100 +6,108 @@ definePageMeta({ layout: "default" });
 const { fetchKingWorks } = useKingWorks();
 const { data: works } = await useAsyncData("works", fetchKingWorks);
 
-const search = ref("");
+const user = useSupabaseUser();
 
-const bachmanFilter = ref(false);
-const darkTowerFilter = ref(false);
+const {
+  fetchUserBooks,
+  fetchWorkHighlights,
+  fetchUnreadRecommendation,
+  fetchOwnedUnreadRecommendation,
+} = useBooks();
+await useAsyncData("user-books", fetchUserBooks);
+const { fetchUserEditions } = useBookshelf();
+await useAsyncData("user-editions", fetchUserEditions);
+const { data: workHighlights } = await useAsyncData(
+  "works-page-highlights",
+  fetchWorkHighlights,
+);
+const { data: bookRecommendation } = await useAsyncData(
+  "works-page-recommendation",
+  () =>
+    user.value
+      ? fetchUnreadRecommendation(user.value.sub)
+      : Promise.resolve(null),
+);
+const { data: ownedUnreadRecommendation } = await useAsyncData(
+  "works-page-owned-unread-recommendation",
+  () =>
+    user.value
+      ? fetchOwnedUnreadRecommendation(user.value.sub)
+      : Promise.resolve(null),
+);
 
-const typeOptions = computed(() => {
-  const types = [
-    ...new Set((works.value ?? []).map((work) => work.type)),
-  ].sort();
-  return [
-    { label: "All types", value: "all" },
-    ...types.map((type) => ({ label: formatTypeLabel(type), value: type })),
-  ];
-});
-const typeFilter = ref("all");
+const readsCountLabel = (count: number) =>
+  `${count} ${count === 1 ? "read" : "reads"}`;
 
-const filteredWorks = computed(() => {
-  const term = search.value.trim().toLowerCase();
-
-  return (works.value ?? []).filter((work) => {
-    if (term && !work.title.toLowerCase().includes(term)) return false;
-    if (bachmanFilter.value && !work.bachman) return false;
-    if (darkTowerFilter.value && !work.dark_tower) return false;
-    if (typeFilter.value !== "all" && work.type !== typeFilter.value)
-      return false;
-    return true;
-  });
-});
-
-const columns: TableColumn<KingWork>[] = [
-  {
-    id: "cover",
-    header: "",
-    meta: { class: { th: "w-px", td: "p-0 py-0.5 w-px" } },
-    cell: ({ row }) =>
-      h(ImageThumbnail, {
-        src: row.original.cover_id
-          ? getOpenLibraryCoverUrl(row.original.cover_id, "M")
-          : null,
-        alt: `${row.original.title} cover`,
-        placeholderIcon: "i-lucide-book",
-        loading: "lazy",
-      }),
-  },
-  {
-    accessorKey: "title",
-    header: sortableHeader<KingWork>("Title"),
-  },
-  {
-    accessorKey: "original_publish_year",
-    header: sortableHeader<KingWork>("Release year"),
-  },
-  {
-    accessorKey: "type",
-    header: "Type",
-    cell: ({ row }) => formatTypeLabel(row.original.type),
-  },
-  {
-    accessorKey: "bachman",
-    header: "Bachman",
-    cell: ({ row }) => flagIndicator(row.original.bachman),
-  },
-  {
-    accessorKey: "dark_tower",
-    header: "Dark Tower",
-    cell: ({ row }) => flagIndicator(row.original.dark_tower),
-  },
+const flagOptions = [
+  { label: "All", value: "all" },
+  { label: "Bachman", value: "bachman" },
+  { label: "Dark Tower", value: "darkTower" },
 ];
+const flagFilter = ref<"all" | "bachman" | "darkTower">("all");
+
+function extraFilter(work: KingWork) {
+  if (flagFilter.value === "bachman") return work.bachman;
+  if (flagFilter.value === "darkTower") return work.dark_tower;
+  return true;
+}
 </script>
 
 <template>
-  <div>
-    <UPageHeader
-      title="Works"
-      description="Browse the canonical Stephen King bibliography."
-    />
+  <BibliographyBrowsePage
+    title="Works"
+    description="Browse the canonical Stephen King bibliography."
+    detail-path-prefix="/works"
+    :items="works ?? []"
+    :year-of="(work: KingWork) => Number(work.publish_date.slice(0, 4))"
+    :sort-value-of="(work: KingWork) => Date.parse(work.publish_date)"
+    :image-src-of="
+      (work: KingWork) =>
+        work.cover_id ? getOpenLibraryCoverUrl(work.cover_id, 'M') : null
+    "
+    :image-alt-of="(work: KingWork) => `${work.title} cover`"
+    placeholder-icon="i-lucide-book"
+    sort-year-label="Release year"
+    :extra-filter="extraFilter"
+  >
+    <template #extra-filters>
+      <URadioGroup
+        v-model="flagFilter"
+        :items="flagOptions"
+        orientation="horizontal"
+        variant="table"
+        indicator="hidden"
+        size="sm"
+      />
+    </template>
 
-    <UPageBody>
-      <div class="flex flex-wrap items-end gap-4 mb-4">
-        <UFormField label="Search">
-          <UInput
-            v-model="search"
-            placeholder="Search by title"
-            icon="i-lucide-search"
-          />
-        </UFormField>
-        <UFormField label="Type">
-          <USelect v-model="typeFilter" :items="typeOptions" class="w-48" />
-        </UFormField>
-        <UCheckbox v-model="bachmanFilter" label="Bachman" />
-        <UCheckbox v-model="darkTowerFilter" label="Dark Tower" />
-      </div>
+    <template #item-actions="{ item }">
+      <BookReadingActions
+        :work-id="(item as KingWork).id"
+        :work-key="(item as KingWork).open_library_work_key"
+      />
+    </template>
 
-      <UTable :data="filteredWorks" :columns="columns" />
-    </UPageBody>
-  </div>
+    <template v-if="workHighlights" #sidebar>
+      <WorkRecommendation :recommendation="bookRecommendation ?? null" />
+      <WorkOwnedRecommendation
+        :recommendation="ownedUnreadRecommendation ?? null"
+      />
+      <WorkLeaderboard
+        title="Most Read Books"
+        icon="i-lucide-trending-up"
+        :items="workHighlights.mostReadBooks"
+        :count-label="readsCountLabel"
+        empty-message="No books have been marked read yet."
+      />
+      <WorkSpotlight
+        title="Book of the Week"
+        icon="i-lucide-sparkles"
+        :work="workHighlights.bookOfTheWeek"
+        empty-message="No book is featured right now."
+      />
+      <WorkBirthday :works="workHighlights.bookBirthdays" />
+      <WorkLeastReadSpotlight :work="workHighlights.leastReadBook" />
+    </template>
+  </BibliographyBrowsePage>
 </template>

@@ -7,35 +7,35 @@ Gives a signed-in user a page to view their own account details, control whether
 ## Requirements
 
 ### Requirement: Profile page requires sign-in
-The system SHALL only allow a signed-in user to view the profile page, and SHALL require a username to be set (see the onboarding capability) before showing it.
+The system SHALL only allow a signed-in user to view the account settings page, and SHALL require a username to be set (see the onboarding capability) before showing it.
 
 #### Scenario: Signed-out visitor tries to view the profile page
-- **WHEN** a signed-out visitor navigates to the profile page
-- **THEN** they are not shown profile content and are directed to sign in
+- **WHEN** a signed-out visitor navigates to the account settings page
+- **THEN** they are not shown account settings content and are directed to sign in
 
 ### Requirement: Profile page shows account details
-The system SHALL display the signed-in user's own username and email on the profile page.
+The system SHALL display the signed-in user's own username and email on the account settings page.
 
 #### Scenario: Viewing account details
-- **WHEN** a signed-in user with a username set navigates to the profile page
+- **WHEN** a signed-in user with a username set navigates to the account settings page
 - **THEN** the page displays their username and email
 
 ### Requirement: Public/private visibility toggle
 The system SHALL let a signed-in user toggle whether their collections (owned/wishlisted/read books, watched/watchlisted adaptations) are visible to other users, and SHALL apply a change immediately.
 
 #### Scenario: Switching to private
-- **WHEN** a signed-in user switches their visibility toggle from public to private on the profile page
+- **WHEN** a signed-in user switches their visibility toggle from public to private on the account settings page
 - **THEN** their collections are no longer visible to other users
 
 #### Scenario: Switching to public
-- **WHEN** a signed-in user switches their visibility toggle from private to public on the profile page
+- **WHEN** a signed-in user switches their visibility toggle from private to public on the account settings page
 - **THEN** their collections become visible to other users
 
 ### Requirement: Account deletion is permanent and irreversible
 The system SHALL let a signed-in user permanently delete their own account, removing their authentication credentials and all associated data, and SHALL require an explicit confirmation step before doing so.
 
 #### Scenario: Confirming account deletion
-- **WHEN** a signed-in user activates "Delete account" on the profile page and confirms the action
+- **WHEN** a signed-in user activates "Delete account" on the account settings page and confirms the action
 - **THEN** their account and all associated data are permanently deleted, and they are signed out
 
 #### Scenario: Backing out of account deletion
@@ -47,10 +47,10 @@ The system SHALL let a signed-in user permanently delete their own account, remo
 - **THEN** the sign-in attempt fails as if the account never existed
 
 ### Requirement: Profile page shows linked sign-in identities
-The system SHALL display, on the profile page, which sign-in identities (email/password, Google, Discord) are currently linked to the signed-in user's account.
+The system SHALL display, on the account settings page, which sign-in identities (email/password, Google, Discord) are currently linked to the signed-in user's account.
 
 #### Scenario: Viewing linked identities
-- **WHEN** a signed-in user with a username set navigates to the profile page
+- **WHEN** a signed-in user with a username set navigates to the account settings page
 - **THEN** the page lists each of their currently linked sign-in identities
 
 ### Requirement: Linking an additional OAuth sign-in method
