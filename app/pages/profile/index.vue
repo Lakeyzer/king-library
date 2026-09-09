@@ -1,6 +1,13 @@
 <script setup lang="ts">
 definePageMeta({ layout: "default" });
 
+const { setPageSeo } = useSeo();
+setPageSeo({
+  title: "Your Profile",
+  description:
+    "View your Stephen King reading stats, watch progress, and bookshelf.",
+});
+
 const user = useSupabaseUser();
 const { profile } = useProfile();
 const {

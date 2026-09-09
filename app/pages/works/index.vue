@@ -3,6 +3,13 @@ import type { KingWork } from "~/composables/useKingWorks";
 
 definePageMeta({ layout: "default" });
 
+const { setPageSeo } = useSeo();
+setPageSeo({
+  title: "Works",
+  description:
+    "Browse every Stephen King novel and collection, track what you own, and mark books as read or want-to-read.",
+});
+
 const { fetchKingWorks } = useKingWorks();
 const { data: works } = await useAsyncData("works", fetchKingWorks);
 

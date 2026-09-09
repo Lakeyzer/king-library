@@ -3,6 +3,13 @@ import type { KingShortStory } from "~/composables/useShortStories";
 
 definePageMeta({ layout: "default" });
 
+const { setPageSeo } = useSeo();
+setPageSeo({
+  title: "Short Works",
+  description:
+    "Browse Stephen King's short stories and novellas, see which collections they appear in, and track which ones you've read.",
+});
+
 const { fetchShortStories, fetchCollectionsOverview } = useShortStories();
 const { data: shortStories } = await useAsyncData(
   "short-stories",
@@ -31,7 +38,7 @@ function extraFilter(story: KingShortStory) {
   <BibliographyBrowsePage
     title="Short Works"
     description="Browse Stephen King's short stories and novellas."
-    detail-path-prefix="/short-stories"
+    detail-path-prefix="/short-works"
     :items="shortStories ?? []"
     :year-of="(story: KingShortStory) => story.original_publish_year"
     :image-src-of="() => null"

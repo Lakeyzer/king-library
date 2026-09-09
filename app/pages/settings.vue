@@ -3,6 +3,12 @@ import type { UserIdentity } from '@supabase/supabase-js'
 
 definePageMeta({ layout: 'default' })
 
+const { setPageSeo } = useSeo()
+setPageSeo({
+  title: 'Settings',
+  description: 'Manage your King Library account, connected sign-in providers, and profile visibility.'
+})
+
 const user = useSupabaseUser()
 const supabase = useSupabaseClient()
 const { profile, updateVisibility } = useProfile()

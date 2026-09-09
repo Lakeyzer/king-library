@@ -63,7 +63,11 @@ const adaptationItems = computed<ConnectionListItem[]>(() =>
   })),
 );
 
-useSeoMeta({ title: story.title });
+const { setPageSeo } = useSeo();
+setPageSeo({
+  title: story.title,
+  description: generateShortStoryFallbackDescription(story),
+});
 </script>
 
 <template>

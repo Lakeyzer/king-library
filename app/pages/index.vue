@@ -1,6 +1,14 @@
 <script setup lang="ts">
 definePageMeta({ layout: "default" });
 
+useHead({ titleTemplate: "%s" });
+const { setPageSeo } = useSeo();
+setPageSeo({
+  title: "King Library",
+  description:
+    "Build your own Stephen King bookshelf and track your reading progress — collect, wishlist, and check off books, short works, and adaptations as you go.",
+});
+
 const user = useSupabaseUser();
 const { open: openAuthModal } = useAuthModal();
 
@@ -94,7 +102,7 @@ const wantToWatchCountLabel = (count: number) => `${count} want to watch this`;
           :count="meta.catalogTotals.worksCount"
         />
         <HomepageCatalogLinkCard
-          to="/short-stories"
+          to="/short-works"
           icon="i-lucide-file-text"
           label="Short Works"
           :count="meta.catalogTotals.shortStoriesCount"

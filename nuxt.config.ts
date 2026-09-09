@@ -1,12 +1,16 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  modules: ['@nuxtjs/supabase', '@nuxt/eslint', '@nuxt/ui', '@nuxt/image'],
+  modules: ['@nuxtjs/supabase', '@nuxt/eslint', '@nuxt/ui', '@nuxt/image', '@nuxtjs/sitemap'],
 
   devtools: {
     enabled: true
   },
 
   css: ['~/assets/css/main.css'],
+
+  site: {
+    url: 'https://king-library.com'
+  },
 
   runtimeConfig: {
     // Server-only: never exposed to the client. Used by server/api/tmdb/[mediaType]/[id].get.ts
@@ -40,6 +44,17 @@ export default defineNuxtConfig({
   // don't need IPX processing - see app/components/ImageThumbnail.vue.
   image: {
     none: {}
+  },
+
+  sitemap: {
+    // Static pages that need auth (or, for /confirm, only ever exist mid-OAuth-redirect)
+    // have no SEO value and are never a link worth sharing - see specs/seo-metadata/spec.md.
+    exclude: ['/confirm', '/onboarding', '/settings'],
+    // Work/adaptation/short-work detail pages are dynamic routes the crawler can't
+    // enumerate on its own - this endpoint supplies their slugs. Public per-user profile
+    // pages (/profile/[username]) are deliberately NOT sourced here, so only the static
+    // /profile route appears in the sitemap, never an enumerated list of usernames.
+    sources: ['/api/__sitemap__/urls']
   },
 
   supabase: {

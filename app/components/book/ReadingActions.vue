@@ -141,7 +141,8 @@ const dropdownItems = computed<DropdownMenuItem[]>(() => {
 // Expanded mode shows every action always, disabling whichever don't apply
 // to the current state, rather than hiding them (see reading-status spec).
 const canToggleReadlistOrStart = computed(
-  () => primaryState.value === "neutral" || primaryState.value === "want_to_read",
+  () =>
+    primaryState.value === "neutral" || primaryState.value === "want_to_read",
 );
 
 const canStartOrFinishReading = computed(() => primaryState.value !== "read");
@@ -150,13 +151,17 @@ const readlistLabel = computed(() =>
   isWantToRead.value ? "Remove from Readlist" : "Add to Readlist",
 );
 
-const readLabel = computed(() => (isRead.value ? "Mark as Unread" : "Mark as Read"));
+const readLabel = computed(() =>
+  isRead.value ? "Mark as Unread" : "Mark as Read",
+);
 
 const startFinishLabel = computed(() =>
   isCurrentlyReading.value ? "Finish Reading" : "Start Reading",
 );
 
-const shelfLabel = computed(() => (isOwned.value ? "On Shelf" : "Add to Shelf"));
+const shelfLabel = computed(() =>
+  isOwned.value ? "On Shelf" : "Add to Shelf",
+);
 
 function handleReadlistToggle() {
   toggleWantToRead(props.workId);
@@ -187,7 +192,6 @@ function handleReadToggle() {
         :icon="primaryIcon"
         color="neutral"
         variant="subtle"
-        size="xs"
         @click="handlePrimaryClick"
       />
 
@@ -200,7 +204,6 @@ function handleReadToggle() {
           icon="i-lucide-chevron-down"
           color="neutral"
           variant="subtle"
-          size="xs"
           aria-label="More reading actions"
         />
       </UDropdownMenu>
@@ -209,7 +212,6 @@ function handleReadToggle() {
         icon="i-lucide-chevron-down"
         color="neutral"
         variant="subtle"
-        size="xs"
         disabled
         aria-label="No other reading actions available"
       />
@@ -285,8 +287,14 @@ function handleReadToggle() {
       </div>
     </template>
 
-    <BookStartReadingModal v-model:open="showStartReadingModal" :work-id="workId" />
-    <BookFinishReadingModal v-model:open="showFinishReadingModal" :work-id="workId" />
+    <BookStartReadingModal
+      v-model:open="showStartReadingModal"
+      :work-id="workId"
+    />
+    <BookFinishReadingModal
+      v-model:open="showFinishReadingModal"
+      :work-id="workId"
+    />
     <BookMarkReadModal v-model:open="showMarkReadModal" :work-id="workId" />
     <BookEditionsPickerModal
       v-if="workKey"

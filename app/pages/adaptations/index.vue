@@ -3,17 +3,30 @@ import type { Adaptation } from "~/composables/useAdaptations";
 
 definePageMeta({ layout: "default" });
 
+const { setPageSeo } = useSeo();
+setPageSeo({
+  title: "Adaptations",
+  description:
+    "Browse every movie and TV adaptation of Stephen King's work, and track what you've watched and what's on your watchlist.",
+});
+
 const user = useSupabaseUser();
 
 const {
   fetchAdaptations,
   fetchAdaptationHighlights,
   fetchUnwatchedRecommendation,
+  fetchUserAdaptations,
 } = useAdaptations();
 const { data: adaptations } = await useAsyncData(
   "adaptations",
   fetchAdaptations,
 );
+
+// Not awaited: only affects the watch-status buttons' displayed state,
+// which updates reactively once it resolves - same as the adaptation
+// detail page.
+useAsyncData("user-adaptations", fetchUserAdaptations);
 const { data: adaptationHighlights } = await useAsyncData(
   "adaptations-page-highlights",
   fetchAdaptationHighlights,
@@ -47,6 +60,10 @@ const watchedCountLabel = (count: number) =>
     placeholder-icon="i-lucide-film"
     sort-year-label="Release year"
   >
+    <template #item-actions="{ item }">
+      <AdaptationWatchActions :adaptation-id="(item as Adaptation).id" mode="compact" />
+    </template>
+
     <template v-if="adaptationHighlights" #sidebar>
       <AdaptationRecommendation
         :recommendation="adaptationRecommendation ?? null"

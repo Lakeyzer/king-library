@@ -19,6 +19,12 @@ const profile = viewedProfile.value;
 const isOwner = computed(() => user.value?.sub === profile.id);
 const isPrivate = computed(() => !profile.is_public && !isOwner.value);
 
+const { setPageSeo } = useSeo();
+setPageSeo({
+  title: profile.username ?? username,
+  description: `See ${profile.username ?? username}'s Stephen King reading stats, watch progress, and bookshelf on King Library.`,
+});
+
 const {
   fetchProfileBookStats,
   fetchCurrentlyReading,

@@ -82,11 +82,18 @@ const basedOnShortStoryItems = computed<ConnectionListItem[]>(() =>
     typeLabel: story.collections.length
       ? `from ${story.collections.map((collection) => collection.title).join(", ")}`
       : undefined,
-    to: `/short-stories/${story.slug}`,
+    to: `/short-works/${story.slug}`,
   })),
 );
 
-useSeoMeta({ title: adaptation.title });
+const { setPageSeo } = useSeo();
+setPageSeo({
+  title: adaptation.title,
+  description: tmdb.value?.overview || generateAdaptationFallbackDescription(adaptation),
+  image: adaptation.tmdb_poster_path
+    ? getTmdbPosterUrl(adaptation.tmdb_poster_path, "w500")
+    : undefined,
+});
 </script>
 
 <template>
@@ -171,7 +178,7 @@ useSeoMeta({ title: adaptation.title });
         </template>
 
         <template #actions>
-          <AdaptationWatchActions :adaptation-id="adaptation.id" />
+          <AdaptationWatchActions :adaptation-id="adaptation.id" mode="expanded" />
         </template>
 
         <template v-if="stats" #stats>

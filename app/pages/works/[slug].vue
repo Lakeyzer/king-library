@@ -65,11 +65,16 @@ const shortStoryItems = computed<ConnectionListItem[]>(() =>
   (shortStories.value ?? []).map((story) => ({
     id: story.id,
     title: story.title,
-    to: `/short-stories/${story.slug}`,
+    to: `/short-works/${story.slug}`,
   })),
 );
 
-useSeoMeta({ title: work.title });
+const { setPageSeo } = useSeo();
+setPageSeo({
+  title: work.title,
+  description: work.description || generateWorkFallbackDescription(work),
+  image: work.cover_id ? getOpenLibraryCoverUrl(work.cover_id, "L") : undefined,
+});
 </script>
 
 <template>
