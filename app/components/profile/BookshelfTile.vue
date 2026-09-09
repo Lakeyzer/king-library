@@ -59,8 +59,17 @@ function handleCoverFailure() {
   }
 }
 
-function onCoverLoad(event: Event) {
-  const img = event.target as HTMLImageElement;
+// Read the loaded image off NuxtImg's exposed element rather than
+// event.target: when the SSR'd cover is already in the browser cache (the
+// common case on a full page refresh), NuxtImg's mounted hook sees the
+// underlying <img> as already complete and emits a synthetic
+// `new Event("load")` instead of a real DOM event - whose target is always
+// null, since it was never dispatched on the element.
+const coverImgRef = useTemplateRef<{ imgEl?: HTMLImageElement | null }>("coverImg");
+
+function onCoverLoad() {
+  const img = coverImgRef.value?.imgEl;
+  if (!img) return;
   if (img.naturalWidth < MIN_VALID_COVER_DIMENSION || img.naturalHeight < MIN_VALID_COVER_DIMENSION) {
     handleCoverFailure();
   }
@@ -93,6 +102,7 @@ const showRemoveModal = ref(false);
       </div>
       <NuxtImg
         v-else
+        ref="coverImg"
         provider="none"
         :src="coverSrc"
         :alt="alt"
