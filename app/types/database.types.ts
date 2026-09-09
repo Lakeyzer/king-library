@@ -308,6 +308,64 @@ export type Database = {
         }
         Relationships: []
       }
+      series: {
+        Row: {
+          id: string
+          name: string
+        }
+        Insert: {
+          id?: string
+          name: string
+        }
+        Update: {
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      series_works: {
+        Row: {
+          id: string
+          king_work_id: string
+          position: number
+          series_id: string
+        }
+        Insert: {
+          id?: string
+          king_work_id: string
+          position: number
+          series_id: string
+        }
+        Update: {
+          id?: string
+          king_work_id?: string
+          position?: number
+          series_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "series_works_king_work_id_fkey"
+            columns: ["king_work_id"]
+            isOneToOne: false
+            referencedRelation: "king_works"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "series_works_king_work_id_fkey"
+            columns: ["king_work_id"]
+            isOneToOne: false
+            referencedRelation: "work_stats"
+            referencedColumns: ["king_work_id"]
+          },
+          {
+            foreignKeyName: "series_works_series_id_fkey"
+            columns: ["series_id"]
+            isOneToOne: false
+            referencedRelation: "series"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_adaptations: {
         Row: {
           adaptation_id: string

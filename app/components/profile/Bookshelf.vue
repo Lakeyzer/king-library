@@ -90,13 +90,54 @@ onUnmounted(() => {
   window.removeEventListener("resize", updateColumnCount);
 });
 
-const columns = computed(() => {
-  const cols: BookshelfItem[][] = Array.from({ length: columnCount.value }, () => []);
-  visibleItems.value.forEach((item, index) => {
-    cols[index % columnCount.value]!.push(item);
+// Round-robin: item at flat index i goes to column i % columnCount, which
+// is what makes the grid read left-to-right, wrapping to the first column
+// on the next row - see the comment above COLUMN_BREAKPOINTS.
+function assignToColumns(items: BookshelfItem[], columnCount: number) {
+  const cols: BookshelfItem[][] = Array.from({ length: columnCount }, () => []);
+  items.forEach((item, index) => {
+    cols[index % columnCount]!.push(item);
   });
   return cols;
+}
+
+const columns = computed(() => assignToColumns(visibleItems.value, columnCount.value));
+
+const groupSeries = ref(false);
+
+// Reorders visibleItems so each series' tiles sit at consecutive flat
+// indices (sorted by their series reading order, restricted to what's
+// actually in visibleItems - see design.md "Grouping applies after the
+// active search filter") instead of being scattered across the list by
+// sort. Feeding that reordered list through the same assignToColumns as
+// the ungrouped view is what keeps a series flowing left-to-right and
+// wrapping to the next row, rather than being stacked into one column -
+// see design.md "Grouping algorithm lives in Bookshelf.vue".
+const groupedOrder = computed(() => {
+  const ordered: BookshelfItem[] = [];
+  const placedSeriesIds = new Set<string>();
+
+  for (const item of visibleItems.value) {
+    if (item.seriesId) {
+      if (placedSeriesIds.has(item.seriesId)) continue;
+      placedSeriesIds.add(item.seriesId);
+
+      const members = visibleItems.value
+        .filter((other) => other.seriesId === item.seriesId)
+        .sort((a, b) => (a.seriesPosition ?? 0) - (b.seriesPosition ?? 0));
+
+      ordered.push(...members);
+    } else {
+      ordered.push(item);
+    }
+  }
+
+  return ordered;
 });
+
+const groupedColumns = computed(() => assignToColumns(groupedOrder.value, columnCount.value));
+
+const displayedColumns = computed(() => (groupSeries.value ? groupedColumns.value : columns.value));
 </script>
 
 <template>
@@ -134,6 +175,7 @@ const columns = computed(() => {
             @click="toggleSortDir"
           />
         </div>
+        <UCheckbox v-model="groupSeries" label="Group series" />
       </div>
     </div>
 
@@ -153,7 +195,7 @@ const columns = computed(() => {
       />
 
       <div v-else class="flex gap-4">
-        <div v-for="(column, index) in columns" :key="index" class="flex flex-1 flex-col gap-4">
+        <div v-for="(column, index) in displayedColumns" :key="index" class="flex flex-1 flex-col gap-4">
           <ProfileBookshelfTile
             v-for="item in column"
             :key="itemKey(item)"

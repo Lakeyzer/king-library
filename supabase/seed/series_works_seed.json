@@ -1,0 +1,80 @@
+[
+  {
+    "id": "bf206d34-4880-4bb0-9fb4-9cd11ade22db",
+    "series_id": "2ca2c86e-814a-4d66-bc51-761f2808322f",
+    "king_work_id": "3fee5bd4-0a16-4539-b9a5-0ad442a4e0f1",
+    "position": 1
+  },
+  {
+    "id": "a7a79450-bc3f-43ec-bcc9-148aed5107f1",
+    "series_id": "2ca2c86e-814a-4d66-bc51-761f2808322f",
+    "king_work_id": "3c2f538e-3787-4d9e-8359-12b109e6f97d",
+    "position": 2
+  },
+  {
+    "id": "9eb625e8-2ea7-4aac-9fbf-6ba9dee5d79c",
+    "series_id": "2ca2c86e-814a-4d66-bc51-761f2808322f",
+    "king_work_id": "02169cb4-7e16-454d-94c6-c64fb195c7c7",
+    "position": 3
+  },
+  {
+    "id": "2b9e8988-0d4f-416b-89b9-07a6f9b452b9",
+    "series_id": "2ca2c86e-814a-4d66-bc51-761f2808322f",
+    "king_work_id": "f1289580-4375-4643-b4b8-8efb9955495c",
+    "position": 4
+  },
+  {
+    "id": "8afccc6b-14d9-43e2-bb29-58544eaad6ce",
+    "series_id": "2ca2c86e-814a-4d66-bc51-761f2808322f",
+    "king_work_id": "252179e5-9a97-413f-b3c7-7dbe5f825fd9",
+    "position": 5
+  },
+  {
+    "id": "855b9619-ce82-41fd-98cd-41a982c2842e",
+    "series_id": "2ca2c86e-814a-4d66-bc51-761f2808322f",
+    "king_work_id": "3b3da16f-cebc-43bb-afb2-d0da1c111965",
+    "position": 6
+  },
+  {
+    "id": "a62d4756-1d84-4b0e-9981-9210b7f2dc38",
+    "series_id": "2ca2c86e-814a-4d66-bc51-761f2808322f",
+    "king_work_id": "a4976be9-e19c-4764-90f5-abb40cb64785",
+    "position": 7
+  },
+  {
+    "id": "d4cf47b2-a71d-486e-bb55-0f8efec28a54",
+    "series_id": "2ca2c86e-814a-4d66-bc51-761f2808322f",
+    "king_work_id": "5517cee8-1845-44d8-a85d-af5afe58dcbc",
+    "position": 8
+  },
+  {
+    "id": "d84190c6-c7c8-47c4-9430-4eba76ba52ba",
+    "series_id": "578cd738-d2ed-40bc-b02b-d90156e2b92e",
+    "king_work_id": "6dd0ad9d-71f2-4670-b564-669ffa83944e",
+    "position": 1
+  },
+  {
+    "id": "15eb6d3f-8d7a-42b7-9835-67a0d55c4c8e",
+    "series_id": "578cd738-d2ed-40bc-b02b-d90156e2b92e",
+    "king_work_id": "79f42045-5811-488a-a849-cfddf60fb298",
+    "position": 2
+  },
+  {
+    "id": "958c9ad1-92db-46d8-ac23-fd1a410a3f3f",
+    "series_id": "578cd738-d2ed-40bc-b02b-d90156e2b92e",
+    "king_work_id": "8fa443ce-d143-41c0-9da0-eb6380304515",
+    "position": 3
+  },
+  {
+    "id": "904a3651-a377-43f1-aaef-e0754f7563dd",
+    "series_id": "c5222670-e5fb-49df-9026-22ec55019e7f",
+    "king_work_id": "2d5fee88-05d7-475e-985a-17326f2116f8",
+    "position": 1
+  },
+  {
+    "id": "1185dbdb-40cf-437d-80eb-64e5a67b8960",
+    "series_id": "c5222670-e5fb-49df-9026-22ec55019e7f",
+    "king_work_id": "eb5f6428-7a85-4d87-afee-2f2d6606180a",
+    "position": 2
+  }
+]
