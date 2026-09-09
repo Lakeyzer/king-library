@@ -19,7 +19,6 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
-    '/': { prerender: true },
     // OAuth code exchange relies on the PKCE code verifier in browser storage,
     // so this route can only run client-side.
     '/confirm': { ssr: false }
