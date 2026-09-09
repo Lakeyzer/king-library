@@ -17,6 +17,9 @@ const USER_BOOK_EDITION_COLUMNS = 'id, user_id, king_work_id, edition_id, editio
 // publishDate - an edition tile needs the former for its own cover fallback
 // (see design.md "Edition tiles fall back to the work's cover"), and both
 // need publishDate for the Bookshelf's release-year sort.
+// seriesId/seriesName/seriesPosition are null for a work with no series
+// membership. Populated from useSeries().seriesByWorkId - see design.md
+// "One useSeries composable, consumed by useBookshelf".
 export interface BookshelfEditionItem {
   kind: 'edition'
   editionRowId: string
@@ -27,6 +30,9 @@ export interface BookshelfEditionItem {
   openLibraryWorkKey: string | null
   editionId: string
   editionTitle: string
+  seriesId: string | null
+  seriesName: string | null
+  seriesPosition: number | null
 }
 
 export interface BookshelfWorkItem {
@@ -36,6 +42,9 @@ export interface BookshelfWorkItem {
   workTitle: string
   publishDate: string
   openLibraryWorkKey: string | null
+  seriesId: string | null
+  seriesName: string | null
+  seriesPosition: number | null
 }
 
 export type BookshelfItem = BookshelfEditionItem | BookshelfWorkItem
@@ -143,6 +152,8 @@ export function useBookshelf() {
   // owner's own bookshelf and a public profile's, same as useBooks()'s
   // profile-stat fetchers.
   const fetchBookshelf = async (userId: string): Promise<BookshelfItem[]> => {
+    const { seriesByWorkId, fetchAllSeries } = useSeries()
+
     const [{ data: editionRows, error: editionsError }, { data: ownedRows, error: ownedError }] = await Promise.all([
       supabase
         .from('user_book_editions')
@@ -152,11 +163,19 @@ export function useBookshelf() {
         .from('user_books')
         .select('king_works ( id, title, slug, publish_date, open_library_work_key )')
         .eq('user_id', userId)
-        .eq('owned', true)
+        .eq('owned', true),
+      fetchAllSeries()
     ])
 
     if (editionsError) throw editionsError
     if (ownedError) throw ownedError
+
+    const seriesFieldsFor = (workId: string) => {
+      const membership = seriesByWorkId.value[workId]
+      return membership
+        ? { seriesId: membership.seriesId, seriesName: membership.seriesName, seriesPosition: membership.position }
+        : { seriesId: null, seriesName: null, seriesPosition: null }
+    }
 
     const editionItems: BookshelfEditionItem[] = (
       editionRows as unknown as {
@@ -176,7 +195,8 @@ export function useBookshelf() {
         publishDate: row.king_works.publish_date,
         openLibraryWorkKey: row.king_works.open_library_work_key,
         editionId: row.edition_id,
-        editionTitle: row.edition_title
+        editionTitle: row.edition_title,
+        ...seriesFieldsFor(row.king_works.id)
       }))
 
     const workIdsWithEditions = new Set(editionItems.map((item) => item.workId))
@@ -192,7 +212,8 @@ export function useBookshelf() {
         workSlug: row.king_works.slug,
         workTitle: row.king_works.title,
         publishDate: row.king_works.publish_date,
-        openLibraryWorkKey: row.king_works.open_library_work_key
+        openLibraryWorkKey: row.king_works.open_library_work_key,
+        ...seriesFieldsFor(row.king_works.id)
       }))
 
     return [...editionItems, ...workItems].sort((a, b) => a.workTitle.localeCompare(b.workTitle))

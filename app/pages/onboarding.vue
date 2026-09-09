@@ -3,6 +3,12 @@ import type { FormError, FormSubmitEvent } from '@nuxt/ui'
 
 definePageMeta({ layout: 'default' })
 
+const { setPageSeo } = useSeo()
+setPageSeo({
+  title: 'Choose a Username',
+  description: 'Set up your King Library profile to start tracking your Stephen King collection.'
+})
+
 const { updateUsername } = useProfile()
 
 const state = reactive({ username: '' })

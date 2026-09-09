@@ -3,7 +3,7 @@ import type { DropdownMenuItem, NavigationMenuItem } from '@nuxt/ui'
 
 const links: NavigationMenuItem[] = [
   { label: 'Works', to: '/works' },
-  { label: 'Short Works', to: '/short-stories' },
+  { label: 'Short Works', to: '/short-works' },
   { label: 'Adaptations', to: '/adaptations' }
 ]
 

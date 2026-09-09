@@ -18,21 +18,13 @@ const { open: openAuthModal } = useAuthModal();
       Give This One a Chance
     </h2>
 
-    <UEmpty v-if="!work" description="No released King work is eligible right now." />
+    <UEmpty
+      v-if="!work"
+      description="No released King work is eligible right now."
+    />
 
     <template v-else>
       <WorkTile :work="work" />
-
-      <BookReadingActions v-if="user" :work-id="work.id" />
-      <UButton
-        v-else
-        label="Start reading"
-        icon="i-lucide-book-open"
-        color="neutral"
-        variant="subtle"
-        block
-        @click="openAuthModal"
-      />
     </template>
   </div>
 </template>
