@@ -72,34 +72,41 @@ const filteredItems = computed(() => {
 </script>
 
 <template>
-  <div>
-    <UPageHeader :title="title" :description="description" />
+  <div class="py-4">
+    <div class="flex gap-2 justify-baseline items-center">
+      <UIcon :name="placeholderIcon" class="text-primary size-6" />
+      <h1 class="text-2xl font-bold grow">{{ title }}</h1>
+      <div class="text-2xl font-bold text-muted">{{ items?.length ?? 0 }}</div>
+    </div>
+    <p class="text-muted italic">{{ description }}</p>
 
     <UPageBody>
-      <div class="flex flex-wrap items-end gap-4 mb-4">
-        <UFormField>
-          <UInput
-            v-model="search"
-            placeholder="Search by title"
-            icon="i-lucide-search"
-          />
-        </UFormField>
-        <UFormField>
-          <USelect
-            v-model="typeFilter"
-            icon="i-lucide-filter"
-            :items="typeOptions"
-            class="w-48"
-          />
-        </UFormField>
-        <UFormField>
-          <div class="flex items-center gap-1">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-start">
+        <div class="min-w-0 flex-1">
+          <div class="flex flex-wrap items-center gap-4 mb-4">
+            <div class="flex items-center gap-4 grow">
+              <UInput
+                v-model="search"
+                placeholder="Search by title"
+                icon="i-lucide-search"
+                class="grow"
+              />
+              <USelect
+                v-model="typeFilter"
+                icon="i-lucide-filter"
+                :items="typeOptions"
+                class="max-w-48"
+              />
+            </div>
+            <slot name="extra-filters" />
+          </div>
+          <div class="flex items-center gap-1 mb-4">
             <USelect
               v-if="sortOptions.length > 1"
               v-model="sortBy"
               :items="sortOptions"
               icon="i-lucide-arrow-up-down"
-              class="w-44"
+              class="grow"
               aria-label="Sort field"
             />
             <UButton
@@ -112,32 +119,35 @@ const filteredItems = computed(() => {
               @click="toggleSortDir"
             />
           </div>
-        </UFormField>
-        <slot name="extra-filters" />
-      </div>
-
-      <div class="flex flex-col gap-6 lg:flex-row lg:items-start">
-        <div class="min-w-0 flex-1">
-          <ul class="flex flex-col gap-2">
-            <BibliographyListItem
-              v-for="item in filteredItems"
-              :key="item.id"
-              :src="imageSrcOf(item)"
-              :image-alt="imageAltOf(item)"
-              :placeholder-icon="placeholderIcon"
-              :title="item.title"
-              :release-year="yearOf(item)"
-              :type-label="formatTypeLabel(item.type)"
-              :to="detailPathPrefix && item.slug ? `${detailPathPrefix}/${item.slug}` : undefined"
-            >
-              <template #actions>
-                <slot name="item-actions" :item="item" />
-              </template>
-            </BibliographyListItem>
-          </ul>
+          <table class="w-full">
+            <tbody class="divide-y divide-accented">
+              <BibliographyListItem
+                v-for="item in filteredItems"
+                :key="item.id"
+                :src="imageSrcOf(item)"
+                :image-alt="imageAltOf(item)"
+                :placeholder-icon="placeholderIcon"
+                :title="item.title"
+                :release-year="yearOf(item)"
+                :type-label="formatTypeLabel(item.type)"
+                :to="
+                  detailPathPrefix && item.slug
+                    ? `${detailPathPrefix}/${item.slug}`
+                    : undefined
+                "
+              >
+                <template #actions>
+                  <slot name="item-actions" :item="item" />
+                </template>
+              </BibliographyListItem>
+            </tbody>
+          </table>
         </div>
 
-        <div v-if="$slots.sidebar" class="flex w-full flex-col gap-6 lg:w-96 lg:shrink-0">
+        <div
+          v-if="$slots.sidebar"
+          class="flex w-full flex-col gap-6 lg:w-96 lg:shrink-0"
+        >
           <slot name="sidebar" />
         </div>
       </div>

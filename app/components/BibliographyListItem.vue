@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { NuxtLink } from "#components";
-
 interface Props {
   src: string | null;
   imageAlt: string;
@@ -11,39 +9,42 @@ interface Props {
   to?: string;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
+
+function handleRowClick() {
+  if (props.to) navigateTo(props.to);
+}
 </script>
 
 <template>
-  <li
-    class="flex items-center gap-4 p-3 bg-elevated rounded"
-    :class="{ 'hover:bg-neutral-700': to }"
+  <tr
+    class="group"
+    :class="{ 'cursor-pointer hover:bg-elevated': to }"
+    @click="handleRowClick"
   >
-    <component
-      :is="to ? NuxtLink : 'div'"
-      :to="to"
-      class="group flex min-w-0 flex-1 gap-4"
-    >
+    <td class="w-16 py-2 pl-3 pr-3">
       <ImageThumbnail
         :src="src"
         :alt="imageAlt"
         :placeholder-icon="placeholderIcon"
+        size="sm"
       />
+    </td>
 
-      <div class="flex min-w-0 flex-1 flex-col justify-center gap-1">
-        <p class="truncate font-medium">
-          {{ title }}
-        </p>
+    <td class="min-w-0 py-2 pr-4">
+      <p class="truncate font-medium text-highlighted" :class="{ 'group-hover:text-primary': to }">
+        {{ title }}
+      </p>
+      <p class="flex flex-wrap items-center gap-2 text-sm text-muted">
+        <span v-if="releaseYear !== null">{{ releaseYear }}</span>
+        <span>{{ typeLabel }}</span>
+      </p>
+    </td>
 
-        <div class="flex flex-wrap items-center gap-2 text-sm text-muted">
-          <span v-if="releaseYear !== null">{{ releaseYear }}</span>
-          <span>{{ typeLabel }}</span>
-        </div>
+    <td class="py-2 pr-3" @click.stop>
+      <div class="flex shrink-0 items-center justify-end gap-2">
+        <slot name="actions" />
       </div>
-    </component>
-
-    <div class="flex shrink-0 items-center gap-2">
-      <slot name="actions" />
-    </div>
-  </li>
+    </td>
+  </tr>
 </template>

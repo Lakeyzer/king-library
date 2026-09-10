@@ -194,6 +194,20 @@ const previewSrc = computed(() =>
 // "sm" size) rather than looking oddly cramped next to them.
 const rowThumbnailSize = computed(() => (props.orientation === "vertical" ? "xs" : "sm"));
 const rowCoverSize = computed(() => (props.orientation === "vertical" ? "S" : "M"));
+
+// e.g. "Mass Market Paperback in English - 1st Signet printing" - each piece
+// is independently optional, so the pieces present decide the shape rather
+// than a fixed template.
+function formatEditionMeta(edition: OpenLibraryEdition): string | null {
+  const formatAndLanguage = [edition.physicalFormat, edition.language && `in ${edition.language}`]
+    .filter(Boolean)
+    .join(" ");
+
+  const combined = [formatAndLanguage, edition.editionName].filter(Boolean).join(" - ");
+  if (!combined) return null;
+
+  return combined.charAt(0).toUpperCase() + combined.slice(1);
+}
 </script>
 
 <template>
@@ -349,6 +363,9 @@ const rowCoverSize = computed(() => (props.orientation === "vertical" ? "S" : "M
                 <span v-if="edition.publisher && edition.publishYear"> · </span>
                 <span v-if="edition.publishYear">{{ edition.publishYear }}</span>
               </template>
+            </p>
+            <p v-if="formatEditionMeta(edition)" class="truncate text-xs text-muted">
+              {{ formatEditionMeta(edition) }}
             </p>
           </div>
 

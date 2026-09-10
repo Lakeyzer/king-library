@@ -53,6 +53,13 @@ function ageInYears(publishDate: string) {
           <span class="text-2xl font-bold tabular-nums text-highlighted">{{ ageInYears(work.publishDate) }}</span>
           <span class="text-xs text-muted">years old</span>
         </div>
+
+        <BookReadingActions
+          :work-id="work.id"
+          :work-title="work.title"
+          mode="compact"
+          class="shrink-0"
+        />
       </li>
     </ul>
   </div>

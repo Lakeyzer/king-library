@@ -1,6 +1,7 @@
 <script setup lang="ts">
 interface Props {
   workId: string;
+  workTitle: string;
 }
 
 const props = defineProps<Props>();
@@ -27,7 +28,7 @@ async function confirm() {
 </script>
 
 <template>
-  <UModal v-model:open="open" title="Finished Reading">
+  <UModal v-model:open="open" title="Finished Reading" :description="workTitle">
     <template #body>
       <UFormField label="Finish date" required>
         <UInput v-model="finishedOn" type="date" />

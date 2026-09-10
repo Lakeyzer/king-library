@@ -109,7 +109,7 @@ setPageSeo({
         </template>
 
         <template #actions>
-          <ShortStoryReadingActions :short-story-id="story.id" />
+          <ShortStoryReadingActions :short-story-id="story.id" mode="expanded" />
         </template>
       </DetailHero>
     </template>

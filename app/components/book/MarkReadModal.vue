@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import type { DateValue } from "reka-ui";
+
 interface Props {
   workId: string;
+  workTitle: string;
 }
 
 const props = defineProps<Props>();
@@ -8,15 +11,16 @@ const open = defineModel<boolean>("open", { default: false });
 
 const { markRead } = useBooks();
 
-const startedOn = ref("");
-const finishedOn = ref("");
+const dateRange = ref<{ start: DateValue | undefined; end: DateValue | undefined }>({
+  start: undefined,
+  end: undefined,
+});
 const readYear = ref<number | null>(null);
 const loading = ref(false);
 
 watch(open, (isOpen) => {
   if (isOpen) {
-    startedOn.value = "";
-    finishedOn.value = "";
+    dateRange.value = { start: undefined, end: undefined };
     readYear.value = null;
   }
 });
@@ -25,8 +29,8 @@ async function confirm() {
   loading.value = true;
   try {
     await markRead(props.workId, {
-      startedOn: startedOn.value || undefined,
-      finishedOn: finishedOn.value || undefined,
+      startedOn: dateRange.value.start?.toString(),
+      finishedOn: dateRange.value.end?.toString(),
       readYear: readYear.value ?? undefined,
     });
     open.value = false;
@@ -37,14 +41,22 @@ async function confirm() {
 </script>
 
 <template>
-  <UModal v-model:open="open" title="Mark as Read">
+  <UModal v-model:open="open" title="Mark as Read" :description="workTitle">
     <template #body>
       <div class="flex flex-col gap-4">
-        <UFormField label="Start date" description="Optional">
-          <UInput v-model="startedOn" type="date" />
-        </UFormField>
-        <UFormField label="Finish date" description="Optional">
-          <UInput v-model="finishedOn" type="date" />
+        <UFormField label="Reading dates" description="Optional">
+          <!--
+            Nuxt UI's bundled types declare two nominally distinct (but
+            structurally identical) DateValue classes, so a plain v-model
+            fails typecheck here even though the runtime values line up -
+            cast at this one boundary rather than losing typing on dateRange
+            itself, which we still rely on below.
+          -->
+          <UInputDate
+            :model-value="(dateRange as never)"
+            range
+            @update:model-value="(value) => (dateRange = value as typeof dateRange)"
+          />
         </UFormField>
         <UFormField
           label="Year read"
@@ -54,6 +66,7 @@ async function confirm() {
             v-model="readYear"
             :min="1900"
             :max="new Date().getFullYear()"
+            :format-options="{ useGrouping: false }"
           />
         </UFormField>
       </div>

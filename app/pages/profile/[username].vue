@@ -98,7 +98,7 @@ useSeoMeta({ title: `${profile.username} — Profile` });
   <div class="py-8">
     <UEmpty
       v-if="isPrivate"
-      icon="i-lucide-lock"
+      icon="i-lucide-eye-off"
       title="This profile is private"
       description="The owner of this profile has chosen to keep it private."
     />
@@ -107,6 +107,7 @@ useSeoMeta({ title: `${profile.username} — Profile` });
       :username="profile.username ?? ''"
       :avatar-url="profile.avatar_url"
       :is-owner="isOwner"
+      :is-public="profile.is_public"
       :stats="stats"
       :viewing="viewing"
       :currently-reading="currentlyReading"

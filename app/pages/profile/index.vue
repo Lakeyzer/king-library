@@ -70,6 +70,7 @@ useSeoMeta({
       :username="profile?.username ?? ''"
       :avatar-url="profile?.avatar_url"
       :is-owner="true"
+      :is-public="profile?.is_public ?? true"
       :stats="stats"
       :viewing="viewing"
       :currently-reading="currentlyReading"
