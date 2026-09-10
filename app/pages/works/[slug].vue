@@ -135,6 +135,7 @@ setPageSeo({
         <template #actions>
           <BookReadingActions
             :work-id="work.id"
+            :work-title="work.title"
             :work-key="work.open_library_work_key"
             mode="expanded"
           />

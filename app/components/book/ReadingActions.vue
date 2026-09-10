@@ -3,6 +3,7 @@ import type { DropdownMenuItem } from "@nuxt/ui";
 
 interface Props {
   workId: string;
+  workTitle: string;
   /** Open Library work key, needed to open the Add to Shelf editions picker - when absent, no Add to Shelf control is shown. */
   workKey?: string | null;
   mode?: "compact" | "expanded";
@@ -73,10 +74,20 @@ function handlePrimaryClick() {
   }
 }
 
+// The primary action (whatever handlePrimaryClick does for the current state)
+// is always the first item, since compact mode folds it into this single
+// dropdown rather than giving it its own button.
 const readingDropdownItems = computed<DropdownMenuItem[]>(() => {
+  const primary: DropdownMenuItem = {
+    label: primaryLabel.value,
+    icon: primaryIcon.value,
+    onSelect: handlePrimaryClick,
+  };
+
   switch (primaryState.value) {
     case "neutral":
       return [
+        primary,
         {
           label: "Add to Readlist",
           icon: "i-lucide-bookmark",
@@ -92,6 +103,7 @@ const readingDropdownItems = computed<DropdownMenuItem[]>(() => {
       ];
     case "want_to_read":
       return [
+        primary,
         {
           label: "Remove from Readlist",
           icon: "i-lucide-bookmark-x",
@@ -107,6 +119,7 @@ const readingDropdownItems = computed<DropdownMenuItem[]>(() => {
       ];
     case "currently_reading":
       return [
+        primary,
         {
           label: "Mark as Read",
           icon: "i-lucide-circle-check",
@@ -116,7 +129,7 @@ const readingDropdownItems = computed<DropdownMenuItem[]>(() => {
         },
       ];
     case "read":
-      return [];
+      return [primary];
   }
 });
 
@@ -186,36 +199,29 @@ function handleReadToggle() {
 
 <template>
   <template v-if="user">
-    <UFieldGroup v-if="mode === 'compact'">
-      <UButton
-        :label="primaryLabel"
-        :icon="primaryIcon"
-        color="neutral"
-        variant="subtle"
-        @click="handlePrimaryClick"
-      />
+    <div v-if="mode === 'compact'" class="flex items-center gap-1">
+      <UTooltip v-if="isOwned" text="On Shelf">
+        <UIcon name="i-lucide-library" class="size-5 text-muted" />
+      </UTooltip>
+      <UTooltip v-if="isWantToRead" text="On Readlist">
+        <UIcon name="i-lucide-bookmark" class="size-5 text-muted" />
+      </UTooltip>
+      <UTooltip v-if="isCurrentlyReading" text="Currently Reading">
+        <UIcon name="i-lucide-book-open" class="size-5 text-muted" />
+      </UTooltip>
+      <UTooltip v-if="isRead" text="Read">
+        <UIcon name="i-lucide-circle-check" class="size-5 text-muted" />
+      </UTooltip>
 
-      <UDropdownMenu
-        v-if="dropdownItems.length"
-        :items="dropdownItems"
-        :content="{ align: 'end' }"
-      >
+      <UDropdownMenu :items="dropdownItems" :content="{ align: 'end' }">
         <UButton
-          icon="i-lucide-chevron-down"
+          icon="i-lucide-ellipsis-vertical"
           color="neutral"
           variant="subtle"
-          aria-label="More reading actions"
+          aria-label="Reading actions"
         />
       </UDropdownMenu>
-      <UButton
-        v-else
-        icon="i-lucide-chevron-down"
-        color="neutral"
-        variant="subtle"
-        disabled
-        aria-label="No other reading actions available"
-      />
-    </UFieldGroup>
+    </div>
 
     <template v-else>
       <UFieldGroup class="hidden max-sm:flex max-sm:w-full">
@@ -290,12 +296,18 @@ function handleReadToggle() {
     <BookStartReadingModal
       v-model:open="showStartReadingModal"
       :work-id="workId"
+      :work-title="workTitle"
     />
     <BookFinishReadingModal
       v-model:open="showFinishReadingModal"
       :work-id="workId"
+      :work-title="workTitle"
     />
-    <BookMarkReadModal v-model:open="showMarkReadModal" :work-id="workId" />
+    <BookMarkReadModal
+      v-model:open="showMarkReadModal"
+      :work-id="workId"
+      :work-title="workTitle"
+    />
     <BookEditionsPickerModal
       v-if="workKey"
       v-model:open="showEditionsModal"

@@ -43,12 +43,16 @@ function extraFilter(story: KingShortStory) {
     :year-of="(story: KingShortStory) => story.original_publish_year"
     :image-src-of="() => null"
     :image-alt-of="(story: KingShortStory) => `${story.title} placeholder`"
-    placeholder-icon="i-lucide-book-open"
+    placeholder-icon="i-lucide-file-text"
     sort-year-label="Original publish year"
     :extra-filter="extraFilter"
   >
     <template #extra-filters>
       <UCheckbox v-model="notInCollectionOnly" label="Not in a collection" />
+    </template>
+
+    <template #item-actions="{ item }">
+      <ShortStoryReadingActions :short-story-id="(item as KingShortStory).id" />
     </template>
 
     <template v-if="collectionsOverview" #sidebar>

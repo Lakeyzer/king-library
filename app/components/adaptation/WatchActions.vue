@@ -54,10 +54,20 @@ function handlePrimaryClick() {
   handleWatchedToggle();
 }
 
+// The primary action (handlePrimaryClick) is always the first item, since
+// compact mode folds it into this single dropdown rather than giving it its
+// own button.
 const dropdownItems = computed<DropdownMenuItem[]>(() => {
+  const primary: DropdownMenuItem = {
+    label: primaryLabel.value,
+    icon: "i-lucide-circle-check",
+    onSelect: handlePrimaryClick,
+  };
+
   switch (primaryState.value) {
     case "neutral":
       return [
+        primary,
         {
           label: "Add to Watchlist",
           icon: "i-lucide-bookmark",
@@ -66,6 +76,7 @@ const dropdownItems = computed<DropdownMenuItem[]>(() => {
       ];
     case "want_to_watch":
       return [
+        primary,
         {
           label: "Remove from Watchlist",
           icon: "i-lucide-bookmark-x",
@@ -73,43 +84,30 @@ const dropdownItems = computed<DropdownMenuItem[]>(() => {
         },
       ];
     case "watched":
-      return [];
+      return [primary];
   }
 });
 </script>
 
 <template>
   <template v-if="user">
-    <UFieldGroup v-if="mode === 'compact'">
-      <UButton
-        :label="primaryLabel"
-        icon="i-lucide-circle-check"
-        color="neutral"
-        variant="subtle"
-        @click="handlePrimaryClick"
-      />
+    <div v-if="mode === 'compact'" class="flex items-center gap-1">
+      <UTooltip v-if="isWantToWatch" text="On Watchlist">
+        <UIcon name="i-lucide-bookmark" class="size-5 text-muted" />
+      </UTooltip>
+      <UTooltip v-if="isWatched" text="Watched">
+        <UIcon name="i-lucide-circle-check" class="size-5 text-muted" />
+      </UTooltip>
 
-      <UDropdownMenu
-        v-if="dropdownItems.length"
-        :items="dropdownItems"
-        :content="{ align: 'end' }"
-      >
+      <UDropdownMenu :items="dropdownItems" :content="{ align: 'end' }">
         <UButton
-          icon="i-lucide-chevron-down"
+          icon="i-lucide-ellipsis-vertical"
           color="neutral"
           variant="subtle"
-          aria-label="More watch actions"
+          aria-label="Watch actions"
         />
       </UDropdownMenu>
-      <UButton
-        v-else
-        icon="i-lucide-chevron-down"
-        color="neutral"
-        variant="subtle"
-        disabled
-        aria-label="No other watch actions available"
-      />
-    </UFieldGroup>
+    </div>
 
     <template v-else>
       <UFieldGroup class="hidden max-sm:flex max-sm:w-full">

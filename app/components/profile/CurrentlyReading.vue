@@ -6,9 +6,13 @@ interface Props {
   isOwner: boolean;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
 
 const finishingWorkId = ref<string | null>(null);
+
+const finishingWork = computed(
+  () => props.items.find((item) => item.id === finishingWorkId.value) ?? null,
+);
 
 const showFinishModal = computed({
   get: () => finishingWorkId.value !== null,
@@ -65,9 +69,10 @@ const showFinishModal = computed({
     </div>
 
     <BookFinishReadingModal
-      v-if="finishingWorkId"
+      v-if="finishingWorkId && finishingWork"
       v-model:open="showFinishModal"
       :work-id="finishingWorkId"
+      :work-title="finishingWork.title"
     />
   </div>
 </template>

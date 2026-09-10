@@ -63,7 +63,7 @@ function extraFilter(work: KingWork) {
 <template>
   <BibliographyBrowsePage
     title="Works"
-    description="Browse the canonical Stephen King bibliography."
+    description="Browse all works by Stephen King."
     detail-path-prefix="/works"
     :items="works ?? []"
     :year-of="(work: KingWork) => Number(work.publish_date.slice(0, 4))"
@@ -85,12 +85,15 @@ function extraFilter(work: KingWork) {
         variant="table"
         indicator="hidden"
         size="sm"
+        class="grow"
+        :ui="{ fieldset: 'w-full', item: 'flex-1 justify-center' }"
       />
     </template>
 
     <template #item-actions="{ item }">
       <BookReadingActions
         :work-id="(item as KingWork).id"
+        :work-title="(item as KingWork).title"
         :work-key="(item as KingWork).open_library_work_key"
       />
     </template>
