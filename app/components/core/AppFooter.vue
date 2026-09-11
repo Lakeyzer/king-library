@@ -7,5 +7,14 @@
         representatives.
       </p>
     </template>
+
+    <template #right>
+      <NuxtLink
+        to="/privacy-policy"
+        class="text-xs text-muted hover:text-default"
+      >
+        Privacy Policy
+      </NuxtLink>
+    </template>
   </UFooter>
 </template>

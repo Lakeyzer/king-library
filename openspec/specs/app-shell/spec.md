@@ -32,7 +32,7 @@ The system SHALL provide a detail layout that renders the same header and footer
 - **THEN** the main content and sidebar are still both reachable, stacked rather than side-by-side
 
 ### Requirement: Header displays site branding and primary navigation
-The system SHALL render, on the leading side of the header, the site name "King Library", followed by a primary navigation menu with entries for Works, Short Stories, and Adaptations, each linking to its corresponding page. The system SHALL also render, on the trailing side of the header, an authentication entry point: a sign-in control when the visitor is signed out, or an account menu (linking to the profile page and to the account settings page, with a sign-out action) when the visitor is signed in.
+The system SHALL render, on the leading side of the header, the site name "King Library", followed by a primary navigation menu with entries for Works, Short Stories, and Adaptations, each linking to its corresponding page. The system SHALL also render, on the trailing side of the header, an authentication entry point: a sign-in control when the visitor is signed out, or an account menu (linking to the profile page, to the `/following` page, and to the account settings page, with a sign-out action) when the visitor is signed in.
 
 #### Scenario: Header navigation entries link to their pages
 - **WHEN** a visitor selects a primary navigation entry (Works, Short Stories, or Adaptations) in the header
@@ -44,7 +44,11 @@ The system SHALL render, on the leading side of the header, the site name "King 
 
 #### Scenario: Signed-in user sees an account menu
 - **WHEN** a signed-in user views the header
-- **THEN** the header displays an account menu instead of the sign-in control, offering a link to the profile page, a link to the account settings page, and a sign-out action
+- **THEN** the header displays an account menu instead of the sign-in control, offering a link to the profile page, a link to the `/following` page, a link to the account settings page, and a sign-out action
+
+#### Scenario: Account menu's Following entry links to /following
+- **WHEN** a signed-in user activates the "Following" entry in the account menu
+- **THEN** they are taken to the `/following` page
 
 ### Requirement: Header provides a color mode toggle
 The system SHALL render a control on the trailing side of the header that lets a visitor switch between light and dark color modes.

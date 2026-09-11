@@ -114,6 +114,20 @@ watch(isOpen, (open) => {
         </template>
 
         <template #footer>
+          <p
+            v-if="mode === 'signup'"
+            class="text-center text-xs text-muted mb-3"
+          >
+            By creating an account you accept our
+            <NuxtLink
+              to="/privacy-policy"
+              target="_blank"
+              class="text-primary"
+            >
+              Privacy Policy
+            </NuxtLink>.
+          </p>
+
           <p class="text-center text-sm text-muted">
             <template v-if="mode === 'signup'">
               Already have an account?

@@ -17,21 +17,21 @@ function handleRowClick() {
 </script>
 
 <template>
-  <tr
-    class="group"
+  <li
+    class="group flex items-center gap-3 py-2 pl-3 pr-3"
     :class="{ 'cursor-pointer hover:bg-elevated': to }"
     @click="handleRowClick"
   >
-    <td class="w-16 py-2 pl-3 pr-3">
+    <div class="shrink-0">
       <ImageThumbnail
         :src="src"
         :alt="imageAlt"
         :placeholder-icon="placeholderIcon"
         size="sm"
       />
-    </td>
+    </div>
 
-    <td class="min-w-0 py-2 pr-4">
+    <div class="min-w-0 flex-1">
       <p class="truncate font-medium text-highlighted" :class="{ 'group-hover:text-primary': to }">
         {{ title }}
       </p>
@@ -39,12 +39,10 @@ function handleRowClick() {
         <span v-if="releaseYear !== null">{{ releaseYear }}</span>
         <span>{{ typeLabel }}</span>
       </p>
-    </td>
+    </div>
 
-    <td class="py-2 pr-3" @click.stop>
-      <div class="flex shrink-0 items-center justify-end gap-2">
-        <slot name="actions" />
-      </div>
-    </td>
-  </tr>
+    <div class="flex shrink-0 items-center justify-end gap-2" @click.stop>
+      <slot name="actions" />
+    </div>
+  </li>
 </template>

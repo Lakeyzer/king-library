@@ -119,29 +119,27 @@ const filteredItems = computed(() => {
               @click="toggleSortDir"
             />
           </div>
-          <table class="w-full">
-            <tbody class="divide-y divide-accented">
-              <BibliographyListItem
-                v-for="item in filteredItems"
-                :key="item.id"
-                :src="imageSrcOf(item)"
-                :image-alt="imageAltOf(item)"
-                :placeholder-icon="placeholderIcon"
-                :title="item.title"
-                :release-year="yearOf(item)"
-                :type-label="formatTypeLabel(item.type)"
-                :to="
-                  detailPathPrefix && item.slug
-                    ? `${detailPathPrefix}/${item.slug}`
-                    : undefined
-                "
-              >
-                <template #actions>
-                  <slot name="item-actions" :item="item" />
-                </template>
-              </BibliographyListItem>
-            </tbody>
-          </table>
+          <ul class="w-full divide-y divide-accented">
+            <BibliographyListItem
+              v-for="item in filteredItems"
+              :key="item.id"
+              :src="imageSrcOf(item)"
+              :image-alt="imageAltOf(item)"
+              :placeholder-icon="placeholderIcon"
+              :title="item.title"
+              :release-year="yearOf(item)"
+              :type-label="formatTypeLabel(item.type)"
+              :to="
+                detailPathPrefix && item.slug
+                  ? `${detailPathPrefix}/${item.slug}`
+                  : undefined
+              "
+            >
+              <template #actions>
+                <slot name="item-actions" :item="item" />
+              </template>
+            </BibliographyListItem>
+          </ul>
         </div>
 
         <div

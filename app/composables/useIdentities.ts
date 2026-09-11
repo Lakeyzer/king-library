@@ -32,5 +32,13 @@ export function useIdentities() {
     await fetchIdentities()
   }
 
-  return { identities, fetchIdentities, linkProvider, unlinkProvider }
+  const linkEmailPassword = async (password: string) => {
+    const { error } = await supabase.auth.updateUser({ password })
+
+    if (error) throw error
+
+    await fetchIdentities()
+  }
+
+  return { identities, fetchIdentities, linkProvider, unlinkProvider, linkEmailPassword }
 }
