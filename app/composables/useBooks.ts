@@ -25,6 +25,8 @@ export interface ReadingTimelineEntry {
   coverId: number | null
   readOn: string | null
   readYear: number | null
+  startedOn: string | null
+  finishedOn: string | null
 }
 
 export interface WorkHighlight {
@@ -492,7 +494,9 @@ export function useBooks() {
         slug: row.king_works.slug,
         coverId: row.king_works.cover_id,
         readOn: row.finished_on ?? row.started_on,
-        readYear: row.read_year
+        readYear: row.read_year,
+        startedOn: row.started_on,
+        finishedOn: row.finished_on
       }))
   }
 

@@ -139,7 +139,7 @@ async function toggleFollow() {
         <UIcon name="i-lucide-scroll-text" class="size-5" />
         Reading Journey
       </h2>
-      <ProfileReadingTimeline :items="readingTimeline" />
+      <ProfileReadingTimeline :items="readingTimeline" :is-owner="isOwner" />
     </div>
 
     <div class="flex flex-col-reverse gap-4 lg:flex-row lg:items-start">
