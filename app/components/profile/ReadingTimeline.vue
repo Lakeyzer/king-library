@@ -88,6 +88,14 @@ const canScrollRight = ref(false);
 // drag and the resulting click on whatever's under the cursor (a work link,
 // the edit-date button) is suppressed in the capture-phase handler below -
 // otherwise a normal, unmoved click passes through untouched.
+//
+// Pointer capture is only acquired once real movement is detected (in
+// onPointerMove), not on pointerdown itself. Capturing eagerly would
+// retarget the resulting click event to the scroller element for every
+// press - even an unmoved one - since a click is dispatched as a
+// pointer-capture-derived compatibility event once capture is active. That
+// bypassed the date button's and title link's own click handlers entirely,
+// rather than just the drag case this is meant to suppress.
 const DRAG_THRESHOLD_PX = 5;
 const isDragging = ref(false);
 let dragPointerId: number | null = null;
@@ -105,7 +113,6 @@ function onPointerDown(event: PointerEvent) {
   dragPointerId = event.pointerId;
   dragStartX = event.clientX;
   dragStartScrollLeft = el.scrollLeft;
-  el.setPointerCapture(event.pointerId);
 }
 
 function onPointerMove(event: PointerEvent) {
@@ -114,14 +121,18 @@ function onPointerMove(event: PointerEvent) {
   if (!el) return;
 
   const delta = event.clientX - dragStartX;
-  if (Math.abs(delta) > DRAG_THRESHOLD_PX) dragMoved = true;
+  if (Math.abs(delta) > DRAG_THRESHOLD_PX) {
+    if (!dragMoved) el.setPointerCapture(event.pointerId);
+    dragMoved = true;
+  }
   el.scrollLeft = dragStartScrollLeft - delta;
 }
 
 function endDrag(event: PointerEvent) {
   if (!isDragging.value || event.pointerId !== dragPointerId) return;
   isDragging.value = false;
-  scrollerRef.value?.releasePointerCapture(event.pointerId);
+  const el = scrollerRef.value;
+  if (el?.hasPointerCapture(event.pointerId)) el.releasePointerCapture(event.pointerId);
   dragPointerId = null;
 }
 
