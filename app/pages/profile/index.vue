@@ -67,8 +67,10 @@ useSeoMeta({
   <div class="py-8">
     <ProfileShowcase
       v-if="stats && viewing && currentlyReading && readingTimeline"
+      :profile-id="userId"
       :username="profile?.username ?? ''"
       :avatar-url="profile?.avatar_url"
+      :tagline="profile?.tagline"
       :is-owner="true"
       :is-public="profile?.is_public ?? true"
       :stats="stats"

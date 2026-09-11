@@ -9,21 +9,45 @@ setPageSeo({
   description: 'Set up your King Library profile to start tracking your Stephen King collection.'
 })
 
-const { updateUsername } = useProfile()
+const { updateUsername, checkUsernameAvailable } = useProfile()
 
 const state = reactive({ username: '' })
 const errorMessage = ref('')
 const loading = ref(false)
 
-const USERNAME_PATTERN = /^[a-z0-9_]{3,24}$/
+const USERNAME_PATTERN = /^[a-zA-Z0-9_]{3,24}$/
 
 function validate(state: { username: string }): FormError[] {
   if (!USERNAME_PATTERN.test(state.username)) {
-    return [{ name: 'username', message: '3-24 characters: lowercase letters, numbers, and underscores only.' }]
+    return [{ name: 'username', message: '3-24 characters: letters, numbers, and underscores only.' }]
   }
 
   return []
 }
+
+const availability = ref<'checking' | 'available' | 'taken' | null>(null)
+let availabilityTimeout: ReturnType<typeof setTimeout> | undefined
+
+watch(() => state.username, (username) => {
+  clearTimeout(availabilityTimeout)
+
+  if (!USERNAME_PATTERN.test(username)) {
+    availability.value = null
+    return
+  }
+
+  availability.value = 'checking'
+
+  availabilityTimeout = setTimeout(async () => {
+    const isAvailable = await checkUsernameAvailable(username).catch(() => null)
+
+    // The field may have changed while the check was in flight - only apply
+    // a result that still matches what's currently typed.
+    if (isAvailable === null || state.username !== username) return
+
+    availability.value = isAvailable ? 'available' : 'taken'
+  }, 400)
+})
 
 async function onSubmit(event: FormSubmitEvent<{ username: string }>) {
   errorMessage.value = ''
@@ -60,10 +84,13 @@ async function onSubmit(event: FormSubmitEvent<{ username: string }>) {
       <UFormField
         name="username"
         label="Username"
+        :hint="availability === 'taken' ? 'Already taken' : availability === 'available' ? 'Available' : undefined"
+        :color="availability === 'taken' ? 'error' : availability === 'available' ? 'success' : undefined"
       >
         <UInput
           v-model="state.username"
           placeholder="username"
+          :trailing-icon="availability === 'checking' ? 'i-lucide-loader-circle' : availability === 'available' ? 'i-lucide-check' : availability === 'taken' ? 'i-lucide-x' : undefined"
         />
       </UFormField>
 

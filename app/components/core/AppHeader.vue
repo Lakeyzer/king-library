@@ -18,6 +18,7 @@ const SHOW_INSTALL_BUTTON = false
 
 const accountMenuItems: DropdownMenuItem[] = [
   { label: 'Profile', icon: 'i-lucide-user', to: '/profile' },
+  { label: 'Following', icon: 'i-lucide-users', to: '/following' },
   { label: 'Settings', icon: 'i-lucide-settings', to: '/settings' },
   { label: 'Sign out', icon: 'i-lucide-log-out', onSelect: () => supabase.auth.signOut() }
 ]

@@ -104,8 +104,10 @@ useSeoMeta({ title: `${profile.username} — Profile` });
     />
     <ProfileShowcase
       v-else-if="stats && viewing && currentlyReading && readingTimeline"
+      :profile-id="profile.id"
       :username="profile.username ?? ''"
       :avatar-url="profile.avatar_url"
+      :tagline="profile.tagline"
       :is-owner="isOwner"
       :is-public="profile.is_public"
       :stats="stats"
