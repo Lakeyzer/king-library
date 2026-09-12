@@ -13,6 +13,14 @@ const props = withDefaults(defineProps<Props>(), {
 defineOptions({ inheritAttrs: false });
 
 const user = useSupabaseUser();
+// userAdaptationsByAdaptationId is only populated once something calls
+// fetchUserAdaptations() - this component does NOT do that itself. Any page
+// rendering this (directly or via AdaptationTile) must await
+// useAsyncData("user-adaptations", fetchUserAdaptations) itself, or every
+// tile silently shows neutral status regardless of the user's actual watch
+// state - see nuxt-conventions "BookReadingActions / AdaptationWatchActions
+// need their page to pre-fetch status" for why this isn't just pushed into
+// this component.
 const { userAdaptationsByAdaptationId, toggleWantToWatch, markWatched, unmarkWatched } = useAdaptations();
 
 const userAdaptation = computed(() => userAdaptationsByAdaptationId.value[props.adaptationId]);

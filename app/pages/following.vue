@@ -46,7 +46,7 @@ const [{ data: following }, { data: currentlyReading }] = await Promise.all([
           />
           <div class="min-w-0">
             <p class="font-medium text-highlighted truncate">
-              @<NumberMotif :text="followedProfile.username ?? ''" />
+              <NumberMotif :text="followedProfile.username ?? ''" />
             </p>
             <p
               v-if="followedProfile.tagline"
@@ -89,7 +89,7 @@ const [{ data: following }, { data: currentlyReading }] = await Promise.all([
               icon="i-lucide-user"
               size="xs"
             />
-            <span class="text-sm font-medium text-highlighted">@<NumberMotif :text="entry.profile.username ?? ''" /></span>
+            <span class="text-sm font-medium text-highlighted"><NumberMotif :text="entry.profile.username ?? ''" /></span>
           </NuxtLink>
 
           <ul class="space-y-1">

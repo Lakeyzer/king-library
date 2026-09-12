@@ -3,19 +3,28 @@
   lang="ts"
   generic="T extends { id: string; title: string; type: string; slug?: string }"
 >
-const props = defineProps<{
-  title: string;
-  description: string;
-  items: T[];
-  yearOf: (item: T) => number | null;
-  sortValueOf?: (item: T) => number | null;
-  imageSrcOf: (item: T) => string | null;
-  imageAltOf: (item: T) => string;
-  placeholderIcon: string;
-  sortYearLabel: string;
-  extraFilter?: (item: T) => boolean;
-  detailPathPrefix?: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    title: string;
+    description: string;
+    items: T[];
+    yearOf: (item: T) => number | null;
+    sortValueOf?: (item: T) => number | null;
+    imageSrcOf: (item: T) => string | null;
+    imageAltOf: (item: T) => string;
+    placeholderIcon: string;
+    sortYearLabel: string;
+    extraFilter?: (item: T) => boolean;
+    detailPathPrefix?: string;
+    /** Shown instead of the list when `items` itself is empty (not just filtered to nothing). Defaults suit a page whose `items` is realistically never empty (e.g. the full bibliography). */
+    emptyIcon?: string;
+    emptyTitle?: string;
+    emptyDescription?: string;
+    /** Hides the sort field/direction controls. The list still sorts internally (by year, ascending) for a stable order - only the user-facing control disappears. */
+    showSort?: boolean;
+  }>(),
+  { showSort: true },
+);
 
 const search = ref("");
 const typeFilter = ref("all");
@@ -102,7 +111,7 @@ const filteredItems = computed(() => {
             </div>
             <slot name="extra-filters" />
           </div>
-          <div class="flex items-center gap-1 mb-4">
+          <div v-if="showSort" class="flex items-center gap-1 mb-4">
             <USelect
               v-if="sortOptions.length > 1"
               v-model="sortBy"
@@ -127,6 +136,21 @@ const filteredItems = computed(() => {
           >
             You weren't supposed to find this.
           </p>
+          <!-- Same two-tier empty-state split as ProfileBookshelf: distinguish
+               "nothing here at all" from "search/filters matched nothing",
+               since only the former is worth a tailored message. -->
+          <UEmpty
+            v-else-if="!filteredItems.length && !items.length"
+            :icon="emptyIcon ?? placeholderIcon"
+            :title="emptyTitle ?? 'Nothing here yet'"
+            :description="emptyDescription"
+          />
+          <UEmpty
+            v-else-if="!filteredItems.length"
+            icon="i-lucide-search-x"
+            title="No matches"
+            description="Nothing matches the current search and filters."
+          />
           <ul v-else class="w-full divide-y divide-accented">
             <BibliographyListItem
               v-for="item in filteredItems"

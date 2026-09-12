@@ -5,9 +5,10 @@ interface Props {
   work: WorkHighlight;
   meta?: string;
   size?: "xs" | "sm";
+  showActions?: boolean;
 }
 
-withDefaults(defineProps<Props>(), { size: "xs" });
+withDefaults(defineProps<Props>(), { size: "xs", showActions: true });
 </script>
 
 <template>
@@ -32,6 +33,7 @@ withDefaults(defineProps<Props>(), { size: "xs" });
     </NuxtLink>
 
     <BookReadingActions
+      v-if="showActions"
       :work-id="work.id"
       :work-title="work.title"
       mode="compact"

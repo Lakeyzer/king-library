@@ -5,7 +5,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
   if (!user.value) {
     profile.value = null
 
-    if (to.path === '/profile' || to.path === '/settings' || to.path === '/following') {
+    if (to.path === '/profile' || to.path === '/profile/read-list' || to.path === '/profile/watch-list' || to.path === '/settings' || to.path === '/following') {
       return navigateTo({ path: '/', query: { signin: '1' } })
     }
 
