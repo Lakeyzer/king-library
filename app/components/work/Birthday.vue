@@ -43,14 +43,14 @@ function ageInYears(publishDate: string) {
           />
           <div class="flex min-w-0 flex-col">
             <p class="truncate text-sm font-medium text-highlighted group-hover:text-primary">
-              {{ work.title }}
+              <NumberMotif :text="work.title" />
             </p>
-            <p class="text-xs text-muted">{{ formatFullDate(work.publishDate) }}</p>
+            <p class="text-xs text-muted"><NumberMotif :text="formatFullDate(work.publishDate)" /></p>
           </div>
         </NuxtLink>
 
         <div class="flex shrink-0 flex-col items-end">
-          <span class="text-2xl font-bold tabular-nums text-highlighted">{{ ageInYears(work.publishDate) }}</span>
+          <span class="text-2xl font-bold tabular-nums text-highlighted"><NumberMotif :text="ageInYears(work.publishDate)" /></span>
           <span class="text-xs text-muted">years old</span>
         </div>
 

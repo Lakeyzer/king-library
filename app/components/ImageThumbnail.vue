@@ -33,7 +33,7 @@ watch(() => props.src, () => {
 
 <template>
   <div
-    class="flex shrink-0 items-center justify-center overflow-hidden rounded bg-elevated"
+    class="flex shrink-0 items-center justify-center overflow-hidden rounded bg-elevated group-hover:bg-accented"
     :class="SIZE_CLASSES[size]"
   >
     <UIcon

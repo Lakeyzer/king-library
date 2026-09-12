@@ -47,6 +47,8 @@ function compareYear(a: number | null, b: number | null, dir: "asc" | "desc") {
   return dir === "asc" ? a - b : b - a;
 }
 
+const isRoom217Search = computed(() => search.value.trim() === "217");
+
 const filteredItems = computed(() => {
   const term = search.value.trim().toLowerCase();
 
@@ -76,7 +78,7 @@ const filteredItems = computed(() => {
     <div class="flex gap-2 justify-baseline items-center">
       <UIcon :name="placeholderIcon" class="text-primary size-6" />
       <h1 class="text-2xl font-bold grow">{{ title }}</h1>
-      <div class="text-2xl font-bold text-muted">{{ items?.length ?? 0 }}</div>
+      <div class="text-2xl font-bold text-muted"><NumberMotif :text="items?.length ?? 0" /></div>
     </div>
     <p class="text-muted italic">{{ description }}</p>
 
@@ -119,7 +121,13 @@ const filteredItems = computed(() => {
               @click="toggleSortDir"
             />
           </div>
-          <ul class="w-full divide-y divide-accented">
+          <p
+            v-if="isRoom217Search && !filteredItems.length"
+            class="py-8 text-center text-muted italic"
+          >
+            You weren't supposed to find this.
+          </p>
+          <ul v-else class="w-full divide-y divide-accented">
             <BibliographyListItem
               v-for="item in filteredItems"
               :key="item.id"

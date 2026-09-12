@@ -25,16 +25,15 @@ const percent = computed(() =>
         <UIcon :name="icon" class="size-4" />
         <span>{{ label }}</span>
       </div>
-      <span class="text-2xl font-bold tabular-nums text-highlighted">{{
-        percent
-      }}%</span>
+      <span class="text-2xl font-bold tabular-nums text-highlighted"
+        ><NumberMotif :text="`${percent}%`" /></span>
     </div>
 
     <UProgress :model-value="count" :max="total" :color="color" size="lg" />
 
     <div class="flex items-center justify-between text-xs text-muted">
-      <span>{{ count }} / {{ total }}</span>
-      <span v-if="hint">{{ hint }}</span>
+      <span><NumberMotif :text="`${count} / ${total}`" /></span>
+      <span v-if="hint"><NumberMotif :text="hint" /></span>
     </div>
   </div>
 </template>

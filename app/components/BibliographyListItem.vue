@@ -33,11 +33,11 @@ function handleRowClick() {
 
     <div class="min-w-0 flex-1">
       <p class="truncate font-medium text-highlighted" :class="{ 'group-hover:text-primary': to }">
-        {{ title }}
+        <NumberMotif :text="title" />
       </p>
       <p class="flex flex-wrap items-center gap-2 text-sm text-muted">
-        <span v-if="releaseYear !== null">{{ releaseYear }}</span>
-        <span>{{ typeLabel }}</span>
+        <NumberMotif v-if="releaseYear !== null" :text="releaseYear" />
+        <span><NumberMotif :text="typeLabel" /></span>
       </p>
     </div>
 

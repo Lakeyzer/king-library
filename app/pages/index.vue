@@ -1,12 +1,11 @@
 <script setup lang="ts">
 definePageMeta({ layout: "default" });
 
-useHead({ titleTemplate: "%s" });
 const { setPageSeo } = useSeo();
 setPageSeo({
-  title: "King Library",
+  title: "Constant Reader Checklist",
   description:
-    "Build your own Stephen King bookshelf and track your reading progress — collect, wishlist, and check off books, short works, and adaptations as you go.",
+    "An unofficial Stephen King reading checklist. Build your own bookshelf and track your reading progress, wishlist, and check off books, short works, and adaptations.",
 });
 
 const user = useSupabaseUser();
@@ -19,8 +18,11 @@ const {
   fetchUnreadRecommendation,
   fetchOwnedUnreadRecommendation,
 } = useBooks();
-const { fetchAdaptationHighlights, fetchUnwatchedRecommendation } =
-  useAdaptations();
+const {
+  fetchAdaptationHighlights,
+  fetchUnwatchedRecommendation,
+  fetchUserAdaptations,
+} = useAdaptations();
 
 const [
   { data: meta },
@@ -33,6 +35,7 @@ const [
 ]);
 
 await useAsyncData("user-books", fetchUserBooks);
+await useAsyncData("user-adaptations", fetchUserAdaptations);
 
 const [
   { data: bookRecommendation },
@@ -69,15 +72,15 @@ const wantToWatchCountLabel = (count: number) => `${count} want to watch this`;
   <div>
     <UPageHero
       title="King Library"
-      description="Build your own Stephen King bookshelf and track your reading progress — collect, wishlist, and check off books, short works, and adaptations as you go."
+      description="An unofficial Stephen King reading checklist. Build your own bookshelf and track your reading progress, wishlist, and check off books, short works, and adaptations."
       orientation="horizontal"
     >
-      <div class="flex h-full items-center justify-center">
+      <div class="flex h-full items-center justify-center lg:justify-end">
         <UButton
           v-if="user"
           label="Add to Your Collection"
           icon="i-lucide-library"
-          size="lg"
+          size="xl"
           to="/works"
         />
         <UButton

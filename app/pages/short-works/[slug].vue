@@ -80,14 +80,14 @@ setPageSeo({
       >
         <div>
           <h1 class="text-3xl font-bold text-pretty text-highlighted sm:text-4xl">
-            {{ story.title }}
+            <NumberMotif :text="story.title" />
           </h1>
           <p class="mt-4 flex items-center gap-4 text-muted">
-            <span v-if="story.original_publish_year">{{ story.original_publish_year }}</span>
-            <span>{{ formatTypeLabel(story.type) }}</span>
+            <NumberMotif v-if="story.original_publish_year" :text="story.original_publish_year" />
+            <span><NumberMotif :text="formatTypeLabel(story.type)" /></span>
           </p>
           <p v-if="story.first_published_in" class="mt-1 text-sm text-muted">
-            First published in {{ story.first_published_in }}
+            First published in <NumberMotif :text="story.first_published_in" />
           </p>
         </div>
 
@@ -101,7 +101,7 @@ setPageSeo({
         </div>
 
         <p v-if="story.dark_tower_relation" class="text-sm text-muted italic">
-          {{ story.dark_tower_relation }}
+          <NumberMotif :text="story.dark_tower_relation" />
         </p>
 
         <template v-if="collectionItems.length" #related>

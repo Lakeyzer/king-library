@@ -1,6 +1,6 @@
 {
   "name": "king-library",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -31,6 +31,7 @@
     "@nuxtjs/sitemap": "^8.5.0",
     "@nuxtjs/supabase": "^2.0.10",
     "@supabase/supabase-js": "^2.112.4",
+    "@vercel/analytics": "^2.0.1",
     "@vite-pwa/nuxt": "^1.1.1",
     "nuxt": "^4.5.2",
     "reka-ui": "2.10.3",

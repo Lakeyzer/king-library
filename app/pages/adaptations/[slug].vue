@@ -16,6 +16,7 @@ if (!adaptationData.value) {
 }
 
 const adaptation = adaptationData.value;
+const isMisery = adaptation.slug === "misery";
 
 const { fetchTmdbDetails } = useTmdb();
 const { fetchAdaptationStats, fetchUserAdaptations } = useAdaptations();
@@ -63,6 +64,12 @@ const directedByLabel = computed(() =>
   adaptation.tmdb_media_type === "tv" ? "Created by" : "Directed by",
 );
 
+const directedByText = computed(() =>
+  tmdb.value?.directedBy.length
+    ? `${directedByLabel.value} ${tmdb.value.directedBy.join(", ")}`
+    : "",
+);
+
 const basedOnWorkItems = computed<ConnectionListItem[]>(() =>
   adaptation.basedOnWorks.map((work) => ({
     id: work.id,
@@ -108,21 +115,26 @@ setPageSeo({
           <h1
             class="text-3xl font-bold text-pretty text-highlighted sm:text-4xl"
           >
-            {{ adaptation.title }}
+            <GlitchLetter :text="adaptation.title" letter="n" :active="isMisery" />
           </h1>
           <div
             v-if="tmdb?.directedBy.length"
             class="flex items-center gap-1.5 text-muted text-xs"
           >
             <span
-              >{{ directedByLabel }} {{ tmdb.directedBy.join(", ") }}</span
-            >
+              ><GlitchLetter :text="directedByText" letter="n" :active="isMisery"
+            /></span>
           </div>
           <p class="mt-4 text-muted flex gap-4 items-center">
-            {{ adaptation.release_year }}
-            <span>{{ formatTypeLabel(adaptation.type) }}</span>
+            <NumberMotif :text="adaptation.release_year" />
+            <span
+              ><GlitchLetter
+                :text="formatTypeLabel(adaptation.type)"
+                letter="n"
+                :active="isMisery"
+            /></span>
             <span v-if="runtimeOrSeasonLabel">
-              {{ runtimeOrSeasonLabel }}
+              <GlitchLetter :text="runtimeOrSeasonLabel" letter="n" :active="isMisery" />
             </span>
           </p>
         </div>
@@ -153,13 +165,13 @@ setPageSeo({
 
         <div class="flex flex-col gap-4">
           <p v-if="tmdb?.overview" class="whitespace-pre-line">
-            {{ tmdb.overview }}
+            <GlitchLetter :text="tmdb.overview" letter="n" :active="isMisery" />
           </p>
           <p
             v-if="adaptation.notes"
             class="whitespace-pre-line text-sm text-muted italic"
           >
-            {{ adaptation.notes }}
+            <GlitchLetter :text="adaptation.notes" letter="n" :active="isMisery" />
           </p>
           <UAlert
             v-if="adaptation.is_universe_only"
@@ -185,20 +197,16 @@ setPageSeo({
           <div class="flex items-center gap-1.5">
             <UIcon name="i-lucide-bookmark" class="size-4" />
             <span
-              ><strong class="text-highlighted">{{
-                stats.want_to_watch_count
-              }}</strong>
-              want to watch</span
-            >
+              ><strong class="text-highlighted"><NumberMotif :text="stats.want_to_watch_count" /></strong>
+              <GlitchLetter text="want to watch" letter="n" :active="isMisery"
+            /></span>
           </div>
           <div class="flex items-center gap-1.5">
             <UIcon name="i-lucide-circle-check" class="size-4" />
             <span
-              ><strong class="text-highlighted">{{
-                stats.watched_count
-              }}</strong>
-              watched</span
-            >
+              ><strong class="text-highlighted"><NumberMotif :text="stats.watched_count" /></strong>
+              <GlitchLetter text="watched" letter="n" :active="isMisery"
+            /></span>
           </div>
         </template>
       </DetailHero>

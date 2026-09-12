@@ -30,7 +30,7 @@ const tiles = computed(() => [
       >
         <UIcon :name="tile.icon" class="size-5 shrink-0 text-primary" />
         <span class="flex-1 truncate text-sm text-muted">{{ tile.label }}</span>
-        <span class="text-lg font-bold tabular-nums text-highlighted">{{ tile.value.toLocaleString() }}</span>
+        <span class="text-lg font-bold tabular-nums text-highlighted"><NumberMotif :text="tile.value.toLocaleString()" /></span>
       </li>
     </ul>
   </div>

@@ -10,6 +10,8 @@ const props = withDefaults(defineProps<Props>(), {
   mode: "compact",
 });
 
+defineOptions({ inheritAttrs: false });
+
 const user = useSupabaseUser();
 const { readShortStoryIds, toggleRead } = useShortStories();
 
@@ -35,7 +37,7 @@ const dropdownItems = computed<DropdownMenuItem[]>(() => [
 
 <template>
   <template v-if="user">
-    <div v-if="mode === 'compact'" class="flex items-center gap-1">
+    <div v-if="mode === 'compact'" class="flex items-center gap-1" v-bind="$attrs">
       <UTooltip v-if="isRead" text="Read">
         <UIcon name="i-lucide-circle-check" class="size-5 text-muted" />
       </UTooltip>
@@ -55,6 +57,7 @@ const dropdownItems = computed<DropdownMenuItem[]>(() => [
       :label="label"
       icon="i-lucide-circle-check"
       :filled="isRead"
+      v-bind="$attrs"
       @click="handleToggle"
     />
   </template>

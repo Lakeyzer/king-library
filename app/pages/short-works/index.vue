@@ -10,7 +10,9 @@ setPageSeo({
     "Browse Stephen King's short stories and novellas, see which collections they appear in, and track which ones you've read.",
 });
 
-const { fetchShortStories, fetchCollectionsOverview } = useShortStories();
+const { fetchShortStories, fetchCollectionsOverview, fetchUserShortStoryReads } =
+  useShortStories();
+const { fetchUserBooks } = useBooks();
 const { data: shortStories } = await useAsyncData(
   "short-stories",
   fetchShortStories,
@@ -19,6 +21,11 @@ const { data: collectionsOverview } = await useAsyncData(
   "short-stories-collections-overview",
   fetchCollectionsOverview,
 );
+await useAsyncData("user-short-story-reads", fetchUserShortStoryReads);
+// Collections are king_works rows, shown via WorkTile/BookReadingActions in
+// the sidebar - their read/owned indicators need userBooksByWorkId, same as
+// any other work listing.
+await useAsyncData("user-books", fetchUserBooks);
 
 const notInCollectionOnly = ref(false);
 
