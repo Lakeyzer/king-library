@@ -17,6 +17,13 @@ const props = withDefaults(defineProps<Props>(), {
 defineOptions({ inheritAttrs: false });
 
 const user = useSupabaseUser();
+// userBooksByWorkId is only populated once something calls fetchUserBooks() -
+// this component does NOT do that itself. Any page rendering this (directly
+// or via WorkTile) must await useAsyncData("user-books", fetchUserBooks)
+// itself, or every tile silently shows neutral status regardless of the
+// user's actual reading state - see nuxt-conventions "BookReadingActions /
+// AdaptationWatchActions need their page to pre-fetch status" for why this
+// isn't just pushed into this component.
 const { userBooksByWorkId, toggleWantToRead, unmarkRead } = useBooks();
 const { fetchUserShortStoryReads } = useShortStories();
 

@@ -70,6 +70,24 @@ export interface OwnedUnreadRecommendation {
   publishDate: string
 }
 
+// Same "no because reason" shape as OwnedUnreadRecommendation, mirrored:
+// a book the profile owner wants to read but does not own, surfaced to a
+// *different* visitor as a gift idea.
+export interface GiftIdeaRecommendation {
+  id: string
+  title: string
+  slug: string
+  coverId: number | null
+  publishDate: string
+}
+
+// Adds `type` on top of WorkHighlight - needed by BibliographyBrowsePage's
+// type filter/list item, which WorkHighlight itself doesn't carry since
+// none of its other consumers (leaderboards, spotlights) need it.
+export interface ReadListEntry extends WorkHighlight {
+  type: string
+}
+
 export interface WorkStats {
   want_to_read_count: number
   currently_reading_count: number
@@ -434,6 +452,85 @@ export function useBooks() {
     }
   }
 
+  // A book the given user wants to read but does not own - a low-risk gift
+  // idea for a visitor viewing their profile, since they've already shown
+  // interest by putting it on their read list. Unlike every other
+  // personalized recommendation in this file, this is deliberately NOT
+  // meant to be read only by its own owner - it's shown to a *different*
+  // visitor looking at someone else's profile, so it relies on user_books'
+  // RLS policy (owner or public profile) rather than an isOwner check, same
+  // userId-param reasoning as fetchProfileBookStats.
+  const fetchGiftIdeaRecommendation = async (userId: string): Promise<GiftIdeaRecommendation | null> => {
+    interface WorkRef {
+      id: string
+      title: string
+      slug: string
+      cover_id: number | null
+      publish_date: string
+    }
+
+    const { data, error } = await supabase
+      .from('user_books')
+      .select('king_works ( id, title, slug, cover_id, publish_date )')
+      .eq('user_id', userId)
+      .eq('want_to_read', true)
+      .eq('owned', false)
+
+    if (error) throw error
+
+    const candidates = (data as unknown as { king_works: WorkRef | null }[])
+      .map((row) => row.king_works)
+      .filter((work): work is WorkRef => work !== null)
+
+    if (!candidates.length) return null
+
+    const work = candidates[Math.floor(Math.random() * candidates.length)]!
+
+    return {
+      id: work.id,
+      title: work.title,
+      slug: work.slug,
+      coverId: work.cover_id,
+      publishDate: work.publish_date
+    }
+  }
+
+  // Every King work the given user has marked want-to-read - the Read
+  // List page's data source (a to-read queue, mirroring Watch List's
+  // want-to-watch queue, not a log of books already finished). Accepts a
+  // userId like the other profile-stat fetchers, though the page only ever
+  // calls it with the signed-in user's own id.
+  const fetchReadList = async (userId: string): Promise<ReadListEntry[]> => {
+    interface WorkRef {
+      id: string
+      title: string
+      slug: string
+      cover_id: number | null
+      publish_date: string
+      type: string
+    }
+
+    const { data, error } = await supabase
+      .from('user_books')
+      .select('king_works ( id, title, slug, cover_id, publish_date, type )')
+      .eq('user_id', userId)
+      .eq('want_to_read', true)
+
+    if (error) throw error
+
+    return (data as unknown as { king_works: WorkRef | null }[])
+      .map((row) => row.king_works)
+      .filter((work): work is WorkRef => work !== null)
+      .map((work) => ({
+        id: work.id,
+        title: work.title,
+        slug: work.slug,
+        coverId: work.cover_id,
+        publishDate: work.publish_date,
+        type: work.type
+      }))
+  }
+
   const fetchCurrentlyReading = async (userId: string): Promise<CurrentlyReadingWork[]> => {
     const { data, error } = await supabase
       .from('user_books')
@@ -660,6 +757,8 @@ export function useBooks() {
     fetchWorkHighlights,
     fetchUnreadRecommendation,
     fetchOwnedUnreadRecommendation,
+    fetchGiftIdeaRecommendation,
+    fetchReadList,
     toggleWantToRead,
     startReading,
     finishReading,

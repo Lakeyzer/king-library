@@ -76,6 +76,14 @@ export interface AdaptationHighlight {
   tmdbPosterPath: string | null
 }
 
+// Adds `type` and `releaseYear` on top of AdaptationHighlight - needed by
+// BibliographyBrowsePage's type filter/sort-by-year/list item, none of
+// which AdaptationHighlight's other consumers (leaderboards) need.
+export interface WatchListEntry extends AdaptationHighlight {
+  type: string
+  releaseYear: number
+}
+
 export interface AdaptationLeaderboardEntry extends AdaptationHighlight {
   count: number
 }
@@ -450,6 +458,41 @@ export function useAdaptations() {
     return candidates[Math.floor(Math.random() * candidates.length)] ?? null
   }
 
+  // Every adaptation the given user has marked want-to-watch - the Watch
+  // List page's data source. Accepts a userId like the other profile-stat
+  // fetchers, though the page only ever calls it with the signed-in user's
+  // own id.
+  const fetchWatchList = async (userId: string): Promise<WatchListEntry[]> => {
+    interface AdaptationRef {
+      id: string
+      title: string
+      slug: string
+      tmdb_poster_path: string | null
+      type: string
+      release_year: number
+    }
+
+    const { data, error } = await supabase
+      .from("user_adaptations")
+      .select("adaptations ( id, title, slug, tmdb_poster_path, type, release_year )")
+      .eq("user_id", userId)
+      .eq("want_to_watch", true)
+
+    if (error) throw error
+
+    return (data as unknown as { adaptations: AdaptationRef | null }[])
+      .map((row) => row.adaptations)
+      .filter((adaptation): adaptation is AdaptationRef => adaptation !== null)
+      .map((adaptation) => ({
+        id: adaptation.id,
+        title: adaptation.title,
+        slug: adaptation.slug,
+        tmdbPosterPath: adaptation.tmdb_poster_path,
+        type: adaptation.type,
+        releaseYear: adaptation.release_year
+      }))
+  }
+
   const fetchUserAdaptations = async () => {
     if (!user.value) {
       userAdaptationsByAdaptationId.value = {}
@@ -546,6 +589,7 @@ export function useAdaptations() {
     fetchViewingProgress,
     fetchAdaptationHighlights,
     fetchUnwatchedRecommendation,
+    fetchWatchList,
     userAdaptationsByAdaptationId,
     fetchUserAdaptations,
     toggleWantToWatch,

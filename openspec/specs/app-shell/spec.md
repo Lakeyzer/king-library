@@ -32,7 +32,7 @@ The system SHALL provide a detail layout that renders the same header and footer
 - **THEN** the main content and sidebar are still both reachable, stacked rather than side-by-side
 
 ### Requirement: Header displays site branding and primary navigation
-The system SHALL render, on the leading side of the header, the site name "King Library", followed by a primary navigation menu with entries for Works, Short Stories, and Adaptations, each linking to its corresponding page. The system SHALL also render, on the trailing side of the header, an authentication entry point: a sign-in control when the visitor is signed out, or an account menu (linking to the profile page, to the `/following` page, and to the account settings page, with a sign-out action) when the visitor is signed in.
+The system SHALL render, on the leading side of the header, the site name "King Library", followed by a primary navigation menu with entries for Works, Short Stories, and Adaptations, each linking to its corresponding page. The system SHALL also render, on the trailing side of the header, an authentication entry point: a sign-in control when the visitor is signed out, or an account menu when the visitor is signed in. The account menu SHALL link to the profile page, the Read List page, the Watch List page, the `/following` page, and the account settings page, and SHALL offer a sign-out action. The account menu SHALL group these entries into sections separated by dividers: a profile-and-lists section (Profile, Read List, Watch List, Following), a settings section (Settings), and a sign-out section (Sign out).
 
 #### Scenario: Header navigation entries link to their pages
 - **WHEN** a visitor selects a primary navigation entry (Works, Short Stories, or Adaptations) in the header
@@ -44,11 +44,23 @@ The system SHALL render, on the leading side of the header, the site name "King 
 
 #### Scenario: Signed-in user sees an account menu
 - **WHEN** a signed-in user views the header
-- **THEN** the header displays an account menu instead of the sign-in control, offering a link to the profile page, a link to the `/following` page, a link to the account settings page, and a sign-out action
+- **THEN** the header displays an account menu instead of the sign-in control, offering links to the profile page, the Read List page, the Watch List page, the `/following` page, and the account settings page, plus a sign-out action
 
 #### Scenario: Account menu's Following entry links to /following
 - **WHEN** a signed-in user activates the "Following" entry in the account menu
 - **THEN** they are taken to the `/following` page
+
+#### Scenario: Account menu's Read List entry links to the Read List page
+- **WHEN** a signed-in user activates the "Read List" entry in the account menu
+- **THEN** they are taken to the Read List page
+
+#### Scenario: Account menu's Watch List entry links to the Watch List page
+- **WHEN** a signed-in user activates the "Watch List" entry in the account menu
+- **THEN** they are taken to the Watch List page
+
+#### Scenario: Account menu groups its entries into divided sections
+- **WHEN** a signed-in user opens the account menu
+- **THEN** its entries are shown in three sections separated by dividers: Profile/Read List/Watch List/Following, then Settings, then Sign out
 
 ### Requirement: Header provides a color mode toggle
 The system SHALL render a control on the trailing side of the header that lets a visitor switch between light and dark color modes. The control SHALL expose the hover/tooltip text "That spells dark mode" (Tom Cullen's M-O-O-N bit from *The Stand*).

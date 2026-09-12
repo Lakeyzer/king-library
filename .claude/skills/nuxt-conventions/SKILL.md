@@ -91,6 +91,39 @@ The app highlights every standalone `19`/`1999` in rendered text as a running Da
 
 Skip it only for text that can never vary with data — static labels, section headings, nav/button text, Nuxt UI `label`/`title` props rendered inside another component's own template (out of reach anyway), and the live value of a `v-model`-bound input a visitor is actively typing into.
 
+## A page file can't share a name with a sibling directory - even to share layout chrome
+
+Don't create `pages/foo/[param].vue` alongside a `pages/foo/[param]/` directory. Nuxt's "nested routes" convention makes the file an implicit **parent** for the *entire* same-named directory - not just the routes you meant it to parent - and a child only renders if the parent contains a `<NuxtPage />`. Two distinct bugs came from this exact shape while building the profile tabs:
+
+1. **A plain leaf page accidentally became a parent.** `read-list.vue`/`watch-list.vue` were added under `profile/[username]/` while `profile/[username].vue` was still a full profile page with no `<NuxtPage />` - every nested route silently rendered the profile page instead of its own content, no error or warning.
+2. **A deliberate parent (added to fix #1) over-matched.** Once `profile.vue` was made a real parent - rendering a shared header + tab bar + `<NuxtPage />` for `/profile`, `/profile/read-list`, `/profile/watch-list` - it *also* parented `profile/[username].vue`, since that file (and its own `[username]/` subdirectory) lives inside the same `profile/` directory `profile.vue` owns. Visiting someone else's profile rendered **both** parents' headers stacked: your own (from `profile.vue`) on top of theirs (from `profile/[username].vue`). Nuxt's directory-based nesting has no way to parent only *some* of a directory's routes.
+
+**The fix used here: don't reach for Nuxt's file-based nested routing to share chrome across sibling routes at all.** Instead, each route is an independent leaf page, and shared chrome is a plain, non-async, prop-driven component (`ProfileRouteChrome.vue`) that every leaf page renders directly - not a route-level parent. A page-level composable (`provideViewedProfile()` in `useProfile.ts`) takes whatever `Profile` the page has already resolved and `provide()`s the derived context; the tab-content component nested inside the chrome's slot (`ReaderChecklistTab.vue`, `ReadListTab.vue`, `WatchListTab.vue`) reads it via `inject()` (`useViewedProfile()`). This gets the same DRY sharing nested routing was going for, without Nuxt's all-or-nothing directory-parenting rule ever entering the picture. Reach for actual nested routing (`[param].vue` + `<NuxtPage />`) only when every route under that directory is genuinely meant to be a child of it - never when a dynamic segment inside that same directory (like `[username]/`) needs to stay independent.
+
+### `provide()` after your own composable's internal `await` doesn't reliably work
+
+A third bug from the same feature, once the `<NuxtPage />` issues above were fixed: `provide()` calls made *inside* an async composable, after that composable's own `await`, silently failed for every `inject()` downstream - `/profile/[username]` 500'd with the injected composable's "must be called inside..." error, even though the calling page did `await theComposable(...)` before rendering anything.
+
+Why: `<script setup>`'s compiler specially wraps top-level `await` expressions (`withAsyncContext`) so Vue's current-component-instance context is restored once that specific await resolves - which is what makes calling more composables, `computed()`, etc. after an `await` in a page's own script safe. But that compiler transform only wraps awaits written directly in the page's own script. A separate async composable function that the page merely calls with `await` gets no such treatment for *its own internal* awaits - when its internal `await useAsyncData(...)` resolves and the rest of its body (including a `provide()` call) resumes, that resumption is a plain JS microtask continuation with no guaranteed current instance, so the provided value doesn't reliably attach to the calling page.
+
+The fix: keep the actual `await` (`useAsyncData`, `fetchProfileByUsername`, etc.) directly in the page's own top-level script, and make the composable that calls `provide()` purely synchronous, called with the already-resolved data right after - `provideViewedProfile(profile)` in `useProfile.ts`, called from each `profile/*` page after that page's own `await useAsyncData(...)` has resolved, never doing the fetch itself. If a composable needs to both fetch something async *and* provide a value derived from it, split it into two: an async part the page awaits, and a synchronous part the page then calls.
+
+## `BookReadingActions` / `AdaptationWatchActions` need their page to pre-fetch status
+
+`BookReadingActions.vue` and `AdaptationWatchActions.vue` (and anything built on `WorkTile`/`AdaptationTile`, which render them) don't fetch a user's reading/watch status themselves — they read it out of the shared `userBooksByWorkId` / `userAdaptationsByAdaptationId` state exposed by `useBooks()` / `useAdaptations()`. That state is only populated when something calls `fetchUserBooks()` / `fetchUserAdaptations()`. **Any page that renders these components must call that fetch itself**, or every tile silently renders as if the user has no relationship to the work/adaptation at all (no "On Readlist"/"On Watchlist" tooltip, wrong primary action, etc.) — this isn't a loading-state flicker, it's a permanently wrong result, since nothing on the page ever triggers the fetch.
+
+```ts
+const { fetchUserBooks } = useBooks();
+await useAsyncData("user-books", fetchUserBooks);
+
+const { fetchUserAdaptations } = useAdaptations();
+await useAsyncData("user-adaptations", fetchUserAdaptations);
+```
+
+Always use these exact key strings (`"user-books"` / `"user-adaptations"`) — every page already does, so this is what lets Nuxt's `useAsyncData` cache share one fetch across pages/components rather than each page keying its own copy.
+
+**Don't try to move this fetch into `BookReadingActions`/`AdaptationWatchActions` themselves** to make it automatic — it looks like it should work (same cache key), but it doesn't by default. `useAsyncData`'s default `dedupe: 'cancel'` only cancels-and-restarts an in-flight call for the same key rather than reusing it, and on the server there's no "already pending" guard at all — so calling it from a component rendered N times in a list (e.g. every tile in a grid) fires N redundant fetches instead of one. Getting single-flight behavior out of a shared component would require explicitly passing `{ dedupe: 'defer' }`, and even then a client-side navigation to a page whose data isn't already cached would flash the neutral/default state on first paint, which the current page-level `await` avoids entirely. If a future page renders these action components, add the two-line fetch above to that page — don't assume it happens automatically.
+
 ## Open / not yet decided
 
 These haven't been settled yet — don't assume a pattern for them, ask if one is needed:

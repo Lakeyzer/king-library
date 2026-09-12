@@ -3,19 +3,12 @@ definePageMeta({ layout: "default" });
 
 const { setPageSeo } = useSeo();
 setPageSeo({
-  title: "Your Profile",
-  description:
-    "View your Stephen King reading stats, watch progress, and bookshelf.",
+  title: "Read List",
+  description: "Every Stephen King work you want to read.",
 });
 
-// Already loaded by the onboarding middleware before this route renders -
-// no fetch needed here.
 const { profile: ownProfile } = useProfile();
 const { profile, isOwner, isPrivate } = provideViewedProfile(ownProfile.value!);
-
-useSeoMeta({
-  title: profile.username ? `${profile.username} — Profile` : "Profile",
-});
 </script>
 
 <template>
@@ -25,6 +18,6 @@ useSeoMeta({
     :is-private="isPrivate"
     base-path="/profile"
   >
-    <ProfileReaderChecklistTab />
+    <ProfileReadListTab />
   </ProfileRouteChrome>
 </template>

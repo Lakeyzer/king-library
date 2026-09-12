@@ -24,11 +24,23 @@ function signOut() {
   supabase.auth.signOut()
 }
 
-const accountMenuItems: DropdownMenuItem[] = [
-  { label: 'Profile', icon: 'i-lucide-user', to: '/profile' },
-  { label: 'Following', icon: 'i-lucide-users', to: '/following' },
-  { label: 'Settings', icon: 'i-lucide-settings', to: '/settings' },
-  { label: 'Sign out', icon: 'i-lucide-log-out', onSelect: signOut }
+const accountMenuItems: DropdownMenuItem[][] = [
+  [
+    // exact: true - /profile is an empty-path index child of the profile
+    // layout route, and without it Vue Router's active-link fallback marks
+    // this "active" on /profile/read-list and /profile/watch-list too (see
+    // ProfileTabs.vue for the full explanation).
+    { label: 'Profile', icon: 'i-lucide-user', to: '/profile', exact: true },
+    { label: 'Read List', icon: 'i-lucide-book-open-check', to: '/profile/read-list' },
+    { label: 'Watch List', icon: 'i-lucide-clapperboard', to: '/profile/watch-list' },
+    { label: 'Following', icon: 'i-lucide-users', to: '/following' }
+  ],
+  [
+    { label: 'Settings', icon: 'i-lucide-settings', to: '/settings' }
+  ],
+  [
+    { label: 'Sign out', icon: 'i-lucide-log-out', onSelect: signOut }
+  ]
 ]
 </script>
 
