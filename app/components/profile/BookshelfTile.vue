@@ -98,7 +98,7 @@ const showRemoveModal = ref(false);
         class="flex aspect-[2/3] w-full flex-col items-center justify-center gap-2 p-3 text-center"
       >
         <UIcon name="i-lucide-book" class="size-8 shrink-0 text-muted" />
-        <p class="line-clamp-4 text-xs font-medium text-muted">{{ item.workTitle }}</p>
+        <p class="line-clamp-4 text-xs font-medium text-muted"><NumberMotif :text="item.workTitle" /></p>
       </div>
       <NuxtImg
         v-else

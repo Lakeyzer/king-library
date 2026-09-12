@@ -176,10 +176,10 @@ const showDeleteModal = ref(false)
           Settings
         </h1>
         <p class="text-muted mt-1">
-          {{ profile?.username }}
+          <NumberMotif v-if="profile?.username" :text="profile.username" />
         </p>
         <p class="text-muted">
-          {{ user?.email }}
+          <NumberMotif v-if="user?.email" :text="user.email" />
         </p>
       </div>
     </div>
@@ -223,7 +223,7 @@ const showDeleteModal = ref(false)
         />
       </UFormField>
       <p class="text-muted text-xs mt-1">
-        {{ taglineDraft.length }}/50<span v-if="taglineSaving"> · Saving…</span><span
+        <NumberMotif :text="`${taglineDraft.length}/50`" /><span v-if="taglineSaving"> · Saving…</span><span
           v-else-if="taglineSaved"
           class="text-success"
         > · Saved</span>

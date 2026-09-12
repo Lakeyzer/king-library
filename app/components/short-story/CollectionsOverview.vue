@@ -29,7 +29,7 @@ const toWorkHighlight = (collection: ShortStoryCollectionSummary) => ({
     </h2>
 
     <p v-if="coveragePercent < 100" class="px-4 text-xs text-muted">
-      {{ coveragePercent }}% of short works appear in a collection.
+      <NumberMotif :text="`${coveragePercent}%`" /> of short works appear in a collection.
     </p>
 
     <UEmpty v-if="!collections.length" class="px-4" description="No collections yet." />

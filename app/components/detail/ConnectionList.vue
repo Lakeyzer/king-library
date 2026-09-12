@@ -72,14 +72,14 @@ withDefaults(defineProps<Props>(), {
               class="truncate text-sm font-medium"
               :class="{ 'group-hover:underline': item.to }"
             >
-              {{ item.title }}
+              <NumberMotif :text="item.title" />
             </p>
             <p
               v-if="item.year != null || item.typeLabel"
               class="flex flex-wrap items-center gap-1 truncate text-xs text-muted"
             >
-              <span v-if="item.year != null">{{ item.year }}</span>
-              <span v-if="item.typeLabel">{{ item.typeLabel }}</span>
+              <NumberMotif v-if="item.year != null" :text="item.year" />
+              <span v-if="item.typeLabel"><NumberMotif :text="item.typeLabel" /></span>
             </p>
           </div>
         </component>

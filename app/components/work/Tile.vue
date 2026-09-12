@@ -25,9 +25,9 @@ withDefaults(defineProps<Props>(), { size: "xs" });
 
       <div class="flex min-w-0 flex-1 flex-col">
         <p class="truncate text-sm font-medium text-highlighted group-hover:text-primary">
-          {{ work.title }}
+          <NumberMotif :text="work.title" />
         </p>
-        <p v-if="meta" class="text-xs text-muted">{{ meta }}</p>
+        <p v-if="meta" class="text-xs text-muted"><NumberMotif :text="meta" /></p>
       </div>
     </NuxtLink>
 

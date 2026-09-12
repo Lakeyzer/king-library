@@ -11,16 +11,22 @@ const user = useSupabaseUser()
 const supabase = useSupabaseClient()
 const { open: openAuthModal } = useAuthModal()
 const { canInstall, promptInstall } = usePwaInstall()
+const toast = useToast()
 
 // Hidden for now, independent of PWA installability itself (already verified
 // working) - flip back to true to bring the header control back.
 const SHOW_INSTALL_BUTTON = false
 
+function signOut() {
+  toast.add({ title: 'Long days and pleasant nights', icon: 'i-lucide-hand-heart' })
+  supabase.auth.signOut()
+}
+
 const accountMenuItems: DropdownMenuItem[] = [
   { label: 'Profile', icon: 'i-lucide-user', to: '/profile' },
   { label: 'Following', icon: 'i-lucide-users', to: '/following' },
   { label: 'Settings', icon: 'i-lucide-settings', to: '/settings' },
-  { label: 'Sign out', icon: 'i-lucide-log-out', onSelect: () => supabase.auth.signOut() }
+  { label: 'Sign out', icon: 'i-lucide-log-out', onSelect: signOut }
 ]
 </script>
 
@@ -48,7 +54,9 @@ const accountMenuItems: DropdownMenuItem[] = [
         @click="promptInstall"
       />
 
-      <UColorModeButton />
+      <UTooltip text="That spells dark mode">
+        <UColorModeButton />
+      </UTooltip>
 
       <UDropdownMenu
         v-if="user"

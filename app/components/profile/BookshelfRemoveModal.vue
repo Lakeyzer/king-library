@@ -32,10 +32,10 @@ async function confirmRemove() {
 </script>
 
 <template>
-  <UModal v-model:open="open" title="Remove from Shelf">
+  <UModal v-model:open="open" title="Say true?">
     <template #body>
       <p class="text-sm text-muted">
-        Remove <strong class="text-highlighted">{{ item.workTitle }}</strong> from your shelf?
+        Remove <strong class="text-highlighted"><NumberMotif :text="item.workTitle" /></strong> from your shelf?
       </p>
       <p class="mt-1 text-xs text-muted">
         <template v-if="item.kind === 'edition'">
@@ -47,7 +47,7 @@ async function confirmRemove() {
 
     <template #footer="{ close }">
       <UButton label="Cancel" color="neutral" variant="ghost" @click="close" />
-      <UButton label="Remove" color="error" :loading="removing" @click="confirmRemove" />
+      <UButton label="Say thankya" color="error" :loading="removing" @click="confirmRemove" />
     </template>
   </UModal>
 </template>

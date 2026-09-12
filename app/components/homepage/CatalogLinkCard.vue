@@ -16,7 +16,7 @@ defineProps<Props>();
   >
     <UIcon :name="icon" class="size-6 shrink-0 text-primary" />
     <div class="flex flex-col">
-      <span class="text-2xl font-bold tabular-nums text-highlighted">{{ count.toLocaleString() }}</span>
+      <span class="text-2xl font-bold tabular-nums text-highlighted"><NumberMotif :text="count.toLocaleString()" /></span>
       <span class="text-xs text-muted group-hover:text-highlighted">{{ label }}</span>
     </div>
   </NuxtLink>

@@ -245,7 +245,7 @@ function formatEditionMeta(edition: OpenLibraryEdition): string | null {
     <div class="flex flex-wrap items-center justify-between gap-3">
       <h3 class="text-sm font-semibold text-highlighted">
         Editions
-        <span class="font-normal text-muted">({{ total }})</span>
+        <span class="font-normal text-muted">(<NumberMotif :text="total" />)</span>
       </h3>
 
       <UInput
@@ -298,9 +298,9 @@ function formatEditionMeta(edition: OpenLibraryEdition): string | null {
           </div>
           <p class="mt-1 truncate text-center text-xs text-muted">
             <template v-if="edition.publisher || edition.publishYear">
-              <span v-if="edition.publisher">{{ edition.publisher }}</span>
+              <span v-if="edition.publisher"><NumberMotif :text="edition.publisher" /></span>
               <span v-if="edition.publisher && edition.publishYear"> · </span>
-              <span v-if="edition.publishYear">{{ edition.publishYear }}</span>
+              <span v-if="edition.publishYear"><NumberMotif :text="edition.publishYear" /></span>
             </template>
           </p>
         </div>
@@ -356,16 +356,16 @@ function formatEditionMeta(edition: OpenLibraryEdition): string | null {
           </button>
 
           <div class="min-w-0 flex-1">
-            <p class="truncate text-sm font-medium text-highlighted">{{ edition.title }}</p>
+            <p class="truncate text-sm font-medium text-highlighted"><NumberMotif :text="edition.title" /></p>
             <p class="truncate text-xs text-muted">
               <template v-if="edition.publisher || edition.publishYear">
-                <span v-if="edition.publisher">{{ edition.publisher }}</span>
+                <span v-if="edition.publisher"><NumberMotif :text="edition.publisher" /></span>
                 <span v-if="edition.publisher && edition.publishYear"> · </span>
-                <span v-if="edition.publishYear">{{ edition.publishYear }}</span>
+                <span v-if="edition.publishYear"><NumberMotif :text="edition.publishYear" /></span>
               </template>
             </p>
             <p v-if="formatEditionMeta(edition)" class="truncate text-xs text-muted">
-              {{ formatEditionMeta(edition) }}
+              <NumberMotif :text="formatEditionMeta(edition)!" />
             </p>
           </div>
 

@@ -75,6 +75,22 @@ const props = defineProps<Props>();
 - Name the interface `Props` (not `ComponentNameProps`) — it's scoped to the single-file component, so the extra qualification is noise. Exception: if a props shape is genuinely shared and exported from a composable or types file for reuse across components, give it a real descriptive name there instead.
 - This mirrors the "typed, not bare" preference already used for status values in the Supabase conventions (`supabase-conventions`) — literal unions and named types over bare strings/objects, consistently across the stack.
 
+## Number motif highlighting: wrap dynamic text with `<NumberMotif>`
+
+The app highlights every standalone `19`/`1999` in rendered text as a running Dark Tower numerology easter egg (see `NumberMotif.vue` and `app/utils/numberMotifs.ts`). This is implemented as explicit per-component wrapping, not a global scan — deliberately, since a runtime DOM/VNode scanner would risk breaking Vue's reactivity for any highlighted value that later updates (see the `add-easter-eggs` change's `design.md` for the full reasoning). That means coverage only exists where someone has actually added it.
+
+**When creating a new page, layout, or component that renders dynamic text** (anything sourced from data or user input — titles, dates, counts, stats, taglines, usernames, free-text fields, etc.), wrap it in `<NumberMotif :text="..." />` instead of a bare `{{ }}` interpolation:
+
+```vue
+<!-- Instead of: -->
+<p>{{ work.title }}</p>
+
+<!-- Do: -->
+<p><NumberMotif :text="work.title" /></p>
+```
+
+Skip it only for text that can never vary with data — static labels, section headings, nav/button text, Nuxt UI `label`/`title` props rendered inside another component's own template (out of reach anyway), and the live value of a `v-model`-bound input a visitor is actively typing into.
+
 ## Open / not yet decided
 
 These haven't been settled yet — don't assume a pattern for them, ask if one is needed:

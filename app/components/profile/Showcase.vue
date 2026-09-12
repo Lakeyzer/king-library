@@ -99,8 +99,10 @@ async function toggleFollow() {
     <div class="flex items-center gap-4">
       <UAvatar :src="avatarUrl ?? undefined" icon="i-lucide-user" size="xl" />
       <div>
-        <h1 class="text-2xl font-bold text-highlighted">@{{ username }}</h1>
-        <p class="text-muted text-sm">{{ tagline || "Stephen King reading showcase" }}</p>
+        <h1 class="text-2xl font-bold text-highlighted">@<NumberMotif :text="username" /></h1>
+        <p class="text-muted text-sm">
+          <NumberMotif :text="tagline || 'Stephen King reading showcase'" />
+        </p>
       </div>
 
       <UButton

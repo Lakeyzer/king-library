@@ -54,7 +54,7 @@ const showFinishModal = computed({
           <p
             class="w-full truncate text-sm font-medium text-highlighted lg:hidden"
           >
-            {{ item.title }}
+            <NumberMotif :text="item.title" />
           </p>
           <UButton
             v-if="isOwner"

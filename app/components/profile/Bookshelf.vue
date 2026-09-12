@@ -146,7 +146,7 @@ const displayedColumns = computed(() => (groupSeries.value ? groupedColumns.valu
       <h2 class="flex items-center gap-2 text-lg font-semibold text-highlighted">
         <UIcon name="i-lucide-library" class="size-5" />
         Bookshelf
-        <span class="text-sm font-normal text-muted">({{ localItems.length }})</span>
+        <span class="text-sm font-normal text-muted">(<NumberMotif :text="localItems.length" />)</span>
       </h2>
 
       <div v-if="localItems.length" class="flex flex-wrap items-center gap-2">

@@ -252,7 +252,7 @@ onBeforeUnmount(() => {
             class="p-0"
             @click="openEditDatesModal(item)"
           />
-          <span v-else-if="item.date">{{ item.date }}</span>
+          <span v-else-if="item.date"><NumberMotif :text="item.date" /></span>
         </template>
 
         <template #title="{ item }">
@@ -260,7 +260,7 @@ onBeforeUnmount(() => {
             :to="`/works/${item.slug}`"
             class="block truncate text-sm font-medium text-highlighted hover:underline"
           >
-            {{ item.title }}
+            <NumberMotif :text="item.title" />
           </NuxtLink>
         </template>
       </UTimeline>

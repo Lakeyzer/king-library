@@ -47,6 +47,28 @@ const coverSrc = computed(() =>
   work.cover_id ? getOpenLibraryCoverUrl(work.cover_id, "L") : null,
 );
 
+const isMisery = work.slug === "misery";
+
+const stephenKingByline = computed(() =>
+  work.co_author ? `By Stephen King & ${work.co_author}` : "By Stephen King",
+);
+
+const isCharlieTheChooChoo = work.slug === "charlie-the-choo-choo";
+const CHARLIE_AUTHOR_NAMES = ["Beryl Evans", "Claudia y Inez Bachman"] as const;
+const charlieAuthor = ref<string>(CHARLIE_AUTHOR_NAMES[0]);
+
+if (isCharlieTheChooChoo) {
+  onMounted(() => {
+    let nameIndex = 0;
+    const loopTimer = setInterval(() => {
+      nameIndex = (nameIndex + 1) % CHARLIE_AUTHOR_NAMES.length;
+      charlieAuthor.value = CHARLIE_AUTHOR_NAMES[nameIndex]!;
+    }, 6000);
+
+    onUnmounted(() => clearInterval(loopTimer));
+  });
+}
+
 const adaptationItems = computed<ConnectionListItem[]>(() =>
   (adaptations.value ?? []).map((adaptation) => ({
     id: adaptation.id,
@@ -89,18 +111,22 @@ setPageSeo({
           <h1
             class="text-3xl font-bold text-pretty text-highlighted sm:text-4xl"
           >
-            {{ work.title }}
+            <GlitchLetter :text="work.title" letter="n" :active="isMisery" />
           </h1>
           <div class="flex items-center gap-1.5 text-muted text-xs">
-            <span
-              >By Stephen King<template v-if="work.co_author">
-                &amp; {{ work.co_author }}</template
-              ></span
-            >
+            <span v-if="isCharlieTheChooChoo">By <ScrambleText :text="charlieAuthor" /></span>
+            <span v-else
+              ><GlitchLetter :text="stephenKingByline" letter="n" :active="isMisery"
+            /></span>
           </div>
           <p class="mt-4 text-muted flex gap-4 items-center">
-            {{ publishYear }}
-            <span>{{ formatTypeLabel(work.type) }}</span>
+            <NumberMotif :text="publishYear" />
+            <span
+              ><GlitchLetter
+                :text="formatTypeLabel(work.type)"
+                letter="n"
+                :active="isMisery"
+            /></span>
           </p>
         </div>
 
@@ -125,7 +151,7 @@ setPageSeo({
         </div>
 
         <p v-if="work.description" class="whitespace-pre-line">
-          {{ work.description }}
+          <GlitchLetter :text="work.description" letter="n" :active="isMisery" />
         </p>
 
         <template v-if="shortStoryItems.length" #related>
@@ -145,36 +171,30 @@ setPageSeo({
           <div class="flex items-center gap-1.5">
             <UIcon name="i-lucide-book-open" class="size-4" />
             <span
-              ><strong class="text-highlighted">{{
-                stats.currently_reading_count
-              }}</strong>
-              reading</span
-            >
+              ><strong class="text-highlighted"><NumberMotif :text="stats.currently_reading_count" /></strong>
+              <GlitchLetter text="reading" letter="n" :active="isMisery"
+            /></span>
           </div>
           <div class="flex items-center gap-1.5">
             <UIcon name="i-lucide-bookmark" class="size-4" />
             <span
-              ><strong class="text-highlighted">{{
-                stats.want_to_read_count
-              }}</strong>
-              want to read</span
-            >
+              ><strong class="text-highlighted"><NumberMotif :text="stats.want_to_read_count" /></strong>
+              <GlitchLetter text="want to read" letter="n" :active="isMisery"
+            /></span>
           </div>
           <div class="flex items-center gap-1.5">
             <UIcon name="i-lucide-circle-check" class="size-4" />
             <span
-              ><strong class="text-highlighted">{{ stats.read_count }}</strong>
-              read</span
-            >
+              ><strong class="text-highlighted"><NumberMotif :text="stats.read_count" /></strong>
+              <GlitchLetter text="read" letter="n" :active="isMisery"
+            /></span>
           </div>
           <div class="flex items-center gap-1.5">
             <UIcon name="i-lucide-library" class="size-4" />
             <span
-              ><strong class="text-highlighted">{{
-                stats.owner_count
-              }}</strong>
-              owned</span
-            >
+              ><strong class="text-highlighted"><NumberMotif :text="stats.owner_count" /></strong>
+              <GlitchLetter text="owned" letter="n" :active="isMisery"
+            /></span>
           </div>
         </template>
       </DetailHero>
