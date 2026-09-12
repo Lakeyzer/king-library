@@ -14,8 +14,20 @@ const props = withDefaults(defineProps<Props>(), {
   mode: "compact",
 });
 
+defineOptions({ inheritAttrs: false });
+
 const user = useSupabaseUser();
 const { userBooksByWorkId, toggleWantToRead, unmarkRead } = useBooks();
+const { fetchUserShortStoryReads } = useShortStories();
+
+// Un-marking a work read un-cascades any short story reads it cascaded (see
+// supabase-conventions "uncascade_short_story_reads_on_collection_unread") -
+// refetch so reading-status controls on screen pick that up, same as
+// BookMarkReadModal does for the opposite direction.
+async function handleUnmarkRead() {
+  await unmarkRead(props.workId);
+  await fetchUserShortStoryReads();
+}
 
 const showEditionsModal = ref(false);
 
@@ -69,7 +81,7 @@ function handlePrimaryClick() {
       showFinishReadingModal.value = true;
       break;
     case "read":
-      unmarkRead(props.workId);
+      handleUnmarkRead();
       break;
   }
 }
@@ -190,7 +202,7 @@ function handleStartOrFinishReading() {
 
 function handleReadToggle() {
   if (isRead.value) {
-    unmarkRead(props.workId);
+    handleUnmarkRead();
   } else {
     showMarkReadModal.value = true;
   }
@@ -199,7 +211,7 @@ function handleReadToggle() {
 
 <template>
   <template v-if="user">
-    <div v-if="mode === 'compact'" class="flex items-center gap-1">
+    <div v-if="mode === 'compact'" class="flex items-center gap-1" v-bind="$attrs">
       <UTooltip v-if="isOwned" text="On Shelf">
         <UIcon name="i-lucide-library" class="size-5 text-muted" />
       </UTooltip>
@@ -224,7 +236,7 @@ function handleReadToggle() {
     </div>
 
     <template v-else>
-      <UFieldGroup class="hidden max-sm:flex max-sm:w-full">
+      <UFieldGroup class="hidden max-sm:flex max-sm:w-full" v-bind="$attrs">
         <IconLabelButton
           stacked
           class="flex-1"
@@ -262,7 +274,7 @@ function handleReadToggle() {
         />
       </UFieldGroup>
 
-      <div class="hidden flex-nowrap gap-2 sm:flex">
+      <div class="hidden flex-nowrap gap-2 sm:flex" v-bind="$attrs">
         <IconLabelButton
           :label="readlistLabel"
           icon="i-lucide-bookmark"

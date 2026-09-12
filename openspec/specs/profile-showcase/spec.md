@@ -243,7 +243,7 @@ The system SHALL, when series grouping is enabled, apply grouping only to the ti
 - **THEN** the Bookshelf shows only the matching tile, without the rest of that series
 
 ### Requirement: Bookshelf owner can remove a tile, with confirmation
-The system SHALL show the profile owner a remove control on each Bookshelf tile, shown only to the profile owner, which asks for confirmation before removing that item from their collection (per the book-collection capability's edition and edition-less-work removal behavior).
+The system SHALL show the profile owner a remove control on each Bookshelf tile, shown only to the profile owner, which asks for confirmation before removing that item from their collection (per the book-collection capability's edition and edition-less-work removal behavior). The confirmation prompt SHALL read "Say true?" and its confirm action SHALL read "Say thankya" (Dark Tower ka-tet affirmation phrasing), in place of generic confirm/cancel copy.
 
 #### Scenario: Owner removes a tile after confirming
 - **WHEN** the profile owner activates a Bookshelf tile's remove control and confirms the prompt
@@ -256,6 +256,10 @@ The system SHALL show the profile owner a remove control on each Bookshelf tile,
 #### Scenario: Visitor viewing another user's Bookshelf sees no remove control
 - **WHEN** a visitor who is not the profile owner views that profile's Bookshelf
 - **THEN** no remove control is shown on any tile
+
+#### Scenario: Remove confirmation uses ka-tet phrasing
+- **WHEN** the profile owner activates a Bookshelf tile's remove control
+- **THEN** the confirmation prompt reads "Say true?" and its confirm action reads "Say thankya"
 
 ### Requirement: Currently Reading items support finishing directly from the showcase
 The system SHALL let the profile owner finish a King work shown in the Currently Reading section directly from the showcase, using the same finish-reading flow (an end date, defaulted to today and adjustable) defined by the reading-status capability, without navigating away from the showcase. The system SHALL NOT show this action to a visitor who is not the profile owner.

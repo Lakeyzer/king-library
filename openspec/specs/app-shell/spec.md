@@ -51,11 +51,15 @@ The system SHALL render, on the leading side of the header, the site name "King 
 - **THEN** they are taken to the `/following` page
 
 ### Requirement: Header provides a color mode toggle
-The system SHALL render a control on the trailing side of the header that lets a visitor switch between light and dark color modes.
+The system SHALL render a control on the trailing side of the header that lets a visitor switch between light and dark color modes. The control SHALL expose the hover/tooltip text "That spells dark mode" (Tom Cullen's M-O-O-N bit from *The Stand*).
 
 #### Scenario: Toggling color mode
 - **WHEN** a visitor activates the color mode control in the header
 - **THEN** the app's color mode switches accordingly
+
+#### Scenario: Hovering the color mode control
+- **WHEN** a visitor hovers the color mode control in the header
+- **THEN** a tooltip reading "That spells dark mode" is shown
 
 ### Requirement: Header offers an install entry point when installation is available
 The system SHALL render, on the trailing side of the header alongside the color mode toggle, an "Install App" control when the app has signaled that an install prompt is available and the app is not already running in installed (standalone) mode. Activating the control SHALL trigger the platform install prompt. The control SHALL NOT be rendered when no install prompt is available or when the app is already installed.

@@ -10,6 +10,8 @@ const props = withDefaults(defineProps<Props>(), {
   mode: "compact",
 });
 
+defineOptions({ inheritAttrs: false });
+
 const user = useSupabaseUser();
 const { userAdaptationsByAdaptationId, toggleWantToWatch, markWatched, unmarkWatched } = useAdaptations();
 
@@ -91,7 +93,7 @@ const dropdownItems = computed<DropdownMenuItem[]>(() => {
 
 <template>
   <template v-if="user">
-    <div v-if="mode === 'compact'" class="flex items-center gap-1">
+    <div v-if="mode === 'compact'" class="flex items-center gap-1" v-bind="$attrs">
       <UTooltip v-if="isWantToWatch" text="On Watchlist">
         <UIcon name="i-lucide-bookmark" class="size-5 text-muted" />
       </UTooltip>
@@ -110,7 +112,7 @@ const dropdownItems = computed<DropdownMenuItem[]>(() => {
     </div>
 
     <template v-else>
-      <UFieldGroup class="hidden max-sm:flex max-sm:w-full">
+      <UFieldGroup class="hidden max-sm:flex max-sm:w-full" v-bind="$attrs">
         <IconLabelButton
           stacked
           class="flex-1"
@@ -130,7 +132,7 @@ const dropdownItems = computed<DropdownMenuItem[]>(() => {
         />
       </UFieldGroup>
 
-      <div class="hidden flex-nowrap gap-2 sm:flex">
+      <div class="hidden flex-nowrap gap-2 sm:flex" v-bind="$attrs">
         <IconLabelButton
           :label="watchlistLabel"
           icon="i-lucide-bookmark"

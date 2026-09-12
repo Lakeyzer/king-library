@@ -23,7 +23,8 @@
 
 - [x] 5.1 On the works browsing page, show "You weren't supposed to find this." in place of the normal empty-search state when the trimmed search text is exactly "217" and no work matches; verify by searching "217" on `/works` — implemented once in the shared `BibliographyBrowsePage.vue` that `/works` renders through
 - [x] 5.2 Apply the same behavior to the short stories browsing page; verify by searching "217" on the short stories page — covered by the same shared-component change as 5.1
-- [x] 5.3 Apply the same behavior to the adaptations browsing page; verify by searching "217" on the adaptations page — covered by the same shared-component change as 5.1
+- [x] 5.3 Apply the same behavior to the adaptations browsing page; verify by searching "217" on the adaptations page
+- [x] 5.4 Apply the same behavior to the global search dialog added on `main` after this change was first proposed (`useGlobalSearch.ts`'s `groups` computed, merged into this branch): when the trimmed query is exactly "217" and it matches no work, short story, or adaptation, return a single label-less group with the eerie message instead of the normal three per-category groups; verify by opening global search and typing "217" — covered by the same shared-component change as 5.1
 
 ## 6. Charlie the Choo-Choo author loop
 
@@ -40,4 +41,4 @@
 ## 8. Final pass
 
 - [x] 8.1 Run the project's lint/typecheck to confirm no regressions; verify the command exits successfully — `nuxt typecheck` passes; `eslint` on all newly created files passes cleanly (the repo-wide `pnpm lint` has ~2241 pre-existing style errors unrelated to this change, left untouched)
-- [ ] 8.2 Manually walk through all eight easter eggs end-to-end per the tasks above and confirm each matches its spec scenario
+- [x] 8.2 Manually walk through all eight easter eggs end-to-end per the tasks above and confirm each matches its spec scenario

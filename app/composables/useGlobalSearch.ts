@@ -82,30 +82,54 @@ export function useGlobalSearch() {
     const term = debouncedSearchTerm.value.trim()
     if (!term) return []
 
+    const matchingWorks = works.value.filter((work) => matchesTitle(work.title, term))
+    const matchingShortStories = shortStories.value.filter((story) => matchesTitle(story.title, term))
+    const matchingAdaptations = adaptations.value.filter((adaptation) => matchesTitle(adaptation.title, term))
+
+    // Room 217: a search for exactly "217" that matches nothing gets an eerie
+    // message in place of the normal three-category empty state.
+    if (
+      term === "217" &&
+      !matchingWorks.length &&
+      !matchingShortStories.length &&
+      !matchingAdaptations.length
+    ) {
+      return [
+        {
+          id: "room-217",
+          label: "",
+          ignoreFilter: true,
+          items: [
+            {
+              id: "room-217-message",
+              label: "You weren't supposed to find this.",
+              icon: "i-lucide-door-closed",
+              to: "",
+              disabled: true
+            }
+          ]
+        }
+      ]
+    }
+
     return [
       toGroup(
         "works",
         "Works",
         "i-lucide-book",
-        works.value
-          .filter((work) => matchesTitle(work.title, term))
-          .map((work) => ({ id: work.id, label: work.title, icon: "i-lucide-book", to: `/works/${work.slug}` }))
+        matchingWorks.map((work) => ({ id: work.id, label: work.title, icon: "i-lucide-book", to: `/works/${work.slug}` }))
       ),
       toGroup(
         "short-stories",
         "Short Stories",
         "i-lucide-file-text",
-        shortStories.value
-          .filter((story) => matchesTitle(story.title, term))
-          .map((story) => ({ id: story.id, label: story.title, icon: "i-lucide-file-text", to: `/short-works/${story.slug}` }))
+        matchingShortStories.map((story) => ({ id: story.id, label: story.title, icon: "i-lucide-file-text", to: `/short-works/${story.slug}` }))
       ),
       toGroup(
         "adaptations",
         "Adaptations",
         "i-lucide-clapperboard",
-        adaptations.value
-          .filter((adaptation) => matchesTitle(adaptation.title, term))
-          .map((adaptation) => ({ id: adaptation.id, label: adaptation.title, icon: "i-lucide-clapperboard", to: `/adaptations/${adaptation.slug}` }))
+        matchingAdaptations.map((adaptation) => ({ id: adaptation.id, label: adaptation.title, icon: "i-lucide-clapperboard", to: `/adaptations/${adaptation.slug}` }))
       )
     ]
   })

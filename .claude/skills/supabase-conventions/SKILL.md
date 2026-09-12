@@ -158,12 +158,13 @@ Unique constraint on `(short_story_id, king_work_id)`. Same seed-file maintenanc
 
 Unlike `user_books`, a short story has exactly one meaningful state — read or not — so this is a **row-existence table**, not a boolean-flags row: a row existing _is_ "has read this story." No `wishlisted`/`want_to_read` equivalent, since wanting to read a story is already covered by wanting to read the collection it's in.
 
-| column           | type                               | notes |
-| ---------------- | ---------------------------------- | ----- |
-| `id`             | uuid, PK                           |       |
-| `user_id`        | uuid, FK → `auth.users.id`         |       |
-| `short_story_id` | uuid, FK → `king_short_stories.id` |       |
-| `read_at`        | timestamptz, default `now()`       |       |
+| column              | type                               | notes |
+| ------------------- | ----------------------------------- | ----- |
+| `id`                | uuid, PK                           |       |
+| `user_id`           | uuid, FK → `auth.users.id`         |       |
+| `short_story_id`    | uuid, FK → `king_short_stories.id` |       |
+| `read_at`           | timestamptz, default `now()`       |       |
+| `via_collection_id` | uuid, nullable, FK → `king_works.id`, `on delete set null` | which collection's read-cascade created this row, if any — `null` means the user marked this story read directly. See `cascade_short_story_reads_on_collection_read()`/`uncascade_short_story_reads_on_collection_unread()` below. |
 
 Unique constraint on `(user_id, short_story_id)`. Same reread limitation as `user_books`/`user_adaptations`: `read_at` holds only the most recent value, no history — see the note under `user_books` above.
 
@@ -364,7 +365,7 @@ create trigger user_adaptations_clear_want_to_watch
   execute function clear_want_to_watch_on_watched();
 ```
 
-**`cascade_short_story_reads_on_collection_read()`** — on `user_books`, after insert/update, when a row for a work of type `collection` is marked `read = true`, inserts a `user_short_story_reads` row for every short story linked to that collection via `king_short_story_collections`. This is an `after` trigger, not `before` — it writes to a _different_ table as a side effect rather than modifying the row being saved, so it can't use the same `before`/mutate-`new` shape as the other triggers.
+**`cascade_short_story_reads_on_collection_read()`** — on `user_books`, after insert/update, when a row for a work of type `collection` is marked `read = true`, inserts a `user_short_story_reads` row for every short story linked to that collection via `king_short_story_collections`, stamping `via_collection_id` with that collection so the un-cascade trigger below knows which reads it's allowed to undo. This is an `after` trigger, not `before` — it writes to a _different_ table as a side effect rather than modifying the row being saved, so it can't use the same `before`/mutate-`new` shape as the other triggers.
 
 ```sql
 create or replace function cascade_short_story_reads_on_collection_read()
@@ -374,8 +375,8 @@ as $$
 begin
   if new.read = true and (tg_op = 'insert' or old.read is distinct from true) then
     if exists (select 1 from king_works where id = new.king_work_id and type = 'collection') then
-      insert into user_short_story_reads (user_id, short_story_id)
-      select new.user_id, ksc.short_story_id
+      insert into user_short_story_reads (user_id, short_story_id, via_collection_id)
+      select new.user_id, ksc.short_story_id, new.king_work_id
       from king_short_story_collections ksc
       where ksc.king_work_id = new.king_work_id
       on conflict (user_id, short_story_id) do nothing;
@@ -391,9 +392,47 @@ create trigger user_books_cascade_short_story_reads
   execute function cascade_short_story_reads_on_collection_read();
 ```
 
-`on conflict do nothing` matters here: if a user already individually marked a story as read (with its own, possibly earlier, `read_at`) before marking the whole collection read, the cascade doesn't overwrite that date.
+`on conflict do nothing` matters here: if a user already individually marked a story as read (with its own, possibly earlier, `read_at`) before marking the whole collection read, the cascade doesn't overwrite that date — and per the same logic, it never overwrites `via_collection_id` on an existing row either, so a story a user read on their own can never be turned into one a later collection-unmark could delete.
 
-**Open product decision, not yet resolved:** if a user un-marks a collection as read, should that un-mark the individual stories? Current lean is **no** — they still read the stories, they just reconsidered the collection-level checkbox — so no "un-cascade" trigger exists. Revisit this deliberately if it turns out to feel wrong in practice; it's a product call more than a schema one.
+**`uncascade_short_story_reads_on_collection_unread()`** — the mirror image: on `user_books`, after update, when a row for a work of type `collection` transitions `read = true → false`, deletes the `user_short_story_reads` rows that _this collection's_ cascade created (`via_collection_id = old.king_work_id`). It never touches a row the user read directly (`via_collection_id is null`), and it skips a row if the same story is still read via a _different_ collection that's still marked read — a story can appear in more than one collection (see `king_short_story_collections` above), and un-marking one shouldn't undo a read that's still justified by another.
+
+```sql
+create function uncascade_short_story_reads_on_collection_unread()
+returns trigger
+language plpgsql
+as $$
+begin
+  if old.read = true and new.read = false then
+    if exists (select 1 from king_works where id = new.king_work_id and type = 'collection') then
+      delete from user_short_story_reads r
+      using king_short_story_collections ksc
+      where r.short_story_id = ksc.short_story_id
+        and ksc.king_work_id = old.king_work_id
+        and r.user_id = new.user_id
+        and r.via_collection_id = old.king_work_id
+        and not exists (
+          select 1
+          from king_short_story_collections other_ksc
+          join user_books other_ub
+            on other_ub.king_work_id = other_ksc.king_work_id
+            and other_ub.user_id = new.user_id
+            and other_ub.read = true
+          where other_ksc.short_story_id = r.short_story_id
+            and other_ksc.king_work_id <> old.king_work_id
+        );
+    end if;
+  end if;
+  return new;
+end;
+$$;
+
+create trigger user_books_uncascade_short_story_reads
+  after update on user_books
+  for each row
+  execute function uncascade_short_story_reads_on_collection_unread();
+```
+
+This resolves what used to be an open product decision here: un-marking a collection now does un-mark the individual stories it cascaded, but only the ones that cascade is actually responsible for.
 
 ## Row Level Security
 

@@ -10,6 +10,7 @@ const props = defineProps<Props>();
 const open = defineModel<boolean>("open", { default: false });
 
 const { markRead } = useBooks();
+const { fetchUserShortStoryReads } = useShortStories();
 
 const dateRange = ref<{ start: DateValue | undefined; end: DateValue | undefined }>({
   start: undefined,
@@ -33,6 +34,11 @@ async function confirm() {
       finishedOn: dateRange.value.end?.toString(),
       readYear: readYear.value ?? undefined,
     });
+    // Marking a collection read cascades to user_short_story_reads via a DB
+    // trigger (see supabase-conventions "cascade_short_story_reads_on_collection_read") -
+    // refetch so any short story reading-status controls on screen pick up
+    // the newly-created rows instead of still showing unread.
+    await fetchUserShortStoryReads();
     open.value = false;
   } finally {
     loading.value = false;

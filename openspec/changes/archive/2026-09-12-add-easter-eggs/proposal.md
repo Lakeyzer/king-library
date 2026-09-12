@@ -9,7 +9,7 @@ The app is a personal library for a single author's body of work with a lot of s
 - The Bookshelf tile removal confirmation (the app's one true "are you sure?"-style confirm dialog) is reworded to "Say true?" with a "Say thankya" confirm action, per Dark Tower ka-tet affirmation phrasing.
 - Signing out shows the farewell message "Long days and pleasant nights" (the Gilead greeting).
 - A new app-wide not-found page, styled around *The Shining*'s Overlook Hotel (hallway/maze visual treatment), replaces the default error page for unmatched routes and existing "not found" results (unknown work/adaptation/profile slugs).
-- Searching "217" with no matching results on the Works, Short Stories, or Adaptations browsing pages shows an eerie message ("You weren't supposed to find this.") instead of the normal empty-search state, referencing the Overlook's Room 217 (237 in the film).
+- Searching "217" with no matching results on the Works, Short Stories, or Adaptations browsing pages, or in the global search dialog, shows an eerie message ("You weren't supposed to find this.") instead of the normal empty-search state, referencing the Overlook's Room 217 (237 in the film).
 - The Charlie the Choo-Choo work detail page's author, shown as "Beryl Evans", loops indefinitely with "Claudia y Inez Bachman" at a regular interval while the page is open, each change animated with a letter-scramble transition — the *Wolves of the Calla* book-within-a-book gag.
 - The Misery work detail page and the Misery adaptation detail page render every letter "N" in the page's own content (header and footer excluded) at reduced opacity, referencing Paul Sheldon's typewriter missing its N key.
 - Out of scope: the delete-account confirmation already reads "Go then, there are other apps than these." (existing easter egg) — left unchanged.
@@ -27,6 +27,7 @@ The app is a personal library for a single author's body of work with a lot of s
 - `works-browsing`: no-results search state gains a "217" special case.
 - `short-stories-browsing`: no-results search state gains a "217" special case.
 - `adaptations-browsing`: no-results search state gains a "217" special case.
+- `global-search`: no-results state gains the same "217" special case (this capability landed on `main` via a separate, already-merged change after this one was proposed).
 - `work-details`: Charlie the Choo-Choo page gains an author-swap detail; Misery page gains an N-glitch treatment.
 - `adaptation-details`: Misery adaptation page gains an N-glitch treatment.
 
