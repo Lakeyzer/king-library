@@ -76,6 +76,13 @@ The system SHALL render, on the trailing side of the header alongside the color 
 - **WHEN** a visitor views the header on a platform or browser that has not signaled an install prompt is available (for example, before the signal fires, or on a platform that never fires it)
 - **THEN** the header does not display the "Install App" control
 
+### Requirement: Header provides a global search entry point
+The system SHALL render, on the trailing side of the header, a search control that opens the global search dialog.
+
+#### Scenario: Visitor activates the search control
+- **WHEN** a visitor activates the search control in the header
+- **THEN** the global search dialog opens
+
 ### Requirement: Footer displays a non-affiliation disclaimer
 The system SHALL render, in the footer of the default layout, a disclaimer stating that King Library is an unofficial, fan-made personal project with no affiliation to or endorsement by Stephen King or his representatives.
 

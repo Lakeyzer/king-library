@@ -13,6 +13,8 @@ const { open: openAuthModal } = useAuthModal()
 const { canInstall, promptInstall } = usePwaInstall()
 const toast = useToast()
 
+const isSearchOpen = ref(false)
+
 // Hidden for now, independent of PWA installability itself (already verified
 // working) - flip back to true to bring the header control back.
 const SHOW_INSTALL_BUTTON = false
@@ -54,6 +56,14 @@ const accountMenuItems: DropdownMenuItem[] = [
         @click="promptInstall"
       />
 
+      <UButton
+        color="neutral"
+        variant="ghost"
+        icon="i-lucide-search"
+        aria-label="Search"
+        @click="isSearchOpen = true"
+      />
+
       <UTooltip text="That spells dark mode">
         <UColorModeButton />
       </UTooltip>
@@ -85,4 +95,6 @@ const accountMenuItems: DropdownMenuItem[] = [
       />
     </template>
   </UHeader>
+
+  <CoreGlobalSearch v-model:open="isSearchOpen" />
 </template>
