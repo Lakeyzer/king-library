@@ -171,29 +171,25 @@ setPageSeo({
           <div class="flex items-center gap-1.5">
             <UIcon name="i-lucide-book-open" class="size-4" />
             <span
-              ><strong class="text-highlighted"><NumberMotif :text="stats.currently_reading_count" /></strong>
-              <GlitchLetter text="reading" letter="n" :active="isMisery"
+              ><strong class="text-highlighted"><NumberMotif :text="stats.currently_reading_count" /></strong> <GlitchLetter text="reading" letter="n" :active="isMisery"
             /></span>
           </div>
           <div class="flex items-center gap-1.5">
             <UIcon name="i-lucide-bookmark" class="size-4" />
             <span
-              ><strong class="text-highlighted"><NumberMotif :text="stats.want_to_read_count" /></strong>
-              <GlitchLetter text="want to read" letter="n" :active="isMisery"
+              ><strong class="text-highlighted"><NumberMotif :text="stats.want_to_read_count" /></strong> <GlitchLetter text="want to read" letter="n" :active="isMisery"
             /></span>
           </div>
           <div class="flex items-center gap-1.5">
             <UIcon name="i-lucide-circle-check" class="size-4" />
             <span
-              ><strong class="text-highlighted"><NumberMotif :text="stats.read_count" /></strong>
-              <GlitchLetter text="read" letter="n" :active="isMisery"
+              ><strong class="text-highlighted"><NumberMotif :text="stats.read_count" /></strong> <GlitchLetter text="read" letter="n" :active="isMisery"
             /></span>
           </div>
           <div class="flex items-center gap-1.5">
             <UIcon name="i-lucide-library" class="size-4" />
             <span
-              ><strong class="text-highlighted"><NumberMotif :text="stats.owner_count" /></strong>
-              <GlitchLetter text="owned" letter="n" :active="isMisery"
+              ><strong class="text-highlighted"><NumberMotif :text="stats.owner_count" /></strong> <GlitchLetter text="owned" letter="n" :active="isMisery"
             /></span>
           </div>
         </template>

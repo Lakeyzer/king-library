@@ -298,9 +298,9 @@ function formatEditionMeta(edition: OpenLibraryEdition): string | null {
           </div>
           <p class="mt-1 truncate text-center text-xs text-muted">
             <template v-if="edition.publisher || edition.publishYear">
-              <span v-if="edition.publisher"><NumberMotif :text="edition.publisher" /></span>
-              <span v-if="edition.publisher && edition.publishYear"> · </span>
               <span v-if="edition.publishYear"><NumberMotif :text="edition.publishYear" /></span>
+              <span v-if="edition.publisher && edition.publishYear"> · </span>
+              <span v-if="edition.publisher"><NumberMotif :text="edition.publisher" /></span>
             </template>
           </p>
         </div>

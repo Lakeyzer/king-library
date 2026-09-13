@@ -60,7 +60,7 @@ const timelineItems = computed(() =>
     icon: "i-lucide-book-check",
     avatar: entry.coverId
       ? {
-          src: getOpenLibraryCoverUrl(entry.coverId, "S"),
+          src: getOpenLibraryCoverUrl(entry.coverId, "M"),
           alt: `${entry.title} cover`,
         }
       : undefined,
@@ -236,9 +236,10 @@ onBeforeUnmount(() => {
         orientation="horizontal"
         size="sm"
         :ui="{
-          item: 'relative h-32 min-w-32 shrink-0 odd:justify-end',
+          item: 'relative h-40 min-w-40 shrink-0 odd:justify-end',
           container: 'absolute inset-x-0 top-1/2 -translate-y-1/2',
-          wrapper: 'text-start',
+          indicator: 'size-12',
+          wrapper: 'text-start pl-6',
         }"
       >
         <template #date="{ item }">

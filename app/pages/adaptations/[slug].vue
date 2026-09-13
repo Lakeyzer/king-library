@@ -197,15 +197,13 @@ setPageSeo({
           <div class="flex items-center gap-1.5">
             <UIcon name="i-lucide-bookmark" class="size-4" />
             <span
-              ><strong class="text-highlighted"><NumberMotif :text="stats.want_to_watch_count" /></strong>
-              <GlitchLetter text="want to watch" letter="n" :active="isMisery"
+              ><strong class="text-highlighted"><NumberMotif :text="stats.want_to_watch_count" /></strong> <GlitchLetter text="want to watch" letter="n" :active="isMisery"
             /></span>
           </div>
           <div class="flex items-center gap-1.5">
             <UIcon name="i-lucide-circle-check" class="size-4" />
             <span
-              ><strong class="text-highlighted"><NumberMotif :text="stats.watched_count" /></strong>
-              <GlitchLetter text="watched" letter="n" :active="isMisery"
+              ><strong class="text-highlighted"><NumberMotif :text="stats.watched_count" /></strong> <GlitchLetter text="watched" letter="n" :active="isMisery"
             /></span>
           </div>
         </template>
