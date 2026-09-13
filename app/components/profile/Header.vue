@@ -98,15 +98,23 @@ async function toggleFollow() {
       variant="subtle"
       class="ml-auto"
     />
-    <UButton
-      v-else
-      :label="following ? 'Following' : 'Follow'"
-      :icon="following ? 'i-lucide-user-check' : 'i-lucide-user-plus'"
-      color="neutral"
-      variant="subtle"
-      class="ml-auto"
-      :loading="followLoading"
-      @click="toggleFollow"
-    />
+    <div v-else class="ml-auto flex items-center gap-2">
+      <UButton
+        v-if="isPublic && currentUser"
+        label="Compare"
+        icon="i-lucide-arrow-left-right"
+        color="neutral"
+        variant="subtle"
+        :to="`/profile/${username.toLowerCase()}/compare`"
+      />
+      <UButton
+        :label="following ? 'Following' : 'Follow'"
+        :icon="following ? 'i-lucide-user-check' : 'i-lucide-user-plus'"
+        color="neutral"
+        variant="subtle"
+        :loading="followLoading"
+        @click="toggleFollow"
+      />
+    </div>
   </div>
 </template>

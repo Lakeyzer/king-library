@@ -88,6 +88,20 @@ export interface ReadListEntry extends WorkHighlight {
   type: string
 }
 
+// Returned by fetchReadDiff - `onlyA`/`onlyB` are positional (first/second
+// userId passed in), not keyed by id, since the compare page always knows
+// which side is "the signed-in visitor" and which is "the other user".
+export interface ReadDiff {
+  onlyA: WorkHighlight[]
+  onlyB: WorkHighlight[]
+}
+
+// Mirrors ReadDiff, sourced from `owned` instead of `read` - see fetchOwnedDiff.
+export interface OwnedDiff {
+  onlyA: WorkHighlight[]
+  onlyB: WorkHighlight[]
+}
+
 export interface WorkStats {
   want_to_read_count: number
   currently_reading_count: number
@@ -531,6 +545,79 @@ export function useBooks() {
       }))
   }
 
+  // Powers the compare page's read-books diff: every King work exactly one
+  // of the two given users has marked read. One king_works fetch plus one
+  // user_books fetch (both userIds in a single `.in()` call, split
+  // client-side by user_id) rather than four separate round trips - same
+  // "fetch the full list once, diff client-side" approach as
+  // fetchProfileBookStats above.
+  const fetchReadDiff = async (userIdA: string, userIdB: string): Promise<ReadDiff> => {
+    const [{ data: works, error: worksError }, { data: userBooks, error: booksError }] = await Promise.all([
+      supabase.from('king_works').select('id, title, slug, cover_id, publish_date'),
+      supabase
+        .from('user_books')
+        .select('user_id, king_work_id')
+        .in('user_id', [userIdA, userIdB])
+        .eq('read', true)
+    ])
+
+    if (worksError) throw worksError
+    if (booksError) throw booksError
+
+    const allWorks = works as { id: string, title: string, slug: string, cover_id: number | null, publish_date: string }[]
+    const rows = userBooks as { user_id: string, king_work_id: string }[]
+
+    const readByA = new Set(rows.filter((row) => row.user_id === userIdA).map((row) => row.king_work_id))
+    const readByB = new Set(rows.filter((row) => row.user_id === userIdB).map((row) => row.king_work_id))
+
+    const toHighlight = (work: (typeof allWorks)[number]): WorkHighlight => ({
+      id: work.id,
+      title: work.title,
+      slug: work.slug,
+      coverId: work.cover_id,
+      publishDate: work.publish_date
+    })
+
+    return {
+      onlyA: allWorks.filter((work) => readByA.has(work.id) && !readByB.has(work.id)).map(toHighlight),
+      onlyB: allWorks.filter((work) => readByB.has(work.id) && !readByA.has(work.id)).map(toHighlight)
+    }
+  }
+
+  // Mirrors fetchReadDiff exactly, filtered on `owned` instead of `read`.
+  const fetchOwnedDiff = async (userIdA: string, userIdB: string): Promise<OwnedDiff> => {
+    const [{ data: works, error: worksError }, { data: userBooks, error: booksError }] = await Promise.all([
+      supabase.from('king_works').select('id, title, slug, cover_id, publish_date'),
+      supabase
+        .from('user_books')
+        .select('user_id, king_work_id')
+        .in('user_id', [userIdA, userIdB])
+        .eq('owned', true)
+    ])
+
+    if (worksError) throw worksError
+    if (booksError) throw booksError
+
+    const allWorks = works as { id: string, title: string, slug: string, cover_id: number | null, publish_date: string }[]
+    const rows = userBooks as { user_id: string, king_work_id: string }[]
+
+    const ownedByA = new Set(rows.filter((row) => row.user_id === userIdA).map((row) => row.king_work_id))
+    const ownedByB = new Set(rows.filter((row) => row.user_id === userIdB).map((row) => row.king_work_id))
+
+    const toHighlight = (work: (typeof allWorks)[number]): WorkHighlight => ({
+      id: work.id,
+      title: work.title,
+      slug: work.slug,
+      coverId: work.cover_id,
+      publishDate: work.publish_date
+    })
+
+    return {
+      onlyA: allWorks.filter((work) => ownedByA.has(work.id) && !ownedByB.has(work.id)).map(toHighlight),
+      onlyB: allWorks.filter((work) => ownedByB.has(work.id) && !ownedByA.has(work.id)).map(toHighlight)
+    }
+  }
+
   const fetchCurrentlyReading = async (userId: string): Promise<CurrentlyReadingWork[]> => {
     const { data, error } = await supabase
       .from('user_books')
@@ -759,6 +846,8 @@ export function useBooks() {
     fetchOwnedUnreadRecommendation,
     fetchGiftIdeaRecommendation,
     fetchReadList,
+    fetchReadDiff,
+    fetchOwnedDiff,
     toggleWantToRead,
     startReading,
     finishReading,

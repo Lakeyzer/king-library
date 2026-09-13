@@ -68,14 +68,14 @@ withDefaults(defineProps<Props>(), {
             icon="i-lucide-user-round"
             :count="stats.bachman.count"
             :total="stats.bachman.total"
-            color="neutral"
+            color="warning"
           />
           <ProfileProgressBar
             label="Dark Tower"
             icon="i-lucide-castle"
             :count="stats.darkTower.count"
             :total="stats.darkTower.total"
-            color="secondary"
+            color="success"
           />
         </div>
 
@@ -85,14 +85,14 @@ withDefaults(defineProps<Props>(), {
             icon="i-lucide-film"
             :count="viewing.count"
             :total="viewing.total"
-            color="info"
+            color="secondary"
           />
           <ProfileProgressBar
             label="Collection"
             icon="i-lucide-library"
             :count="stats.collection.count"
             :total="stats.collection.total"
-            color="success"
+            color="info"
           />
         </div>
 

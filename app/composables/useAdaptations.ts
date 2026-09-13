@@ -88,6 +88,13 @@ export interface AdaptationLeaderboardEntry extends AdaptationHighlight {
   count: number
 }
 
+// Returned by fetchWatchedDiff - mirrors useBooks().ReadDiff: `onlyA`/`onlyB`
+// are positional (first/second userId passed in), not keyed by id.
+export interface WatchedDiff {
+  onlyA: AdaptationHighlight[]
+  onlyB: AdaptationHighlight[]
+}
+
 export interface AdaptationHighlights {
   mostWatchedAdaptations: AdaptationLeaderboardEntry[]
   leastWatchedAdaptations: AdaptationLeaderboardEntry[]
@@ -493,6 +500,46 @@ export function useAdaptations() {
       }))
   }
 
+  // Powers the compare page's watched-adaptations diff: mirrors
+  // useBooks().fetchReadDiff one table over - every adaptation exactly one
+  // of the two given users has marked watched.
+  const fetchWatchedDiff = async (userIdA: string, userIdB: string): Promise<WatchedDiff> => {
+    const [{ data: adaptationRows, error: adaptationsError }, { data: userAdaptationRows, error: userAdaptationsError }] =
+      await Promise.all([
+        supabase.from("adaptations").select("id, title, slug, tmdb_poster_path"),
+        supabase
+          .from("user_adaptations")
+          .select("user_id, adaptation_id")
+          .in("user_id", [userIdA, userIdB])
+          .eq("watched", true)
+      ])
+
+    if (adaptationsError) throw adaptationsError
+    if (userAdaptationsError) throw userAdaptationsError
+
+    const allAdaptations = adaptationRows as { id: string, title: string, slug: string, tmdb_poster_path: string | null }[]
+    const rows = userAdaptationRows as { user_id: string, adaptation_id: string }[]
+
+    const watchedByA = new Set(rows.filter((row) => row.user_id === userIdA).map((row) => row.adaptation_id))
+    const watchedByB = new Set(rows.filter((row) => row.user_id === userIdB).map((row) => row.adaptation_id))
+
+    const toHighlight = (adaptation: (typeof allAdaptations)[number]): AdaptationHighlight => ({
+      id: adaptation.id,
+      title: adaptation.title,
+      slug: adaptation.slug,
+      tmdbPosterPath: adaptation.tmdb_poster_path
+    })
+
+    return {
+      onlyA: allAdaptations
+        .filter((adaptation) => watchedByA.has(adaptation.id) && !watchedByB.has(adaptation.id))
+        .map(toHighlight),
+      onlyB: allAdaptations
+        .filter((adaptation) => watchedByB.has(adaptation.id) && !watchedByA.has(adaptation.id))
+        .map(toHighlight)
+    }
+  }
+
   const fetchUserAdaptations = async () => {
     if (!user.value) {
       userAdaptationsByAdaptationId.value = {}
@@ -590,6 +637,7 @@ export function useAdaptations() {
     fetchAdaptationHighlights,
     fetchUnwatchedRecommendation,
     fetchWatchList,
+    fetchWatchedDiff,
     userAdaptationsByAdaptationId,
     fetchUserAdaptations,
     toggleWantToWatch,

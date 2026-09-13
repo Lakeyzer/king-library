@@ -35,10 +35,11 @@ const [{ data: following }, { data: currentlyReading }] = await Promise.all([
       <li
         v-for="followedProfile in following"
         :key="followedProfile.id"
+        class="flex items-center gap-3 rounded-lg p-3 bg-elevated hover:bg-elevated/70"
       >
         <NuxtLink
           :to="`/profile/${(followedProfile.username ?? '').toLowerCase()}`"
-          class="flex items-center gap-3 rounded-lg p-3 bg-elevated hover:bg-elevated/70"
+          class="flex min-w-0 flex-1 items-center gap-3"
         >
           <UAvatar
             :src="followedProfile.avatar_url ?? undefined"
@@ -56,6 +57,15 @@ const [{ data: following }, { data: currentlyReading }] = await Promise.all([
             </p>
           </div>
         </NuxtLink>
+        <UButton
+          label="Compare"
+          icon="i-lucide-arrow-left-right"
+          color="neutral"
+          variant="subtle"
+          size="sm"
+          class="shrink-0"
+          :to="`/profile/${(followedProfile.username ?? '').toLowerCase()}/compare`"
+        />
       </li>
     </ul>
 
