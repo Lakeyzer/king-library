@@ -18,10 +18,15 @@ const KING_WORK_COLUMNS =
 export function useKingWorks() {
   const supabase = useSupabaseClient()
 
+  // Excludes inactive works - see king-works spec "Retrieve all King works
+  // for display". Every browsing/search/homepage consumer goes through this
+  // one fetch, so the exclusion is inherited rather than re-implemented per
+  // caller.
   const fetchKingWorks = async () => {
     const { data, error } = await supabase
       .from("king_works")
       .select(KING_WORK_COLUMNS)
+      .eq("active", true)
       .order("publish_date", { ascending: true })
 
     if (error) throw error
@@ -29,11 +34,15 @@ export function useKingWorks() {
     return data as KingWork[]
   }
 
+  // An inactive work's slug resolves the same as no match at all - see
+  // king-works spec "Retrieve a single King work by slug" - so a detail page
+  // built on this 404s automatically without its own inactive check.
   const fetchKingWorkBySlug = async (slug: string) => {
     const { data, error } = await supabase
       .from("king_works")
       .select(KING_WORK_COLUMNS)
       .eq("slug", slug)
+      .eq("active", true)
       .maybeSingle()
 
     if (error) throw error

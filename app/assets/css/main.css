@@ -4,6 +4,7 @@
 @theme {
   --font-sans: "Source Serif 4", sans-serif;
   --font-serif: "Source Serif 4", serif;
+  --font-handwriting: "Caveat", cursive;
 }
 
 @theme static {

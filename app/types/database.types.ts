@@ -123,6 +123,7 @@ export type Database = {
       }
       adaptations: {
         Row: {
+          active: boolean
           id: string
           is_universe_only: boolean
           notes: string | null
@@ -135,6 +136,7 @@ export type Database = {
           type: string
         }
         Insert: {
+          active?: boolean
           id?: string
           is_universe_only?: boolean
           notes?: string | null
@@ -147,6 +149,7 @@ export type Database = {
           type: string
         }
         Update: {
+          active?: boolean
           id?: string
           is_universe_only?: boolean
           notes?: string | null
@@ -238,6 +241,7 @@ export type Database = {
       }
       king_works: {
         Row: {
+          active: boolean
           bachman: boolean
           co_author: string | null
           cover_id: number | null
@@ -253,6 +257,7 @@ export type Database = {
           type: string
         }
         Insert: {
+          active?: boolean
           bachman?: boolean
           co_author?: string | null
           cover_id?: number | null
@@ -268,6 +273,7 @@ export type Database = {
           type: string
         }
         Update: {
+          active?: boolean
           bachman?: boolean
           co_author?: string | null
           cover_id?: number | null
@@ -540,18 +546,21 @@ export type Database = {
           read_at: string
           short_story_id: string
           user_id: string
+          via_collection_id: string | null
         }
         Insert: {
           id?: string
           read_at?: string
           short_story_id: string
           user_id: string
+          via_collection_id?: string | null
         }
         Update: {
           id?: string
           read_at?: string
           short_story_id?: string
           user_id?: string
+          via_collection_id?: string | null
         }
         Relationships: [
           {
@@ -560,6 +569,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "king_short_stories"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_short_story_reads_via_collection_id_fkey"
+            columns: ["via_collection_id"]
+            isOneToOne: false
+            referencedRelation: "king_works"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_short_story_reads_via_collection_id_fkey"
+            columns: ["via_collection_id"]
+            isOneToOne: false
+            referencedRelation: "work_stats"
+            referencedColumns: ["king_work_id"]
           },
         ]
       }

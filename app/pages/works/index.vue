@@ -11,7 +11,6 @@ setPageSeo({
 });
 
 const { fetchKingWorks } = useKingWorks();
-const { data: works } = await useAsyncData("works", fetchKingWorks);
 
 const user = useSupabaseUser();
 
@@ -21,27 +20,35 @@ const {
   fetchUnreadRecommendation,
   fetchOwnedUnreadRecommendation,
 } = useBooks();
-await useAsyncData("user-books", fetchUserBooks);
 const { fetchUserEditions } = useBookshelf();
-await useAsyncData("user-editions", fetchUserEditions);
-const { data: workHighlights } = await useAsyncData(
-  "works-page-highlights",
-  fetchWorkHighlights,
-);
-const { data: bookRecommendation } = await useAsyncData(
-  "works-page-recommendation",
-  () =>
+
+// Not awaited: only affects the reading-status/edition buttons' displayed
+// state, which updates reactively once it resolves - same as the
+// adaptations page.
+useAsyncData("user-books", fetchUserBooks);
+useAsyncData("user-editions", fetchUserEditions);
+
+// Independent fetches, run in parallel rather than one-after-another -
+// each depends only on `user`, not on any other result here.
+const [
+  { data: works },
+  { data: workHighlights },
+  { data: bookRecommendation },
+  { data: ownedUnreadRecommendation },
+] = await Promise.all([
+  useAsyncData("works", fetchKingWorks),
+  useAsyncData("works-page-highlights", fetchWorkHighlights),
+  useAsyncData("works-page-recommendation", () =>
     user.value
       ? fetchUnreadRecommendation(user.value.sub)
       : Promise.resolve(null),
-);
-const { data: ownedUnreadRecommendation } = await useAsyncData(
-  "works-page-owned-unread-recommendation",
-  () =>
+  ),
+  useAsyncData("works-page-owned-unread-recommendation", () =>
     user.value
       ? fetchOwnedUnreadRecommendation(user.value.sub)
       : Promise.resolve(null),
-);
+  ),
+]);
 
 const readsCountLabel = (count: number) =>
   `${count} ${count === 1 ? "read" : "reads"}`;

@@ -8,7 +8,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/bJJ3xK4pMnfao0wfzySfC47dp8G.jpg",
-    "slug": "carrie-1976"
+    "slug": "carrie-1976",
+    "active": true
   },
   {
     "id": "f6f45f52-1799-4625-83a5-d0d734b217d4",
@@ -19,7 +20,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "tv",
     "tmdb_poster_path": "/yaztNZUErjSmrVsuXEZiuIVyVj2.jpg",
-    "slug": "salems-lot-1979"
+    "slug": "salems-lot-1979",
+    "active": true
   },
   {
     "id": "b64fcd6b-1b47-46e9-9f7f-ccbcba103d6e",
@@ -30,7 +32,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/uAR0AWqhQL1hQa69UDEbb2rE5Wx.jpg",
-    "slug": "the-shining-1980"
+    "slug": "the-shining-1980",
+    "active": true
   },
   {
     "id": "e00e5dbd-f575-4a51-9bd0-b3d7f74d7d2f",
@@ -42,7 +45,8 @@
     "notes": "Anthology film; segments adapt the short stories 'Weeds', 'The Crate', 'Father's Day', 'Something to Tide You Over', and 'They're Creeping Up on You'.",
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/4SoyTCEpsgLjX6yAyMsx3AsAyRQ.jpg",
-    "slug": "creepshow"
+    "slug": "creepshow",
+    "active": true
   },
   {
     "id": "7857034a-3f45-480d-a707-e156bc2e50ef",
@@ -53,7 +57,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/9yTVaeS8eIkOpbwIycVFm7EQrgF.jpg",
-    "slug": "the-dead-zone-1983"
+    "slug": "the-dead-zone-1983",
+    "active": true
   },
   {
     "id": "de542966-043d-4335-bf4a-d927dc0c90e3",
@@ -64,7 +69,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/mMtUJke2TtIoT6JB9hkvERmsSu8.jpg",
-    "slug": "christine"
+    "slug": "christine",
+    "active": true
   },
   {
     "id": "103f9923-96a3-4a2a-9a19-9dec154e9633",
@@ -75,7 +81,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/uNBt2YxrQdyOjnm2rDQ5QiCmQ0K.jpg",
-    "slug": "cujo"
+    "slug": "cujo",
+    "active": true
   },
   {
     "id": "078079cd-445a-4693-9290-0f7a284702dd",
@@ -86,7 +93,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/jJTrFHu3rjAgP1lryKGEsC9hqyM.jpg",
-    "slug": "children-of-the-corn-1984"
+    "slug": "children-of-the-corn-1984",
+    "active": true
   },
   {
     "id": "eb143250-ce8d-4b31-b6f2-5ac3d895f237",
@@ -97,7 +105,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/2ux5lqNuibd8eOkwwUhzfzAJBqD.jpg",
-    "slug": "firestarter-1984"
+    "slug": "firestarter-1984",
+    "active": true
   },
   {
     "id": "499bdc96-6e45-43e5-8552-6b2df7e3e9d5",
@@ -108,7 +117,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/kKyq7izpMkmr8sT2nLic5qAuJPo.jpg",
-    "slug": "cats-eye"
+    "slug": "cats-eye",
+    "active": true
   },
   {
     "id": "4f8bb7cc-0b55-4eac-a564-6c0f0d097df7",
@@ -119,7 +129,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/52CvWYuJyWcMTPvsfcmsxaVHi7f.jpg",
-    "slug": "silver-bullet"
+    "slug": "silver-bullet",
+    "active": true
   },
   {
     "id": "4fb4c15c-9079-47bc-ab57-3768b27fb8e3",
@@ -130,7 +141,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/8pGYesuatPnMS8lhS4NvwiDjKbG.jpg",
-    "slug": "maximum-overdrive"
+    "slug": "maximum-overdrive",
+    "active": true
   },
   {
     "id": "fb992346-624d-46b6-a40c-12cb9d71c723",
@@ -141,7 +153,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/vz0w9BSehcqjDcJOjRaCk7fgJe7.jpg",
-    "slug": "stand-by-me"
+    "slug": "stand-by-me",
+    "active": true
   },
   {
     "id": "be1d7bbd-f087-45e5-bfb2-da23ff7b74bb",
@@ -152,7 +165,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/bbanIymLuTYmQGis9nlCkFlT1eg.jpg",
-    "slug": "creepshow-2"
+    "slug": "creepshow-2",
+    "active": true
   },
   {
     "id": "eb4f077d-21d0-4699-869f-c1cdf6643161",
@@ -163,7 +177,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/GTAUOhO4BN0peJVvxGEQydJvUO.jpg",
-    "slug": "the-running-man-1987"
+    "slug": "the-running-man-1987",
+    "active": true
   },
   {
     "id": "eae56fc7-7463-4e1e-9873-1e9643b44e50",
@@ -174,7 +189,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/8ZtH1V4rhrtP53ezlEWrCaMALXF.jpg",
-    "slug": "pet-sematary-1989"
+    "slug": "pet-sematary-1989",
+    "active": true
   },
   {
     "id": "c81ec258-87f7-472f-94c4-edd36a27cabc",
@@ -185,7 +201,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/vITvLxFsDbbg6TMgpYWWscMOf0G.jpg",
-    "slug": "graveyard-shift"
+    "slug": "graveyard-shift",
+    "active": true
   },
   {
     "id": "eec3ce69-9045-45f4-af56-30e8801cdf8d",
@@ -196,7 +213,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "tv",
     "tmdb_poster_path": "/4ybQ6gopB3H3cu0seVZLznDnIKo.jpg",
-    "slug": "it-1990"
+    "slug": "it-1990",
+    "active": true
   },
   {
     "id": "2f100094-b5ca-4cab-aa8e-d971b87dddb1",
@@ -207,7 +225,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/klPO5oh1LOxiPpdDXZo1ADgpKcw.jpg",
-    "slug": "misery"
+    "slug": "misery",
+    "active": true
   },
   {
     "id": "b847cd25-9104-45e4-81f0-c0336365a93e",
@@ -218,7 +237,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/cJc0hUhtWmZzIeWc1k8CVpJFVbm.jpg",
-    "slug": "sometimes-they-come-back"
+    "slug": "sometimes-they-come-back",
+    "active": true
   },
   {
     "id": "93e1b181-65c9-42fc-a46e-66c1eb3f40c7",
@@ -230,7 +250,8 @@
     "notes": "Original teleplay, not adapted from a published work.",
     "tmdb_media_type": "tv",
     "tmdb_poster_path": "/u4qSLy9jjQr2e7aXyr8RVu07UZb.jpg",
-    "slug": "golden-years"
+    "slug": "golden-years",
+    "active": true
   },
   {
     "id": "de075554-d624-4610-a57b-c4543ec1f1a1",
@@ -242,7 +263,8 @@
     "notes": "Loosely 'inspired by'; King had his name removed from marketing.",
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/1VLqWcel87oYVmN383FgSH0mCTY.jpg",
-    "slug": "the-lawnmower-man"
+    "slug": "the-lawnmower-man",
+    "active": true
   },
   {
     "id": "cdbb0796-b168-467c-b7c5-68a8966fb868",
@@ -253,7 +275,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "tv",
     "tmdb_poster_path": "/r41hDFTHfFYYYBxiPP0osamSB8h.jpg",
-    "slug": "the-tommyknockers"
+    "slug": "the-tommyknockers",
+    "active": true
   },
   {
     "id": "cc8655ef-14b8-48e5-b5b2-f73f955c5a1f",
@@ -264,7 +287,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/uTzi0no438AjKELtJgTbipNxWGu.jpg",
-    "slug": "the-dark-half"
+    "slug": "the-dark-half",
+    "active": true
   },
   {
     "id": "b908def7-718b-4a09-b975-44f97f9ac636",
@@ -275,7 +299,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/9RxE6kd1ky4689WxqX6CHEpIWya.jpg",
-    "slug": "needful-things"
+    "slug": "needful-things",
+    "active": true
   },
   {
     "id": "425b4ee4-68b4-4536-9fcb-265bd975b844",
@@ -286,7 +311,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/9cqNxx0GxF0bflZmeSMuL5tnGzr.jpg",
-    "slug": "the-shawshank-redemption"
+    "slug": "the-shawshank-redemption",
+    "active": true
   },
   {
     "id": "66948cd7-094e-4cfe-a599-ee839a9e356b",
@@ -297,7 +323,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "tv",
     "tmdb_poster_path": "/o4Gb63aXRh5mMqGifYACixnxGkQ.jpg",
-    "slug": "the-stand-1994"
+    "slug": "the-stand-1994",
+    "active": true
   },
   {
     "id": "3d82d029-0aec-4155-a3fc-73eb774e5aea",
@@ -308,7 +335,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/gPRbfFjrBUCgSFAEUHxLRG3rU3D.jpg",
-    "slug": "the-mangler"
+    "slug": "the-mangler",
+    "active": true
   },
   {
     "id": "b75e9e36-dc9e-43e3-8fb0-75c6cd545f39",
@@ -319,7 +347,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "tv",
     "tmdb_poster_path": "/xcySnh6hHc98G94dF8sXNJuD0Rp.jpg",
-    "slug": "the-langoliers"
+    "slug": "the-langoliers",
+    "active": true
   },
   {
     "id": "32ee7ca5-a835-4ccc-953e-d62c5f6d6852",
@@ -330,7 +359,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/yqY5h9kI456xXRWv6u9t0Axn9CS.jpg",
-    "slug": "dolores-claiborne"
+    "slug": "dolores-claiborne",
+    "active": true
   },
   {
     "id": "e02087f0-47dd-4d7b-9337-3b8a23f01856",
@@ -341,7 +371,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/qGj0B5yx9FPTjTKODOUzccjhG5F.jpg",
-    "slug": "thinner"
+    "slug": "thinner",
+    "active": true
   },
   {
     "id": "df6b7beb-a544-4780-8985-211b70cbdcd5",
@@ -352,7 +383,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "tv",
     "tmdb_poster_path": "/YTH851DpQxoWFRu9gAYwPM56Yy.jpg",
-    "slug": "the-shining-1997"
+    "slug": "the-shining-1997",
+    "active": true
   },
   {
     "id": "9d406229-b6bf-492f-b369-8dbea6edd207",
@@ -363,7 +395,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/aJN2BNCUSfrOftshzSginQNILPk.jpg",
-    "slug": "trucks"
+    "slug": "trucks",
+    "active": true
   },
   {
     "id": "4cf0eb46-fcc1-4909-b214-fb3c197ba3c5",
@@ -374,7 +407,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/pU3fvfSvrs5pZFdODPCzoLk95Ws.jpg",
-    "slug": "apt-pupil"
+    "slug": "apt-pupil",
+    "active": true
   },
   {
     "id": "e6ed84cf-9a47-49da-bc53-f17247eafaa3",
@@ -386,7 +420,8 @@
     "notes": "Original teleplay, published afterward as a screenplay.",
     "tmdb_media_type": "tv",
     "tmdb_poster_path": "/xFPh9zZickYu9AWqOcfUZBCIu14.jpg",
-    "slug": "storm-of-the-century"
+    "slug": "storm-of-the-century",
+    "active": true
   },
   {
     "id": "89be56bd-345c-4b35-bf7e-86ee8befe89e",
@@ -397,7 +432,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/8VG8fDNiy50H4FedGwdSVUPoaJe.jpg",
-    "slug": "the-green-mile"
+    "slug": "the-green-mile",
+    "active": true
   },
   {
     "id": "eba7d578-4f84-4f74-9eaf-40b6ff71b692",
@@ -408,7 +444,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/qPTEh8vutS5FSCDoR16MWVGHqTm.jpg",
-    "slug": "hearts-in-atlantis"
+    "slug": "hearts-in-atlantis",
+    "active": true
   },
   {
     "id": "bef821b2-3d94-4c41-b5eb-3239765c02ef",
@@ -419,7 +456,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "tv",
     "tmdb_poster_path": "/j9l4svOscUWoVqGoATtGEDfTms.jpg",
-    "slug": "the-dead-zone-2002"
+    "slug": "the-dead-zone-2002",
+    "active": true
   },
   {
     "id": "06f28151-d553-4ff9-aff1-f607eb929cc8",
@@ -431,7 +469,8 @@
     "notes": "Spin-off of King's Rose Red miniseries, written by others; not based on a King work.",
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/fjTzrF9m2hC8OF4Q1umM5CPoeK9.jpg",
-    "slug": "the-diary-of-ellen-rimbauer"
+    "slug": "the-diary-of-ellen-rimbauer",
+    "active": true
   },
   {
     "id": "f4eceba0-3673-4f47-b393-a1aab1166733",
@@ -442,7 +481,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/lLhvwLNU4pLgvaNREVFaQ4n3lCf.jpg",
-    "slug": "dreamcatcher"
+    "slug": "dreamcatcher",
+    "active": true
   },
   {
     "id": "7386da49-a91c-4788-98dc-fe870ff6cca9",
@@ -453,7 +493,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "tv",
     "tmdb_poster_path": "/hcdFVK9CLsnHIF4mU1ITCmKXYMq.jpg",
-    "slug": "salems-lot-2004"
+    "slug": "salems-lot-2004",
+    "active": true
   },
   {
     "id": "7dbc8ade-91ee-4297-a219-54ec57754b71",
@@ -464,7 +505,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/hvzw4wufKZkDCTPVeG71Z7pGfZh.jpg",
-    "slug": "secret-window"
+    "slug": "secret-window",
+    "active": true
   },
   {
     "id": "df4228a0-82f5-49cf-bcb8-5e4708a562bc",
@@ -476,7 +518,8 @@
     "notes": "Original series created by King, based on Lars von Trier's Riget.",
     "tmdb_media_type": "tv",
     "tmdb_poster_path": "/A3Sk7JU26EEmW5eK3TYWh6AEAcE.jpg",
-    "slug": "kingdom-hospital"
+    "slug": "kingdom-hospital",
+    "active": true
   },
   {
     "id": "6c2e0fbe-eaff-4395-8088-d32a294ff24c",
@@ -487,7 +530,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/sVVTUA9SBaGlkZcj3XIJq077dQB.jpg",
-    "slug": "desperation"
+    "slug": "desperation",
+    "active": true
   },
   {
     "id": "42f8a213-abfe-4f2b-9313-aa723176155b",
@@ -499,7 +543,8 @@
     "notes": "Sources span Nightmares & Dreamscapes and Everything's Eventual.",
     "tmdb_media_type": "tv",
     "tmdb_poster_path": "/30bZ3M79A3Lz2iwNmQnRpisylz1.jpg",
-    "slug": "nightmares-dreamscapes-from-the-stories-of-stephen-king"
+    "slug": "nightmares-dreamscapes-from-the-stories-of-stephen-king",
+    "active": true
   },
   {
     "id": "31871d03-52d8-401a-9ed3-44fb102decca",
@@ -510,7 +555,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/c4UgUKZjM0Qzy5t4hAXSOFHYsnb.jpg",
-    "slug": "the-mist-2007"
+    "slug": "the-mist-2007",
+    "active": true
   },
   {
     "id": "675774db-5031-4473-a945-a3829ece1dd2",
@@ -521,7 +567,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/yE9MCW7ZNxSw5SC1TMqm51pMBIV.jpg",
-    "slug": "1408"
+    "slug": "1408",
+    "active": true
   },
   {
     "id": "f65d5ef2-f5eb-4b1e-9ae0-4486ecfb187a",
@@ -532,7 +579,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/y9sFEgoTkjfy8i0CQzLADxFC0Hf.jpg",
-    "slug": "children-of-the-corn-2009"
+    "slug": "children-of-the-corn-2009",
+    "active": true
   },
   {
     "id": "ed719529-a0f2-4fb8-9e3a-498e5f9f2962",
@@ -544,7 +592,8 @@
     "notes": "Very loose adaptation.",
     "tmdb_media_type": "tv",
     "tmdb_poster_path": "/aceumwROgphFLSyOXFfijaoSZJE.jpg",
-    "slug": "haven"
+    "slug": "haven",
+    "active": true
   },
   {
     "id": "22b0470f-9e0c-4fc6-846b-020f1f80b4c3",
@@ -555,7 +604,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "tv",
     "tmdb_poster_path": "/jDaGB39D8bIk8Jja8QYbv8nGaGj.jpg",
-    "slug": "bag-of-bones"
+    "slug": "bag-of-bones",
+    "active": true
   },
   {
     "id": "db05261c-3c06-4627-bac7-d1b4da36d61e",
@@ -566,7 +616,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/kloXz9qwO23z9Kbt3z3MgnjF4xO.jpg",
-    "slug": "carrie-2013"
+    "slug": "carrie-2013",
+    "active": true
   },
   {
     "id": "7fff1fe3-9155-49a0-a72a-6958eb687dd0",
@@ -577,7 +628,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "tv",
     "tmdb_poster_path": "/fwH0ePhd7m3swtCuFeubtR49ZTd.jpg",
-    "slug": "under-the-dome"
+    "slug": "under-the-dome",
+    "active": true
   },
   {
     "id": "806e95fd-7dbb-4e3b-a9a4-0759244453d9",
@@ -588,7 +640,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/eOGZagunINGbIMMDXSJnzKJ1Ai4.jpg",
-    "slug": "big-driver"
+    "slug": "big-driver",
+    "active": true
   },
   {
     "id": "a5abaa2b-1e97-4667-b883-fddc94622e24",
@@ -599,7 +652,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/c5N6Pw3P6TqQnGcqiVkhO9u85KB.jpg",
-    "slug": "cell"
+    "slug": "cell",
+    "active": true
   },
   {
     "id": "90218ab1-eac5-489b-b64c-46704150f2e7",
@@ -610,7 +664,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "tv",
     "tmdb_poster_path": "/1fH41ccMKvgDTbbcCxWWH6fznah.jpg",
-    "slug": "11-22-63"
+    "slug": "11-22-63",
+    "active": true
   },
   {
     "id": "02cb2e14-8eac-46ba-a7e2-79d61e9c1287",
@@ -621,7 +676,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/q4FQOiSRhTLWulHl5Vpg37FMArH.jpg",
-    "slug": "1922"
+    "slug": "1922",
+    "active": true
   },
   {
     "id": "a2b73809-0112-49aa-9d0e-61dcb80a8d05",
@@ -633,7 +689,8 @@
     "notes": "Loosely combines elements from across the eight-book series.",
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/i9GUSgddIqrroubiLsvvMRYyRy0.jpg",
-    "slug": "the-dark-tower"
+    "slug": "the-dark-tower",
+    "active": true
   },
   {
     "id": "13dec247-7383-4bde-ac4b-0e545e49524c",
@@ -644,7 +701,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/9E2y5Q7WlCVNEhP5GiVTjhEhx1o.jpg",
-    "slug": "it-2017"
+    "slug": "it-2017",
+    "active": true
   },
   {
     "id": "933b48e2-2424-45d1-ac0e-7b09df4a4777",
@@ -656,7 +714,8 @@
     "notes": "Expands the novella into an ongoing series.",
     "tmdb_media_type": "tv",
     "tmdb_poster_path": "/iwDmsffJ5qYBxiGTPdwgIKTscKu.jpg",
-    "slug": "the-mist-2017"
+    "slug": "the-mist-2017",
+    "active": true
   },
   {
     "id": "041214bd-111d-4ddd-a84d-a8201eac2a11",
@@ -667,7 +726,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "tv",
     "tmdb_poster_path": "/zZm3LidCf6Edv6yX3WMKo6KwICg.jpg",
-    "slug": "mr-mercedes"
+    "slug": "mr-mercedes",
+    "active": true
   },
   {
     "id": "5f5c5f76-8149-42c9-abca-fbed2a188c2b",
@@ -678,7 +738,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/32dippiypDdaKv7XFEfUlQ7kPup.jpg",
-    "slug": "geralds-game"
+    "slug": "geralds-game",
+    "active": true
   },
   {
     "id": "322c6702-93aa-4717-90e0-ecb8590aae97",
@@ -690,7 +751,8 @@
     "notes": "Anthology series drawing on characters/settings across King's bibliography, not one specific work.",
     "tmdb_media_type": "tv",
     "tmdb_poster_path": "/6dnUpv9ghx84pgxlMOb4uuJrWDs.jpg",
-    "slug": "castle-rock"
+    "slug": "castle-rock",
+    "active": true
   },
   {
     "id": "8a4b9c4b-f64b-4018-99a9-db5f98ee424f",
@@ -702,7 +764,8 @@
     "notes": "Co-written by King and Joe Hill.",
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/1RxhzwFkAUqMt215Brb06u8P8pn.jpg",
-    "slug": "in-the-tall-grass"
+    "slug": "in-the-tall-grass",
+    "active": true
   },
   {
     "id": "1b4338f4-fbcf-4e10-8740-3023d8991beb",
@@ -713,7 +776,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/p69QzIBbN06aTYqRRiCOY1emNBh.jpg",
-    "slug": "doctor-sleep"
+    "slug": "doctor-sleep",
+    "active": true
   },
   {
     "id": "2e3a7ead-fad5-4309-bf14-85e3d5697d70",
@@ -724,7 +788,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/zfE0R94v1E8cuKAerbskfD3VfUt.jpg",
-    "slug": "it-chapter-two"
+    "slug": "it-chapter-two",
+    "active": true
   },
   {
     "id": "28d96e1a-9f8a-43ee-9aac-e5c33c36dbd0",
@@ -735,7 +800,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/7SPhr7Qj39vbnfF9O2qHRYaKHAL.jpg",
-    "slug": "pet-sematary-2019"
+    "slug": "pet-sematary-2019",
+    "active": true
   },
   {
     "id": "9f46b585-c764-45b7-8ed1-568311de7cf2",
@@ -746,7 +812,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "tv",
     "tmdb_poster_path": "/w6XiuRK5QQaLNmIqDRCWOpEcHwi.jpg",
-    "slug": "the-stand-2020"
+    "slug": "the-stand-2020",
+    "active": true
   },
   {
     "id": "e95d99fb-78bd-44bb-98bc-dd5a4dbfb7b5",
@@ -757,7 +824,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "tv",
     "tmdb_poster_path": "/aMiPwPQjQI1EZN3xP2V0sSU37dc.jpg",
-    "slug": "the-outsider"
+    "slug": "the-outsider",
+    "active": true
   },
   {
     "id": "f52944ab-dcb1-4658-9c6c-b163da915b63",
@@ -768,7 +836,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "tv",
     "tmdb_poster_path": "/v7Oix3Zkhg3ftRxmLmyDBJc9ycp.jpg",
-    "slug": "chapelwaite"
+    "slug": "chapelwaite",
+    "active": true
   },
   {
     "id": "7c993b95-6d1d-4407-a6c2-eb6a6a839719",
@@ -779,7 +848,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "tv",
     "tmdb_poster_path": "/nBh4EuCmk3ZWfs16KKuhYHUqWdM.jpg",
-    "slug": "liseys-story"
+    "slug": "liseys-story",
+    "active": true
   },
   {
     "id": "97430cb4-7391-4a4e-aa5c-0eae6fec106f",
@@ -790,7 +860,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/jjBdPcQ0bplBnv2XgElKLoeFDuM.jpg",
-    "slug": "firestarter-2022"
+    "slug": "firestarter-2022",
+    "active": true
   },
   {
     "id": "b82ffea6-5da5-4412-8c18-678389ce10cc",
@@ -801,7 +872,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/gPn9e8eP7TeKQU4IeWAMzOajR40.jpg",
-    "slug": "mr-harrigans-phone"
+    "slug": "mr-harrigans-phone",
+    "active": true
   },
   {
     "id": "27a0bcca-1dcb-405b-a672-23adf21ad59c",
@@ -812,7 +884,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/pYwZdnXVnVxAr7dx4MEK7tTK9gI.jpg",
-    "slug": "the-boogeyman"
+    "slug": "the-boogeyman",
+    "active": true
   },
   {
     "id": "98cf2f4f-7f80-4571-bea2-6c57de78b00d",
@@ -823,7 +896,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/qFAK70ePry3kQWEnqsGYeZPhNPa.jpg",
-    "slug": "salems-lot-2024"
+    "slug": "salems-lot-2024",
+    "active": true
   },
   {
     "id": "21904f16-3089-4355-a57e-8e81c194d38f",
@@ -834,7 +908,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/oumprkO9bThExP8NwxBIBnvBu2v.jpg",
-    "slug": "the-life-of-chuck"
+    "slug": "the-life-of-chuck",
+    "active": true
   },
   {
     "id": "05f7155d-47fa-4bbd-bc58-0e9fe1176079",
@@ -845,7 +920,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/aGDekyIb0yfmnuLZciCozRPk2TE.jpg",
-    "slug": "the-monkey"
+    "slug": "the-monkey",
+    "active": true
   },
   {
     "id": "a8dd096e-6b70-4b17-9f4d-f7a53a307aef",
@@ -856,7 +932,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/dKL78O9zxczVgjtNcQ9UkbYLzqX.jpg",
-    "slug": "the-running-man-2025"
+    "slug": "the-running-man-2025",
+    "active": true
   },
   {
     "id": "d082cd54-4782-46c6-b930-2cc5b7cff932",
@@ -867,7 +944,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "movie",
     "tmdb_poster_path": "/wobVTa99eW0ht6c1rNNzLkazPtR.jpg",
-    "slug": "the-long-walk"
+    "slug": "the-long-walk",
+    "active": true
   },
   {
     "id": "bb5e3cf6-1063-47d2-9d81-04aa9247416a",
@@ -878,7 +956,8 @@
     "is_universe_only": false,
     "tmdb_media_type": "tv",
     "tmdb_poster_path": "/7JXZdWifaa6wL0XLRi0GJOlOA8y.jpg",
-    "slug": "the-institute"
+    "slug": "the-institute",
+    "active": true
   },
   {
     "id": "ea7c5bee-da39-4f84-b285-0744e5edac0a",
@@ -890,7 +969,8 @@
     "notes": "Prequel series set in the IT universe.",
     "tmdb_media_type": "tv",
     "tmdb_poster_path": "/nyy3BITeIjviv6PFIXtqvc8i6xi.jpg",
-    "slug": "it-welcome-to-derry"
+    "slug": "it-welcome-to-derry",
+    "active": true
   },
   {
     "id": "98cb7c05-c691-4904-83c0-dc2b9da47cad",
@@ -901,6 +981,7 @@
     "is_universe_only": false,
     "tmdb_media_type": "tv",
     "tmdb_poster_path": "/b7aKxwPj3QM8YHZ8uDyqr50i96D.jpg",
-    "slug": "carrie-2026"
+    "slug": "carrie-2026",
+    "active": true
   }
 ]

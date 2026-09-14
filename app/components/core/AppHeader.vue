@@ -2,9 +2,9 @@
 import type { DropdownMenuItem, NavigationMenuItem } from '@nuxt/ui'
 
 const links: NavigationMenuItem[] = [
-  { label: 'Works', to: '/works' },
-  { label: 'Short Works', to: '/short-works' },
-  { label: 'Adaptations', to: '/adaptations' }
+  { label: 'Works', to: '/works', icon: 'i-lucide-book' },
+  { label: 'Short Works', to: '/short-works', icon: 'i-lucide-book-open' },
+  { label: 'Adaptations', to: '/adaptations', icon: 'i-lucide-clapperboard' }
 ]
 
 const user = useSupabaseUser()
@@ -14,6 +14,8 @@ const { canInstall, promptInstall } = usePwaInstall()
 const toast = useToast()
 
 const isSearchOpen = ref(false)
+const colorMode = useColorMode()
+const isDarkMode = computed(() => colorMode.value === 'dark')
 
 // Hidden for now, independent of PWA installability itself (already verified
 // working) - flip back to true to bring the header control back.
@@ -45,7 +47,7 @@ const accountMenuItems: DropdownMenuItem[][] = [
 </script>
 
 <template>
-  <UHeader>
+  <UHeader mode="slideover">
     <template #left>
       <NuxtLink
         to="/"
@@ -76,7 +78,7 @@ const accountMenuItems: DropdownMenuItem[][] = [
         @click="isSearchOpen = true"
       />
 
-      <UTooltip text="That spells dark mode">
+      <UTooltip text="That spells dark mode" :disabled="!isDarkMode">
         <UColorModeButton />
       </UTooltip>
 

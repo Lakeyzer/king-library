@@ -55,6 +55,7 @@ interface KingWorkRef {
   slug: string
   publish_date: string
   open_library_work_key: string | null
+  active: boolean
 }
 
 export function useBookshelf() {
@@ -157,11 +158,13 @@ export function useBookshelf() {
     const [{ data: editionRows, error: editionsError }, { data: ownedRows, error: ownedError }] = await Promise.all([
       supabase
         .from('user_book_editions')
-        .select('id, edition_id, edition_title, king_works ( id, title, slug, publish_date, open_library_work_key )')
+        .select(
+          'id, edition_id, edition_title, king_works ( id, title, slug, publish_date, open_library_work_key, active )'
+        )
         .eq('user_id', userId),
       supabase
         .from('user_books')
-        .select('king_works ( id, title, slug, publish_date, open_library_work_key )')
+        .select('king_works ( id, title, slug, publish_date, open_library_work_key, active )')
         .eq('user_id', userId)
         .eq('owned', true),
       fetchAllSeries()
@@ -185,7 +188,9 @@ export function useBookshelf() {
         king_works: KingWorkRef | null
       }[]
     )
-      .filter((row): row is typeof row & { king_works: KingWorkRef } => row.king_works !== null)
+      .filter(
+        (row): row is typeof row & { king_works: KingWorkRef } => row.king_works !== null && row.king_works.active
+      )
       .map((row) => ({
         kind: 'edition',
         editionRowId: row.id,
@@ -204,7 +209,9 @@ export function useBookshelf() {
     const workItems: BookshelfWorkItem[] = (
       ownedRows as unknown as { king_works: KingWorkRef | null }[]
     )
-      .filter((row): row is typeof row & { king_works: KingWorkRef } => row.king_works !== null)
+      .filter(
+        (row): row is typeof row & { king_works: KingWorkRef } => row.king_works !== null && row.king_works.active
+      )
       .filter((row) => !workIdsWithEditions.has(row.king_works.id))
       .map((row) => ({
         kind: 'work',
