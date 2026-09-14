@@ -225,7 +225,7 @@ export function useBooks() {
   // function powers both the owner's own showcase and a public profile's.
   const fetchProfileBookStats = async (userId: string): Promise<ProfileBookStats> => {
     const [{ data: works, error: worksError }, { data: userBooks, error: booksError }] = await Promise.all([
-      supabase.from('king_works').select('id, dark_tower, bachman'),
+      supabase.from('king_works').select('id, dark_tower, bachman').eq('active', true),
       supabase.from('user_books').select('king_work_id, read, owned').eq('user_id', userId)
     ])
 
@@ -257,15 +257,21 @@ export function useBooks() {
     }
   }
 
-  // Fetches the full king_works list plus work_stats in parallel and joins
-  // them client-side - same "computed client-side at this data volume" call
-  // as fetchProfileBookStats above. One round trip pair powers book of the
-  // week, book birthday, and every book-related leaderboard/spotlight, so
-  // callers (homepage, works browsing sidebar) share one fetch rather than
-  // each running their own.
+  // Fetches the full king_works list (active only, per king-works spec's
+  // "Retrieve all King works for display") plus work_stats in parallel and
+  // joins them client-side - same "computed client-side at this data volume"
+  // call as fetchProfileBookStats above. One round trip pair powers book of
+  // the week, book birthday, and every book-related leaderboard/spotlight,
+  // so callers (homepage, works browsing sidebar) share one fetch rather
+  // than each running their own. Filtering `works` to active is enough to
+  // exclude inactive works from every highlight below - work_stats rows for
+  // an inactive work are simply never looked up.
   const fetchWorkHighlights = async (): Promise<WorkHighlights> => {
     const [{ data: works, error: worksError }, { data: stats, error: statsError }] = await Promise.all([
-      supabase.from('king_works').select('id, title, slug, cover_id, publish_date, shuffle_position'),
+      supabase
+        .from('king_works')
+        .select('id, title, slug, cover_id, publish_date, shuffle_position')
+        .eq('active', true),
       supabase.from('work_stats').select('king_work_id, read_count, currently_reading_count, want_to_read_count')
     ])
 
@@ -283,8 +289,15 @@ export function useBooks() {
     const today = todayIsoDate()
     const todayMonthDay = today.slice(5)
 
-    const bookOfTheWeekPosition = worksWithStats.length > 0 ? isoWeekNumber() % worksWithStats.length : 0
-    const bookOfTheWeekWork = worksWithStats.find((work) => work.shuffle_position === bookOfTheWeekPosition) ?? null
+    // shuffle_position is assigned densely across ALL works (active and
+    // inactive - see king-works spec), so once inactive works are excluded
+    // above, the remaining positions can have gaps. Rotating by the nth-lowest
+    // shuffle_position among the active works (rather than matching the raw
+    // value === week mod count) keeps the rotation dense and gap-free over
+    // just the active subset - see design.md "Book of the week rotation
+    // re-indexes over the active subset."
+    const sortedByShuffle = [...worksWithStats].sort((a, b) => a.shuffle_position - b.shuffle_position)
+    const bookOfTheWeekWork = sortedByShuffle.length > 0 ? sortedByShuffle[isoWeekNumber() % sortedByShuffle.length]! : null
 
     const bookBirthdayWorks = worksWithStats.filter((work) => work.publish_date.slice(5) === todayMonthDay)
 
@@ -341,6 +354,7 @@ export function useBooks() {
       slug: string
       cover_id: number | null
       publish_date: string
+      active: boolean
     }
 
     const [
@@ -351,7 +365,8 @@ export function useBooks() {
         .from('user_adaptations')
         .select('adaptation_id, adaptations ( title )')
         .eq('user_id', userId)
-        .eq('watched', true),
+        .eq('watched', true)
+        .eq('adaptations.active', true),
       supabase
         .from('user_books')
         .select('king_work_id')
@@ -362,10 +377,12 @@ export function useBooks() {
     if (watchedError) throw watchedError
     if (readBooksError) throw readBooksError
 
-    const watchedAdaptationRows = watchedRows as unknown as {
-      adaptation_id: string
-      adaptations: { title: string } | null
-    }[]
+    const watchedAdaptationRows = (
+      watchedRows as unknown as {
+        adaptation_id: string
+        adaptations: { title: string } | null
+      }[]
+    ).filter((row) => row.adaptations !== null)
 
     if (!watchedAdaptationRows.length) return null
 
@@ -378,12 +395,12 @@ export function useBooks() {
     const [viaWorksResult, viaShortStoriesResult] = await Promise.all([
       supabase
         .from('adaptation_works')
-        .select('adaptation_id, king_works ( id, title, slug, cover_id, publish_date )')
+        .select('adaptation_id, king_works ( id, title, slug, cover_id, publish_date, active )')
         .in('adaptation_id', adaptationIds),
       supabase
         .from('adaptation_short_stories')
         .select(
-          'adaptation_id, king_short_stories ( king_short_story_collections ( king_works ( id, title, slug, cover_id, publish_date ) ) )'
+          'adaptation_id, king_short_stories ( king_short_story_collections ( king_works ( id, title, slug, cover_id, publish_date, active ) ) )'
         )
         .in('adaptation_id', adaptationIds)
     ])
@@ -394,7 +411,7 @@ export function useBooks() {
     const candidatesById = new Map<string, BookRecommendation>()
 
     const addCandidate = (work: WorkRef | null, adaptationId: string) => {
-      if (!work || readWorkIds.has(work.id) || candidatesById.has(work.id)) return
+      if (!work || !work.active || readWorkIds.has(work.id) || candidatesById.has(work.id)) return
 
       candidatesById.set(work.id, {
         id: work.id,
@@ -438,11 +455,12 @@ export function useBooks() {
       slug: string
       cover_id: number | null
       publish_date: string
+      active: boolean
     }
 
     const { data, error } = await supabase
       .from('user_books')
-      .select('king_works ( id, title, slug, cover_id, publish_date )')
+      .select('king_works ( id, title, slug, cover_id, publish_date, active )')
       .eq('user_id', userId)
       .eq('owned', true)
       .eq('read', false)
@@ -451,7 +469,7 @@ export function useBooks() {
 
     const candidates = (data as unknown as { king_works: WorkRef | null }[])
       .map((row) => row.king_works)
-      .filter((work): work is WorkRef => work !== null)
+      .filter((work): work is WorkRef => work !== null && work.active)
 
     if (!candidates.length) return null
 
@@ -481,11 +499,12 @@ export function useBooks() {
       slug: string
       cover_id: number | null
       publish_date: string
+      active: boolean
     }
 
     const { data, error } = await supabase
       .from('user_books')
-      .select('king_works ( id, title, slug, cover_id, publish_date )')
+      .select('king_works ( id, title, slug, cover_id, publish_date, active )')
       .eq('user_id', userId)
       .eq('want_to_read', true)
       .eq('owned', false)
@@ -494,7 +513,7 @@ export function useBooks() {
 
     const candidates = (data as unknown as { king_works: WorkRef | null }[])
       .map((row) => row.king_works)
-      .filter((work): work is WorkRef => work !== null)
+      .filter((work): work is WorkRef => work !== null && work.active)
 
     if (!candidates.length) return null
 
@@ -522,11 +541,12 @@ export function useBooks() {
       cover_id: number | null
       publish_date: string
       type: string
+      active: boolean
     }
 
     const { data, error } = await supabase
       .from('user_books')
-      .select('king_works ( id, title, slug, cover_id, publish_date, type )')
+      .select('king_works ( id, title, slug, cover_id, publish_date, type, active )')
       .eq('user_id', userId)
       .eq('want_to_read', true)
 
@@ -534,7 +554,7 @@ export function useBooks() {
 
     return (data as unknown as { king_works: WorkRef | null }[])
       .map((row) => row.king_works)
-      .filter((work): work is WorkRef => work !== null)
+      .filter((work): work is WorkRef => work !== null && work.active)
       .map((work) => ({
         id: work.id,
         title: work.title,
@@ -621,7 +641,7 @@ export function useBooks() {
   const fetchCurrentlyReading = async (userId: string): Promise<CurrentlyReadingWork[]> => {
     const { data, error } = await supabase
       .from('user_books')
-      .select('started_on, king_works ( id, title, slug, cover_id )')
+      .select('started_on, king_works ( id, title, slug, cover_id, active )')
       .eq('user_id', userId)
       .eq('currently_reading', true)
       .order('started_on', { ascending: false, nullsFirst: false })
@@ -630,11 +650,14 @@ export function useBooks() {
 
     const rows = data as unknown as {
       started_on: string | null
-      king_works: { id: string, title: string, slug: string, cover_id: number | null } | null
+      king_works: { id: string, title: string, slug: string, cover_id: number | null, active: boolean } | null
     }[]
 
     return rows
-      .filter((row): row is typeof row & { king_works: NonNullable<typeof row.king_works> } => row.king_works !== null)
+      .filter(
+        (row): row is typeof row & { king_works: NonNullable<typeof row.king_works> } =>
+          row.king_works !== null && row.king_works.active
+      )
       .map((row) => ({
         id: row.king_works.id,
         title: row.king_works.title,
@@ -653,7 +676,7 @@ export function useBooks() {
   const fetchReadingTimeline = async (userId: string): Promise<ReadingTimelineEntry[]> => {
     const { data, error } = await supabase
       .from('user_books')
-      .select('finished_on, started_on, read_year, king_works ( id, title, slug, cover_id )')
+      .select('finished_on, started_on, read_year, king_works ( id, title, slug, cover_id, active )')
       .eq('user_id', userId)
       .eq('read', true)
 
@@ -663,14 +686,17 @@ export function useBooks() {
       finished_on: string | null
       started_on: string | null
       read_year: number | null
-      king_works: { id: string, title: string, slug: string, cover_id: number | null } | null
+      king_works: { id: string, title: string, slug: string, cover_id: number | null, active: boolean } | null
     }[]
 
     const sortKey = (row: (typeof rows)[number]) =>
       row.finished_on ?? row.started_on ?? (row.read_year ? `${row.read_year}-01-01` : null)
 
     return rows
-      .filter((row): row is typeof row & { king_works: NonNullable<typeof row.king_works> } => row.king_works !== null)
+      .filter(
+        (row): row is typeof row & { king_works: NonNullable<typeof row.king_works> } =>
+          row.king_works !== null && row.king_works.active
+      )
       .sort((a, b) => (sortKey(b) ?? '').localeCompare(sortKey(a) ?? ''))
       .map((row) => ({
         id: row.king_works.id,

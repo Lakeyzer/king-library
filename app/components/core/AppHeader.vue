@@ -14,6 +14,8 @@ const { canInstall, promptInstall } = usePwaInstall()
 const toast = useToast()
 
 const isSearchOpen = ref(false)
+const colorMode = useColorMode()
+const isDarkMode = computed(() => colorMode.value === 'dark')
 
 // Hidden for now, independent of PWA installability itself (already verified
 // working) - flip back to true to bring the header control back.
@@ -76,7 +78,7 @@ const accountMenuItems: DropdownMenuItem[][] = [
         @click="isSearchOpen = true"
       />
 
-      <UTooltip text="That spells dark mode">
+      <UTooltip text="That spells dark mode" :disabled="!isDarkMode">
         <UColorModeButton />
       </UTooltip>
 

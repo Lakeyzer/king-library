@@ -14,15 +14,19 @@ The system SHALL only allow a signed-in user to view their own Read List page, r
 - **THEN** they are not shown any want-to-read works and are directed to sign in
 
 ### Requirement: Read List shows its owner's want-to-read King works
-The system SHALL display, on a Read List page, every King work its owner has marked want-to-read, and SHALL display an empty state when they have marked none.
+The system SHALL display, on a Read List page, every active King work its owner has marked want-to-read, and SHALL display an empty state when they have marked none. An inactive King work SHALL NOT appear, even if marked want-to-read.
 
 #### Scenario: Owner has want-to-read works
-- **WHEN** a Read List is displayed for an owner with one or more King works marked want-to-read
-- **THEN** the page shows every King work they've marked want-to-read
+- **WHEN** a Read List is displayed for an owner with one or more active King works marked want-to-read
+- **THEN** the page shows every active King work they've marked want-to-read
 
 #### Scenario: Owner has nothing queued to read
-- **WHEN** a Read List is displayed for an owner with no King works marked want-to-read
+- **WHEN** a Read List is displayed for an owner with no active King works marked want-to-read
 - **THEN** the page shows an empty state instead of any works
+
+#### Scenario: A want-to-read work becomes inactive
+- **WHEN** a King work marked want-to-read by the Read List's owner is later marked inactive
+- **THEN** that work no longer appears on the Read List
 
 ### Requirement: Read List items link to their work detail page
 The system SHALL make each King work shown on a Read List a link to that work's detail page.

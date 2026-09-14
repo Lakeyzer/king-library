@@ -18,7 +18,7 @@ The system SHALL search the visitor's query against King work titles, short stor
 - **THEN** the dialog still displays all three category labels, with categories that have no matches showing no results
 
 ### Requirement: Search matches by case-insensitive title substring
-The system SHALL match the query against the title field of works, short stories, and adaptations using a case-insensitive substring comparison, updating results as the visitor types.
+The system SHALL match the query against the title field of works, short stories, and adaptations using a case-insensitive substring comparison, updating results as the visitor types. Matching against King work titles and adaptation titles SHALL only consider active King works and active adaptations; inactive ones SHALL never appear as matches.
 
 #### Scenario: Case-insensitive matching
 - **WHEN** a visitor types a query in a different case than the target title (for example "it" for "It")
@@ -27,6 +27,10 @@ The system SHALL match the query against the title field of works, short stories
 #### Scenario: Empty query
 - **WHEN** the search dialog is opened and the query is empty
 - **THEN** no results are displayed yet
+
+#### Scenario: Query matches an inactive King work or adaptation
+- **WHEN** a visitor types a query that matches the title of a King work or adaptation whose active flag is false
+- **THEN** that inactive item does not appear in the results
 
 ### Requirement: Selecting a result navigates to its detail page
 The system SHALL close the dialog and navigate the visitor to the selected result's detail page, matching the category the result was selected from: a work's page, a short story's page, or an adaptation's page.

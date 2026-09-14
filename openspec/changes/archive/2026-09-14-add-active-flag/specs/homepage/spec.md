@@ -1,32 +1,4 @@
-# homepage Specification
-
-## Purpose
-
-Gives first-time and returning visitors a landing page that introduces King Library and directs them into the Works, Short Stories, and Adaptations sections.
-
-## Requirements
-
-### Requirement: Homepage presents an introductory hero
-The system SHALL display, at the top of the homepage, a horizontal hero with the app title "King Library" and a short description (covering building a bookshelf and tracking reading progress) on the leading side, and an auth-aware call to action on the trailing side: a prompt to start tracking reading progress when the visitor is signed out, or a prompt to add to their collection when the visitor is signed in.
-
-#### Scenario: Visiting the homepage
-- **WHEN** a signed-out visitor navigates to the homepage
-- **THEN** the hero displays the title and description on the leading side and a CTA prompting them to start tracking their reading progress on the trailing side
-
-#### Scenario: Signed-in visitor sees an add-to-collection CTA
-- **WHEN** a signed-in visitor navigates to the homepage
-- **THEN** the hero displays the title and description on the leading side and a CTA prompting them to add to their collection on the trailing side
-
-### Requirement: Homepage sections appear in a defined order
-The system SHALL display, below the hero, a row of three catalog links spanning the full width (Works, Short Stories, and Adaptations, in that order), followed by two columns: a wider column containing (in this order) the Most Read Books, Currently Being Read, Most Watched Adaptations, and Least Watched Adaptations leaderboards, and a narrower column containing (in this order) the stats card, Book of the week, Book birthday, the Least read book spotlight, the Most wanted book spotlight, the Most anticipated adaptation spotlight, and (for a signed-in visitor, each only when an eligible recommendation exists) the personalized book recommendation, then the personalized owned-unread recommendation, then the personalized adaptation recommendation — followed below both columns by the Works closing CTA, then the Adaptations closing CTA. On a narrow (mobile-width) viewport, the system SHALL stack this content into a single column, with the narrower column's content appearing first, followed by the wider column's content, rather than omitting any of it.
-
-#### Scenario: Section order
-- **WHEN** a visitor scrolls down the homepage on a wide viewport
-- **THEN** the full-width catalog links row appears below the hero, followed by the two columns side by side — the leaderboards column and, alongside it, the narrower column in its defined order, starting with the stats card — followed by the Works closing CTA and then the Adaptations closing CTA
-
-#### Scenario: Section order on a narrow viewport
-- **WHEN** a visitor scrolls down the homepage on a narrow (mobile-width) viewport
-- **THEN** the full-width catalog links row appears first, then the narrower column's content (starting with the stats card), followed by the leaderboard content in its defined order, all stacked in a single column, still followed by the Works and Adaptations closing CTAs
+## MODIFIED Requirements
 
 ### Requirement: Catalog links row shows totals and links to each browsing page
 The system SHALL display three catalog links, each showing a total count and linking to a browsing page: the total number of active King works linking to the works browsing page, the total number of King short stories linking to the short stories browsing page, and the total number of active adaptations linking to the adaptations browsing page.
@@ -225,17 +197,3 @@ The system SHALL show a signed-in visitor, in the narrower column, a recommendat
 #### Scenario: Candidate adaptation or its source work is inactive
 - **WHEN** an adaptation eligible for this recommendation, or its source King work, is now inactive
 - **THEN** that pairing is not eligible for this recommendation
-
-### Requirement: Homepage highlights the Works section
-The system SHALL display, after the stats-and-suggestions area, a closing call to action introducing the Works area and linking to the works browsing page.
-
-#### Scenario: Following the Works section link
-- **WHEN** a visitor selects the Works closing CTA on the homepage
-- **THEN** they are taken to the works browsing page
-
-### Requirement: Homepage highlights the Adaptations section
-The system SHALL display, after the Works closing CTA, a closing call to action introducing the Adaptations area and linking to the adaptations browsing page.
-
-#### Scenario: Following the Adaptations section link
-- **WHEN** a visitor selects the Adaptations closing CTA on the homepage
-- **THEN** they are taken to the adaptations browsing page

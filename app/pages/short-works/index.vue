@@ -13,19 +13,24 @@ setPageSeo({
 const { fetchShortStories, fetchCollectionsOverview, fetchUserShortStoryReads } =
   useShortStories();
 const { fetchUserBooks } = useBooks();
-const { data: shortStories } = await useAsyncData(
-  "short-stories",
-  fetchShortStories,
-);
-const { data: collectionsOverview } = await useAsyncData(
-  "short-stories-collections-overview",
-  fetchCollectionsOverview,
-);
-await useAsyncData("user-short-story-reads", fetchUserShortStoryReads);
-// Collections are king_works rows, shown via WorkTile/BookReadingActions in
-// the sidebar - their read/owned indicators need userBooksByWorkId, same as
-// any other work listing.
-await useAsyncData("user-books", fetchUserBooks);
+
+// Not awaited: only affects the read-status/owned indicators shown via
+// ShortStoryReadingActions and WorkTile, which update reactively once they
+// resolve - same as the adaptations page. Collections are king_works rows,
+// so their owned indicator needs userBooksByWorkId, same as any other work
+// listing.
+useAsyncData("user-short-story-reads", fetchUserShortStoryReads);
+useAsyncData("user-books", fetchUserBooks);
+
+// Independent fetches, run in parallel rather than one-after-another.
+const [{ data: shortStories }, { data: collectionsOverview }] =
+  await Promise.all([
+    useAsyncData("short-stories", fetchShortStories),
+    useAsyncData(
+      "short-stories-collections-overview",
+      fetchCollectionsOverview,
+    ),
+  ]);
 
 const notInCollectionOnly = ref(false);
 
