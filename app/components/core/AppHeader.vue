@@ -2,9 +2,9 @@
 import type { DropdownMenuItem, NavigationMenuItem } from '@nuxt/ui'
 
 const links: NavigationMenuItem[] = [
-  { label: 'Works', to: '/works' },
-  { label: 'Short Works', to: '/short-works' },
-  { label: 'Adaptations', to: '/adaptations' }
+  { label: 'Works', to: '/works', icon: 'i-lucide-book' },
+  { label: 'Short Works', to: '/short-works', icon: 'i-lucide-book-open' },
+  { label: 'Adaptations', to: '/adaptations', icon: 'i-lucide-clapperboard' }
 ]
 
 const user = useSupabaseUser()
@@ -47,7 +47,7 @@ const accountMenuItems: DropdownMenuItem[][] = [
 </script>
 
 <template>
-  <UHeader>
+  <UHeader mode="slideover">
     <template #left>
       <NuxtLink
         to="/"
