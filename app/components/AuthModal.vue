@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { AuthFormField, ButtonProps, FormError, FormSubmitEvent } from '@nuxt/ui'
 
-type AuthMode = 'signin' | 'signup'
+type AuthMode = 'signin' | 'signup' | 'forgot-password'
 type OAuthProvider = 'google' | 'discord'
-type AuthFormState = { email: string, password: string }
+type AuthFormState = { email: string, password?: string }
 
 const { isOpen, close } = useAuthModal()
 const supabase = useSupabaseClient()
@@ -11,12 +11,17 @@ const { fetchProfile } = useProfile()
 
 const mode = ref<AuthMode>('signin')
 const errorMessage = ref('')
+const infoMessage = ref('')
 const loading = ref(false)
 
-const fields: AuthFormField[] = [
-  { name: 'email', type: 'email', label: 'Email', placeholder: 'you@example.com', required: true },
-  { name: 'password', type: 'password', label: 'Password', placeholder: 'Password', required: true }
-]
+const EMAIL_FIELD: AuthFormField = { name: 'email', type: 'email', label: 'Email', placeholder: 'you@example.com', required: true }
+const PASSWORD_FIELD: AuthFormField = { name: 'password', type: 'password', label: 'Password', placeholder: 'Password', required: true }
+
+// Forgot-password only collects an email - no account is signed into yet, so there's
+// no password to check.
+const fields = computed<AuthFormField[]>(() =>
+  mode.value === 'forgot-password' ? [EMAIL_FIELD] : [EMAIL_FIELD, PASSWORD_FIELD]
+)
 
 function validate(state: Partial<AuthFormState>): FormError[] {
   const errors: FormError[] = []
@@ -25,7 +30,7 @@ function validate(state: Partial<AuthFormState>): FormError[] {
     errors.push({ name: 'email', message: 'Email is required' })
   }
 
-  if (!state.password || state.password.length < 6) {
+  if (mode.value !== 'forgot-password' && (!state.password || state.password.length < 6)) {
     errors.push({ name: 'password', message: 'Password must be at least 6 characters' })
   }
 
@@ -50,19 +55,58 @@ const providers: ButtonProps[] = [
   { label: 'Continue with Discord', icon: 'i-simple-icons-discord', onClick: () => signInWithOAuth('discord') }
 ]
 
+async function handleForgotPassword(email: string) {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/reset-password`
+  })
+
+  loading.value = false
+
+  if (error) {
+    errorMessage.value = error.message
+    return
+  }
+
+  // Don't reveal whether the address has an account - resetPasswordForEmail()
+  // doesn't error for an unknown email either, so the message stays the same
+  // regardless.
+  infoMessage.value = 'Check your email for a link to reset your password.'
+}
+
 async function handleSubmit(event: FormSubmitEvent<AuthFormState>) {
   errorMessage.value = ''
+  infoMessage.value = ''
   loading.value = true
 
   const { email, password } = event.data
-  const { error } = mode.value === 'signup'
-    ? await supabase.auth.signUp({ email, password })
-    : await supabase.auth.signInWithPassword({ email, password })
+
+  if (mode.value === 'forgot-password') {
+    await handleForgotPassword(email)
+    return
+  }
+
+  const { data, error } = mode.value === 'signup'
+    ? await supabase.auth.signUp({
+        email,
+        password: password!,
+        options: { emailRedirectTo: `${window.location.origin}/confirm?next=/onboarding` }
+      })
+    : await supabase.auth.signInWithPassword({ email, password: password! })
 
   loading.value = false
 
   if (error) {
     errorMessage.value = mode.value === 'signin' ? 'Incorrect email or password.' : error.message
+    return
+  }
+
+  // When email confirmation is required, signUp() creates the account but doesn't
+  // return a session - navigating to onboarding here would leave the user signed
+  // out and unable to save a username. Wait for them to confirm via email instead;
+  // the emailRedirectTo above lands them on /confirm, which already knows how to
+  // wait for the session and forward them to onboarding once it exists.
+  if (mode.value === 'signup' && !data.session) {
+    infoMessage.value = 'Check your email to confirm your account, then continue there.'
     return
   }
 
@@ -79,12 +123,26 @@ async function handleSubmit(event: FormSubmitEvent<AuthFormState>) {
 function toggleMode() {
   mode.value = mode.value === 'signin' ? 'signup' : 'signin'
   errorMessage.value = ''
+  infoMessage.value = ''
+}
+
+function showForgotPassword() {
+  mode.value = 'forgot-password'
+  errorMessage.value = ''
+  infoMessage.value = ''
+}
+
+function backToSignIn() {
+  mode.value = 'signin'
+  errorMessage.value = ''
+  infoMessage.value = ''
 }
 
 watch(isOpen, (open) => {
   if (!open) {
     mode.value = 'signin'
     errorMessage.value = ''
+    infoMessage.value = ''
     loading.value = false
   }
 })
@@ -93,17 +151,31 @@ watch(isOpen, (open) => {
 <template>
   <UModal
     v-model:open="isOpen"
-    :title="mode === 'signup' ? 'Create an account' : 'Sign in'"
+    :title="mode === 'signup' ? 'Create an account' : mode === 'forgot-password' ? 'Reset your password' : 'Sign in'"
   >
     <template #body>
       <UAuthForm
         :fields="fields"
-        :providers="providers"
+        :providers="mode === 'forgot-password' ? [] : providers"
         :validate="validate"
-        :submit="{ label: mode === 'signup' ? 'Sign up' : 'Sign in' }"
+        :submit="{ label: mode === 'signup' ? 'Sign up' : mode === 'forgot-password' ? 'Send reset link' : 'Sign in' }"
         :loading="loading"
         @submit="handleSubmit"
       >
+        <template
+          v-if="mode === 'signin'"
+          #password-hint
+        >
+          <UButton
+            variant="link"
+            size="sm"
+            class="p-0"
+            @click="showForgotPassword"
+          >
+            Forgot password?
+          </UButton>
+        </template>
+
         <template #validation>
           <UAlert
             v-if="errorMessage"
@@ -111,47 +183,67 @@ watch(isOpen, (open) => {
             variant="subtle"
             :title="errorMessage"
           />
+          <UAlert
+            v-if="infoMessage"
+            color="info"
+            variant="subtle"
+            :title="infoMessage"
+          />
         </template>
 
         <template #footer>
-          <p
-            v-if="mode === 'signup'"
-            class="text-center text-xs text-muted mb-3"
-          >
-            By creating an account you accept our
-            <NuxtLink
-              to="/privacy-policy"
-              target="_blank"
-              class="text-primary"
+          <template v-if="mode === 'forgot-password'">
+            <p class="text-center text-sm text-muted">
+              <UButton
+                variant="link"
+                size="sm"
+                class="p-0"
+                @click="backToSignIn"
+              >
+                Back to sign in
+              </UButton>
+            </p>
+          </template>
+          <template v-else>
+            <p
+              v-if="mode === 'signup'"
+              class="text-center text-xs text-muted mb-3"
             >
-              Privacy Policy
-            </NuxtLink>.
-          </p>
+              By creating an account you accept our
+              <NuxtLink
+                to="/privacy-policy"
+                target="_blank"
+                class="text-primary"
+              >
+                Privacy Policy
+              </NuxtLink>.
+            </p>
 
-          <p class="text-center text-sm text-muted">
-            <template v-if="mode === 'signup'">
-              Already have an account?
-              <UButton
-                variant="link"
-                size="sm"
-                class="p-0"
-                @click="toggleMode"
-              >
-                Sign in
-              </UButton>
-            </template>
-            <template v-else>
-              Don't have an account?
-              <UButton
-                variant="link"
-                size="sm"
-                class="p-0"
-                @click="toggleMode"
-              >
-                Sign up
-              </UButton>
-            </template>
-          </p>
+            <p class="text-center text-sm text-muted">
+              <template v-if="mode === 'signup'">
+                Already have an account?
+                <UButton
+                  variant="link"
+                  size="sm"
+                  class="p-0"
+                  @click="toggleMode"
+                >
+                  Sign in
+                </UButton>
+              </template>
+              <template v-else>
+                Don't have an account?
+                <UButton
+                  variant="link"
+                  size="sm"
+                  class="p-0"
+                  @click="toggleMode"
+                >
+                  Sign up
+                </UButton>
+              </template>
+            </p>
+          </template>
         </template>
       </UAuthForm>
     </template>

@@ -34,6 +34,9 @@ export default defineNuxtConfig({
     // OAuth code exchange relies on the PKCE code verifier in browser storage,
     // so this route can only run client-side.
     "/confirm": { ssr: false },
+    // The password recovery link's tokens arrive in the URL fragment, which never
+    // reaches the server - the Supabase client can only read it client-side.
+    "/reset-password": { ssr: false },
   },
 
   compatibilityDate: "2026-06-30",
@@ -111,7 +114,7 @@ export default defineNuxtConfig({
   sitemap: {
     // Static pages that need auth (or, for /confirm, only ever exist mid-OAuth-redirect)
     // have no SEO value and are never a link worth sharing - see specs/seo-metadata/spec.md.
-    exclude: ["/confirm", "/onboarding", "/settings"],
+    exclude: ["/confirm", "/onboarding", "/settings", "/reset-password"],
     // Work/adaptation/short-work detail pages are dynamic routes the crawler can't
     // enumerate on its own - this endpoint supplies their slugs. Public per-user profile
     // pages (/profile/[username]) are deliberately NOT sourced here, so only the static
