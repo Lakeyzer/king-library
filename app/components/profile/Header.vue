@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { DropdownMenuItem } from "@nuxt/ui";
+
 interface Props {
   profileId: string;
   username: string;
@@ -69,6 +71,28 @@ async function toggleFollow() {
     followLoading.value = false;
   }
 }
+
+// Compare + Follow don't both fit next to the avatar/name on small screens,
+// so below sm they collapse into this dropdown instead of wrapping.
+const actionItems = computed<DropdownMenuItem[]>(() => {
+  const items: DropdownMenuItem[] = [];
+
+  if (props.isPublic && currentUser.value) {
+    items.push({
+      label: "Compare",
+      icon: "i-lucide-arrow-left-right",
+      to: `/profile/${props.username.toLowerCase()}/compare`,
+    });
+  }
+
+  items.push({
+    label: following.value ? "Following" : "Follow",
+    icon: following.value ? "i-lucide-user-check" : "i-lucide-user-plus",
+    onSelect: toggleFollow,
+  });
+
+  return items;
+});
 </script>
 
 <template>
@@ -98,23 +122,33 @@ async function toggleFollow() {
       variant="subtle"
       class="ml-auto"
     />
-    <div v-else class="ml-auto flex items-center gap-2">
-      <UButton
-        v-if="isPublic && currentUser"
-        label="Compare"
-        icon="i-lucide-arrow-left-right"
-        color="neutral"
-        variant="subtle"
-        :to="`/profile/${username.toLowerCase()}/compare`"
-      />
-      <UButton
-        :label="following ? 'Following' : 'Follow'"
-        :icon="following ? 'i-lucide-user-check' : 'i-lucide-user-plus'"
-        color="neutral"
-        variant="subtle"
-        :loading="followLoading"
-        @click="toggleFollow"
-      />
-    </div>
+    <template v-else>
+      <div class="ml-auto items-center gap-2 hidden sm:flex">
+        <UButton
+          v-if="isPublic && currentUser"
+          label="Compare"
+          icon="i-lucide-arrow-left-right"
+          color="neutral"
+          variant="subtle"
+          :to="`/profile/${username.toLowerCase()}/compare`"
+        />
+        <UButton
+          :label="following ? 'Following' : 'Follow'"
+          :icon="following ? 'i-lucide-user-check' : 'i-lucide-user-plus'"
+          color="neutral"
+          variant="subtle"
+          :loading="followLoading"
+          @click="toggleFollow"
+        />
+      </div>
+      <UDropdownMenu :items="actionItems" :content="{ align: 'end' }" class="ml-auto sm:hidden">
+        <UButton
+          icon="i-lucide-ellipsis-vertical"
+          color="neutral"
+          variant="subtle"
+          aria-label="Profile actions"
+        />
+      </UDropdownMenu>
+    </template>
   </div>
 </template>
