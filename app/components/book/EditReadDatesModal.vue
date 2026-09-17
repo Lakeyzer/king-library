@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import type { DateValue } from "reka-ui";
+import { parseDate } from "@internationalized/date";
 import type { ReadFormat, UserBookRead } from "~/composables/useBooks";
 
 interface Props {
   readId: string;
   workId: string;
   workTitle: string;
+  initialStartedOn?: string | null;
   initialReadOn?: string | null;
   initialReadYear?: number | null;
   initialNote?: string | null;
@@ -13,6 +16,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  initialStartedOn: null,
   initialReadOn: null,
   initialReadYear: null,
   initialNote: null,
@@ -30,7 +34,16 @@ const { updateLoggedRead } = useBooks();
 // very first mount already has open=true, and a watch(open, ...) without
 // `immediate: true` never fires for a value that was already true when the
 // watcher was created.
-const readOn = ref(props.initialReadOn ?? "");
+function initialDateRange(): { start: DateValue | undefined; end: DateValue | undefined } {
+  return {
+    start: props.initialStartedOn ? parseDate(props.initialStartedOn) : undefined,
+    end: props.initialReadOn ? parseDate(props.initialReadOn) : undefined,
+  };
+}
+
+const dateRange = ref<{ start: DateValue | undefined; end: DateValue | undefined }>(
+  initialDateRange(),
+);
 const readYear = ref<number | null>(props.initialReadYear ?? null);
 const note = ref(props.initialNote ?? "");
 const format = ref<ReadFormat | null>(props.initialFormat ?? null);
@@ -43,7 +56,7 @@ const loading = ref(false);
 // watch does catch.
 watch(open, (isOpen) => {
   if (isOpen) {
-    readOn.value = props.initialReadOn ?? "";
+    dateRange.value = initialDateRange();
     readYear.value = props.initialReadYear ?? null;
     note.value = props.initialNote ?? "";
     format.value = props.initialFormat ?? null;
@@ -55,7 +68,8 @@ async function confirm() {
   loading.value = true;
   try {
     const row = await updateLoggedRead(props.readId, props.workId, {
-      readOn: readOn.value || undefined,
+      startedOn: dateRange.value.start?.toString(),
+      readOn: dateRange.value.end?.toString(),
       readYear: readYear.value ?? undefined,
       note: note.value || undefined,
       format: format.value ?? undefined,
@@ -73,8 +87,19 @@ async function confirm() {
   <UModal v-model:open="open" title="Edit Logged Read" :description="workTitle">
     <template #body>
       <div class="flex flex-col gap-4">
-        <UFormField label="Read on" description="Optional">
-          <UInput v-model="readOn" type="date" />
+        <UFormField label="Reading dates" description="Optional">
+          <!--
+            Nuxt UI's bundled types declare two nominally distinct (but
+            structurally identical) DateValue classes, so a plain v-model
+            fails typecheck here even though the runtime values line up -
+            cast at this one boundary rather than losing typing on dateRange
+            itself, which we still rely on below.
+          -->
+          <UInputDate
+            :model-value="(dateRange as never)"
+            range
+            @update:model-value="(value) => (dateRange = value as typeof dateRange)"
+          />
         </UFormField>
         <UFormField
           label="Year read"

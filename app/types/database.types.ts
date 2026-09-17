@@ -472,6 +472,7 @@ export type Database = {
           rating: number | null
           read_on: string | null
           read_year: number | null
+          started_on: string | null
           user_id: string
         }
         Insert: {
@@ -483,6 +484,7 @@ export type Database = {
           rating?: number | null
           read_on?: string | null
           read_year?: number | null
+          started_on?: string | null
           user_id: string
         }
         Update: {
@@ -494,6 +496,7 @@ export type Database = {
           rating?: number | null
           read_on?: string | null
           read_year?: number | null
+          started_on?: string | null
           user_id?: string
         }
         Relationships: [

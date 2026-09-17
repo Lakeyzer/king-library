@@ -34,6 +34,7 @@ function handleSaved(row: UserBookRead) {
     entry.readId === row.id
       ? {
           ...entry,
+          startedOn: row.started_on,
           readOn: row.read_on,
           readYear: row.read_year,
           note: row.note,
@@ -61,6 +62,7 @@ const timelineItems = computed(() =>
     slug: entry.slug,
     title: entry.title,
     date: displayDate(entry),
+    startedOn: entry.startedOn,
     readOn: entry.readOn,
     readYear: entry.readYear,
     note: entry.note,
@@ -423,6 +425,7 @@ onBeforeUnmount(() => {
     :read-id="editingEntry.readId"
     :work-id="editingEntry.workId"
     :work-title="editingEntry.title"
+    :initial-started-on="editingEntry.startedOn"
     :initial-read-on="editingEntry.readOn"
     :initial-read-year="editingEntry.readYear"
     :initial-note="editingEntry.note"
