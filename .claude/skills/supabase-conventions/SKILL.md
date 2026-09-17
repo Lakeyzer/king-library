@@ -232,6 +232,7 @@ Unlike `user_books` (one row per `(user_id, king_work_id)`, the current/most-rec
 | `id`           | uuid, PK                      |                                                                                                         |
 | `user_id`      | uuid, FK → `auth.users.id`    |                                                                                                         |
 | `king_work_id` | uuid, FK → `king_works.id`    |                                                                                                         |
+| `started_on`   | date, nullable                | mirrors `user_books.started_on`'s optionality — the start of this specific logged read, independent of every other row for the same work                                                    |
 | `read_on`      | date, nullable                | mirrors `user_books.finished_on`'s optionality — `coalesce(finished_on, started_on)` when both exist    |
 | `read_year`    | int, nullable                 | same fallback role as `user_books.read_year`                                                            |
 | `note`         | text, nullable                | free-text, max 200 characters (`check` constraint)                                                     |
@@ -239,7 +240,7 @@ Unlike `user_books` (one row per `(user_id, king_work_id)`, the current/most-rec
 | `rating`       | int, nullable                 | 1–5 (`check` constraint) — a personal rating for that specific read, not a per-work average             |
 | `created_at`   | timestamptz, default `now()`  |                                                                                                         |
 
-**Every read-completing action does two writes**, same two-write pattern already used for adding an edition (see `user_book_editions` below): upsert `user_books` (`read = true`, refresh `started_on`/`finished_on`/`read_year`) **and** insert one `user_book_reads` row. Both are the composable's responsibility — no trigger, for the same reasons a trigger is avoided for ownership-clearing below.
+**Every read-completing action does two writes**, same two-write pattern already used for adding an edition (see `user_book_editions` below): upsert `user_books` (`read = true`, refresh `started_on`/`finished_on`/`read_year`) **and** insert one `user_book_reads` row, its own `started_on` set to whatever start date applies to that specific read (the value just written to `user_books.started_on`, whether newly supplied or, for `finishReading`, the one already set from when the read began). Both are the composable's responsibility — no trigger, for the same reasons a trigger is avoided for ownership-clearing below.
 
 **Unmarking a work as read never touches `user_book_reads`** — it only flips `user_books.read` back to `false` (existing behavior, dates untouched). Logged reads are permanent history: a work can show `read = false` on `user_books` while still having past logged reads on its timeline.
 
@@ -250,7 +251,7 @@ Same four-policy owner-or-public-profile RLS pattern as `user_books`/`user_book_
 A timeline is a plain query against `user_book_reads` (not `user_books` — that only ever has the current/most-recent read per work), one row per logged read, joined to `king_works` for title/slug/cover and filtered to active works:
 
 ```sql
-select ubr.id, ubr.king_work_id, ubr.read_on, ubr.read_year, ubr.note, ubr.format, ubr.rating,
+select ubr.id, ubr.king_work_id, ubr.started_on, ubr.read_on, ubr.read_year, ubr.note, ubr.format, ubr.rating,
        k.title, k.slug, k.cover_id
 from user_book_reads ubr
 join king_works k on k.id = ubr.king_work_id

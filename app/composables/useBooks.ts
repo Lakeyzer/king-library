@@ -34,6 +34,7 @@ export interface UserBookRead {
   id: string
   user_id: string
   king_work_id: string
+  started_on: string | null
   read_on: string | null
   read_year: number | null
   note: string | null
@@ -51,6 +52,7 @@ export interface ReadingTimelineEntry {
   title: string
   slug: string
   coverId: number | null
+  startedOn: string | null
   readOn: string | null
   readYear: number | null
   note: string | null
@@ -157,7 +159,7 @@ export interface UserBook {
 
 const USER_BOOK_COLUMNS = 'id, user_id, king_work_id, owned, wishlisted, want_to_read, currently_reading, started_on, read, finished_on, read_year, format'
 
-const USER_BOOK_READ_COLUMNS = 'id, user_id, king_work_id, read_on, read_year, note, format, rating, created_at'
+const USER_BOOK_READ_COLUMNS = 'id, user_id, king_work_id, started_on, read_on, read_year, note, format, rating, created_at'
 
 interface KingWorkRow {
   id: string
@@ -712,13 +714,14 @@ export function useBooks() {
   const fetchReadingTimeline = async (userId: string): Promise<ReadingTimelineEntry[]> => {
     const { data, error } = await supabase
       .from('user_book_reads')
-      .select('id, read_on, read_year, note, format, rating, king_works ( id, title, slug, cover_id, active )')
+      .select('id, started_on, read_on, read_year, note, format, rating, king_works ( id, title, slug, cover_id, active )')
       .eq('user_id', userId)
 
     if (error) throw error
 
     const rows = data as unknown as {
       id: string
+      started_on: string | null
       read_on: string | null
       read_year: number | null
       note: string | null
@@ -742,6 +745,7 @@ export function useBooks() {
         title: row.king_works.title,
         slug: row.king_works.slug,
         coverId: row.king_works.cover_id,
+        startedOn: row.started_on,
         readOn: row.read_on,
         readYear: row.read_year,
         note: row.note,
@@ -811,13 +815,15 @@ export function useBooks() {
   // log the read the same way. See supabase-conventions "user_book_reads".
   const insertLoggedRead = async (
     workId: string,
-    { readOn, readYear, note, format, rating }: { readOn?: string | null } & { readYear?: number } & ReadLogDetails
+    { startedOn, readOn, readYear, note, format, rating }:
+      { startedOn?: string | null, readOn?: string | null } & { readYear?: number } & ReadLogDetails
   ) => {
     if (!user.value) throw new Error('Not signed in')
 
     const { error } = await supabase.from('user_book_reads').insert({
       user_id: user.value.sub,
       king_work_id: workId,
+      started_on: startedOn ?? null,
       read_on: readOn ?? null,
       read_year: readYear ?? null,
       note: note ?? null,
@@ -848,9 +854,10 @@ export function useBooks() {
 
     if (error) throw error
 
-    await insertLoggedRead(workId, { readOn: finishedOn, ...details })
-
     const row = data as UserBook
+
+    await insertLoggedRead(workId, { startedOn: row.started_on, readOn: finishedOn, ...details })
+
     userBooksByWorkId.value = { ...userBooksByWorkId.value, [workId]: row }
 
     return row
@@ -895,7 +902,7 @@ export function useBooks() {
 
     if (error) throw error
 
-    await insertLoggedRead(workId, { readOn: finishedOn ?? startedOn, readYear, note, format, rating })
+    await insertLoggedRead(workId, { startedOn, readOn: finishedOn ?? startedOn, readYear, note, format, rating })
 
     const row = data as UserBook
     userBooksByWorkId.value = { ...userBooksByWorkId.value, [workId]: row }
@@ -923,14 +930,15 @@ export function useBooks() {
   const updateLoggedRead = async (
     readId: string,
     workId: string,
-    { readOn, readYear, note, format, rating }:
-      { readOn?: string | null, readYear?: number | null } & { note?: string | null, format?: ReadFormat | null, rating?: number | null }
+    { startedOn, readOn, readYear, note, format, rating }:
+      { startedOn?: string | null, readOn?: string | null, readYear?: number | null } & { note?: string | null, format?: ReadFormat | null, rating?: number | null }
   ) => {
     if (!user.value) throw new Error('Not signed in')
 
     const { data, error } = await supabase
       .from('user_book_reads')
       .update({
+        started_on: startedOn ?? null,
         read_on: readOn ?? null,
         read_year: readYear ?? null,
         note: note ?? null,
@@ -962,7 +970,7 @@ export function useBooks() {
     if (mostRecent?.id === readId) {
       const { error: bookError } = await supabase
         .from('user_books')
-        .update({ finished_on: readOn ?? null, read_year: readYear ?? null })
+        .update({ started_on: startedOn ?? null, finished_on: readOn ?? null, read_year: readYear ?? null })
         .eq('user_id', user.value.sub)
         .eq('king_work_id', workId)
 
