@@ -1,6 +1,15 @@
 <script setup lang="ts">
 const { profile, isOwner } = useViewedProfile();
 
+// "/profile" for the signed-in user's own routes, "/profile/[username]" for
+// a viewed profile's - same basePath convention as ProfileRouteChrome,
+// computed here since ProfileShowcase itself doesn't know the route prefix
+// (see reading-timeline capability and profile-showcase's "Reading Journey
+// heading links to the dedicated Reading Timeline page").
+const timelinePath = computed(() =>
+  isOwner.value ? "/profile/timeline" : `/profile/${profile.username}/timeline`,
+);
+
 const {
   fetchProfileBookStats,
   fetchCurrentlyReading,
@@ -60,6 +69,7 @@ const { data: giftIdeaRecommendation } = await useAsyncData(
   <ProfileShowcase
     v-if="stats && viewing && currentlyReading && readingTimeline"
     :is-owner="isOwner"
+    :timeline-path="timelinePath"
     :stats="stats"
     :viewing="viewing"
     :currently-reading="currentlyReading"

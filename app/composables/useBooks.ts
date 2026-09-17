@@ -16,17 +16,46 @@ export interface CurrentlyReadingWork {
   slug: string
   coverId: number | null
   startedOn: string | null
+  format: ReadFormat | null
 }
 
-export interface ReadingTimelineEntry {
+export type ReadFormat = 'physical' | 'audiobook' | 'ebook'
+
+// Optional details a user can attach to any read-completing action
+// (finishing, marking read directly, or reading again) - see
+// supabase-conventions "user_book_reads".
+export interface ReadLogDetails {
+  note?: string
+  format?: ReadFormat
+  rating?: number
+}
+
+export interface UserBookRead {
   id: string
+  user_id: string
+  king_work_id: string
+  read_on: string | null
+  read_year: number | null
+  note: string | null
+  format: ReadFormat | null
+  rating: number | null
+  created_at: string
+}
+
+// One entry per logged read (user_book_reads row), not per work - a work
+// read more than once appears as multiple entries. `readId` keys each
+// entry for editing; `workId` links to the work's detail page.
+export interface ReadingTimelineEntry {
+  readId: string
+  workId: string
   title: string
   slug: string
   coverId: number | null
   readOn: string | null
   readYear: number | null
-  startedOn: string | null
-  finishedOn: string | null
+  note: string | null
+  format: ReadFormat | null
+  rating: number | null
 }
 
 export interface WorkHighlight {
@@ -123,9 +152,12 @@ export interface UserBook {
   read: boolean
   finished_on: string | null
   read_year: number | null
+  format: ReadFormat | null
 }
 
-const USER_BOOK_COLUMNS = 'id, user_id, king_work_id, owned, wishlisted, want_to_read, currently_reading, started_on, read, finished_on, read_year'
+const USER_BOOK_COLUMNS = 'id, user_id, king_work_id, owned, wishlisted, want_to_read, currently_reading, started_on, read, finished_on, read_year, format'
+
+const USER_BOOK_READ_COLUMNS = 'id, user_id, king_work_id, read_on, read_year, note, format, rating, created_at'
 
 interface KingWorkRow {
   id: string
@@ -641,7 +673,7 @@ export function useBooks() {
   const fetchCurrentlyReading = async (userId: string): Promise<CurrentlyReadingWork[]> => {
     const { data, error } = await supabase
       .from('user_books')
-      .select('started_on, king_works ( id, title, slug, cover_id, active )')
+      .select('started_on, format, king_works ( id, title, slug, cover_id, active )')
       .eq('user_id', userId)
       .eq('currently_reading', true)
       .order('started_on', { ascending: false, nullsFirst: false })
@@ -650,6 +682,7 @@ export function useBooks() {
 
     const rows = data as unknown as {
       started_on: string | null
+      format: ReadFormat | null
       king_works: { id: string, title: string, slug: string, cover_id: number | null, active: boolean } | null
     }[]
 
@@ -663,34 +696,39 @@ export function useBooks() {
         title: row.king_works.title,
         slug: row.king_works.slug,
         coverId: row.king_works.cover_id,
-        startedOn: row.started_on
+        startedOn: row.started_on,
+        format: row.format
       }))
   }
 
-  // Sorted client-side by coalesce(finished_on, started_on, read_year) since
-  // that "most recent date from whichever field is set" logic isn't expressible
-  // as a single PostgREST .order() - see supabase-conventions "Building a
-  // reading timeline". Accepts a userId like the other profile-stat fetchers.
-  // Returns every read work, not a capped page - the horizontal scroller
-  // this feeds already handles an arbitrary number of entries.
+  // One entry per logged read (user_book_reads row), not per work - see
+  // add-reread-tracking's design.md. Sorted client-side by
+  // coalesce(read_on, read_year) since that "most recent date from whichever
+  // field is set" logic isn't expressible as a single PostgREST .order() -
+  // see supabase-conventions "Building a reading timeline". Accepts a userId
+  // like the other profile-stat fetchers. Returns every logged read, not a
+  // capped page - the horizontal scroller this feeds already handles an
+  // arbitrary number of entries.
   const fetchReadingTimeline = async (userId: string): Promise<ReadingTimelineEntry[]> => {
     const { data, error } = await supabase
-      .from('user_books')
-      .select('finished_on, started_on, read_year, king_works ( id, title, slug, cover_id, active )')
+      .from('user_book_reads')
+      .select('id, read_on, read_year, note, format, rating, king_works ( id, title, slug, cover_id, active )')
       .eq('user_id', userId)
-      .eq('read', true)
 
     if (error) throw error
 
     const rows = data as unknown as {
-      finished_on: string | null
-      started_on: string | null
+      id: string
+      read_on: string | null
       read_year: number | null
+      note: string | null
+      format: ReadFormat | null
+      rating: number | null
       king_works: { id: string, title: string, slug: string, cover_id: number | null, active: boolean } | null
     }[]
 
     const sortKey = (row: (typeof rows)[number]) =>
-      row.finished_on ?? row.started_on ?? (row.read_year ? `${row.read_year}-01-01` : null)
+      row.read_on ?? (row.read_year ? `${row.read_year}-01-01` : null)
 
     return rows
       .filter(
@@ -699,14 +737,16 @@ export function useBooks() {
       )
       .sort((a, b) => (sortKey(b) ?? '').localeCompare(sortKey(a) ?? ''))
       .map((row) => ({
-        id: row.king_works.id,
+        readId: row.id,
+        workId: row.king_works.id,
         title: row.king_works.title,
         slug: row.king_works.slug,
         coverId: row.king_works.cover_id,
-        readOn: row.finished_on ?? row.started_on,
+        readOn: row.read_on,
         readYear: row.read_year,
-        startedOn: row.started_on,
-        finishedOn: row.finished_on
+        note: row.note,
+        format: row.format,
+        rating: row.rating
       }))
   }
 
@@ -739,13 +779,17 @@ export function useBooks() {
     return row
   }
 
-  const startReading = async (workId: string, startedOn: string) => {
+  // `format` is explicitly nulled out when not supplied, same reasoning as
+  // markRead's dates: omitting the key would leave a stale format from an
+  // earlier reading session in place on conflict, resurfacing a value the
+  // user didn't choose for *this* session.
+  const startReading = async (workId: string, startedOn: string, format?: ReadFormat) => {
     if (!user.value) throw new Error('Not signed in')
 
     const { data, error } = await supabase
       .from('user_books')
       .upsert(
-        { user_id: user.value.sub, king_work_id: workId, currently_reading: true, started_on: startedOn },
+        { user_id: user.value.sub, king_work_id: workId, currently_reading: true, started_on: startedOn, format: format ?? null },
         { onConflict: 'user_id,king_work_id' }
       )
       .select(USER_BOOK_COLUMNS)
@@ -759,18 +803,52 @@ export function useBooks() {
     return row
   }
 
-  const finishReading = async (workId: string, finishedOn: string) => {
+  // Shared by finishReading/markRead/readAgain - inserts one user_book_reads
+  // row for this specific read, kept separate from each function's own
+  // user_books write since those writes have different overwrite semantics
+  // per flow (finishReading preserves started_on; markRead/readAgain
+  // explicitly reset the whole current-read-cycle summary) but must always
+  // log the read the same way. See supabase-conventions "user_book_reads".
+  const insertLoggedRead = async (
+    workId: string,
+    { readOn, readYear, note, format, rating }: { readOn?: string | null } & { readYear?: number } & ReadLogDetails
+  ) => {
     if (!user.value) throw new Error('Not signed in')
 
+    const { error } = await supabase.from('user_book_reads').insert({
+      user_id: user.value.sub,
+      king_work_id: workId,
+      read_on: readOn ?? null,
+      read_year: readYear ?? null,
+      note: note ?? null,
+      format: format ?? null,
+      rating: rating ?? null
+    })
+
+    if (error) throw error
+  }
+
+  const finishReading = async (workId: string, finishedOn: string, details: ReadLogDetails = {}) => {
+    if (!user.value) throw new Error('Not signed in')
+
+    // currently_reading: false is explicit here, not left to
+    // clear_read_states_on_progress() - that trigger only clears it when
+    // `read` is transitioning to true in this write, which lets a work
+    // already read before this session started (see readAgain/"Starting to
+    // read a work that is already marked read") keep currently_reading true
+    // right up until it's explicitly finished. See supabase-conventions
+    // "user_book_reads" and add-reread-tracking's design.md.
     const { data, error } = await supabase
       .from('user_books')
-      .update({ read: true, finished_on: finishedOn })
+      .update({ read: true, finished_on: finishedOn, currently_reading: false })
       .eq('user_id', user.value.sub)
       .eq('king_work_id', workId)
       .select(USER_BOOK_COLUMNS)
       .single()
 
     if (error) throw error
+
+    await insertLoggedRead(workId, { readOn: finishedOn, ...details })
 
     const row = data as UserBook
     userBooksByWorkId.value = { ...userBooksByWorkId.value, [workId]: row }
@@ -780,7 +858,8 @@ export function useBooks() {
 
   const markRead = async (
     workId: string,
-    { startedOn, finishedOn, readYear }: { startedOn?: string, finishedOn?: string, readYear?: number } = {}
+    { startedOn, finishedOn, readYear, note, format, rating }:
+      { startedOn?: string, finishedOn?: string, readYear?: number } & ReadLogDetails = {}
   ) => {
     if (!user.value) throw new Error('Not signed in')
 
@@ -792,6 +871,11 @@ export function useBooks() {
     // row's prior started_on/finished_on/read_year (e.g. from an earlier
     // currently-reading session) in place - resurfacing a date the user
     // deliberately didn't provide for this read.
+    // currently_reading: false is explicit here for the same reason as
+    // finishReading() above - marking read directly (or reading again) must
+    // always end any in-progress reading session, including one started
+    // after the work was already read, which the trigger's transition-only
+    // condition no longer covers on its own.
     const { data, error } = await supabase
       .from('user_books')
       .upsert(
@@ -801,7 +885,8 @@ export function useBooks() {
           read: true,
           started_on: startedOn ?? null,
           finished_on: finishedOn ?? null,
-          read_year: readYear ?? null
+          read_year: readYear ?? null,
+          currently_reading: false
         },
         { onConflict: 'user_id,king_work_id' }
       )
@@ -810,18 +895,105 @@ export function useBooks() {
 
     if (error) throw error
 
+    await insertLoggedRead(workId, { readOn: finishedOn ?? startedOn, readYear, note, format, rating })
+
     const row = data as UserBook
     userBooksByWorkId.value = { ...userBooksByWorkId.value, [workId]: row }
 
     return row
   }
 
-  const unmarkRead = async (workId: string) => {
+  // Logs an additional read for a work that's already marked read, without
+  // needing to unmark it first (reading-status "User can mark a work as
+  // read again after it has already been read"). Same underlying write as
+  // markRead - it resets user_books' current-read-cycle summary to this
+  // latest read's dates and adds a new, distinct user_book_reads row - the
+  // two actions differ only in which UI entry point calls them and the
+  // precondition the UI gates on (read = true already), not in behavior.
+  const readAgain = async (
+    workId: string,
+    input: { startedOn?: string, finishedOn?: string, readYear?: number } & ReadLogDetails = {}
+  ) => markRead(workId, input)
+
+  // Edits one specific logged read (the reading timeline's date-edit
+  // affordance). When the edited row is still the work's most-recent logged
+  // read, also refreshes user_books' current-status summary to match - see
+  // design.md "Editing a logged read". Editing an older, non-most-recent
+  // entry updates only that user_book_reads row.
+  const updateLoggedRead = async (
+    readId: string,
+    workId: string,
+    { readOn, readYear, note, format, rating }:
+      { readOn?: string | null, readYear?: number | null } & { note?: string | null, format?: ReadFormat | null, rating?: number | null }
+  ) => {
     if (!user.value) throw new Error('Not signed in')
 
     const { data, error } = await supabase
+      .from('user_book_reads')
+      .update({
+        read_on: readOn ?? null,
+        read_year: readYear ?? null,
+        note: note ?? null,
+        format: format ?? null,
+        rating: rating ?? null
+      })
+      .eq('id', readId)
+      .eq('user_id', user.value.sub)
+      .select(USER_BOOK_READ_COLUMNS)
+      .single()
+
+    if (error) throw error
+
+    const { data: allReads, error: allReadsError } = await supabase
+      .from('user_book_reads')
+      .select('id, read_on, read_year')
+      .eq('user_id', user.value.sub)
+      .eq('king_work_id', workId)
+
+    if (allReadsError) throw allReadsError
+
+    const sortKey = (row: { read_on: string | null, read_year: number | null }) =>
+      row.read_on ?? (row.read_year ? `${row.read_year}-01-01` : null)
+
+    const mostRecent = [...(allReads as { id: string, read_on: string | null, read_year: number | null }[])].sort(
+      (a, b) => (sortKey(b) ?? '').localeCompare(sortKey(a) ?? '')
+    )[0]
+
+    if (mostRecent?.id === readId) {
+      const { error: bookError } = await supabase
+        .from('user_books')
+        .update({ finished_on: readOn ?? null, read_year: readYear ?? null })
+        .eq('user_id', user.value.sub)
+        .eq('king_work_id', workId)
+
+      if (bookError) throw bookError
+    }
+
+    return data as UserBookRead
+  }
+
+  // Unmarking is a full reset, not a status flip - per reading-status's
+  // "User can unmark a work as read, deleting its logged reads, after
+  // confirming", it deletes every user_book_reads row for this work and
+  // clears the work's current-cycle summary dates, rather than preserving
+  // read history the way it used to before reread tracking existed. The
+  // caller (BookUnmarkReadModal) is responsible for confirming with the
+  // user first - this function performs the deletion unconditionally once
+  // called.
+  const unmarkRead = async (workId: string) => {
+    if (!user.value) throw new Error('Not signed in')
+
+    const { error: deleteError } = await supabase
+      .from('user_book_reads')
+      .delete()
+      .eq('user_id', user.value.sub)
+      .eq('king_work_id', workId)
+
+    if (deleteError) throw deleteError
+
+    const { data, error } = await supabase
       .from('user_books')
-      .update({ read: false })
+      .update({ read: false, started_on: null, finished_on: null, read_year: null })
       .eq('user_id', user.value.sub)
       .eq('king_work_id', workId)
       .select(USER_BOOK_COLUMNS)
@@ -878,6 +1050,8 @@ export function useBooks() {
     startReading,
     finishReading,
     markRead,
+    readAgain,
+    updateLoggedRead,
     unmarkRead,
     setOwned
   }
