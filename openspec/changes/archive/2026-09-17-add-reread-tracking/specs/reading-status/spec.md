@@ -1,25 +1,40 @@
-# reading-status Specification
+## ADDED Requirements
 
-## Purpose
+### Requirement: User can mark a work as read again after it has already been read
+The system SHALL let a signed-in user who has a King work marked read create an additional logged read for that work, via the same optional prompt (start date, end date, year, note, format, rating) used for marking read directly, without needing to unmark the work first. Each confirmed read-again action SHALL create a new, distinct logged read record and SHALL NOT alter or remove any previously logged read for that work. The work SHALL remain marked read throughout.
 
-Lets a signed-in user record their reading intent and progress against a King work — wanting to read it, currently reading it, or having read it — independent of whether they own a copy.
+#### Scenario: Opening the read-again prompt
+- **WHEN** a signed-in user activates the read-again control on a work marked read
+- **THEN** the system prompts for the same optional fields (dates, note, format, rating) as marking read directly
 
-## Requirements
+#### Scenario: Confirming a read-again logs a new read
+- **WHEN** a signed-in user confirms the read-again prompt
+- **THEN** a new logged read record is created for that work in addition to any existing logged reads, and the work remains marked read
 
-### Requirement: User can toggle want-to-read on a work
-The system SHALL let a signed-in user mark a King work as want-to-read, or unmark it, with a single action and no confirmation step. If the user has no existing reading-status record for that work, the system SHALL create one.
+#### Scenario: Read-again does not modify prior logged reads
+- **WHEN** a signed-in user logs a read-again for a work that already has one or more logged reads
+- **THEN** those existing logged read records are unchanged
 
-#### Scenario: Marking a work as want-to-read
-- **WHEN** a signed-in user activates the want-to-read control on a work that is not currently marked want-to-read
-- **THEN** the work's want-to-read state becomes true
+### Requirement: Each logged read can capture a note, format, and personal rating
+The system SHALL let a signed-in user optionally attach the following to any read-completing action (finishing a currently-reading work, marking read directly, or reading again): a note of at most 200 characters, a format (one of physical, audiobook, or ebook), and a personal rating from 1 to 5 stars. Each field SHALL be independently skippable. These details SHALL be stored against that specific logged read, not against the work as a whole.
 
-#### Scenario: Unmarking want-to-read
-- **WHEN** a signed-in user activates the want-to-read control on a work that is currently marked want-to-read
-- **THEN** the work's want-to-read state becomes false
+#### Scenario: Logging a read with all optional details supplied
+- **WHEN** a signed-in user completes a read-completing action with a note, a format, and a rating all supplied
+- **THEN** the resulting logged read stores the supplied note, format, and rating
 
-#### Scenario: No reading-status record exists yet
-- **WHEN** a signed-in user marks a work as want-to-read for the first time
-- **THEN** the system creates a reading-status record for that user and work with want-to-read true
+#### Scenario: Logging a read with no optional details supplied
+- **WHEN** a signed-in user completes a read-completing action with the note, format, and rating all left blank
+- **THEN** the resulting logged read is created with no note, no format, and no rating
+
+#### Scenario: A note over the length limit is rejected
+- **WHEN** a signed-in user enters a note longer than 200 characters on a read-completing action
+- **THEN** the system does not accept the note as entered and the user must shorten it before confirming
+
+#### Scenario: Two logged reads for the same work have independent details
+- **WHEN** a signed-in user has logged two separate reads of the same King work with different notes, formats, or ratings
+- **THEN** each logged read displays only its own note, format, and rating
+
+## MODIFIED Requirements
 
 ### Requirement: User can start reading a work with a start date
 The system SHALL let a signed-in user start reading a King work that is not already currently-reading by supplying a start date, defaulted to the current date in the user's local timezone and adjustable before confirming, and an optional format (physical, audiobook, or ebook). The start date SHALL be required — the user cannot confirm without one; the format SHALL be independently skippable. Starting to read is independent of whether the work is already marked read: a work that is already read MAY be started again, becoming currently-reading while remaining read, without affecting any of its existing logged reads.
@@ -89,40 +104,6 @@ The system SHALL let a signed-in user mark a King work as read without first mar
 #### Scenario: Marking read with logged details
 - **WHEN** a signed-in user confirms the mark-as-read prompt with a note, format, and rating all supplied
 - **THEN** the work becomes read and the created logged read stores the supplied note, format, and rating alongside any supplied dates
-
-### Requirement: User can mark a work as read again after it has already been read
-The system SHALL let a signed-in user who has a King work marked read create an additional logged read for that work, via the same optional prompt (start date, end date, year, note, format, rating) used for marking read directly, without needing to unmark the work first. Each confirmed read-again action SHALL create a new, distinct logged read record and SHALL NOT alter or remove any previously logged read for that work. The work SHALL remain marked read throughout.
-
-#### Scenario: Opening the read-again prompt
-- **WHEN** a signed-in user activates the read-again control on a work marked read
-- **THEN** the system prompts for the same optional fields (dates, note, format, rating) as marking read directly
-
-#### Scenario: Confirming a read-again logs a new read
-- **WHEN** a signed-in user confirms the read-again prompt
-- **THEN** a new logged read record is created for that work in addition to any existing logged reads, and the work remains marked read
-
-#### Scenario: Read-again does not modify prior logged reads
-- **WHEN** a signed-in user logs a read-again for a work that already has one or more logged reads
-- **THEN** those existing logged read records are unchanged
-
-### Requirement: Each logged read can capture a note, format, and personal rating
-The system SHALL let a signed-in user optionally attach the following to any read-completing action (finishing a currently-reading work, marking read directly, or reading again): a note of at most 200 characters, a format (one of physical, audiobook, or ebook), and a personal rating from 1 to 5 stars. Each field SHALL be independently skippable. These details SHALL be stored against that specific logged read, not against the work as a whole.
-
-#### Scenario: Logging a read with all optional details supplied
-- **WHEN** a signed-in user completes a read-completing action with a note, a format, and a rating all supplied
-- **THEN** the resulting logged read stores the supplied note, format, and rating
-
-#### Scenario: Logging a read with no optional details supplied
-- **WHEN** a signed-in user completes a read-completing action with the note, format, and rating all left blank
-- **THEN** the resulting logged read is created with no note, no format, and no rating
-
-#### Scenario: A note over the length limit is rejected
-- **WHEN** a signed-in user enters a note longer than 200 characters on a read-completing action
-- **THEN** the system does not accept the note as entered and the user must shorten it before confirming
-
-#### Scenario: Two logged reads for the same work have independent details
-- **WHEN** a signed-in user has logged two separate reads of the same King work with different notes, formats, or ratings
-- **THEN** each logged read displays only its own note, format, and rating
 
 ### Requirement: User can unmark a work as read, deleting its logged reads, after confirming
 The system SHALL let a signed-in user unmark a King work that is read only after they explicitly confirm the action. Upon confirmation, the system SHALL delete every logged read recorded for that work, clear its start date, finish date, and year, and set its read state to false. Canceling the confirmation SHALL leave the work's read state, logged reads, and dates unchanged.

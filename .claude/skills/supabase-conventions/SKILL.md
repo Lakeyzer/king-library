@@ -1,6 +1,6 @@
 ---
 name: supabase-conventions
-description: Database schema, RLS policies, and query conventions for the Stephen King Library app's Supabase backend. Use this whenever writing or modifying anything that touches the database — Supabase queries, composables, migrations, RLS policies, seed files, or the tables king_works, adaptations, adaptation_works, adaptation_short_stories, king_short_stories, king_short_story_collections, profiles, user_books, user_book_editions, user_adaptations, or user_short_story_reads. Also use when adding any feature that reads or writes user collections, wishlists, read status, watch status, short story reads, cover images, or statistics/leaderboards, since these all depend on this schema. Consult this skill before writing a single `supabase.from(...)` call anywhere in the app.
+description: Database schema, RLS policies, and query conventions for the Stephen King Library app's Supabase backend. Use this whenever writing or modifying anything that touches the database — Supabase queries, composables, migrations, RLS policies, seed files, or the tables king_works, adaptations, adaptation_works, adaptation_short_stories, king_short_stories, king_short_story_collections, profiles, user_books, user_book_editions, user_book_reads, user_adaptations, or user_short_story_reads. Also use when adding any feature that reads or writes user collections, wishlists, read status, watch status, short story reads, cover images, or statistics/leaderboards, since these all depend on this schema. Consult this skill before writing a single `supabase.from(...)` call anywhere in the app.
 ---
 
 # Supabase Conventions — Stephen King Library
@@ -217,24 +217,49 @@ Wishlisting/want-to-read are work-level only (no edition selection) — this app
 1. **Starting a read** (`currently_reading` flips to `true`): a modal prompts for a start date, prefilled with today (the user's local today, computed client-side — never server "now," which could be a different calendar day depending on timezone). The date is expected to always be provided here — the modal defaults it rather than allowing a true skip, since starting-to-read is the one moment a date is naturally at hand.
 2. **Finishing a currently-reading book** (a "Finished" action on a book that's `currently_reading`): a modal prompts for an end date, same prefill behavior, and sets `read = true`, `finished_on = <chosen date>`. `started_on` is left untouched — it already holds the date set in step 1.
 3. **Marking read directly**, bypassing `currently_reading` entirely: a modal offers a full date range (`started_on` + `finished_on`) **or** just `read_year`, and either or both can be skipped entirely. All three of `started_on`, `finished_on`, and `read_year` stay `nullable` at the DB level specifically to support this — a `read = true` row with all three `null` is valid and expected, not a data-quality problem to flag.
+4. **Reading again**, once a work is already marked read: reuses the same prompt shape as "marking read directly" (dates optional, plus note/format/rating — see `user_book_reads` below), without requiring the work to be unmarked first.
 
 No DB constraint ties `read_year` to `finished_on` (e.g. requiring them to agree, or deriving one from the other) — a user might reasonably supply a year without a precise date, or a precise date without bothering to fill in a redundant year. When both are present and a display needs a single "year read," compute it at query time as `coalesce(extract(year from finished_on), read_year)` rather than trying to keep the two in sync at write time.
 
-**Known limitation, deliberately accepted for now:** `started_on`/`finished_on`/`read_year` each hold only the most recent reading cycle's values — rereading a work overwrites them rather than preserving history. This means a reading-journey timeline built from `user_books` shows each work's _most recent_ read only, not every past reread. If reread history becomes a real feature later (a "read 3 times" stat, a full reread log, a timeline that shows every cycle), that's a new table (e.g. `read_events`, one row per read cycle) layered on top, not a change to these columns — don't retrofit history into single-value fields.
+**`user_books`' own date/read columns still hold only the current/most-recent reading cycle** — every read-completing action (finish, mark-read-directly, read-again) upserts `read = true` and refreshes `started_on`/`finished_on`/`read_year` to reflect that latest read, same as before. Full reread history — every distinct read, including ones with a note, format, or rating — lives in `user_book_reads` (below), not in these columns. Don't retrofit history into these single-value fields; add a `user_book_reads` row instead.
+
+### `user_book_reads` (read-tracking history: one row per logged read)
+
+Unlike `user_books` (one row per `(user_id, king_work_id)`, the current/most-recent read summary), this table preserves **every** distinct read as its own record — no unique constraint on `(user_id, king_work_id)`, since rereads are the point.
+
+| column         | type                          | notes                                                                                                  |
+| -------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `id`           | uuid, PK                      |                                                                                                         |
+| `user_id`      | uuid, FK → `auth.users.id`    |                                                                                                         |
+| `king_work_id` | uuid, FK → `king_works.id`    |                                                                                                         |
+| `read_on`      | date, nullable                | mirrors `user_books.finished_on`'s optionality — `coalesce(finished_on, started_on)` when both exist    |
+| `read_year`    | int, nullable                 | same fallback role as `user_books.read_year`                                                            |
+| `note`         | text, nullable                | free-text, max 200 characters (`check` constraint)                                                     |
+| `format`       | text, nullable                | one of `physical` / `audiobook` / `ebook` (`check` constraint) — not tied to `user_book_editions`       |
+| `rating`       | int, nullable                 | 1–5 (`check` constraint) — a personal rating for that specific read, not a per-work average             |
+| `created_at`   | timestamptz, default `now()`  |                                                                                                         |
+
+**Every read-completing action does two writes**, same two-write pattern already used for adding an edition (see `user_book_editions` below): upsert `user_books` (`read = true`, refresh `started_on`/`finished_on`/`read_year`) **and** insert one `user_book_reads` row. Both are the composable's responsibility — no trigger, for the same reasons a trigger is avoided for ownership-clearing below.
+
+**Unmarking a work as read never touches `user_book_reads`** — it only flips `user_books.read` back to `false` (existing behavior, dates untouched). Logged reads are permanent history: a work can show `read = false` on `user_books` while still having past logged reads on its timeline.
+
+Same four-policy owner-or-public-profile RLS pattern as `user_books`/`user_book_editions`/`user_adaptations`/`user_short_story_reads` (see "Row Level Security" below).
 
 ### Building a reading timeline
 
-No new view needed — a timeline is a plain query against `user_books`, ordered by whichever date is most relevant to display, filtered to rows that actually have one:
+A timeline is a plain query against `user_book_reads` (not `user_books` — that only ever has the current/most-recent read per work), one row per logged read, joined to `king_works` for title/slug/cover and filtered to active works:
 
 ```sql
-select king_work_id, started_on, finished_on, read_year
-from user_books
-where user_id = $1
-  and (started_on is not null or finished_on is not null or read_year is not null)
-order by coalesce(finished_on, started_on) desc nulls last, read_year desc nulls last;
+select ubr.id, ubr.king_work_id, ubr.read_on, ubr.read_year, ubr.note, ubr.format, ubr.rating,
+       k.title, k.slug, k.cover_id
+from user_book_reads ubr
+join king_works k on k.id = ubr.king_work_id
+where ubr.user_id = $1
+  and k.active
+order by coalesce(ubr.read_on, (ubr.read_year || '-01-01')::date) desc nulls last;
 ```
 
-Rows with only `read_year` (no exact dates) sort after everything with a real date in this ordering — reasonable for "recent activity first," but worth revisiting once you're actually building the timeline UI, since a `read_year`-only entry from this year probably belongs above an exact date from three years ago and a pure `coalesce`/`nulls last` sort won't get that right on its own.
+A work read more than once appears as multiple entries, one per logged read — this is deliberate (see `add-reread-tracking`'s design.md), not a duplicate to dedupe. Rows with only `read_year` (no exact date) sort using the same `read_year`-as-January-1st approximation as before — reasonable for "recent activity first," but still worth revisiting for a `read_year`-only entry from the current year vs. an exact date from years ago.
 
 ### `user_book_editions` (optional detail: specific copies of an owned work)
 
@@ -459,7 +484,7 @@ create policy "profiles updatable by owner"
   using (id = auth.uid());
 ```
 
-**`user_books` / `user_book_editions` / `user_adaptations` / `user_short_story_reads`** — the important one. A row is readable if you own it, _or_ if the owner's profile is public. Writes (insert/update/delete) are owner-only, full stop — `is_public` never affects write access. The pattern is identical across all four tables.
+**`user_books` / `user_book_editions` / `user_book_reads` / `user_adaptations` / `user_short_story_reads`** — the important one. A row is readable if you own it, _or_ if the owner's profile is public. Writes (insert/update/delete) are owner-only, full stop — `is_public` never affects write access. The pattern is identical across all five tables.
 
 ```sql
 create policy "user_books readable by owner or if profile public"
@@ -484,7 +509,7 @@ create policy "user_books updatable by owner only"
 create policy "user_books deletable by owner only"
   on user_books for delete
   using (user_id = auth.uid());
--- identical four-policy set for user_book_editions, user_adaptations, and user_short_story_reads
+-- identical four-policy set for user_book_editions, user_book_reads, user_adaptations, and user_short_story_reads
 ```
 
 ### Why this shape
@@ -708,11 +733,12 @@ The composable divides `read_count / total_count` client-side (or in a small SQL
 
 ## Conventions for composables
 
-- One composable per table/domain: `useBooks()` (owned/wishlist/read flags on `user_books`), `useBookshelf()` (edition detail on `user_book_editions`), `useAdaptations()` (want-to-watch/watched flags on `user_adaptations`, plus read-only lookups against `adaptations`/`adaptation_works`/`adaptation_short_stories`), `useShortStories()` (read-only lookups against `king_short_stories`/`king_short_story_collections`, plus read tracking on `user_short_story_reads`), `useProfile()`.
+- One composable per table/domain: `useBooks()` (owned/wishlist/read flags on `user_books`, plus logged-read history on `user_book_reads`), `useBookshelf()` (edition detail on `user_book_editions`), `useAdaptations()` (want-to-watch/watched flags on `user_adaptations`, plus read-only lookups against `adaptations`/`adaptation_works`/`adaptation_short_stories`), `useShortStories()` (read-only lookups against `king_short_stories`/`king_short_story_collections`, plus read tracking on `user_short_story_reads`), `useProfile()`.
 - Building an adaptation's full "based on" list is `useAdaptations()`'s job: query `adaptation_works` and `adaptation_short_stories` for the same `adaptation_id` and merge the two result sets — never assume a given adaptation has rows in only one of the two tables. Check `is_universe_only` on the `adaptations` row itself before treating an empty result from both as a data gap rather than the expected state. For each short-story source, also resolve its parent collection(s) via `king_short_story_collections` → `king_works` and surface them in the "based on" display (e.g. "Children of the Corn — from Night Shift") so the user sees both the story and the collection.
 - Building a collection's full "adapted in" list is also `useAdaptations()`'s job: query `adaptation_works` where `king_work_id` matches the collection **and** union in `adaptation_short_stories` joined through `king_short_story_collections` — see "Collection-level adaptation lookup" above. Never show only the direct `adaptation_works` results; that omits every single-story adaptation (e.g. Children of the Corn, Sometimes They Come Back) that makes the collection page worth having.
 - Marking a collection as read (`useBooks()`) never needs to also touch `user_short_story_reads` directly — the DB trigger handles the cascade. Don't duplicate it in the composable.
-- `useBooks()` needs three distinct write functions for the reading-date flows — `startReading(workId, startedOn)`, `finishReading(workId, finishedOn)`, and `markRead(workId, { startedOn?, finishedOn?, readYear? })` — rather than one generic "update status" function, since each corresponds to a different modal with different fields and different skip behavior (see "Reading dates" under `user_books` above). Compute the prefilled default date client-side from the browser's local date, never from a server timestamp.
+- `useBooks()` needs distinct write functions for the reading-date flows — `startReading(workId, startedOn)`, `finishReading(workId, finishedOn, details?)`, `markRead(workId, { startedOn?, finishedOn?, readYear?, ...details })`, and `readAgain(workId, { startedOn?, finishedOn?, readYear?, ...details })` — rather than one generic "update status" function, since each corresponds to a different modal with different fields and different skip behavior (see "Reading dates" under `user_books` above). `details` is the shared `{ note?, format?, rating? }` shape logged to `user_book_reads`; `finishReading`, `markRead`, and `readAgain` all funnel through the same internal logging step so `user_books` and `user_book_reads` are never written independently of each other. Compute the prefilled default date client-side from the browser's local date, never from a server timestamp.
+- `fetchReadingTimeline()` queries `user_book_reads`, not `user_books` — see "Building a reading timeline" above. One returned entry per logged read, not per work.
 - Category completion (`useReadingProgress()` or similar) queries `bibliography_items`/`user_read_items` and accepts a `userId` param rather than assuming `auth.uid()`, so it works identically for "my progress" and "their public-profile progress."
 - Adding an edition is a two-write operation owned by `useBookshelf()`: insert the `user_book_editions` row, and upsert `owned = true` on the corresponding `user_books` row. Never let a component call one without the other — that's exactly the kind of duplicated logic composables exist to prevent.
 - Composables should accept a `userId` param when reading _someone else's_ public data (e.g. viewing another user's profile page/bookshelf) rather than assuming `auth.uid()` — the RLS policy handles whether that read is actually allowed; the composable shouldn't duplicate that logic.

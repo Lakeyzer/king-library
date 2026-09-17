@@ -107,7 +107,10 @@ export function useFollowing() {
         title: row.king_works.title,
         slug: row.king_works.slug,
         coverId: row.king_works.cover_id,
-        startedOn: row.started_on
+        startedOn: row.started_on,
+        // Not displayed in the Following feed (see app/pages/following.vue) -
+        // fetching the column would be pointless without a rendering need.
+        format: null
       }
 
       const existing = worksByUserId.get(row.user_id)

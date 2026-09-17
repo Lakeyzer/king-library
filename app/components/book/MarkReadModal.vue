@@ -1,15 +1,21 @@
 <script setup lang="ts">
 import type { DateValue } from "reka-ui";
+import type { ReadFormat } from "~/composables/useBooks";
 
 interface Props {
   workId: string;
   workTitle: string;
+  /** "again" reuses this same prompt for reading-status's "read again" action on a work already marked read - see design.md "Read-again reuses the mark-read-directly prompt". */
+  mode?: "mark" | "again";
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  mode: "mark",
+});
 const open = defineModel<boolean>("open", { default: false });
+const emit = defineEmits<{ logged: [] }>();
 
-const { markRead } = useBooks();
+const { markRead, readAgain } = useBooks();
 const { fetchUserShortStoryReads } = useShortStories();
 
 const dateRange = ref<{ start: DateValue | undefined; end: DateValue | undefined }>({
@@ -17,29 +23,50 @@ const dateRange = ref<{ start: DateValue | undefined; end: DateValue | undefined
   end: undefined,
 });
 const readYear = ref<number | null>(null);
+const note = ref("");
+const format = ref<ReadFormat | null>(null);
+const rating = ref<number | null>(null);
 const loading = ref(false);
 
 watch(open, (isOpen) => {
   if (isOpen) {
     dateRange.value = { start: undefined, end: undefined };
     readYear.value = null;
+    note.value = "";
+    format.value = null;
+    rating.value = null;
   }
 });
+
+const title = computed(() => (props.mode === "again" ? "Read Again" : "Mark as Read"));
+const confirmLabel = computed(() => (props.mode === "again" ? "Log Read" : "Mark as Read"));
 
 async function confirm() {
   loading.value = true;
   try {
-    await markRead(props.workId, {
+    const details = {
       startedOn: dateRange.value.start?.toString(),
       finishedOn: dateRange.value.end?.toString(),
       readYear: readYear.value ?? undefined,
-    });
-    // Marking a collection read cascades to user_short_story_reads via a DB
-    // trigger (see supabase-conventions "cascade_short_story_reads_on_collection_read") -
-    // refetch so any short story reading-status controls on screen pick up
-    // the newly-created rows instead of still showing unread.
-    await fetchUserShortStoryReads();
+      note: note.value || undefined,
+      format: format.value ?? undefined,
+      rating: rating.value ?? undefined,
+    };
+
+    if (props.mode === "again") {
+      await readAgain(props.workId, details);
+    } else {
+      await markRead(props.workId, details);
+      // Marking a collection read cascades to user_short_story_reads via a DB
+      // trigger (see supabase-conventions "cascade_short_story_reads_on_collection_read") -
+      // refetch so any short story reading-status controls on screen pick up
+      // the newly-created rows instead of still showing unread. Only relevant
+      // the first time a work becomes read, not on a "read again" of a work
+      // that's already read (the cascade already ran).
+      await fetchUserShortStoryReads();
+    }
     open.value = false;
+    emit("logged");
   } finally {
     loading.value = false;
   }
@@ -47,7 +74,7 @@ async function confirm() {
 </script>
 
 <template>
-  <UModal v-model:open="open" title="Mark as Read" :description="workTitle">
+  <UModal v-model:open="open" :title="title" :description="workTitle">
     <template #body>
       <div class="flex flex-col gap-4">
         <UFormField label="Reading dates" description="Optional">
@@ -75,12 +102,14 @@ async function confirm() {
             :format-options="{ useGrouping: false }"
           />
         </UFormField>
+
+        <BookReadDetailsFields v-model:note="note" v-model:format="format" v-model:rating="rating" />
       </div>
     </template>
 
     <template #footer="{ close }">
       <UButton label="Cancel" color="neutral" variant="ghost" @click="close" />
-      <UButton label="Mark as Read" :loading="loading" @click="confirm" />
+      <UButton :label="confirmLabel" :loading="loading" @click="confirm" />
     </template>
   </UModal>
 </template>

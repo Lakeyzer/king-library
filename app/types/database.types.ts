@@ -462,10 +462,62 @@ export type Database = {
           },
         ]
       }
+      user_book_reads: {
+        Row: {
+          created_at: string
+          format: string | null
+          id: string
+          king_work_id: string
+          note: string | null
+          rating: number | null
+          read_on: string | null
+          read_year: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          format?: string | null
+          id?: string
+          king_work_id: string
+          note?: string | null
+          rating?: number | null
+          read_on?: string | null
+          read_year?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          format?: string | null
+          id?: string
+          king_work_id?: string
+          note?: string | null
+          rating?: number | null
+          read_on?: string | null
+          read_year?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_book_reads_king_work_id_fkey"
+            columns: ["king_work_id"]
+            isOneToOne: false
+            referencedRelation: "king_works"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_book_reads_king_work_id_fkey"
+            columns: ["king_work_id"]
+            isOneToOne: false
+            referencedRelation: "work_stats"
+            referencedColumns: ["king_work_id"]
+          },
+        ]
+      }
       user_books: {
         Row: {
           currently_reading: boolean
           finished_on: string | null
+          format: string | null
           id: string
           king_work_id: string
           owned: boolean
@@ -479,6 +531,7 @@ export type Database = {
         Insert: {
           currently_reading?: boolean
           finished_on?: string | null
+          format?: string | null
           id?: string
           king_work_id: string
           owned?: boolean
@@ -492,6 +545,7 @@ export type Database = {
         Update: {
           currently_reading?: boolean
           finished_on?: string | null
+          format?: string | null
           id?: string
           king_work_id?: string
           owned?: boolean

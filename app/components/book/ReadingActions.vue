@@ -24,17 +24,7 @@ const user = useSupabaseUser();
 // user's actual reading state - see nuxt-conventions "BookReadingActions /
 // AdaptationWatchActions need their page to pre-fetch status" for why this
 // isn't just pushed into this component.
-const { userBooksByWorkId, toggleWantToRead, unmarkRead } = useBooks();
-const { fetchUserShortStoryReads } = useShortStories();
-
-// Un-marking a work read un-cascades any short story reads it cascaded (see
-// supabase-conventions "uncascade_short_story_reads_on_collection_unread") -
-// refetch so reading-status controls on screen pick that up, same as
-// BookMarkReadModal does for the opposite direction.
-async function handleUnmarkRead() {
-  await unmarkRead(props.workId);
-  await fetchUserShortStoryReads();
-}
+const { userBooksByWorkId, toggleWantToRead } = useBooks();
 
 const showEditionsModal = ref(false);
 
@@ -48,9 +38,15 @@ const isRead = computed(() => userBook.value?.read ?? false);
 
 type PrimaryState = "neutral" | "want_to_read" | "currently_reading" | "read";
 
+// currently_reading takes priority over read - a work already marked read
+// can be started again (see reading-status "User can start reading a work
+// with a start date"), and while that new session is in progress the
+// relevant actions are "finish"/"mark as read directly", not
+// "unmark"/"read again" (those apply once the work is read and NOT
+// currently-reading - see "Read state in expanded mode").
 const primaryState = computed<PrimaryState>(() => {
-  if (isRead.value) return "read";
   if (isCurrentlyReading.value) return "currently_reading";
+  if (isRead.value) return "read";
   if (isWantToRead.value) return "want_to_read";
   return "neutral";
 });
@@ -58,6 +54,8 @@ const primaryState = computed<PrimaryState>(() => {
 const showStartReadingModal = ref(false);
 const showFinishReadingModal = ref(false);
 const showMarkReadModal = ref(false);
+const showReadAgainModal = ref(false);
+const showUnmarkReadModal = ref(false);
 
 const PRIMARY_LABEL: Record<PrimaryState, string> = {
   neutral: "Mark as Read",
@@ -88,7 +86,7 @@ function handlePrimaryClick() {
       showFinishReadingModal.value = true;
       break;
     case "read":
-      handleUnmarkRead();
+      showUnmarkReadModal.value = true;
       break;
   }
 }
@@ -148,7 +146,23 @@ const readingDropdownItems = computed<DropdownMenuItem[]>(() => {
         },
       ];
     case "read":
-      return [primary];
+      return [
+        primary,
+        {
+          label: "Read Again",
+          icon: "i-lucide-repeat",
+          onSelect: () => {
+            showReadAgainModal.value = true;
+          },
+        },
+        {
+          label: "Start Reading",
+          icon: "i-lucide-book-open",
+          onSelect: () => {
+            showStartReadingModal.value = true;
+          },
+        },
+      ];
   }
 });
 
@@ -170,48 +184,74 @@ const dropdownItems = computed<DropdownMenuItem[]>(() => {
   ];
 });
 
-// Expanded mode shows every action always, disabling whichever don't apply
-// to the current state, rather than hiding them (see reading-status spec).
-const canToggleReadlistOrStart = computed(
-  () =>
-    primaryState.value === "neutral" || primaryState.value === "want_to_read",
+// Expanded mode caps out at 3 buttons (plus Shelf) by giving each state
+// exactly one "leftmost" slot and one "read-related" slot, rather than
+// showing every possible action as its own separate control - that
+// approach (still described in the pre-reread-tracking reading-status
+// spec) overflowed once Read Again and Start-from-read were added on top
+// of the existing Mark as Unread, ballooning the read state alone to 5
+// buttons. The leftmost slot is repurposed per state instead of adding a
+// new control: readlist toggle where that's the relevant intent, hidden
+// while currently-reading (nothing else meaningful to offer there), and
+// Mark as Unread once read - reusing the space Mark as Unread otherwise
+// used to share with Read Again in the read-related slot.
+const showLeftmostSlot = computed(() => primaryState.value !== "currently_reading");
+
+const leftmostLabel = computed(() => {
+  if (primaryState.value === "read") return "Mark as Unread";
+  return isWantToRead.value ? "Remove from Readlist" : "Add to Readlist";
+});
+
+const leftmostIcon = computed(() =>
+  primaryState.value === "read" ? "i-lucide-circle-check" : "i-lucide-bookmark",
 );
 
-const canStartOrFinishReading = computed(() => primaryState.value !== "read");
-
-const readlistLabel = computed(() =>
-  isWantToRead.value ? "Remove from Readlist" : "Add to Readlist",
+const leftmostFilled = computed(() =>
+  primaryState.value === "read" ? true : isWantToRead.value,
 );
 
-const readLabel = computed(() =>
-  isRead.value ? "Mark as Unread" : "Mark as Read",
-);
+function handleLeftmostClick() {
+  if (primaryState.value === "read") {
+    showUnmarkReadModal.value = true;
+  } else {
+    toggleWantToRead(props.workId);
+  }
+}
 
 const startFinishLabel = computed(() =>
   isCurrentlyReading.value ? "Finish Reading" : "Start Reading",
 );
 
+const readSlotLabel = computed(() =>
+  primaryState.value === "read" ? "Read Again" : "Mark as Read",
+);
+
+const readSlotIcon = computed(() =>
+  primaryState.value === "read" ? "i-lucide-repeat" : "i-lucide-circle-check",
+);
+
+// Read Again is a repeatable action, not a persisted on/off state, so it's
+// never shown filled the way the (unaffected) "Mark as Read" branch still
+// is for whatever residual `isRead` value applies there.
+const readSlotFilled = computed(() => (primaryState.value === "read" ? false : isRead.value));
+
+function handleReadSlotClick() {
+  if (primaryState.value === "read") {
+    showReadAgainModal.value = true;
+  } else {
+    showMarkReadModal.value = true;
+  }
+}
+
 const shelfLabel = computed(() =>
   isOwned.value ? "On Shelf" : "Add to Shelf",
 );
-
-function handleReadlistToggle() {
-  toggleWantToRead(props.workId);
-}
 
 function handleStartOrFinishReading() {
   if (isCurrentlyReading.value) {
     showFinishReadingModal.value = true;
   } else {
     showStartReadingModal.value = true;
-  }
-}
-
-function handleReadToggle() {
-  if (isRead.value) {
-    handleUnmarkRead();
-  } else {
-    showMarkReadModal.value = true;
   }
 }
 </script>
@@ -245,13 +285,13 @@ function handleReadToggle() {
     <template v-else>
       <UFieldGroup class="hidden max-sm:flex max-sm:w-full" v-bind="$attrs">
         <IconLabelButton
+          v-if="showLeftmostSlot"
           stacked
           class="flex-1"
-          :label="readlistLabel"
-          icon="i-lucide-bookmark"
-          :filled="isWantToRead"
-          :disabled="!canToggleReadlistOrStart"
-          @click="handleReadlistToggle"
+          :label="leftmostLabel"
+          :icon="leftmostIcon"
+          :filled="leftmostFilled"
+          @click="handleLeftmostClick"
         />
         <IconLabelButton
           stacked
@@ -259,16 +299,15 @@ function handleReadToggle() {
           :label="startFinishLabel"
           icon="i-lucide-book-open"
           :filled="isCurrentlyReading"
-          :disabled="!canStartOrFinishReading"
           @click="handleStartOrFinishReading"
         />
         <IconLabelButton
           stacked
           class="flex-1"
-          :label="readLabel"
-          icon="i-lucide-circle-check"
-          :filled="isRead"
-          @click="handleReadToggle"
+          :label="readSlotLabel"
+          :icon="readSlotIcon"
+          :filled="readSlotFilled"
+          @click="handleReadSlotClick"
         />
         <IconLabelButton
           v-if="workKey"
@@ -283,24 +322,23 @@ function handleReadToggle() {
 
       <div class="hidden flex-nowrap gap-2 sm:flex" v-bind="$attrs">
         <IconLabelButton
-          :label="readlistLabel"
-          icon="i-lucide-bookmark"
-          :filled="isWantToRead"
-          :disabled="!canToggleReadlistOrStart"
-          @click="handleReadlistToggle"
+          v-if="showLeftmostSlot"
+          :label="leftmostLabel"
+          :icon="leftmostIcon"
+          :filled="leftmostFilled"
+          @click="handleLeftmostClick"
         />
         <IconLabelButton
           :label="startFinishLabel"
           icon="i-lucide-book-open"
           :filled="isCurrentlyReading"
-          :disabled="!canStartOrFinishReading"
           @click="handleStartOrFinishReading"
         />
         <IconLabelButton
-          :label="readLabel"
-          icon="i-lucide-circle-check"
-          :filled="isRead"
-          @click="handleReadToggle"
+          :label="readSlotLabel"
+          :icon="readSlotIcon"
+          :filled="readSlotFilled"
+          @click="handleReadSlotClick"
         />
         <IconLabelButton
           v-if="workKey"
@@ -321,9 +359,21 @@ function handleReadToggle() {
       v-model:open="showFinishReadingModal"
       :work-id="workId"
       :work-title="workTitle"
+      :initial-format="userBook?.format ?? null"
     />
     <BookMarkReadModal
       v-model:open="showMarkReadModal"
+      :work-id="workId"
+      :work-title="workTitle"
+    />
+    <BookMarkReadModal
+      v-model:open="showReadAgainModal"
+      mode="again"
+      :work-id="workId"
+      :work-title="workTitle"
+    />
+    <BookUnmarkReadModal
+      v-model:open="showUnmarkReadModal"
       :work-id="workId"
       :work-title="workTitle"
     />

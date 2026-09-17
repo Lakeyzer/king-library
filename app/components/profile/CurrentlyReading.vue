@@ -23,7 +23,20 @@ const showFinishModal = computed({
 </script>
 
 <template>
-  <div class="flex flex-col gap-3 rounded-lg bg-elevated p-4">
+  <!--
+    ring-primary/30 is the one deliberate visual difference from the
+    recommendation cards it otherwise matches exactly (same bg-elevated
+    box, same WorkTile-style rows) - a subtle colored outline so an
+    in-progress read stands out from a mere suggestion, without a banner
+    or background-color change loud enough to fight the rest of the
+    sidebar for attention.
+  -->
+  <div class="flex flex-col gap-3 rounded-lg bg-elevated p-4 ring-1 ring-primary/30">
+    <h2 class="flex items-center gap-2 text-sm font-semibold text-highlighted">
+      <UIcon name="i-lucide-book-open-text" class="size-4 text-primary" />
+      Currently Reading
+    </h2>
+
     <UEmpty
       v-if="!items.length"
       icon="i-lucide-book-open"
@@ -31,40 +44,37 @@ const showFinishModal = computed({
       description="Start a book to see it show up here."
     />
 
-    <div v-else class="flex flex-col gap-4">
-      <div
-        v-for="item in items"
-        :key="item.id"
-        class="flex items-center gap-3 lg:flex-col lg:items-center lg:gap-2"
-      >
-        <NuxtLink :to="`/works/${item.slug}`" class="w-20 shrink-0 lg:w-32">
+    <div v-else class="flex flex-col gap-3">
+      <div v-for="item in items" :key="item.id" class="flex items-center gap-2">
+        <NuxtLink :to="`/works/${item.slug}`" class="group flex min-w-0 flex-1 items-center gap-2">
           <ImageThumbnail
-            :src="
-              item.coverId ? getOpenLibraryCoverUrl(item.coverId, 'M') : null
-            "
+            :src="item.coverId ? getOpenLibraryCoverUrl(item.coverId, 'S') : null"
             :alt="`${item.title} cover`"
             placeholder-icon="i-lucide-book"
-            size="full"
+            size="xs"
           />
+
+          <div class="flex min-w-0 flex-1 flex-col">
+            <p class="truncate text-sm font-medium text-highlighted group-hover:text-primary">
+              <NumberMotif :text="item.title" />
+            </p>
+            <p v-if="item.format" class="flex items-center gap-1 text-xs text-muted">
+              <UIcon :name="READ_FORMAT_ICON[item.format]" class="size-3" />
+              {{ READ_FORMAT_LABEL[item.format] }}
+            </p>
+          </div>
         </NuxtLink>
 
-        <div
-          class="flex min-w-0 flex-1 flex-col items-start gap-1 lg:flex-none lg:items-center"
-        >
-          <p
-            class="w-full truncate text-sm font-medium text-highlighted lg:hidden"
-          >
-            <NumberMotif :text="item.title" />
-          </p>
-          <UButton
-            v-if="isOwner"
-            label="Finish"
-            icon="i-lucide-check"
-            color="neutral"
-            variant="subtle"
-            @click="finishingWorkId = item.id"
-          />
-        </div>
+        <UButton
+          v-if="isOwner"
+          icon="i-lucide-check"
+          color="neutral"
+          variant="subtle"
+          size="sm"
+          class="shrink-0"
+          aria-label="Finish reading"
+          @click="finishingWorkId = item.id"
+        />
       </div>
     </div>
 
@@ -73,6 +83,7 @@ const showFinishModal = computed({
       v-model:open="showFinishModal"
       :work-id="finishingWorkId"
       :work-title="finishingWork.title"
+      :initial-format="finishingWork.format"
     />
   </div>
 </template>

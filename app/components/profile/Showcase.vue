@@ -15,6 +15,8 @@ import type { BookshelfItem } from "~/composables/useBookshelf";
 
 interface Props {
   isOwner: boolean;
+  /** Path to this profile owner's dedicated Reading Timeline page - see the reading-timeline capability. */
+  timelinePath: string;
   stats: ProfileBookStats;
   viewing: ViewingProgress;
   currentlyReading: CurrentlyReadingWork[];
@@ -37,12 +39,21 @@ withDefaults(defineProps<Props>(), {
 <template>
   <div class="flex flex-col gap-8">
     <div class="flex flex-col gap-3">
-      <h2
-        class="flex items-center gap-2 text-lg font-semibold text-highlighted"
-      >
-        <UIcon name="i-lucide-scroll-text" class="size-5" />
-        Reading Journey
-      </h2>
+      <div class="flex items-center justify-between gap-2">
+        <h2 class="flex items-center gap-2 text-lg font-semibold text-highlighted">
+          <UIcon name="i-lucide-scroll-text" class="size-5" />
+          Reading Journey
+        </h2>
+        <UButton
+          label="View Full Timeline"
+          icon="i-lucide-arrow-right"
+          trailing
+          color="neutral"
+          variant="link"
+          size="sm"
+          :to="timelinePath"
+        />
+      </div>
       <ProfileReadingTimeline :items="readingTimeline" :is-owner="isOwner" />
     </div>
 
@@ -103,8 +114,8 @@ withDefaults(defineProps<Props>(), {
         <h2
           class="flex items-center gap-2 text-lg font-semibold text-highlighted"
         >
-          <UIcon name="i-lucide-book-open-text" class="size-5" />
-          Currently Reading
+          <UIcon name="i-lucide-sparkles" class="size-5" />
+          Spotlight
         </h2>
         <ProfileCurrentlyReading
           :items="currentlyReading"
