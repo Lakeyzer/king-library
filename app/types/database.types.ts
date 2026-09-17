@@ -378,6 +378,82 @@ export type Database = {
           },
         ]
       }
+      suggestion_votes: {
+        Row: {
+          created_at: string
+          id: string
+          is_upvote: boolean
+          suggestion_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_upvote: boolean
+          suggestion_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_upvote?: boolean
+          suggestion_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "suggestion_votes_suggestion_id_fkey"
+            columns: ["suggestion_id"]
+            isOneToOne: false
+            referencedRelation: "suggestion_vote_counts"
+            referencedColumns: ["suggestion_id"]
+          },
+          {
+            foreignKeyName: "suggestion_votes_suggestion_id_fkey"
+            columns: ["suggestion_id"]
+            isOneToOne: false
+            referencedRelation: "suggestions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "suggestion_votes_suggestion_id_fkey"
+            columns: ["suggestion_id"]
+            isOneToOne: false
+            referencedRelation: "suggestions_with_author"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      suggestions: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          is_anonymous: boolean
+          status: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          is_anonymous?: boolean
+          status?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          is_anonymous?: boolean
+          status?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_adaptations: {
         Row: {
           adaptation_id: string
@@ -650,6 +726,31 @@ export type Database = {
           adaptation_id: string | null
           want_to_watch_count: number | null
           watched_count: number | null
+        }
+        Relationships: []
+      }
+      suggestion_vote_counts: {
+        Row: {
+          downvote_count: number | null
+          score: number | null
+          suggestion_id: string | null
+          upvote_count: number | null
+        }
+        Relationships: []
+      }
+      suggestions_with_author: {
+        Row: {
+          body: string | null
+          created_at: string | null
+          downvote_count: number | null
+          id: string | null
+          is_anonymous: boolean | null
+          my_vote: boolean | null
+          score: number | null
+          status: string | null
+          title: string | null
+          upvote_count: number | null
+          username: string | null
         }
         Relationships: []
       }

@@ -152,6 +152,12 @@ const wantToWatchCountLabel = (count: number) => `${count} want to watch this`;
 
         <div class="flex w-full flex-col gap-6 lg:w-96 lg:shrink-0">
           <HomepageStatsBar :stats="meta.stats" />
+          <HomepageLinkCard
+            to="/suggestion-box"
+            icon="i-lucide-mailbox"
+            title="Suggestion Box"
+            description="Vote on ideas put forward by users"
+          />
           <WorkSpotlight
             title="Book of the Week"
             icon="i-lucide-sparkles"
