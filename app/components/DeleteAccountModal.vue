@@ -65,19 +65,19 @@ async function deleteAccount() {
 
     <template #footer="{ close }">
       <UButton
+        color="neutral"
+        variant="soft"
+        @click="close"
+      >
+        Cancel
+      </UButton>
+      <UButton
         color="error"
         :disabled="deleteConfirmText !== 'DELETE'"
         :loading="deleting"
         @click="deleteAccount"
       >
         Permanently delete
-      </UButton>
-      <UButton
-        color="neutral"
-        variant="ghost"
-        @click="close"
-      >
-        Cancel
       </UButton>
     </template>
   </UModal>

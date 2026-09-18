@@ -46,7 +46,7 @@ async function confirmRemove() {
     </template>
 
     <template #footer="{ close }">
-      <UButton label="Cancel" color="neutral" variant="ghost" @click="close" />
+      <UButton label="Cancel" color="neutral" variant="soft" @click="close" />
       <UButton label="Say thankya" color="error" :loading="removing" @click="confirmRemove" />
     </template>
   </UModal>

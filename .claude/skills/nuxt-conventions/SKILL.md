@@ -124,6 +124,25 @@ Always use these exact key strings (`"user-books"` / `"user-adaptations"`) — e
 
 **Don't try to move this fetch into `BookReadingActions`/`AdaptationWatchActions` themselves** to make it automatic — it looks like it should work (same cache key), but it doesn't by default. `useAsyncData`'s default `dedupe: 'cancel'` only cancels-and-restarts an in-flight call for the same key rather than reusing it, and on the server there's no "already pending" guard at all — so calling it from a component rendered N times in a list (e.g. every tile in a grid) fires N redundant fetches instead of one. Getting single-flight behavior out of a shared component would require explicitly passing `{ dedupe: 'defer' }`, and even then a client-side navigation to a page whose data isn't already cached would flash the neutral/default state on first paint, which the current page-level `await` avoids entirely. If a future page renders these action components, add the two-line fetch above to that page — don't assume it happens automatically.
 
+## Modal action buttons: footer placement, order, color, variant
+
+Every modal that offers a confirm action and a cancel/dismiss action follows one layout and styling rule, so buttons don't end up placed or styled differently depending on who built the modal:
+
+- **Placement**: confirm and cancel are buttons in the modal's `#footer` slot — never in the body.
+- **Order**: footer buttons are right-justified (`UModal`'s footer already does this by default); cancel sits immediately to the left of confirm.
+- **Confirm**: `color="primary"`, default (solid) variant. Set `color="primary"` explicitly rather than relying on it being the default, so the convention is visible at the call site.
+- **Cancel**: `color="neutral" variant="soft"`.
+- **Exception**: in a warning/destructive modal (deleting, permanently removing, unmarking data that can't be recovered), confirm may use `color="error"` instead of `color="primary"`, still with the default solid variant. Never use `color="error"` on confirm outside a destructive action.
+
+```vue
+<template #footer="{ close }">
+  <UButton label="Cancel" color="neutral" variant="soft" @click="close" />
+  <UButton label="Confirm" color="primary" @click="confirm" />
+</template>
+```
+
+A modal with only a single dismiss button (nothing to confirm) still uses the cancel style (`color="neutral" variant="soft"`) for that button, rather than inventing a third style. A modal that submits through an inline form button in the body (no footer confirm/cancel pair) is a different pattern and isn't bound by this rule.
+
 ## Open / not yet decided
 
 These haven't been settled yet — don't assume a pattern for them, ask if one is needed:

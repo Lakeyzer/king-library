@@ -118,8 +118,8 @@ async function confirm() {
     </template>
 
     <template #footer="{ close }">
-      <UButton label="Cancel" color="neutral" variant="ghost" @click="close" />
-      <UButton label="Save" :loading="loading" @click="confirm" />
+      <UButton label="Cancel" color="neutral" variant="soft" @click="close" />
+      <UButton label="Save" color="primary" :loading="loading" @click="confirm" />
     </template>
   </UModal>
 </template>
