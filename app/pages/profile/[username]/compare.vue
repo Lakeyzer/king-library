@@ -92,7 +92,7 @@ setPageSeo({
   title: `${own.username} vs ${target.username}`,
   description: `Compare ${own.username}'s and ${target.username}'s Stephen King reading and viewing progress.`,
 });
-useSeoMeta({ title: `${own.username} vs ${target.username} — Compare` });
+useSeoMeta({ title: `${own.username} vs ${target.username} - Compare` });
 </script>
 
 <template>

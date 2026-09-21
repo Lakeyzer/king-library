@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Makes King Library installable as a Progressive Web App — a home-screen icon and standalone window — without taking on offline data access or caching of app or Supabase data.
+Makes King Library installable as a Progressive Web App - a home-screen icon and standalone window - without taking on offline data access or caching of app or Supabase data.
 
 ## Requirements
 

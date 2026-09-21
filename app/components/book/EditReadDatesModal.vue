@@ -103,7 +103,7 @@ async function confirm() {
         </UFormField>
         <UFormField
           label="Year read"
-          description="Optional — use if you don't remember the exact date"
+          description="Optional - use if you don't remember the exact date"
         >
           <UInputNumber
             v-model="readYear"

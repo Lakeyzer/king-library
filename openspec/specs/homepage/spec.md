@@ -18,11 +18,11 @@ The system SHALL display, at the top of the homepage, a horizontal hero with the
 - **THEN** the hero displays the title and description on the leading side and a CTA prompting them to add to their collection on the trailing side
 
 ### Requirement: Homepage sections appear in a defined order
-The system SHALL display, below the hero, a row of three catalog links spanning the full width (Works, Short Stories, and Adaptations, in that order), followed by two columns: a wider column containing (in this order) the Most Read Books, Currently Being Read, Most Watched Adaptations, and Least Watched Adaptations leaderboards, and a narrower column containing (in this order) the stats card, the Suggestion Box link card, Book of the week, Book birthday, the Least read book spotlight, the Most wanted book spotlight, the Most anticipated adaptation spotlight, and (for a signed-in visitor, each only when an eligible recommendation exists) the personalized book recommendation, then the personalized owned-unread recommendation, then the personalized adaptation recommendation — followed below both columns by the Works closing CTA, then the Adaptations closing CTA. On a narrow (mobile-width) viewport, the system SHALL stack this content into a single column, with the narrower column's content appearing first, followed by the wider column's content, rather than omitting any of it.
+The system SHALL display, below the hero, a row of three catalog links spanning the full width (Works, Short Stories, and Adaptations, in that order), followed by two columns: a wider column containing (in this order) the Most Read Books, Currently Being Read, Most Watched Adaptations, and Least Watched Adaptations leaderboards, and a narrower column containing (in this order) the stats card, the Suggestion Box link card, Book of the week, Book birthday, the Least read book spotlight, the Most wanted book spotlight, the Most anticipated adaptation spotlight, and (for a signed-in visitor, each only when an eligible recommendation exists) the personalized book recommendation, then the personalized owned-unread recommendation, then the personalized adaptation recommendation - followed below both columns by the Works closing CTA, then the Adaptations closing CTA. On a narrow (mobile-width) viewport, the system SHALL stack this content into a single column, with the narrower column's content appearing first, followed by the wider column's content, rather than omitting any of it.
 
 #### Scenario: Section order
 - **WHEN** a visitor scrolls down the homepage on a wide viewport
-- **THEN** the full-width catalog links row appears below the hero, followed by the two columns side by side — the leaderboards column and, alongside it, the narrower column in its defined order, starting with the stats card and the Suggestion Box link card — followed by the Works closing CTA and then the Adaptations closing CTA
+- **THEN** the full-width catalog links row appears below the hero, followed by the two columns side by side - the leaderboards column and, alongside it, the narrower column in its defined order, starting with the stats card and the Suggestion Box link card - followed by the Works closing CTA and then the Adaptations closing CTA
 
 #### Scenario: Section order on a narrow viewport
 - **WHEN** a visitor scrolls down the homepage on a narrow (mobile-width) viewport
@@ -107,7 +107,7 @@ The system SHALL display the top 5 active King works ranked by count of `user_bo
 - **THEN** it no longer appears in the most read leaderboard, regardless of its read count
 
 ### Requirement: Currently reading leaderboard
-The system SHALL display the top 5 active King works ranked by count of `user_books` rows currently marked currently-reading, descending — a ranking of works, not a single aggregate total.
+The system SHALL display the top 5 active King works ranked by count of `user_books` rows currently marked currently-reading, descending - a ranking of works, not a single aggregate total.
 
 #### Scenario: Viewing the currently-reading leaderboard
 - **WHEN** any visitor views the homepage

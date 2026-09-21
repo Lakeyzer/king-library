@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Gives fans a dedicated home for the Dark Tower series: the eight core novels in canonical reading order, the wider constellation of connected King works, and — when signed in — personalized reading progress and "read next" nudges scoped to just this corner of the bibliography.
+Gives fans a dedicated home for the Dark Tower series: the eight core novels in canonical reading order, the wider constellation of connected King works, and - when signed in - personalized reading progress and "read next" nudges scoped to just this corner of the bibliography.
 
 ## Requirements
 
@@ -14,7 +14,7 @@ The system SHALL provide a page at `/dark-tower` laid out as a main content area
 - **THEN** the page shows a main content area and a sidebar, with the main content area displaying the core-series list and the related-works list
 
 ### Requirement: Main area lists the eight core Dark Tower novels in canonical reading order
-The system SHALL display, in the main content area, all eight core Dark Tower novels — The Gunslinger, The Drawing of the Three, The Waste Lands, Wizard and Glass, The Wind Through the Keyhole, Wolves of the Calla, Song of Susannah, and The Dark Tower — ordered by their position within the canonical Dark Tower series, not by publish date. This places The Wind Through the Keyhole fifth, between Wizard and Glass and Wolves of the Calla, reflecting its in-story chronological placement rather than its later publish date.
+The system SHALL display, in the main content area, all eight core Dark Tower novels - The Gunslinger, The Drawing of the Three, The Waste Lands, Wizard and Glass, The Wind Through the Keyhole, Wolves of the Calla, Song of Susannah, and The Dark Tower - ordered by their position within the canonical Dark Tower series, not by publish date. This places The Wind Through the Keyhole fifth, between Wizard and Glass and Wolves of the Calla, reflecting its in-story chronological placement rather than its later publish date.
 
 #### Scenario: Core list follows series position
 - **WHEN** any visitor views the Dark Tower page's core-series list
@@ -32,7 +32,7 @@ The system SHALL display, in the main content area, a "Related Works" list of ev
 - **THEN** it does not appear in the Related Works list
 
 ### Requirement: Signed-in visitor sees Dark Tower reading progress
-The system SHALL show a signed-in visitor, in the sidebar, their reading progress across the eight core Dark Tower novels — the same count-of-read-over-total figure and presentation already shown on their profile's Dark Tower progress bar. The system SHALL NOT show this to a signed-out visitor.
+The system SHALL show a signed-in visitor, in the sidebar, their reading progress across the eight core Dark Tower novels - the same count-of-read-over-total figure and presentation already shown on their profile's Dark Tower progress bar. The system SHALL NOT show this to a signed-out visitor.
 
 #### Scenario: Signed-in visitor views their Dark Tower progress
 - **WHEN** a signed-in visitor views the Dark Tower page
@@ -43,7 +43,7 @@ The system SHALL show a signed-in visitor, in the sidebar, their reading progres
 - **THEN** the sidebar shows no Dark Tower reading progress
 
 ### Requirement: Signed-in visitor sees Dark Tower Related reading progress
-The system SHALL show a signed-in visitor, in the sidebar, their reading progress across the Related Works list — a count of how many of those works they have read out of the total. The system SHALL NOT show this to a signed-out visitor.
+The system SHALL show a signed-in visitor, in the sidebar, their reading progress across the Related Works list - a count of how many of those works they have read out of the total. The system SHALL NOT show this to a signed-out visitor.
 
 #### Scenario: Signed-in visitor views their Related Works progress
 - **WHEN** a signed-in visitor views the Dark Tower page
@@ -54,7 +54,7 @@ The system SHALL show a signed-in visitor, in the sidebar, their reading progres
 - **THEN** the sidebar shows no Dark Tower Related reading progress
 
 ### Requirement: Signed-in visitor is suggested the next core Dark Tower book to read
-The system SHALL show a signed-in visitor, in the sidebar, a suggestion to read one specific core Dark Tower novel whenever they have not read all eight — specifically, the unread core novel with the lowest position in the canonical series order. The system SHALL show nothing in its place once all eight are read, and SHALL NOT show this to a signed-out visitor.
+The system SHALL show a signed-in visitor, in the sidebar, a suggestion to read one specific core Dark Tower novel whenever they have not read all eight - specifically, the unread core novel with the lowest position in the canonical series order. The system SHALL show nothing in its place once all eight are read, and SHALL NOT show this to a signed-out visitor.
 
 #### Scenario: Visitor has not read all core novels
 - **WHEN** a signed-in visitor has read some but not all of the eight core Dark Tower novels
@@ -69,7 +69,7 @@ The system SHALL show a signed-in visitor, in the sidebar, a suggestion to read 
 - **THEN** the sidebar shows no core-book suggestion
 
 ### Requirement: Signed-in visitor is suggested a Dark Tower Related book to read
-The system SHALL show a signed-in visitor, in the sidebar, a suggestion to read one Related Works entry whenever they have not read every Related Works entry — picked at random among the unread ones. The system SHALL show nothing in its place once every Related Works entry is read, and SHALL NOT show this to a signed-out visitor.
+The system SHALL show a signed-in visitor, in the sidebar, a suggestion to read one Related Works entry whenever they have not read every Related Works entry - picked at random among the unread ones. The system SHALL show nothing in its place once every Related Works entry is read, and SHALL NOT show this to a signed-out visitor.
 
 #### Scenario: Visitor has not read all related works
 - **WHEN** a signed-in visitor has not read every Related Works entry

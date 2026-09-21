@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Lets a signed-in user build a personal collection of specific Open Library editions against a King work — adding and removing editions from the book actions control, a work's edition list, or their profile Bookshelf — while keeping the work's overall ownership flag in sync with whether any edition of it remains in the collection.
+Lets a signed-in user build a personal collection of specific Open Library editions against a King work - adding and removing editions from the book actions control, a work's edition list, or their profile Bookshelf - while keeping the work's overall ownership flag in sync with whether any edition of it remains in the collection.
 
 ## Requirements
 

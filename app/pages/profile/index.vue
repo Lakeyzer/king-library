@@ -14,7 +14,7 @@ const { profile: ownProfile } = useProfile();
 const { profile, isOwner, isPrivate } = provideViewedProfile(ownProfile.value!);
 
 useSeoMeta({
-  title: profile.username ? `${profile.username} — Profile` : "Profile",
+  title: profile.username ? `${profile.username}` : "Profile",
 });
 </script>
 

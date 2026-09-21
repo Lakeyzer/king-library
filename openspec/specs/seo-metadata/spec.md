@@ -80,7 +80,7 @@ The system SHALL expose the work's cover image as the Open Graph/Twitter share i
 - **THEN** the share preview includes the page's title and description with no share image
 
 ### Requirement: Other pages do not expose a social share image
-The system SHALL NOT expose an Open Graph/Twitter share image for the homepage, listing pages (works, short stories, adaptations), short story detail pages, profile pages, settings, or onboarding — these expose title and description only.
+The system SHALL NOT expose an Open Graph/Twitter share image for the homepage, listing pages (works, short stories, adaptations), short story detail pages, profile pages, settings, or onboarding - these expose title and description only.
 
 #### Scenario: Sharing a page outside the work/adaptation detail pages
 - **WHEN** a visitor shares a link to any page other than a work or adaptation detail page

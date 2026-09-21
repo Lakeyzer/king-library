@@ -266,21 +266,30 @@ export function useBooks() {
   // function powers both the owner's own showcase and a public profile's.
   const fetchProfileBookStats = async (userId: string): Promise<ProfileBookStats> => {
     const [{ data: works, error: worksError }, { data: userBooks, error: booksError }] = await Promise.all([
-      supabase.from('king_works').select('id, dark_tower, bachman').eq('active', true),
+      supabase.from('king_works').select('id, type, dark_tower, bachman').eq('active', true),
       supabase.from('user_books').select('king_work_id, read, owned').eq('user_id', userId)
     ])
 
     if (worksError) throw worksError
     if (booksError) throw booksError
 
-    const allWorks = works as { id: string, dark_tower: boolean, bachman: boolean }[]
+    const allWorks = works as { id: string, type: string, dark_tower: boolean, bachman: boolean }[]
     const rows = userBooks as { king_work_id: string, read: boolean, owned: boolean }[]
+
+    // An 'omnibus' (e.g. "The Bachman Books") never counts toward reading
+    // progress on its own - marking it read cascades to mark its component
+    // novels read instead (see cascade_book_reads_on_omnibus_read()), and
+    // those novels are already counted here individually. Counting the
+    // omnibus too would double-count the same reading. It still counts
+    // toward the `collection` (ownership) total below - owning the omnibus
+    // edition is a distinct, legitimate collection item.
+    const progressEligibleWorks = allWorks.filter((work) => work.type !== 'omnibus')
 
     const readWorkIds = new Set(rows.filter((row) => row.read).map((row) => row.king_work_id))
     const ownedWorkIds = new Set(rows.filter((row) => row.owned).map((row) => row.king_work_id))
 
     const progressFor = (predicate: (work: { dark_tower: boolean, bachman: boolean }) => boolean): CategoryProgress => {
-      const inCategory = allWorks.filter(predicate)
+      const inCategory = progressEligibleWorks.filter(predicate)
       return {
         count: inCategory.filter((work) => readWorkIds.has(work.id)).length,
         total: inCategory.length
@@ -657,7 +666,7 @@ export function useBooks() {
 
     const { data, error } = await supabase
       .from('user_books')
-      .select('king_works ( id, title, slug, cover_id, publish_date, active )')
+      .select('king_works!user_books_king_work_id_fkey ( id, title, slug, cover_id, publish_date, active )')
       .eq('user_id', userId)
       .eq('owned', true)
       .eq('read', false)
@@ -701,7 +710,7 @@ export function useBooks() {
 
     const { data, error } = await supabase
       .from('user_books')
-      .select('king_works ( id, title, slug, cover_id, publish_date, active )')
+      .select('king_works!user_books_king_work_id_fkey ( id, title, slug, cover_id, publish_date, active )')
       .eq('user_id', userId)
       .eq('want_to_read', true)
       .eq('owned', false)
@@ -743,7 +752,7 @@ export function useBooks() {
 
     const { data, error } = await supabase
       .from('user_books')
-      .select('king_works ( id, title, slug, cover_id, publish_date, type, active )')
+      .select('king_works!user_books_king_work_id_fkey ( id, title, slug, cover_id, publish_date, type, active )')
       .eq('user_id', userId)
       .eq('want_to_read', true)
 
@@ -838,7 +847,7 @@ export function useBooks() {
   const fetchCurrentlyReading = async (userId: string): Promise<CurrentlyReadingWork[]> => {
     const { data, error } = await supabase
       .from('user_books')
-      .select('started_on, format, king_works ( id, title, slug, cover_id, active )')
+      .select('started_on, format, king_works!user_books_king_work_id_fkey ( id, title, slug, cover_id, active )')
       .eq('user_id', userId)
       .eq('currently_reading', true)
       .order('started_on', { ascending: false, nullsFirst: false })

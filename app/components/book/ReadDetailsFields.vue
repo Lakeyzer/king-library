@@ -44,7 +44,7 @@ function toggleRating(star: number) {
       />
     </UFormField>
 
-    <UFormField label="Note" :description="`Optional — max ${NOTE_MAX_LENGTH} characters`">
+    <UFormField label="Note" :description="`Optional - max ${NOTE_MAX_LENGTH} characters`">
       <UTextarea v-model="note" :maxlength="NOTE_MAX_LENGTH" :rows="3" class="w-full" />
     </UFormField>
   </div>

@@ -239,6 +239,53 @@ export type Database = {
           },
         ]
       }
+      king_work_omnibus_works: {
+        Row: {
+          component_king_work_id: string
+          id: string
+          omnibus_king_work_id: string
+        }
+        Insert: {
+          component_king_work_id: string
+          id?: string
+          omnibus_king_work_id: string
+        }
+        Update: {
+          component_king_work_id?: string
+          id?: string
+          omnibus_king_work_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "king_work_omnibus_works_component_king_work_id_fkey"
+            columns: ["component_king_work_id"]
+            isOneToOne: false
+            referencedRelation: "king_works"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "king_work_omnibus_works_component_king_work_id_fkey"
+            columns: ["component_king_work_id"]
+            isOneToOne: false
+            referencedRelation: "work_stats"
+            referencedColumns: ["king_work_id"]
+          },
+          {
+            foreignKeyName: "king_work_omnibus_works_omnibus_king_work_id_fkey"
+            columns: ["omnibus_king_work_id"]
+            isOneToOne: false
+            referencedRelation: "king_works"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "king_work_omnibus_works_omnibus_king_work_id_fkey"
+            columns: ["omnibus_king_work_id"]
+            isOneToOne: false
+            referencedRelation: "work_stats"
+            referencedColumns: ["king_work_id"]
+          },
+        ]
+      }
       king_works: {
         Row: {
           active: boolean
@@ -604,6 +651,7 @@ export type Database = {
           read_year: number | null
           started_on: string | null
           user_id: string
+          via_omnibus_id: string | null
           want_to_read: boolean
           wishlisted: boolean
         }
@@ -618,6 +666,7 @@ export type Database = {
           read_year?: number | null
           started_on?: string | null
           user_id: string
+          via_omnibus_id?: string | null
           want_to_read?: boolean
           wishlisted?: boolean
         }
@@ -632,6 +681,7 @@ export type Database = {
           read_year?: number | null
           started_on?: string | null
           user_id?: string
+          via_omnibus_id?: string | null
           want_to_read?: boolean
           wishlisted?: boolean
         }
@@ -646,6 +696,20 @@ export type Database = {
           {
             foreignKeyName: "user_books_king_work_id_fkey"
             columns: ["king_work_id"]
+            isOneToOne: false
+            referencedRelation: "work_stats"
+            referencedColumns: ["king_work_id"]
+          },
+          {
+            foreignKeyName: "user_books_via_omnibus_id_fkey"
+            columns: ["via_omnibus_id"]
+            isOneToOne: false
+            referencedRelation: "king_works"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_books_via_omnibus_id_fkey"
+            columns: ["via_omnibus_id"]
             isOneToOne: false
             referencedRelation: "work_stats"
             referencedColumns: ["king_work_id"]
@@ -726,6 +790,13 @@ export type Database = {
           adaptation_id: string | null
           want_to_watch_count: number | null
           watched_count: number | null
+        }
+        Relationships: []
+      }
+      dark_tower_journey_stats: {
+        Row: {
+          finished_count: number | null
+          on_the_way_count: number | null
         }
         Relationships: []
       }

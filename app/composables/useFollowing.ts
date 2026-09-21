@@ -84,7 +84,7 @@ export function useFollowing() {
 
     const { data, error } = await supabase
       .from('user_books')
-      .select('user_id, started_on, king_works ( id, title, slug, cover_id )')
+      .select('user_id, started_on, king_works!user_books_king_work_id_fkey ( id, title, slug, cover_id )')
       .in('user_id', followedIds)
       .eq('currently_reading', true)
       .order('started_on', { ascending: false, nullsFirst: false })

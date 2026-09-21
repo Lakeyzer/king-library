@@ -51,5 +51,25 @@ export function useKingWorks() {
     return data as KingWork | null
   }
 
-  return { fetchKingWorks, fetchKingWorkBySlug }
+  // The novels collected by an 'omnibus' work (e.g. "The Bachman Books" ->
+  // Rage, The Long Walk, Roadwork, The Running Man), via
+  // king_work_omnibus_works. Mirrors useShortStories().fetchShortStoriesForCollection
+  // one join shape over - see supabase-conventions "king_work_omnibus_works".
+  const fetchComponentWorksForOmnibus = async (omnibusKingWorkId: string) => {
+    const { data, error } = await supabase
+      .from("king_work_omnibus_works")
+      .select("king_works!king_work_omnibus_works_component_king_work_id_fkey ( id, title, slug, cover_id, publish_date )")
+      .eq("omnibus_king_work_id", omnibusKingWorkId)
+
+    if (error) throw error
+
+    type ComponentWork = { id: string, title: string, slug: string, cover_id: number | null, publish_date: string }
+
+    return (data as unknown as { king_works: ComponentWork | null }[])
+      .map((row) => row.king_works)
+      .filter((work): work is ComponentWork => work !== null)
+      .sort((a, b) => a.publish_date.localeCompare(b.publish_date))
+  }
+
+  return { fetchKingWorks, fetchKingWorkBySlug, fetchComponentWorksForOmnibus }
 }

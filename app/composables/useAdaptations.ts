@@ -375,7 +375,7 @@ export function useAdaptations() {
     ] = await Promise.all([
       supabase
         .from("user_books")
-        .select("king_work_id, king_works ( title, active )")
+        .select("king_work_id, king_works!user_books_king_work_id_fkey ( title, active )")
         .eq("user_id", userId)
         .eq("read", true),
       supabase

@@ -408,16 +408,16 @@
     "id": "ab577990-5dc5-4e08-ad75-f11febd3809f",
     "title": "The Stand: The Complete & Uncut Edition",
     "type": "novel",
-    "open_library_work_key": "OL81618W",
+    "open_library_work_key": "OL43045405W",
     "dark_tower": false,
     "bachman": false,
     "dark_tower_relation": null,
-    "cover_id": 9255992,
+    "cover_id": 15256967,
     "publish_date": "1990-05-01",
     "slug": "the-stand-the-complete-uncut-edition",
     "description": "The expanded, restored edition of The Stand, returning scenes trimmed from the original publication to King's sweeping post-apocalyptic epic.",
     "co_author": null,
-    "active": false
+    "active": true
   },
   {
     "id": "6ec56d57-7a73-4d6e-bd45-16121a22b774",
@@ -895,7 +895,7 @@
     "cover_id": 8536417,
     "publish_date": "2009-02-12",
     "slug": "ur",
-    "description": "A college professor's mysteriously pink Kindle turns out to pull in books and news from other, stranger worlds — and draws dangerous attention along with them.",
+    "description": "A college professor's mysteriously pink Kindle turns out to pull in books and news from other, stranger worlds - and draws dangerous attention along with them.",
     "co_author": null,
     "active": true
   },
@@ -1301,6 +1301,21 @@
     "publish_date": "2026-01-01",
     "slug": "other-worlds-than-these",
     "description": null,
+    "co_author": null,
+    "active": true
+  },
+  {
+    "id": "2f3ae52c-cd3a-466e-bf1b-2f7985660352",
+    "title": "The Bachman Books",
+    "type": "omnibus",
+    "open_library_work_key": "OL81591W",
+    "dark_tower": false,
+    "bachman": true,
+    "dark_tower_relation": null,
+    "cover_id": 8565607,
+    "publish_date": "1985-10-31",
+    "slug": "the-bachman-books",
+    "description": "An omnibus collecting four early Bachman novels - Rage, The Long Walk, Roadwork, and The Running Man - with King's essay \"Why I Was Bachman.\"",
     "co_author": null,
     "active": true
   }

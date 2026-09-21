@@ -26,4 +26,4 @@ Right now the only way to see how your King reading stacks up against a friend's
 - New component(s) under `app/components/profile/` for the compare layout (progress-category comparison rows, read/watched diff-list rows).
 - `app/components/profile/Header.vue`: add the Compare button/link for signed-in non-owner visitors.
 - `composables/useBooks.ts` and `composables/useAdaptations.ts`: add fetchers for two-user diffing (read-by-one-not-other, watched-by-one-not-other), reusing existing `user_books`/`user_adaptations` RLS.
-- No schema changes — comparison is computed client-side from existing `king_works`, `user_books`, `adaptations`, and `user_adaptations` data, same pattern as the existing showcase stats.
+- No schema changes - comparison is computed client-side from existing `king_works`, `user_books`, `adaptations`, and `user_adaptations` data, same pattern as the existing showcase stats.

@@ -20,7 +20,7 @@ setPageSeo({
   title: profile.username ?? username,
   description: `See ${profile.username}'s Stephen King reading stats, watch progress, and bookshelf on King Library.`,
 });
-useSeoMeta({ title: `${profile.username} — Profile` });
+useSeoMeta({ title: `${profile.username} - Profile` });
 </script>
 
 <template>

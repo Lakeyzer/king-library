@@ -17,20 +17,34 @@ if (!workData.value) {
 
 const work = workData.value;
 const isCollection = work.type === "collection";
+const isOmnibus = work.type === "omnibus";
 
 const { fetchAdaptationsForWork } = useAdaptations();
+const { fetchComponentWorksForOmnibus } = useKingWorks();
 const { fetchShortStoriesForCollection } = useShortStories();
 const { fetchWorkStats, fetchUserBooks } = useBooks();
 const { fetchUserEditions } = useBookshelf();
 
-// These three are independent of each other, so kick them all off together
+// These four are independent of each other, so kick them all off together
 // (useAsyncData starts fetching as soon as it's called) rather than
 // sequentially awaiting one at a time - each round trip otherwise stacks
 // on top of the last and the page waits for their sum instead of the max.
-const [{ data: adaptations }, { data: shortStories }, { data: stats }] = await Promise.all([
-  useAsyncData(`work-${slug}-adaptations`, () => fetchAdaptationsForWork(work.id)),
+const [
+  { data: adaptations },
+  { data: shortStories },
+  { data: componentWorks },
+  { data: stats },
+] = await Promise.all([
+  useAsyncData(`work-${slug}-adaptations`, () =>
+    fetchAdaptationsForWork(work.id),
+  ),
   useAsyncData(`work-${slug}-short-stories`, () =>
-    isCollection ? fetchShortStoriesForCollection(work.id) : Promise.resolve([]),
+    isCollection
+      ? fetchShortStoriesForCollection(work.id)
+      : Promise.resolve([]),
+  ),
+  useAsyncData(`work-${slug}-component-works`, () =>
+    isOmnibus ? fetchComponentWorksForOmnibus(work.id) : Promise.resolve([]),
   ),
   useAsyncData(`work-${slug}-stats`, () => fetchWorkStats(work.id)),
 ]);
@@ -91,6 +105,25 @@ const shortStoryItems = computed<ConnectionListItem[]>(() =>
   })),
 );
 
+const componentWorkItems = computed<ConnectionListItem[]>(() =>
+  (componentWorks.value ?? []).map((componentWork) => ({
+    id: componentWork.id,
+    title: componentWork.title,
+    imageSrc: componentWork.cover_id
+      ? getOpenLibraryCoverUrl(componentWork.cover_id, "M")
+      : null,
+    imageAlt: `${componentWork.title} cover`,
+    to: `/works/${componentWork.slug}`,
+  })),
+);
+
+// A work is either a short-story collection or a novel omnibus, never both,
+// so these two never both contribute items at once.
+const containsItems = computed<ConnectionListItem[]>(() => [
+  ...shortStoryItems.value,
+  ...componentWorkItems.value,
+]);
+
 const { setPageSeo } = useSeo();
 setPageSeo({
   title: work.title,
@@ -114,9 +147,14 @@ setPageSeo({
             <GlitchLetter :text="work.title" letter="n" :active="isMisery" />
           </h1>
           <div class="flex items-center gap-1.5 text-muted text-xs">
-            <span v-if="isCharlieTheChooChoo">By <ScrambleText :text="charlieAuthor" /></span>
+            <span v-if="isCharlieTheChooChoo"
+              >By <ScrambleText :text="charlieAuthor"
+            /></span>
             <span v-else
-              ><GlitchLetter :text="stephenKingByline" letter="n" :active="isMisery"
+              ><GlitchLetter
+                :text="stephenKingByline"
+                letter="n"
+                :active="isMisery"
             /></span>
           </div>
           <p class="mt-4 text-muted flex gap-4 items-center">
@@ -127,6 +165,23 @@ setPageSeo({
                 letter="n"
                 :active="isMisery"
             /></span>
+            <UPopover v-if="isOmnibus" mode="hover">
+              <UButton
+                icon="i-lucide-info"
+                color="neutral"
+                variant="ghost"
+                size="xs"
+                aria-label="How reading progress works for this omnibus"
+              />
+              <template #content>
+                <p class="max-w-72 p-3 text-sm text-muted">
+                  Marking this omnibus read also marks each of its collected
+                  novels read. The omnibus itself isn't counted on its own in
+                  your reading progress - only the novels inside it are, so
+                  you're never credited twice.
+                </p>
+              </template>
+            </UPopover>
           </p>
         </div>
 
@@ -151,11 +206,15 @@ setPageSeo({
         </div>
 
         <p v-if="work.description" class="whitespace-pre-line">
-          <GlitchLetter :text="work.description" letter="n" :active="isMisery" />
+          <GlitchLetter
+            :text="work.description"
+            letter="n"
+            :active="isMisery"
+          />
         </p>
 
-        <template v-if="shortStoryItems.length" #related>
-          <DetailConnectionList heading="Contains" :items="shortStoryItems" />
+        <template v-if="containsItems.length" #related>
+          <DetailConnectionList heading="Contains" :items="containsItems" />
         </template>
 
         <template #actions>

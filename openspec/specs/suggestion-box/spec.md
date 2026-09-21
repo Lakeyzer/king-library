@@ -143,7 +143,7 @@ The system SHALL NOT allow casting, changing, or undoing a vote on a suggestion 
 - **THEN** its existing vote counts are unchanged and remain visible in the list
 
 ### Requirement: Suggestion list is sortable
-The system SHALL let a signed-in user sort the suggestion list by "Newest" (creation date, most recent first) or "Most Popular" (net votes — upvotes minus downvotes — highest first), defaulting to "Newest" on page load.
+The system SHALL let a signed-in user sort the suggestion list by "Newest" (creation date, most recent first) or "Most Popular" (net votes - upvotes minus downvotes - highest first), defaulting to "Newest" on page load.
 
 #### Scenario: Default page load sorts by newest
 - **WHEN** a signed-in user navigates to the Suggestion Box page
