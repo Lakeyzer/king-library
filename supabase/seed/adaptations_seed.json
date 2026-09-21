@@ -983,5 +983,17 @@
     "tmdb_poster_path": "/b7aKxwPj3QM8YHZ8uDyqr50i96D.jpg",
     "slug": "carrie-2026",
     "active": true
+  },
+  {
+    "id": "a035da78-f0fa-414a-995b-7dcb5427c22a",
+    "title": "Carrie",
+    "type": "tv_movie",
+    "release_year": 2002,
+    "tmdb_id": 7342,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie",
+    "tmdb_poster_path": "/knjeEeeyIwDkUtZwDfJOcUIuNdB.jpg",
+    "slug": "carrie-2002",
+    "active": true
   }
 ]

@@ -18,15 +18,15 @@ The system SHALL display, at the top of the homepage, a horizontal hero with the
 - **THEN** the hero displays the title and description on the leading side and a CTA prompting them to add to their collection on the trailing side
 
 ### Requirement: Homepage sections appear in a defined order
-The system SHALL display, below the hero, a row of three catalog links spanning the full width (Works, Short Stories, and Adaptations, in that order), followed by two columns: a wider column containing (in this order) the Most Read Books, Currently Being Read, Most Watched Adaptations, and Least Watched Adaptations leaderboards, and a narrower column containing (in this order) the stats card, Book of the week, Book birthday, the Least read book spotlight, the Most wanted book spotlight, the Most anticipated adaptation spotlight, and (for a signed-in visitor, each only when an eligible recommendation exists) the personalized book recommendation, then the personalized owned-unread recommendation, then the personalized adaptation recommendation — followed below both columns by the Works closing CTA, then the Adaptations closing CTA. On a narrow (mobile-width) viewport, the system SHALL stack this content into a single column, with the narrower column's content appearing first, followed by the wider column's content, rather than omitting any of it.
+The system SHALL display, below the hero, a row of three catalog links spanning the full width (Works, Short Stories, and Adaptations, in that order), followed by two columns: a wider column containing (in this order) the Most Read Books, Currently Being Read, Most Watched Adaptations, and Least Watched Adaptations leaderboards, and a narrower column containing (in this order) the stats card, the Suggestion Box link card, Book of the week, Book birthday, the Least read book spotlight, the Most wanted book spotlight, the Most anticipated adaptation spotlight, and (for a signed-in visitor, each only when an eligible recommendation exists) the personalized book recommendation, then the personalized owned-unread recommendation, then the personalized adaptation recommendation - followed below both columns by the Works closing CTA, then the Adaptations closing CTA. On a narrow (mobile-width) viewport, the system SHALL stack this content into a single column, with the narrower column's content appearing first, followed by the wider column's content, rather than omitting any of it.
 
 #### Scenario: Section order
 - **WHEN** a visitor scrolls down the homepage on a wide viewport
-- **THEN** the full-width catalog links row appears below the hero, followed by the two columns side by side — the leaderboards column and, alongside it, the narrower column in its defined order, starting with the stats card — followed by the Works closing CTA and then the Adaptations closing CTA
+- **THEN** the full-width catalog links row appears below the hero, followed by the two columns side by side - the leaderboards column and, alongside it, the narrower column in its defined order, starting with the stats card and the Suggestion Box link card - followed by the Works closing CTA and then the Adaptations closing CTA
 
 #### Scenario: Section order on a narrow viewport
 - **WHEN** a visitor scrolls down the homepage on a narrow (mobile-width) viewport
-- **THEN** the full-width catalog links row appears first, then the narrower column's content (starting with the stats card), followed by the leaderboard content in its defined order, all stacked in a single column, still followed by the Works and Adaptations closing CTAs
+- **THEN** the full-width catalog links row appears first, then the narrower column's content (starting with the stats card and the Suggestion Box link card), followed by the leaderboard content in its defined order, all stacked in a single column, still followed by the Works and Adaptations closing CTAs
 
 ### Requirement: Catalog links row shows totals and links to each browsing page
 The system SHALL display three catalog links, each showing a total count and linking to a browsing page: the total number of active King works linking to the works browsing page, the total number of King short stories linking to the short stories browsing page, and the total number of active adaptations linking to the adaptations browsing page.
@@ -49,6 +49,17 @@ The system SHALL display a single stats card with four counts: the total number 
 #### Scenario: A book or adaptation becomes inactive
 - **WHEN** a King work or adaptation with existing `user_books`/`user_adaptations` rows is marked inactive
 - **THEN** those rows no longer contribute to the stats card's counts
+
+### Requirement: Homepage links to the Suggestion Box
+The system SHALL display, in the narrower column, a small card with an icon, a title, and a description inviting visitors to vote on suggestions, linking to the Suggestion Box page. The system SHALL show this card to every visitor, signed in or signed out.
+
+#### Scenario: Viewing the Suggestion Box card
+- **WHEN** any visitor views the homepage
+- **THEN** they see a card with an icon, a title, and a description inviting them to vote on suggestions
+
+#### Scenario: Following the Suggestion Box card
+- **WHEN** a visitor selects the Suggestion Box card
+- **THEN** they are taken toward the Suggestion Box page, subject to that page's own sign-in requirement
 
 ### Requirement: Book of the week rotates on a deterministic weekly schedule
 The system SHALL feature exactly one active King work as "Book of the week," selected as the active work whose shuffle position is the nth-lowest among active works' shuffle positions, where n is the current ISO week number modulo the total number of active King works, so the same work is featured for every visitor throughout a given ISO week and the featured work changes deterministically from week to week with no manually maintained schedule. Inactive works SHALL never be selected and SHALL NOT count toward the total used in the rotation.
@@ -96,7 +107,7 @@ The system SHALL display the top 5 active King works ranked by count of `user_bo
 - **THEN** it no longer appears in the most read leaderboard, regardless of its read count
 
 ### Requirement: Currently reading leaderboard
-The system SHALL display the top 5 active King works ranked by count of `user_books` rows currently marked currently-reading, descending — a ranking of works, not a single aggregate total.
+The system SHALL display the top 5 active King works ranked by count of `user_books` rows currently marked currently-reading, descending - a ranking of works, not a single aggregate total.
 
 #### Scenario: Viewing the currently-reading leaderboard
 - **WHEN** any visitor views the homepage

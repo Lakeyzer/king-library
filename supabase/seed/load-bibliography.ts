@@ -20,3 +20,7 @@ await loadSeed(
   "adaptation_short_stories",
   new URL("./adaptation_short_stories_seed.json", import.meta.url)
 );
+await loadSeed(
+  "king_work_omnibus_works",
+  new URL("./king_work_omnibus_works_seed.json", import.meta.url)
+);

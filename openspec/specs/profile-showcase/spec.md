@@ -2,12 +2,12 @@
 
 ## Purpose
 
-Gives every user a flashy, shareable dashboard of their Stephen King reading and viewing achievements — reading progress by category, adaptation viewing progress, what they're currently reading, and how much of the bibliography they own.
+Gives every user a flashy, shareable dashboard of their Stephen King reading and viewing achievements - reading progress by category, adaptation viewing progress, what they're currently reading, and how much of the bibliography they own.
 
 ## Requirements
 
 ### Requirement: Profile page organizes content into three tabs behind a persistent header
-The system SHALL present a profile as a persistent header (avatar, username, tagline, and the share-or-follow control) alongside three tabs — Reader Checklist, Read List, and Watch List — each a distinct, independently reachable route rather than client-only tab state. Reader Checklist SHALL show the dashboard content described elsewhere in this capability (reading progress, currently reading, reading timeline, bookshelf, recommendations) and SHALL be the tab shown when no other tab is specified. The header SHALL remain visible and unchanged while switching between tabs.
+The system SHALL present a profile as a persistent header (avatar, username, tagline, and the share-or-follow control) alongside three tabs - Reader Checklist, Read List, and Watch List - each a distinct, independently reachable route rather than client-only tab state. Reader Checklist SHALL show the dashboard content described elsewhere in this capability (reading progress, currently reading, reading timeline, bookshelf, recommendations) and SHALL be the tab shown when no other tab is specified. The header SHALL remain visible and unchanged while switching between tabs.
 
 #### Scenario: Visiting a profile with no tab specified
 - **WHEN** a visitor navigates to a profile's base URL (own or by username)
@@ -96,7 +96,7 @@ The system SHALL show a "this profile is private" state, instead of the dashboar
 - **THEN** they see their full dashboard, not the private notice
 
 ### Requirement: Reading timeline shows every logged read, not just the most recent
-The system SHALL display, on the reading timeline (part of the Reader Checklist tab), one entry per logged read belonging to the profile owner, ordered most-recent first, rather than a single entry per King work. This compact widget SHALL show only each entry's work and date; note, format, and rating are not shown here — they appear on the dedicated Reading Timeline page (see the reading-timeline capability).
+The system SHALL display, on the reading timeline (part of the Reader Checklist tab), one entry per logged read belonging to the profile owner, ordered most-recent first, rather than a single entry per King work. This compact widget SHALL show only each entry's work and date; note, format, and rating are not shown here - they appear on the dedicated Reading Timeline page (see the reading-timeline capability).
 
 #### Scenario: A work read multiple times shows multiple entries
 - **WHEN** a profile owner has logged more than one read for the same King work
@@ -242,7 +242,7 @@ The system SHALL let a visitor filter the Bookshelf's tiles by matching text aga
 - **THEN** the Bookshelf shows a no-matches state instead of any tiles
 
 ### Requirement: Bookshelf can be sorted by title or release year
-The system SHALL let a visitor sort the Bookshelf's tiles by the owning King work's title or its release year, in either ascending or descending order. When series grouping is enabled, this sort determines the order of series (as units) and standalone tiles relative to each other, but not the order of tiles within a grouped series — see "Grouped series tiles keep their series reading order."
+The system SHALL let a visitor sort the Bookshelf's tiles by the owning King work's title or its release year, in either ascending or descending order. When series grouping is enabled, this sort determines the order of series (as units) and standalone tiles relative to each other, but not the order of tiles within a grouped series - see "Grouped series tiles keep their series reading order."
 
 #### Scenario: Sorting by title
 - **WHEN** a visitor sorts the Bookshelf by title

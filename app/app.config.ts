@@ -9,5 +9,10 @@ export default defineAppConfig({
       error: "custom-error",
       neutral: "parchment",
     },
+    modal: {
+      slots: {
+        footer: "justify-end",
+      },
+    },
   },
 });

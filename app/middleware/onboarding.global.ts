@@ -11,7 +11,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
     // the own-shortcut routes below rather than being publicly viewable.
     const isCompareRoute = /^\/profile\/[^/]+\/compare$/.test(to.path)
 
-    if (to.path === '/profile' || to.path === '/profile/read-list' || to.path === '/profile/watch-list' || to.path === '/settings' || to.path === '/following' || isCompareRoute) {
+    if (to.path === '/profile' || to.path === '/profile/read-list' || to.path === '/profile/watch-list' || to.path === '/settings' || to.path === '/following' || to.path === '/suggestion-box' || isCompareRoute) {
       return navigateTo({ path: '/', query: { signin: '1' } })
     }
 

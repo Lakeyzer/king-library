@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Gives every user a dedicated, full page for their reading timeline — every logged read, in a vertical layout, including personal ratings — reachable both as the signed-in user's own shortcut and by username for viewing anyone's public timeline.
+Gives every user a dedicated, full page for their reading timeline - every logged read, in a vertical layout, including personal ratings - reachable both as the signed-in user's own shortcut and by username for viewing anyone's public timeline.
 
 ## Requirements
 

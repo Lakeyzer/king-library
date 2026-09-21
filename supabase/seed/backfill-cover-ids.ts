@@ -30,14 +30,14 @@ async function fetchWorkCoverId(workKey: string): Promise<number | null> {
   const data = (await response.json()) as { covers?: number[] };
 
   // Open Library uses -1 as a "no cover" sentinel, and it can appear
-  // ahead of legitimate cover ids in the array — don't stop at index 0.
+  // ahead of legitimate cover ids in the array - don't stop at index 0.
   const coverId = data.covers?.find((id) => id !== -1);
 
   return coverId ?? null;
 }
 
 // Very recent releases sometimes have no cover set on the work record yet,
-// even though an edition of it does — fall back to the first edition with one.
+// even though an edition of it does - fall back to the first edition with one.
 async function fetchEditionCoverId(workKey: string): Promise<number | null> {
   const response = await fetch(`https://openlibrary.org/works/${workKey}/editions.json?limit=20`);
 

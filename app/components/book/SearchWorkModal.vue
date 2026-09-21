@@ -65,7 +65,7 @@ function handleSelect(workId: string | undefined) {
     </template>
 
     <template #footer="{ close }">
-      <UButton label="Cancel" color="neutral" variant="ghost" @click="close" />
+      <UButton label="Cancel" color="neutral" variant="soft" @click="close" />
     </template>
   </UModal>
 </template>

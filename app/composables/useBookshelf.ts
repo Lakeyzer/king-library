@@ -164,7 +164,7 @@ export function useBookshelf() {
         .eq('user_id', userId),
       supabase
         .from('user_books')
-        .select('king_works ( id, title, slug, publish_date, open_library_work_key, active )')
+        .select('king_works!user_books_king_work_id_fkey ( id, title, slug, publish_date, open_library_work_key, active )')
         .eq('user_id', userId)
         .eq('owned', true),
       fetchAllSeries()

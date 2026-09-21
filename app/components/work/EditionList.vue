@@ -257,6 +257,8 @@ function formatEditionMeta(edition: OpenLibraryEdition): string | null {
       />
     </div>
 
+    <slot name="below-title" />
+
     <div v-if="orientation === 'auto'" class="hidden items-center gap-2 sm:flex">
       <UButton
         icon="i-lucide-chevron-left"

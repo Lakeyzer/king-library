@@ -103,7 +103,7 @@ The system SHALL make each King work or adaptation shown in a diff list a link t
 - **THEN** they are taken to that item's detail page
 
 ### Requirement: Diff-list blocks lay out side by side on large screens and stacked on small screens
-The system SHALL lay out each diff-list pair (read-books, or watched-adaptations) as a two-sided row at large screen widths, switching to the signed-in visitor's side directly above the other user's side in a single column at small screen widths. Only one diff-list pair SHALL be laid out side-by-side at a time — the page SHALL NOT combine both diff-list pairs into one multi-column table. (The progress-category charts follow their own grid layout — see "Progress-category charts are arranged in a responsive grid" — not this row/column rule.)
+The system SHALL lay out each diff-list pair (read-books, or watched-adaptations) as a two-sided row at large screen widths, switching to the signed-in visitor's side directly above the other user's side in a single column at small screen widths. Only one diff-list pair SHALL be laid out side-by-side at a time - the page SHALL NOT combine both diff-list pairs into one multi-column table. (The progress-category charts follow their own grid layout - see "Progress-category charts are arranged in a responsive grid" - not this row/column rule.)
 
 #### Scenario: Viewing a diff-list pair on a large screen
 - **WHEN** a comparison is viewed at a large screen width

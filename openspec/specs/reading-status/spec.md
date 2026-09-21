@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Lets a signed-in user record their reading intent and progress against a King work — wanting to read it, currently reading it, or having read it — independent of whether they own a copy.
+Lets a signed-in user record their reading intent and progress against a King work - wanting to read it, currently reading it, or having read it - independent of whether they own a copy.
 
 ## Requirements
 
@@ -22,7 +22,7 @@ The system SHALL let a signed-in user mark a King work as want-to-read, or unmar
 - **THEN** the system creates a reading-status record for that user and work with want-to-read true
 
 ### Requirement: User can start reading a work with a start date
-The system SHALL let a signed-in user start reading a King work that is not already currently-reading by supplying a start date, defaulted to the current date in the user's local timezone and adjustable before confirming, and an optional format (physical, audiobook, or ebook). The start date SHALL be required — the user cannot confirm without one; the format SHALL be independently skippable. Starting to read is independent of whether the work is already marked read: a work that is already read MAY be started again, becoming currently-reading while remaining read, without affecting any of its existing logged reads.
+The system SHALL let a signed-in user start reading a King work that is not already currently-reading by supplying a start date, defaulted to the current date in the user's local timezone and adjustable before confirming, and an optional format (physical, audiobook, or ebook). The start date SHALL be required - the user cannot confirm without one; the format SHALL be independently skippable. Starting to read is independent of whether the work is already marked read: a work that is already read MAY be started again, becoming currently-reading while remaining read, without affecting any of its existing logged reads.
 
 #### Scenario: Opening the start-reading prompt
 - **WHEN** a signed-in user activates the reading control on a work that is not currently-reading
@@ -144,7 +144,7 @@ The system SHALL let a signed-in user unmark a King work that is read only after
 - **THEN** the work's want-to-read state remains false
 
 ### Requirement: Reading-status writes never need to enforce state invariants client-side
-The system SHALL rely on server-enforced invariants for reading-status transitions, rather than duplicating that logic in the client: setting currently-reading true clears want-to-read; completing a read (finishing, marking read directly, or reading again) clears want-to-read and ends any currently-reading session, regardless of whether the work was already marked read before that session started. Currently-reading and read MAY be true at the same time — a work that is already read can be started again (see "User can start reading a work with a start date"), and stays read throughout that new session.
+The system SHALL rely on server-enforced invariants for reading-status transitions, rather than duplicating that logic in the client: setting currently-reading true clears want-to-read; completing a read (finishing, marking read directly, or reading again) clears want-to-read and ends any currently-reading session, regardless of whether the work was already marked read before that session started. Currently-reading and read MAY be true at the same time - a work that is already read can be started again (see "User can start reading a work with a start date"), and stays read throughout that new session.
 
 #### Scenario: Starting a want-to-read work clears want-to-read
 - **WHEN** a signed-in user starts reading a work that was marked want-to-read

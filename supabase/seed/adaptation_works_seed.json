@@ -85,6 +85,11 @@
     "king_work_id": "112d1b01-837c-4f35-9412-88e544bfa8d8"
   },
   {
+    "id": "875d00da-665d-403f-b129-8ec7fb91ef53",
+    "adaptation_id": "66948cd7-094e-4cfe-a599-ee839a9e356b",
+    "king_work_id": "ab577990-5dc5-4e08-ad75-f11febd3809f"
+  },
+  {
     "id": "9d87e8b3-0d04-4c7b-b15a-f5982c77e984",
     "adaptation_id": "32ee7ca5-a835-4ccc-953e-d62c5f6d6852",
     "king_work_id": "05ac5b6d-b462-4ada-a04c-3eeb2134253d"
@@ -220,6 +225,11 @@
     "king_work_id": "112d1b01-837c-4f35-9412-88e544bfa8d8"
   },
   {
+    "id": "440972f7-fd6a-413d-b40b-4d5ccf43880e",
+    "adaptation_id": "9f46b585-c764-45b7-8ed1-568311de7cf2",
+    "king_work_id": "ab577990-5dc5-4e08-ad75-f11febd3809f"
+  },
+  {
     "id": "6a4d3314-e413-436d-aaaa-27b021f2e9c3",
     "adaptation_id": "e95d99fb-78bd-44bb-98bc-dd5a4dbfb7b5",
     "king_work_id": "865368bf-3e90-4f99-b4ec-2b05b4e0c1f3"
@@ -262,6 +272,11 @@
   {
     "id": "69ce6f02-4a94-4c7c-9cbb-ea820ea3a540",
     "adaptation_id": "98cb7c05-c691-4904-83c0-dc2b9da47cad",
+    "king_work_id": "e0b0f8cb-f861-41f8-8642-a540bc631f95"
+  },
+  {
+    "id": "c6cfbb6a-943f-45d6-af65-f8a943c10ce6",
+    "adaptation_id": "a035da78-f0fa-414a-995b-7dcb5427c22a",
     "king_work_id": "e0b0f8cb-f861-41f8-8642-a540bc631f95"
   }
 ]

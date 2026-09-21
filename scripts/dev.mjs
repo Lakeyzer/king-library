@@ -16,7 +16,7 @@ function isDockerReady() {
 async function ensureDockerRunning() {
   if (isDockerReady()) return;
 
-  console.log("Docker isn't running — starting Docker Desktop...");
+  console.log("Docker isn't running - starting Docker Desktop...");
   try {
     spawn(DOCKER_DESKTOP_PATH, [], { detached: true, stdio: "ignore" }).unref();
   } catch (err) {
@@ -58,16 +58,16 @@ for (let attempt = 1; attempt <= SUPABASE_START_MAX_ATTEMPTS; attempt++) {
   if (attempt < SUPABASE_START_MAX_ATTEMPTS) {
     // Right after Docker Desktop finishes booting, its containers (e.g. the
     // DB) can still be starting up even though the daemon already responds
-    // to `docker version` — `supabase start` fails transiently in that
+    // to `docker version` - `supabase start` fails transiently in that
     // window, so retry a few times before giving up.
     console.log(
-      `Supabase containers not ready yet (attempt ${attempt}/${SUPABASE_START_MAX_ATTEMPTS}) — retrying in ${SUPABASE_START_RETRY_DELAY_MS / 1000}s...`
+      `Supabase containers not ready yet (attempt ${attempt}/${SUPABASE_START_MAX_ATTEMPTS}) - retrying in ${SUPABASE_START_RETRY_DELAY_MS / 1000}s...`
     );
     await new Promise((resolve) => setTimeout(resolve, SUPABASE_START_RETRY_DELAY_MS));
   }
 }
 if (supabaseStart.status !== 0) {
-  console.error("`supabase start` failed after multiple attempts — see output above.");
+  console.error("`supabase start` failed after multiple attempts - see output above.");
   process.exit(supabaseStart.status ?? 1);
 }
 

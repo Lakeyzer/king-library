@@ -92,7 +92,7 @@ setPageSeo({
   title: `${own.username} vs ${target.username}`,
   description: `Compare ${own.username}'s and ${target.username}'s Stephen King reading and viewing progress.`,
 });
-useSeoMeta({ title: `${own.username} vs ${target.username} — Compare` });
+useSeoMeta({ title: `${own.username} vs ${target.username} - Compare` });
 </script>
 
 <template>
@@ -196,7 +196,7 @@ useSeoMeta({ title: `${own.username} vs ${target.username} — Compare` });
           />
           <ProfileCompareProgressCard
             title="Dark Tower"
-            icon="i-lucide-castle"
+            icon="i-lucide-rose"
             :own-label="own.username ?? ''"
             :own-count="ownStats.darkTower.count"
             :own-total="ownStats.darkTower.total"
