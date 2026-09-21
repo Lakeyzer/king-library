@@ -7,6 +7,8 @@ interface Props {
   releaseYear: number | null;
   typeLabel: string;
   to?: string;
+  /** Optional context line shown below the title/year/type meta row - e.g. the Dark Tower related-works page's reason a work is listed here. */
+  note?: string | null;
 }
 
 const props = defineProps<Props>();
@@ -38,6 +40,9 @@ function handleRowClick() {
       <p class="flex flex-wrap items-center gap-2 text-sm text-muted">
         <NumberMotif v-if="releaseYear !== null" :text="releaseYear" />
         <span><NumberMotif :text="typeLabel" /></span>
+      </p>
+      <p v-if="note" class="mt-1 line-clamp-2 text-sm italic text-muted">
+        <NumberMotif :text="note" />
       </p>
     </div>
 

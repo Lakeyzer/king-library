@@ -83,7 +83,7 @@ withDefaults(defineProps<Props>(), {
           />
           <ProfileProgressBar
             label="Dark Tower"
-            icon="i-lucide-castle"
+            icon="i-lucide-rose"
             :count="stats.darkTower.count"
             :total="stats.darkTower.total"
             color="success"

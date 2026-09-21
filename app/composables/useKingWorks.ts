@@ -10,10 +10,11 @@ export interface KingWork {
   cover_id: number | null
   dark_tower: boolean
   bachman: boolean
+  dark_tower_relation: string | null
 }
 
 const KING_WORK_COLUMNS =
-  "id, title, type, publish_date, slug, description, co_author, open_library_work_key, cover_id, dark_tower, bachman"
+  "id, title, type, publish_date, slug, description, co_author, open_library_work_key, cover_id, dark_tower, bachman, dark_tower_relation"
 
 export function useKingWorks() {
   const supabase = useSupabaseClient()

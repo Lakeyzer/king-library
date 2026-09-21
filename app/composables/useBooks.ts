@@ -10,6 +10,13 @@ export interface ProfileBookStats {
   collection: CategoryProgress
 }
 
+export interface DarkTowerJourneyStats {
+  /** Users who have read all 8 core Dark Tower books. */
+  finishedCount: number
+  /** Users who have read at least 1 but not all 8 core Dark Tower books. */
+  onTheWayCount: number
+}
+
 export interface CurrentlyReadingWork {
   id: string
   title: string
@@ -288,6 +295,162 @@ export function useBooks() {
         count: allWorks.filter((work) => ownedWorkIds.has(work.id)).length,
         total: allWorks.length
       }
+    }
+  }
+
+  // Mirrors fetchProfileBookStats' progressFor helper, but scoped to the
+  // Dark Tower page's "Related Works" set (works with a non-null
+  // dark_tower_relation) rather than the core-8 dark_tower flag - kept out
+  // of ProfileBookStats/fetchProfileBookStats itself since this category
+  // isn't shown on the general profile page. See design.md "Related-works
+  // progress and both 'read next' suggestions live in useBooks.ts".
+  const fetchDarkTowerRelatedProgress = async (userId: string): Promise<CategoryProgress> => {
+    const [{ data: works, error: worksError }, { data: userBooks, error: booksError }] = await Promise.all([
+      supabase.from('king_works').select('id').eq('active', true).not('dark_tower_relation', 'is', null),
+      supabase.from('user_books').select('king_work_id, read').eq('user_id', userId)
+    ])
+
+    if (worksError) throw worksError
+    if (booksError) throw booksError
+
+    const relatedWorkIds = new Set((works as { id: string }[]).map((work) => work.id))
+    const readWorkIds = new Set(
+      (userBooks as { king_work_id: string, read: boolean }[])
+        .filter((row) => row.read)
+        .map((row) => row.king_work_id)
+    )
+
+    return {
+      count: [...relatedWorkIds].filter((id) => readWorkIds.has(id)).length,
+      total: relatedWorkIds.size
+    }
+  }
+
+  // Site-wide (not per-user) counts for the Dark Tower page sidebar: how
+  // many people have finished all 8 core books vs. started but not yet
+  // finished. Backed by the dark_tower_journey_stats view (see
+  // supabase-conventions "Statistics: query live, don't store counters") -
+  // a live aggregate, not a stored counter. Like every other stats view in
+  // this schema, it runs with the querying visitor's RLS permissions, so it
+  // only ever counts user_books rows that visitor can see (their own, plus
+  // every public profile's) - private collections never skew this number.
+  const fetchDarkTowerJourneyStats = async (): Promise<DarkTowerJourneyStats> => {
+    const { data, error } = await supabase
+      .from('dark_tower_journey_stats')
+      .select('finished_count, on_the_way_count')
+      .single()
+
+    if (error) throw error
+
+    return {
+      finishedCount: data.finished_count,
+      onTheWayCount: data.on_the_way_count
+    }
+  }
+
+  // The Dark Tower page's "read next core book" nudge: the unread core-8
+  // member with the lowest series position, active-only. Deterministic
+  // (not a random pick among candidates like every other recommendation
+  // in this file) because the user asked for the core-8 suggestion to
+  // respect reading order - see design.md "Core suggestion is
+  // deterministic; related suggestion is random". Identifies the Dark
+  // Tower series by name (same as king-series' own consumers) since
+  // series ids are seed-generated UUIDs with no stable meaning.
+  const fetchNextDarkTowerBook = async (userId: string): Promise<WorkHighlight | null> => {
+    const { fetchAllSeries } = useSeries()
+    const series = await fetchAllSeries()
+    const darkTowerSeries = series.find((one) => one.name === 'Dark Tower')
+
+    if (!darkTowerSeries || !darkTowerSeries.members.length) return null
+
+    const workIds = darkTowerSeries.members.map((member) => member.workId)
+
+    const [{ data: works, error: worksError }, { data: userBooks, error: booksError }] = await Promise.all([
+      supabase
+        .from('king_works')
+        .select('id, title, slug, cover_id, publish_date, active')
+        .in('id', workIds),
+      supabase.from('user_books').select('king_work_id').eq('user_id', userId).eq('read', true)
+    ])
+
+    if (worksError) throw worksError
+    if (booksError) throw booksError
+
+    interface WorkRef {
+      id: string
+      title: string
+      slug: string
+      cover_id: number | null
+      publish_date: string
+      active: boolean
+    }
+
+    const workById = new Map((works as WorkRef[]).map((work) => [work.id, work]))
+    const readWorkIds = new Set((userBooks as { king_work_id: string }[]).map((row) => row.king_work_id))
+
+    const nextMember = [...darkTowerSeries.members]
+      .sort((a, b) => a.position - b.position)
+      .find((member) => {
+        const work = workById.get(member.workId)
+        return work !== undefined && work.active && !readWorkIds.has(member.workId)
+      })
+
+    if (!nextMember) return null
+
+    const work = workById.get(nextMember.workId)!
+
+    return {
+      id: work.id,
+      title: work.title,
+      slug: work.slug,
+      coverId: work.cover_id,
+      publishDate: work.publish_date
+    }
+  }
+
+  // The Dark Tower page's "read next related book" nudge: mirrors
+  // fetchOwnedUnreadRecommendation's random-pick-among-candidates shape,
+  // sourced from the Related Works set (non-null dark_tower_relation)
+  // instead of owned-but-unread works. No ordering concept applies to the
+  // related-works set the way series position does to the core 8, so this
+  // follows the app's existing pattern for undifferentiated candidate
+  // pools rather than inventing a new selection rule - see design.md
+  // "Core suggestion is deterministic; related suggestion is random".
+  const fetchNextDarkTowerRelatedBook = async (userId: string): Promise<WorkHighlight | null> => {
+    interface WorkRef {
+      id: string
+      title: string
+      slug: string
+      cover_id: number | null
+      publish_date: string
+      active: boolean
+    }
+
+    const [{ data: works, error: worksError }, { data: userBooks, error: booksError }] = await Promise.all([
+      supabase
+        .from('king_works')
+        .select('id, title, slug, cover_id, publish_date, active')
+        .eq('active', true)
+        .not('dark_tower_relation', 'is', null),
+      supabase.from('user_books').select('king_work_id').eq('user_id', userId).eq('read', true)
+    ])
+
+    if (worksError) throw worksError
+    if (booksError) throw booksError
+
+    const readWorkIds = new Set((userBooks as { king_work_id: string }[]).map((row) => row.king_work_id))
+    const candidates = (works as WorkRef[]).filter((work) => !readWorkIds.has(work.id))
+
+    if (!candidates.length) return null
+
+    const work = candidates[Math.floor(Math.random() * candidates.length)]!
+
+    return {
+      id: work.id,
+      title: work.title,
+      slug: work.slug,
+      coverId: work.cover_id,
+      publishDate: work.publish_date
     }
   }
 
@@ -1045,6 +1208,10 @@ export function useBooks() {
     fetchUserBooks,
     fetchWorkStats,
     fetchProfileBookStats,
+    fetchDarkTowerRelatedProgress,
+    fetchDarkTowerJourneyStats,
+    fetchNextDarkTowerBook,
+    fetchNextDarkTowerRelatedBook,
     fetchCurrentlyReading,
     fetchReadingTimeline,
     fetchWorkHighlights,

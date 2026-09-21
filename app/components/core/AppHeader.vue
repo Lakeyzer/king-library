@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import type { DropdownMenuItem, NavigationMenuItem } from '@nuxt/ui'
 
+// Dark Tower page is parked for now - the page itself still works at
+// /dark-tower, just not linked from the header. Flip back to true to
+// restore the nav entry.
+const SHOW_DARK_TOWER_NAV = false
+
 const links: NavigationMenuItem[] = [
   { label: 'Works', to: '/works', icon: 'i-lucide-book' },
   { label: 'Short Works', to: '/short-works', icon: 'i-lucide-book-open' },
-  { label: 'Adaptations', to: '/adaptations', icon: 'i-lucide-clapperboard' }
+  { label: 'Adaptations', to: '/adaptations', icon: 'i-lucide-clapperboard' },
+  ...(SHOW_DARK_TOWER_NAV ? [{ label: 'Dark Tower', to: '/dark-tower', icon: 'i-lucide-rose' }] : [])
 ]
 
 const user = useSupabaseUser()

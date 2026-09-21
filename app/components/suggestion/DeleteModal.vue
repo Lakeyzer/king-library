@@ -59,16 +59,16 @@ async function confirmDelete() {
 
     <template #footer="{ close }">
       <UButton
+        label="Cancel"
+        color="neutral"
+        variant="soft"
+        @click="close"
+      />
+      <UButton
         label="Delete"
         color="error"
         :loading="loading"
         @click="confirmDelete"
-      />
-      <UButton
-        label="Cancel"
-        color="neutral"
-        variant="ghost"
-        @click="close"
       />
     </template>
   </UModal>
