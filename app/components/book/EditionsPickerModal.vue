@@ -4,10 +4,15 @@ interface Props {
   workKey: string
   /** 'king' (default) reads/writes king_works via useBooks()/useBookshelf(); 'related' reads/writes related_works via useRelatedWorks()/useRelatedWorkEditions() - see reading-status's "Works by Others share the same reading-status controls". */
   domain?: 'king' | 'related'
+  /** Forwarded to WorkEditionList - see its own doc on minEditionYear/maxEditionYear. */
+  minEditionYear?: number | null
+  maxEditionYear?: number | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  domain: 'king'
+  domain: 'king',
+  minEditionYear: null,
+  maxEditionYear: null
 })
 const open = defineModel<boolean>('open', { default: false })
 
@@ -66,6 +71,8 @@ const openLibraryAddEditionUrl = computed(
           :work-key="workKey"
           :work-id="workId"
           :domain="domain"
+          :min-edition-year="minEditionYear"
+          :max-edition-year="maxEditionYear"
           orientation="vertical"
         >
           <template #below-title>

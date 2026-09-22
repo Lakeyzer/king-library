@@ -219,6 +219,14 @@ setPageSeo({
           />
         </p>
 
+        <UAlert
+          v-if="work.remark"
+          color="neutral"
+          variant="subtle"
+          icon="i-lucide-info"
+          :description="work.remark"
+        />
+
         <template
           v-if="containsItems.length"
           #related
@@ -234,6 +242,8 @@ setPageSeo({
             :work-id="work.id"
             :work-title="work.title"
             :work-key="work.open_library_work_key"
+            :min-edition-year="work.edition_year_min"
+            :max-edition-year="work.edition_year_max"
             mode="expanded"
           />
         </template>
@@ -295,6 +305,8 @@ setPageSeo({
         v-if="work.open_library_work_key"
         :work-key="work.open_library_work_key"
         :work-id="work.id"
+        :min-edition-year="work.edition_year_min"
+        :max-edition-year="work.edition_year_max"
       />
 
       <DetailConnectionList

@@ -11,13 +11,18 @@ interface Props {
   domain?: 'king' | 'related'
   /** True when this renders inside another interactive element's own <button> (e.g. an accordion trigger) - swaps compact mode's dropdown-menu trigger to a non-button tag, since a <button> cannot validly contain another <button>. Reka's DropdownMenuTrigger still sets the right aria-* attributes and keyboard handling regardless of the underlying tag. */
   nested?: boolean
+  /** Forwarded to the Add to Shelf editions picker - see WorkEditionList's own doc on minEditionYear/maxEditionYear. */
+  minEditionYear?: number | null
+  maxEditionYear?: number | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
   workKey: null,
   mode: 'compact',
   domain: 'king',
-  nested: false
+  nested: false,
+  minEditionYear: null,
+  maxEditionYear: null
 })
 
 defineOptions({ inheritAttrs: false })
@@ -529,5 +534,7 @@ function handleShelfClick() {
     :work-id="workId"
     :work-key="workKey"
     :domain="domain"
+    :min-edition-year="minEditionYear"
+    :max-edition-year="maxEditionYear"
   />
 </template>

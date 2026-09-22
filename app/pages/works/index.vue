@@ -83,6 +83,7 @@ function extraFilter(work: KingWork) {
     placeholder-icon="i-lucide-book"
     sort-year-label="Release year"
     :extra-filter="extraFilter"
+    :note-of="(work: KingWork) => work.remark"
   >
     <template #extra-filters>
       <URadioGroup
@@ -102,6 +103,8 @@ function extraFilter(work: KingWork) {
         :work-id="(item as KingWork).id"
         :work-title="(item as KingWork).title"
         :work-key="(item as KingWork).open_library_work_key"
+        :min-edition-year="(item as KingWork).edition_year_min"
+        :max-edition-year="(item as KingWork).edition_year_max"
       />
     </template>
 

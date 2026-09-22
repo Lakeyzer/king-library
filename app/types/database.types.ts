@@ -291,13 +291,17 @@ export type Database = {
           active: boolean
           bachman: boolean
           co_author: string | null
+          counts_with_id: string | null
           cover_id: number | null
           dark_tower: boolean
           dark_tower_relation: string | null
           description: string | null
+          edition_year_max: number | null
+          edition_year_min: number | null
           id: string
           open_library_work_key: string | null
           publish_date: string
+          remark: string | null
           shuffle_position: number
           slug: string
           title: string
@@ -307,13 +311,17 @@ export type Database = {
           active?: boolean
           bachman?: boolean
           co_author?: string | null
+          counts_with_id?: string | null
           cover_id?: number | null
           dark_tower?: boolean
           dark_tower_relation?: string | null
           description?: string | null
+          edition_year_max?: number | null
+          edition_year_min?: number | null
           id?: string
           open_library_work_key?: string | null
           publish_date: string
+          remark?: string | null
           shuffle_position: number
           slug: string
           title: string
@@ -323,19 +331,38 @@ export type Database = {
           active?: boolean
           bachman?: boolean
           co_author?: string | null
+          counts_with_id?: string | null
           cover_id?: number | null
           dark_tower?: boolean
           dark_tower_relation?: string | null
           description?: string | null
+          edition_year_max?: number | null
+          edition_year_min?: number | null
           id?: string
           open_library_work_key?: string | null
           publish_date?: string
+          remark?: string | null
           shuffle_position?: number
           slug?: string
           title?: string
           type?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: 'king_works_counts_with_id_fkey'
+            columns: ['counts_with_id']
+            isOneToOne: false
+            referencedRelation: 'king_works'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'king_works_counts_with_id_fkey'
+            columns: ['counts_with_id']
+            isOneToOne: false
+            referencedRelation: 'work_stats'
+            referencedColumns: ['king_work_id']
+          }
+        ]
       }
       profiles: {
         Row: {

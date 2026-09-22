@@ -86,6 +86,7 @@
     "publish_date": "1978-10-03",
     "slug": "the-stand",
     "description": "A weaponized strain of super-flu wipes out most of humanity, and the survivors are drawn into an epic, continent-spanning struggle between good and evil.",
+    "remark": "The original from 1978, trimmed for length before publication.",
     "co_author": null,
     "active": true
   },
@@ -196,6 +197,25 @@
   },
   {
     "id": "3fee5bd4-0a16-4539-b9a5-0ad442a4e0f1",
+    "title": "The Gunslinger: Revised Edition",
+    "type": "novel",
+    "open_library_work_key": "OL81628W",
+    "dark_tower": true,
+    "bachman": false,
+    "dark_tower_relation": null,
+    "cover_id": 14651731,
+    "publish_date": "2003-07-01",
+    "slug": "the-gunslinger-revised-edition",
+    "description": "Gunslinger Roland Deschain begins his long pursuit of the man in black across a desert wasteland, the first step of his quest toward the Dark Tower.",
+    "remark": "The revised and expanded edition from 2003.",
+    "edition_year_min": 2003,
+    "edition_year_max": null,
+    "counts_with_id": null,
+    "co_author": null,
+    "active": true
+  },
+  {
+    "id": "7c2f4e3a-6b4a-4a6b-9d3a-1e6a8f9b2c4d",
     "title": "The Gunslinger",
     "type": "novel",
     "open_library_work_key": "OL81628W",
@@ -206,6 +226,10 @@
     "publish_date": "1982-06-10",
     "slug": "the-gunslinger",
     "description": "Gunslinger Roland Deschain begins his long pursuit of the man in black across a desert wasteland, the first step of his quest toward the Dark Tower.",
+    "remark": "The original from 1982, published before King's 2003 revision.",
+    "edition_year_min": null,
+    "edition_year_max": 2002,
+    "counts_with_id": "3fee5bd4-0a16-4539-b9a5-0ad442a4e0f1",
     "co_author": null,
     "active": true
   },
@@ -416,6 +440,7 @@
     "publish_date": "1990-05-01",
     "slug": "the-stand-the-complete-uncut-edition",
     "description": "The expanded, restored edition of The Stand, returning scenes trimmed from the original publication to King's sweeping post-apocalyptic epic.",
+    "remark": "The restored, uncut edition from 1990.",
     "co_author": null,
     "active": true
   },

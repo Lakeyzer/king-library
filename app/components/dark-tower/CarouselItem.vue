@@ -70,6 +70,8 @@ function stephenKingByline(work: KingWork) {
         :work-id="work.id"
         :work-title="work.title"
         :work-key="work.open_library_work_key"
+        :min-edition-year="work.edition_year_min"
+        :max-edition-year="work.edition_year_max"
         mode="expanded"
       />
     </div>

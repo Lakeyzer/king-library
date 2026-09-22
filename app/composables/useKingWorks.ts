@@ -11,10 +11,21 @@ export interface KingWork {
   dark_tower: boolean
   bachman: boolean
   dark_tower_relation: string | null
+  // Free-text note distinguishing this row from another version of the same
+  // book (e.g. which Gunslinger/Stand text this is) - see supabase-conventions.
+  remark: string | null
+  // Restricts which Open Library editions the "Add to Shelf" picker offers -
+  // both null (the common case) means no restriction. See supabase-conventions.
+  edition_year_min: number | null
+  edition_year_max: number | null
+  // Non-null on an "alternate" version of another king_works row (e.g. the
+  // original Gunslinger points at its Revised Edition) - the pair counts as
+  // one slot toward reading-progress totals. See supabase-conventions.
+  counts_with_id: string | null
 }
 
 const KING_WORK_COLUMNS
-  = 'id, title, type, publish_date, slug, description, co_author, open_library_work_key, cover_id, dark_tower, bachman, dark_tower_relation'
+  = 'id, title, type, publish_date, slug, description, co_author, open_library_work_key, cover_id, dark_tower, bachman, dark_tower_relation, remark, edition_year_min, edition_year_max, counts_with_id'
 
 export function useKingWorks() {
   const supabase = useSupabaseClient()

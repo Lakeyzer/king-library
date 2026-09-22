@@ -7,11 +7,17 @@ interface Props {
   orientation?: 'auto' | 'vertical'
   /** 'king' (default) or 'related' - forwarded to BookEditionToggle, see its own domain doc. */
   domain?: 'king' | 'related'
+  /** Only show editions published in this year or later - for a king_works row that shares an open_library_work_key with another version of the same book (e.g. a Revised Edition), sourced from king_works.edition_year_min. Null (default) means no lower bound. */
+  minEditionYear?: number | null
+  /** Only show editions published in this year or earlier - king_works.edition_year_max. Null (default) means no upper bound. */
+  maxEditionYear?: number | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
   orientation: 'auto',
-  domain: 'king'
+  domain: 'king',
+  minEditionYear: null,
+  maxEditionYear: null
 })
 
 const PAGE_SIZE = 10
@@ -61,35 +67,61 @@ onMounted(async () => {
 
   await nextTick()
   updateScrollState()
+
+  // A year restriction applies to every edition regardless of search term,
+  // so (unlike the query watcher below) it must force loadAll() right away
+  // rather than waiting for the user to type something - otherwise only the
+  // first fetched page would ever get filtered.
+  if (hasYearFilter.value) loadAll()
 })
+
+// Editions without a known publish year are excluded once a year
+// restriction is active - an unknown year can't be verified as the right
+// text, and showing it under either version risks the exact mislabeling
+// edition_year_min/max exists to prevent.
+function matchesYearFilter(edition: OpenLibraryEdition): boolean {
+  if (props.minEditionYear === null && props.maxEditionYear === null) return true
+
+  const year = edition.publishYear ? Number(edition.publishYear) : null
+  if (year === null) return false
+
+  if (props.minEditionYear !== null && year < props.minEditionYear) return false
+  if (props.maxEditionYear !== null && year > props.maxEditionYear) return false
+  return true
+}
+
+const hasYearFilter = computed(() => props.minEditionYear !== null || props.maxEditionYear !== null)
 
 const filteredEditions = computed(() => {
   const term = query.value.trim().toLowerCase()
-  if (!term) return editions.value
 
-  return editions.value.filter(
-    edition =>
+  return editions.value.filter((edition) => {
+    if (!matchesYearFilter(edition)) return false
+    if (!term) return true
+
+    return (
       edition.publisher?.toLowerCase().includes(term)
       || edition.publishYear?.includes(term)
-  )
+    )
+  })
 })
 
-// A search only makes sense against everything loaded, which is exactly
-// what filteredEditions already provides once loadAll() has run (see the
-// query watcher below) - vertical pagination switches from server-fetched
-// pages to paging over that filtered in-memory list while a term is active.
-const isSearching = computed(() => query.value.trim().length > 0)
+// A search - or an active year restriction, which must be applied against
+// everything loaded the same way a search term is - means vertical
+// pagination switches from server-fetched pages to paging over the filtered
+// in-memory list (see filteredEditions and the loadAll() calls above/below).
+const usesClientFiltering = computed(() => query.value.trim().length > 0 || hasYearFilter.value)
 
-const verticalTotal = computed(() => (isSearching.value ? filteredEditions.value.length : total.value))
+const verticalTotal = computed(() => (usesClientFiltering.value ? filteredEditions.value.length : total.value))
 
 const verticalItems = computed(() => {
-  if (!isSearching.value) return pageEditions.value
+  if (!usesClientFiltering.value) return pageEditions.value
 
   const start = (currentPage.value - 1) * PAGE_SIZE
   return filteredEditions.value.slice(start, start + PAGE_SIZE)
 })
 
-const verticalLoading = computed(() => (isSearching.value ? loading.value : pageLoading.value))
+const verticalLoading = computed(() => (usesClientFiltering.value ? loading.value : pageLoading.value))
 
 async function loadMore() {
   if (loading.value || !hasMore.value) return
@@ -166,7 +198,7 @@ async function loadPage(page: number) {
 // While searching, pagination pages over the already-loaded filteredEditions
 // in memory instead (see verticalItems) - no fetch needed.
 watch(currentPage, (page) => {
-  if (!isSearching.value) loadPage(page)
+  if (!usesClientFiltering.value) loadPage(page)
 })
 
 // Full-size cover preview, shared by both orientations - a click on any
@@ -273,7 +305,7 @@ function formatEditionMeta(edition: OpenLibraryEdition): string | null {
     <div class="flex flex-wrap items-center justify-between gap-3">
       <h2 class="heading-2">
         Editions
-        <span class="font-normal text-muted">(<NumberMotif :text="total" />)</span>
+        <span class="font-normal text-muted">(<NumberMotif :text="verticalTotal" />)</span>
       </h2>
 
       <UInput
@@ -344,7 +376,7 @@ function formatEditionMeta(edition: OpenLibraryEdition): string | null {
         </div>
 
         <div
-          v-if="hasMore && !query"
+          v-if="hasMore && !usesClientFiltering"
           class="flex h-40 w-20 shrink-0 items-center justify-center"
         >
           <UButton

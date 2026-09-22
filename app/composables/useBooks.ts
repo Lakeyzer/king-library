@@ -266,14 +266,14 @@ export function useBooks() {
   // function powers both the owner's own showcase and a public profile's.
   const fetchProfileBookStats = async (userId: string): Promise<ProfileBookStats> => {
     const [{ data: works, error: worksError }, { data: userBooks, error: booksError }] = await Promise.all([
-      supabase.from('king_works').select('id, type, dark_tower, bachman').eq('active', true),
+      supabase.from('king_works').select('id, type, dark_tower, bachman, counts_with_id').eq('active', true),
       supabase.from('user_books').select('king_work_id, read, owned').eq('user_id', userId)
     ])
 
     if (worksError) throw worksError
     if (booksError) throw booksError
 
-    const allWorks = works as { id: string, type: string, dark_tower: boolean, bachman: boolean }[]
+    const allWorks = works as { id: string, type: string, dark_tower: boolean, bachman: boolean, counts_with_id: string | null }[]
     const rows = userBooks as { king_work_id: string, read: boolean, owned: boolean }[]
 
     // An 'omnibus' (e.g. "The Bachman Books") never counts toward reading
@@ -288,11 +288,24 @@ export function useBooks() {
     const readWorkIds = new Set(rows.filter(row => row.read).map(row => row.king_work_id))
     const ownedWorkIds = new Set(rows.filter(row => row.owned).map(row => row.king_work_id))
 
+    // Two king_works rows can represent alternate texts of the same book
+    // (e.g. the original vs. Revised Edition of "The Gunslinger" - see
+    // king_works.counts_with_id) - such a pair shares one progress slot
+    // rather than counting as two, and reading either row satisfies that
+    // slot. Grouping by this key, instead of the raw work id, is what makes
+    // that true for both the total and the read count below - it does NOT
+    // require the two rows' own `read` flags to be kept in sync with each
+    // other (they aren't).
+    const progressGroupId = (work: { id: string, counts_with_id: string | null }) => work.counts_with_id ?? work.id
+
     const progressFor = (predicate: (work: { dark_tower: boolean, bachman: boolean }) => boolean): CategoryProgress => {
       const inCategory = progressEligibleWorks.filter(predicate)
+      const readGroupIds = new Set(
+        inCategory.filter(work => readWorkIds.has(work.id)).map(progressGroupId)
+      )
       return {
-        count: inCategory.filter(work => readWorkIds.has(work.id)).length,
-        total: inCategory.length
+        count: readGroupIds.size,
+        total: new Set(inCategory.map(progressGroupId)).size
       }
     }
 
@@ -374,15 +387,23 @@ export function useBooks() {
 
     const workIds = darkTowerSeries.members.map(member => member.workId)
 
-    const [{ data: works, error: worksError }, { data: userBooks, error: booksError }] = await Promise.all([
+    const [{ data: works, error: worksError }, { data: alternates, error: alternatesError }, { data: userBooks, error: booksError }] = await Promise.all([
       supabase
         .from('king_works')
         .select('id, title, slug, cover_id, publish_date, active')
         .in('id', workIds),
+      // A series member can have an "alternate" king_works row pointing at
+      // it via counts_with_id (e.g. the original Gunslinger pointing at its
+      // Revised Edition, which is the actual series member) - see
+      // fetchProfileBookStats' progressGroupId. Reading either row satisfies
+      // the member's slot here too, so this suggestion doesn't keep
+      // recommending a book the user already read under its other version.
+      supabase.from('king_works').select('id, counts_with_id').in('counts_with_id', workIds),
       supabase.from('user_books').select('king_work_id').eq('user_id', userId).eq('read', true)
     ])
 
     if (worksError) throw worksError
+    if (alternatesError) throw alternatesError
     if (booksError) throw booksError
 
     interface WorkRef {
@@ -397,11 +418,20 @@ export function useBooks() {
     const workById = new Map((works as WorkRef[]).map(work => [work.id, work]))
     const readWorkIds = new Set((userBooks as { king_work_id: string }[]).map(row => row.king_work_id))
 
+    const alternateIdsByMemberId = new Map<string, string[]>()
+    for (const alternate of alternates as { id: string, counts_with_id: string | null }[]) {
+      const memberId = alternate.counts_with_id!
+      alternateIdsByMemberId.set(memberId, [...(alternateIdsByMemberId.get(memberId) ?? []), alternate.id])
+    }
+
+    const isMemberRead = (workId: string) =>
+      readWorkIds.has(workId) || (alternateIdsByMemberId.get(workId) ?? []).some(id => readWorkIds.has(id))
+
     const nextMember = [...darkTowerSeries.members]
       .sort((a, b) => a.position - b.position)
       .find((member) => {
         const work = workById.get(member.workId)
-        return work !== undefined && work.active && !readWorkIds.has(member.workId)
+        return work !== undefined && work.active && !isMemberRead(member.workId)
       })
 
     if (!nextMember) return null
