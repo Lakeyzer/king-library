@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import type { BookshelfItem } from "~/composables/useBookshelf";
+import type { ProfileBookshelfItem } from '~/components/profile/Bookshelf.vue'
 
 interface Props {
-  item: BookshelfItem;
-  isOwner: boolean;
+  item: ProfileBookshelfItem
+  isOwner: boolean
 }
 
-const props = defineProps<Props>();
-const emit = defineEmits<{ removed: [] }>();
+const props = defineProps<Props>()
+const emit = defineEmits<{ removed: [] }>()
 
 // Cover-resolution order: an edition tile tries its own cover first (built
 // from a stored id, same as getOpenLibraryCoverUrl); if that edition has no
@@ -16,32 +16,32 @@ const emit = defineEmits<{ removed: [] }>();
 // stored anywhere (see supabase-conventions "Cover images"). Only once both
 // of those are unavailable does the tile fall back to an icon + title.
 const coverSrc = ref<string | null>(
-  props.item.kind === "edition" ? getEditionCoverUrl(props.item.editionId, "M") : null,
-);
+  props.item.kind === 'edition' ? getEditionCoverUrl(props.item.editionId, 'M') : null
+)
 
-const triedWorkFallback = ref(false);
+const triedWorkFallback = ref(false)
 // Whether a work-cover fallback is even worth attempting - only an edition
 // tile with a known Open Library work key has anywhere left to fall back to
 // (a work tile's own cover attempt already *is* the work-cover attempt).
 const canTryWorkFallback = computed(
-  () => props.item.kind === "edition" && !triedWorkFallback.value && !!props.item.openLibraryWorkKey,
-);
+  () => props.item.kind === 'edition' && !triedWorkFallback.value && !!props.item.openLibraryWorkKey
+)
 
 async function tryWorkCoverFallback() {
-  triedWorkFallback.value = true;
+  triedWorkFallback.value = true
   coverSrc.value = props.item.openLibraryWorkKey
-    ? await getWorkCoverUrl(props.item.openLibraryWorkKey, "M")
-    : null;
+    ? await getWorkCoverUrl(props.item.openLibraryWorkKey, 'M')
+    : null
 }
 
 onMounted(() => {
-  if (props.item.kind === "work") tryWorkCoverFallback();
-});
+  if (props.item.kind === 'work') tryWorkCoverFallback()
+})
 
-const hasError = ref(false);
+const hasError = ref(false)
 watch(coverSrc, () => {
-  hasError.value = false;
-});
+  hasError.value = false
+})
 
 // Open Library's covers API doesn't 404 for an id with no cover art on file
 // - it returns a 1x1 pixel GIF with a 200 status instead, which never fires
@@ -49,13 +49,13 @@ watch(coverSrc, () => {
 // that case too, alongside a genuine load failure - and, for an edition
 // tile with somewhere left to fall back to, triggers the work-cover
 // fallback above rather than giving up immediately.
-const MIN_VALID_COVER_DIMENSION = 4;
+const MIN_VALID_COVER_DIMENSION = 4
 
 function handleCoverFailure() {
   if (canTryWorkFallback.value) {
-    tryWorkCoverFallback();
+    tryWorkCoverFallback()
   } else {
-    hasError.value = true;
+    hasError.value = true
   }
 }
 
@@ -65,20 +65,22 @@ function handleCoverFailure() {
 // underlying <img> as already complete and emits a synthetic
 // `new Event("load")` instead of a real DOM event - whose target is always
 // null, since it was never dispatched on the element.
-const coverImgRef = useTemplateRef<{ imgEl?: HTMLImageElement | null }>("coverImg");
+const coverImgRef = useTemplateRef<{ imgEl?: HTMLImageElement | null }>('coverImg')
 
 function onCoverLoad() {
-  const img = coverImgRef.value?.imgEl;
-  if (!img) return;
+  const img = coverImgRef.value?.imgEl
+  if (!img) return
   if (img.naturalWidth < MIN_VALID_COVER_DIMENSION || img.naturalHeight < MIN_VALID_COVER_DIMENSION) {
-    handleCoverFailure();
+    handleCoverFailure()
   }
 }
 
-const alt = computed(() => `${props.item.workTitle} cover`);
-const to = computed(() => `/works/${props.item.workSlug}`);
+const alt = computed(() => `${props.item.workTitle} cover`)
+const to = computed(() =>
+  props.item.source === 'king' ? `/works/${props.item.workSlug}` : `/works-by-others/${props.item.workSlug}`
+)
 
-const showRemoveModal = ref(false);
+const showRemoveModal = ref(false)
 </script>
 
 <template>
@@ -92,12 +94,18 @@ const showRemoveModal = ref(false);
          "Bookshelf tiles render at each cover's natural aspect ratio").
          Rendering at natural size is what gives the column layout real
          heights to pack. -->
-    <NuxtLink :to="to" class="block overflow-hidden rounded bg-elevated">
+    <NuxtLink
+      :to="to"
+      class="block overflow-hidden rounded bg-elevated"
+    >
       <div
         v-if="!coverSrc || hasError"
         class="flex aspect-[2/3] w-full flex-col items-center justify-center gap-2 p-3 text-center"
       >
-        <UIcon name="i-lucide-book" class="size-8 shrink-0 text-muted" />
+        <UIcon
+          name="i-lucide-book"
+          class="size-8 shrink-0 text-muted"
+        />
         <p class="line-clamp-4 text-xs font-medium text-muted"><NumberMotif :text="item.workTitle" /></p>
       </div>
       <NuxtImg

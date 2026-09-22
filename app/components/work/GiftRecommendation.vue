@@ -1,17 +1,23 @@
 <script setup lang="ts">
-import type { GiftIdeaRecommendation } from "~/composables/useBooks";
+import type { GiftIdeaRecommendation } from '~/composables/useBooks'
 
 interface Props {
-  recommendation: GiftIdeaRecommendation | null;
+  recommendation: GiftIdeaRecommendation | null
 }
 
-defineProps<Props>();
+defineProps<Props>()
 </script>
 
 <template>
-  <div v-if="recommendation" class="flex flex-col gap-3 rounded-lg bg-elevated p-4">
+  <div
+    v-if="recommendation"
+    class="flex flex-col gap-3 rounded-lg bg-elevated p-4"
+  >
     <h2 class="flex items-center gap-2 text-sm font-semibold text-highlighted">
-      <UIcon name="i-lucide-gift" class="size-4" />
+      <UIcon
+        name="i-lucide-gift"
+        class="size-4"
+      />
       Gift Idea
     </h2>
 
@@ -21,7 +27,7 @@ defineProps<Props>();
         title: recommendation.title,
         slug: recommendation.slug,
         coverId: recommendation.coverId,
-        publishDate: recommendation.publishDate,
+        publishDate: recommendation.publishDate
       }"
       meta="It's on their read list, but not their shelf"
       :show-actions="false"

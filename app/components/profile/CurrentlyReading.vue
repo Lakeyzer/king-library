@@ -1,25 +1,39 @@
 <script setup lang="ts">
-import type { CurrentlyReadingWork } from "~/composables/useBooks";
+import type { CurrentlyReadingWork } from '~/composables/useBooks'
+import type { CurrentlyReadingRelatedWork } from '~/composables/useRelatedWorks'
+
+// `source` distinguishes a King work (its own finish flow, /works/ link)
+// from a Works by Others one (no ReadFormat field, /works-by-others/ link,
+// BookMarkReadModal domain="related" instead of BookFinishReadingModal) -
+// see profile-showcase's design.md "Currently Reading always includes By
+// Other Hands works".
+export type CurrentlyReadingItem
+  = | (CurrentlyReadingWork & { source: 'king' })
+    | (CurrentlyReadingRelatedWork & { source: 'related' })
 
 interface Props {
-  items: CurrentlyReadingWork[];
-  isOwner: boolean;
+  items: CurrentlyReadingItem[]
+  isOwner: boolean
 }
 
-const props = defineProps<Props>();
+const props = defineProps<Props>()
 
-const finishingWorkId = ref<string | null>(null);
+function itemHref(item: CurrentlyReadingItem) {
+  return item.source === 'king' ? `/works/${item.slug}` : `/works-by-others/${item.slug}`
+}
+
+const finishingWorkId = ref<string | null>(null)
 
 const finishingWork = computed(
-  () => props.items.find((item) => item.id === finishingWorkId.value) ?? null,
-);
+  () => props.items.find(item => item.id === finishingWorkId.value) ?? null
+)
 
 const showFinishModal = computed({
   get: () => finishingWorkId.value !== null,
   set: (value: boolean) => {
-    if (!value) finishingWorkId.value = null;
-  },
-});
+    if (!value) finishingWorkId.value = null
+  }
+})
 </script>
 
 <template>
@@ -33,7 +47,10 @@ const showFinishModal = computed({
   -->
   <div class="flex flex-col gap-3 rounded-lg bg-elevated p-4 ring-1 ring-primary/30">
     <h2 class="flex items-center gap-2 text-sm font-semibold text-highlighted">
-      <UIcon name="i-lucide-book-open-text" class="size-4 text-primary" />
+      <UIcon
+        name="i-lucide-book-open-text"
+        class="size-4 text-primary"
+      />
       Currently Reading
     </h2>
 
@@ -44,9 +61,19 @@ const showFinishModal = computed({
       description="Start a book to see it show up here."
     />
 
-    <div v-else class="flex flex-col gap-3">
-      <div v-for="item in items" :key="item.id" class="flex items-center gap-2">
-        <NuxtLink :to="`/works/${item.slug}`" class="group flex min-w-0 flex-1 items-center gap-2">
+    <div
+      v-else
+      class="flex flex-col gap-3"
+    >
+      <div
+        v-for="item in items"
+        :key="item.id"
+        class="flex items-center gap-2"
+      >
+        <NuxtLink
+          :to="itemHref(item)"
+          class="group flex min-w-0 flex-1 items-center gap-2"
+        >
           <ImageThumbnail
             :src="item.coverId ? getOpenLibraryCoverUrl(item.coverId, 'S') : null"
             :alt="`${item.title} cover`"
@@ -58,8 +85,14 @@ const showFinishModal = computed({
             <p class="truncate text-sm font-medium text-highlighted group-hover:text-primary">
               <NumberMotif :text="item.title" />
             </p>
-            <p v-if="item.format" class="flex items-center gap-1 text-xs text-muted">
-              <UIcon :name="READ_FORMAT_ICON[item.format]" class="size-3" />
+            <p
+              v-if="item.format"
+              class="flex items-center gap-1 text-xs text-muted"
+            >
+              <UIcon
+                :name="READ_FORMAT_ICON[item.format]"
+                class="size-3"
+              />
               {{ READ_FORMAT_LABEL[item.format] }}
             </p>
           </div>
@@ -79,10 +112,19 @@ const showFinishModal = computed({
     </div>
 
     <BookFinishReadingModal
-      v-if="finishingWorkId && finishingWork"
+      v-if="finishingWorkId && finishingWork && finishingWork.source === 'king'"
       v-model:open="showFinishModal"
       :work-id="finishingWorkId"
       :work-title="finishingWork.title"
+      :initial-format="finishingWork.format"
+    />
+    <BookMarkReadModal
+      v-if="finishingWorkId && finishingWork && finishingWork.source === 'related'"
+      v-model:open="showFinishModal"
+      domain="related"
+      :work-id="finishingWorkId"
+      :work-title="finishingWork.title"
+      :initial-started-on="finishingWork.startedOn"
       :initial-format="finishingWork.format"
     />
   </div>

@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import type { KingWork } from "~/composables/useKingWorks";
+import type { KingWork } from '~/composables/useKingWorks'
 
 interface Props {
   /** Active King works with a non-null dark_tower_relation - the caller is
    * responsible for that filtering (see design.md "Related-works research"). */
-  works: KingWork[];
+  works: KingWork[]
 }
 
-defineProps<Props>();
+defineProps<Props>()
 </script>
 
 <template>

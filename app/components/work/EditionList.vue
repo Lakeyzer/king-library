@@ -1,105 +1,108 @@
 <script setup lang="ts">
 interface Props {
-  workKey: string;
-  /** King work id (our DB uuid, distinct from workKey's Open Library key) - needed to record add/remove-to-shelf actions against the right work. */
-  workId: string;
+  workKey: string
+  /** Work id (our DB uuid, distinct from workKey's Open Library key) - needed to record add/remove-to-shelf actions against the right work. */
+  workId: string
   /** "vertical" forces the paginated list view at every width; "auto" (default) shows the horizontal scroller at sm+ and falls back to the paginated list below it. */
-  orientation?: "auto" | "vertical";
+  orientation?: 'auto' | 'vertical'
+  /** 'king' (default) or 'related' - forwarded to BookEditionToggle, see its own domain doc. */
+  domain?: 'king' | 'related'
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  orientation: "auto",
-});
+  orientation: 'auto',
+  domain: 'king'
+})
 
-const PAGE_SIZE = 10;
-const SCROLL_LOAD_THRESHOLD = 200;
+const PAGE_SIZE = 10
+const SCROLL_LOAD_THRESHOLD = 200
 
-const { fetchEditions } = useOpenLibraryEditions();
+const { fetchEditions } = useOpenLibraryEditions()
 
 // True until the first Open Library response lands. The fetch itself is
 // deliberately not blocking the page (see the onMounted comment below), but
 // that means this component renders nothing at all in the meantime - a
 // skeleton the same rough shape as the real content avoids the layout shift
 // that pop-in would otherwise cause once the response arrives.
-const initialLoading = ref(true);
-const SKELETON_COUNT = 5;
+const initialLoading = ref(true)
+const SKELETON_COUNT = 5
 
-const total = ref(0);
+const total = ref(0)
 
 // Horizontal (infinite-scroll) state - only rendered when orientation is "auto" (sm+).
-const editions = ref<OpenLibraryEdition[]>([]);
-const offset = ref(0);
-const hasMore = ref(true);
-const loading = ref(false);
-const query = ref("");
-const scrollerRef = ref<HTMLElement | null>(null);
-const canScrollLeft = ref(false);
-const canScrollRight = ref(false);
+const editions = ref<OpenLibraryEdition[]>([])
+const offset = ref(0)
+const hasMore = ref(true)
+const loading = ref(false)
+const query = ref('')
+const scrollerRef = ref<HTMLElement | null>(null)
+const canScrollLeft = ref(false)
+const canScrollRight = ref(false)
 
 // Vertical (paginated) state - always rendered, either as the only view
 // ("vertical") or as the small-screen fallback ("auto").
-const currentPage = ref(1);
-const pageEditions = ref<OpenLibraryEdition[]>([]);
-const pageLoading = ref(false);
+const currentPage = ref(1)
+const pageEditions = ref<OpenLibraryEdition[]>([])
+const pageLoading = ref(false)
 
 // Fetched client-side after mount rather than as a blocking top-level await:
 // this hits Open Library live, and this component sharing the page's
 // Suspense boundary would otherwise hold up the whole page/navigation on a
 // third-party API call for content that's supplementary, not core.
 onMounted(async () => {
-  const firstPage = await fetchEditions(props.workKey, 0, PAGE_SIZE);
-  total.value = firstPage.total;
-  editions.value = firstPage.editions;
-  offset.value = firstPage.editions.length;
-  hasMore.value = firstPage.hasMore;
+  const firstPage = await fetchEditions(props.workKey, 0, PAGE_SIZE)
+  total.value = firstPage.total
+  editions.value = firstPage.editions
+  offset.value = firstPage.editions.length
+  hasMore.value = firstPage.hasMore
   // Page 1 is exactly what was just fetched - no need to fetch it again.
-  pageEditions.value = firstPage.editions;
-  initialLoading.value = false;
+  pageEditions.value = firstPage.editions
+  initialLoading.value = false
 
-  await nextTick();
-  updateScrollState();
-});
+  await nextTick()
+  updateScrollState()
+})
 
 const filteredEditions = computed(() => {
-  const term = query.value.trim().toLowerCase();
-  if (!term) return editions.value;
+  const term = query.value.trim().toLowerCase()
+  if (!term) return editions.value
 
   return editions.value.filter(
-    (edition) =>
+    edition =>
       edition.publisher?.toLowerCase().includes(term)
       || edition.publishYear?.includes(term)
-  );
-});
+  )
+})
 
 // A search only makes sense against everything loaded, which is exactly
 // what filteredEditions already provides once loadAll() has run (see the
 // query watcher below) - vertical pagination switches from server-fetched
 // pages to paging over that filtered in-memory list while a term is active.
-const isSearching = computed(() => query.value.trim().length > 0);
+const isSearching = computed(() => query.value.trim().length > 0)
 
-const verticalTotal = computed(() => (isSearching.value ? filteredEditions.value.length : total.value));
+const verticalTotal = computed(() => (isSearching.value ? filteredEditions.value.length : total.value))
 
 const verticalItems = computed(() => {
-  if (!isSearching.value) return pageEditions.value;
+  if (!isSearching.value) return pageEditions.value
 
-  const start = (currentPage.value - 1) * PAGE_SIZE;
-  return filteredEditions.value.slice(start, start + PAGE_SIZE);
-});
+  const start = (currentPage.value - 1) * PAGE_SIZE
+  return filteredEditions.value.slice(start, start + PAGE_SIZE)
+})
 
-const verticalLoading = computed(() => (isSearching.value ? loading.value : pageLoading.value));
+const verticalLoading = computed(() => (isSearching.value ? loading.value : pageLoading.value))
 
 async function loadMore() {
-  if (loading.value || !hasMore.value) return;
+  if (loading.value || !hasMore.value) return
 
-  loading.value = true;
-  const result = await fetchEditions(props.workKey, offset.value, PAGE_SIZE);
-  editions.value.push(...result.editions);
-  offset.value += result.editions.length;
-  hasMore.value = result.hasMore;
-  loading.value = false;
+  loading.value = true
+  const result = await fetchEditions(props.workKey, offset.value, PAGE_SIZE)
+  editions.value.push(...result.editions)
+  offset.value += result.editions.length
+  hasMore.value = result.hasMore
+  loading.value = false
 
-  await nextTick();
-  updateScrollState();
+  await nextTick()
+  updateScrollState()
 }
 
 // A search only makes sense against everything, not just what's loaded so
@@ -108,82 +111,82 @@ async function loadMore() {
 // no longer exists once the (now filtered, or un-filtered again) result set
 // changes size.
 watch(query, (value) => {
-  currentPage.value = 1;
-  if (value.trim()) loadAll();
-});
+  currentPage.value = 1
+  if (value.trim()) loadAll()
+})
 
 // Filtering changes the scroller's content width and can leave it scrolled
 // past the end of the (now shorter) result set - reset and re-measure.
 watch(filteredEditions, () => {
-  if (scrollerRef.value) scrollerRef.value.scrollLeft = 0;
-  nextTick(updateScrollState);
-});
+  if (scrollerRef.value) scrollerRef.value.scrollLeft = 0
+  nextTick(updateScrollState)
+})
 
 async function loadAll() {
   while (hasMore.value && !loading.value) {
-    await loadMore();
+    await loadMore()
   }
 }
 
 function updateScrollState() {
-  const el = scrollerRef.value;
-  if (!el) return;
+  const el = scrollerRef.value
+  if (!el) return
 
-  canScrollLeft.value = el.scrollLeft > 0;
-  canScrollRight.value = el.scrollLeft + el.clientWidth < el.scrollWidth - 1;
+  canScrollLeft.value = el.scrollLeft > 0
+  canScrollRight.value = el.scrollLeft + el.clientWidth < el.scrollWidth - 1
 }
 
 function onScroll() {
-  const el = scrollerRef.value;
-  if (!el) return;
+  const el = scrollerRef.value
+  if (!el) return
 
-  updateScrollState();
+  updateScrollState()
 
-  const remaining = el.scrollWidth - el.scrollLeft - el.clientWidth;
-  if (remaining < SCROLL_LOAD_THRESHOLD) loadMore();
+  const remaining = el.scrollWidth - el.scrollLeft - el.clientWidth
+  if (remaining < SCROLL_LOAD_THRESHOLD) loadMore()
 }
 
-function scrollBy(direction: "left" | "right") {
-  const el = scrollerRef.value;
-  if (!el) return;
+function scrollBy(direction: 'left' | 'right') {
+  const el = scrollerRef.value
+  if (!el) return
 
-  el.scrollBy({ left: direction === "left" ? -el.clientWidth * 0.8 : el.clientWidth * 0.8, behavior: "smooth" });
+  el.scrollBy({ left: direction === 'left' ? -el.clientWidth * 0.8 : el.clientWidth * 0.8, behavior: 'smooth' })
 }
 
 async function loadPage(page: number) {
-  if (page === 1 && pageEditions.value.length) return;
+  if (page === 1 && pageEditions.value.length) return
 
-  pageLoading.value = true;
-  const result = await fetchEditions(props.workKey, (page - 1) * PAGE_SIZE, PAGE_SIZE);
-  pageEditions.value = result.editions;
-  total.value = result.total;
-  pageLoading.value = false;
+  pageLoading.value = true
+  const result = await fetchEditions(props.workKey, (page - 1) * PAGE_SIZE, PAGE_SIZE)
+  pageEditions.value = result.editions
+  total.value = result.total
+  pageLoading.value = false
 }
 
 // While searching, pagination pages over the already-loaded filteredEditions
 // in memory instead (see verticalItems) - no fetch needed.
 watch(currentPage, (page) => {
-  if (!isSearching.value) loadPage(page);
-});
+  if (!isSearching.value) loadPage(page)
+})
 
 // Full-size cover preview, shared by both orientations - a click on any
 // edition's thumbnail (only when it actually has a cover) opens the same
 // modal rather than each layout building its own.
-const previewCoverId = ref<number | null>(null);
-const previewTitle = ref("");
-const showPreview = ref(false);
+const previewCoverId = ref<number | null>(null)
+const previewTitle = ref('')
+const showPreview = ref(false)
 
 function openPreview(edition: OpenLibraryEdition) {
-  if (!edition.coverId) return;
+  if (!edition.coverId) return
 
-  previewCoverId.value = edition.coverId;
-  previewTitle.value = edition.title;
-  showPreview.value = true;
+  previewCoverId.value = edition.coverId
+  previewTitle.value = edition.title
+  showPreview.value = true
 }
 
 const previewSrc = computed(() =>
-  previewCoverId.value ? getOpenLibraryCoverUrl(previewCoverId.value, "L") : null
-);
+  previewCoverId.value ? getOpenLibraryCoverUrl(previewCoverId.value, 'L') : null
+)
 
 // The vertical layout is shared by two different contexts that want
 // different densities: forced ("vertical") is the editions picker modal,
@@ -192,8 +195,8 @@ const previewSrc = computed(() =>
 // instead match the rest of the detail page's connection lists (e.g.
 // DetailConnectionList's own mobile fallback, ImageThumbnail's default
 // "sm" size) rather than looking oddly cramped next to them.
-const rowThumbnailSize = computed(() => (props.orientation === "vertical" ? "xs" : "sm"));
-const rowCoverSize = computed(() => (props.orientation === "vertical" ? "S" : "M"));
+const rowThumbnailSize = computed(() => (props.orientation === 'vertical' ? 'xs' : 'sm'))
+const rowCoverSize = computed(() => (props.orientation === 'vertical' ? 'S' : 'M'))
 
 // e.g. "Mass Market Paperback in English - 1st Signet printing" - each piece
 // is independently optional, so the pieces present decide the shape rather
@@ -201,27 +204,39 @@ const rowCoverSize = computed(() => (props.orientation === "vertical" ? "S" : "M
 function formatEditionMeta(edition: OpenLibraryEdition): string | null {
   const formatAndLanguage = [edition.physicalFormat, edition.language && `in ${edition.language}`]
     .filter(Boolean)
-    .join(" ");
+    .join(' ')
 
-  const combined = [formatAndLanguage, edition.editionName].filter(Boolean).join(" - ");
-  if (!combined) return null;
+  const combined = [formatAndLanguage, edition.editionName].filter(Boolean).join(' - ')
+  if (!combined) return null
 
-  return combined.charAt(0).toUpperCase() + combined.slice(1);
+  return combined.charAt(0).toUpperCase() + combined.slice(1)
 }
 </script>
 
 <template>
-  <div v-if="initialLoading" class="flex flex-col gap-3">
+  <div
+    v-if="initialLoading"
+    class="flex flex-col gap-3"
+  >
     <div class="flex flex-wrap items-center justify-between gap-3">
-      <h3 class="text-sm font-semibold text-highlighted">Editions</h3>
+      <h2 class="heading-2">
+        Editions
+      </h2>
       <USkeleton class="h-9 w-full sm:w-56" />
     </div>
 
-    <div v-if="orientation === 'auto'" class="hidden items-center gap-2 sm:flex">
+    <div
+      v-if="orientation === 'auto'"
+      class="hidden items-center gap-2 sm:flex"
+    >
       <USkeleton class="size-9 shrink-0 rounded-full" />
 
       <div class="flex flex-1 gap-3 overflow-hidden">
-        <div v-for="n in SKELETON_COUNT" :key="n" class="flex w-28 shrink-0 flex-col gap-1">
+        <div
+          v-for="n in SKELETON_COUNT"
+          :key="n"
+          class="flex w-28 shrink-0 flex-col gap-1"
+        >
           <USkeleton class="h-40 w-28" />
           <USkeleton class="h-3 w-16 self-center" />
         </div>
@@ -230,9 +245,19 @@ function formatEditionMeta(edition: OpenLibraryEdition): string | null {
       <USkeleton class="size-9 shrink-0 rounded-full" />
     </div>
 
-    <div class="flex flex-col divide-y divide-accented" :class="orientation === 'auto' && 'sm:hidden'">
-      <div v-for="n in 3" :key="n" class="flex items-center gap-3 py-2">
-        <USkeleton :class="orientation === 'vertical' ? 'h-10 w-7' : 'h-24 w-15'" class="shrink-0" />
+    <div
+      class="flex flex-col divide-y divide-accented"
+      :class="orientation === 'auto' && 'sm:hidden'"
+    >
+      <div
+        v-for="n in 3"
+        :key="n"
+        class="flex items-center gap-3 py-2"
+      >
+        <USkeleton
+          :class="orientation === 'vertical' ? 'h-10 w-7' : 'h-24 w-15'"
+          class="shrink-0"
+        />
         <div class="flex flex-1 flex-col gap-2">
           <USkeleton class="h-4 w-2/3" />
           <USkeleton class="h-3 w-1/3" />
@@ -241,12 +266,15 @@ function formatEditionMeta(edition: OpenLibraryEdition): string | null {
     </div>
   </div>
 
-  <div v-else-if="editions.length || pageEditions.length" class="flex flex-col gap-3">
+  <div
+    v-else-if="editions.length || pageEditions.length"
+    class="flex flex-col gap-3"
+  >
     <div class="flex flex-wrap items-center justify-between gap-3">
-      <h3 class="text-sm font-semibold text-highlighted">
+      <h2 class="heading-2">
         Editions
         <span class="font-normal text-muted">(<NumberMotif :text="total" />)</span>
-      </h3>
+      </h2>
 
       <UInput
         v-model="query"
@@ -259,7 +287,10 @@ function formatEditionMeta(edition: OpenLibraryEdition): string | null {
 
     <slot name="below-title" />
 
-    <div v-if="orientation === 'auto'" class="hidden items-center gap-2 sm:flex">
+    <div
+      v-if="orientation === 'auto'"
+      class="hidden items-center gap-2 sm:flex"
+    >
       <UButton
         icon="i-lucide-chevron-left"
         color="neutral"
@@ -275,7 +306,11 @@ function formatEditionMeta(edition: OpenLibraryEdition): string | null {
         class="flex flex-1 gap-3 overflow-x-auto scroll-smooth pb-1 scrollbar-none"
         @scroll="onScroll"
       >
-        <div v-for="edition in filteredEditions" :key="edition.key" class="w-28 shrink-0">
+        <div
+          v-for="edition in filteredEditions"
+          :key="edition.key"
+          class="w-28 shrink-0"
+        >
           <div class="relative">
             <button
               type="button"
@@ -295,6 +330,7 @@ function formatEditionMeta(edition: OpenLibraryEdition): string | null {
               :work-id="workId"
               :edition-id="edition.key"
               :edition-title="edition.title"
+              :domain="domain"
               class="absolute right-1 top-1"
             />
           </div>
@@ -307,7 +343,10 @@ function formatEditionMeta(edition: OpenLibraryEdition): string | null {
           </p>
         </div>
 
-        <div v-if="hasMore && !query" class="flex h-40 w-20 shrink-0 items-center justify-center">
+        <div
+          v-if="hasMore && !query"
+          class="flex h-40 w-20 shrink-0 items-center justify-center"
+        >
           <UButton
             icon="i-lucide-plus"
             color="neutral"
@@ -358,7 +397,9 @@ function formatEditionMeta(edition: OpenLibraryEdition): string | null {
           </button>
 
           <div class="min-w-0 flex-1">
-            <p class="truncate text-sm font-medium text-highlighted"><NumberMotif :text="edition.title" /></p>
+            <p class="truncate text-sm font-medium text-highlighted">
+              <NumberMotif :text="edition.title" />
+            </p>
             <p class="truncate text-xs text-muted">
               <template v-if="edition.publisher || edition.publishYear">
                 <span v-if="edition.publisher"><NumberMotif :text="edition.publisher" /></span>
@@ -366,7 +407,10 @@ function formatEditionMeta(edition: OpenLibraryEdition): string | null {
                 <span v-if="edition.publishYear"><NumberMotif :text="edition.publishYear" /></span>
               </template>
             </p>
-            <p v-if="formatEditionMeta(edition)" class="truncate text-xs text-muted">
+            <p
+              v-if="formatEditionMeta(edition)"
+              class="truncate text-xs text-muted"
+            >
               <NumberMotif :text="formatEditionMeta(edition)!" />
             </p>
           </div>
@@ -375,6 +419,7 @@ function formatEditionMeta(edition: OpenLibraryEdition): string | null {
             :work-id="workId"
             :edition-id="edition.key"
             :edition-title="edition.title"
+            :domain="domain"
             class="shrink-0"
           />
         </li>
@@ -391,7 +436,10 @@ function formatEditionMeta(edition: OpenLibraryEdition): string | null {
     </div>
   </div>
 
-  <UModal v-model:open="showPreview" :title="previewTitle">
+  <UModal
+    v-model:open="showPreview"
+    :title="previewTitle"
+  >
     <template #body>
       <img
         v-if="previewSrc"

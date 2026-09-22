@@ -5,14 +5,13 @@ export default defineNuxtRouteMiddleware(async (to) => {
   if (!user.value) {
     profile.value = null
 
-    // Unlike the other by-username profile routes (Showcase, Read List,
-    // Watch List - all viewable by anyone), a compare route always needs
-    // "your side" of the comparison, so it requires sign-in the same as
-    // the own-shortcut routes below rather than being publicly viewable.
-    const isCompareRoute = /^\/profile\/[^/]+\/compare$/.test(to.path)
-
-    if (to.path === '/profile' || to.path === '/profile/read-list' || to.path === '/profile/watch-list' || to.path === '/settings' || to.path === '/following' || to.path === '/suggestion-box' || isCompareRoute) {
-      return navigateTo({ path: '/', query: { signin: '1' } })
+    if (isAuthGatedRoute(to.path)) {
+      // `next` carries the original destination through the sign-in flow -
+      // AuthModal reads it back on successful sign-in (password or OAuth,
+      // the latter via /confirm) to return the visitor here instead of
+      // stranding them on the homepage. See safeNextPath for why only an
+      // internal path is ever accepted back out of it.
+      return navigateTo({ path: '/', query: { signin: '1', next: to.fullPath } })
     }
 
     return

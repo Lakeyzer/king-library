@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { AdaptationHighlight } from "~/composables/useAdaptations";
+import type { AdaptationHighlight } from '~/composables/useAdaptations'
 
 interface Props {
-  items: AdaptationHighlight[];
-  emptyDescription: string;
+  items: AdaptationHighlight[]
+  emptyDescription: string
 }
 
-defineProps<Props>();
+defineProps<Props>()
 </script>
 
 <template>
@@ -16,8 +16,14 @@ defineProps<Props>();
     title="Nothing here"
     :description="emptyDescription"
   />
-  <ul v-else class="flex flex-col divide-y divide-accented">
-    <li v-for="adaptation in items" :key="adaptation.id">
+  <ul
+    v-else
+    class="flex flex-col divide-y divide-accented"
+  >
+    <li
+      v-for="adaptation in items"
+      :key="adaptation.id"
+    >
       <NuxtLink
         :to="`/adaptations/${adaptation.slug}`"
         class="group flex items-center gap-3 py-2 hover:bg-elevated"

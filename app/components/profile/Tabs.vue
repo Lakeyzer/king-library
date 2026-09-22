@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { NavigationMenuItem } from "@nuxt/ui";
+import type { NavigationMenuItem } from '@nuxt/ui'
 
 interface Props {
   /** "/profile" for the signed-in user's own tabs, "/profile/[username]" for a viewed profile's. */
-  basePath: string;
+  basePath: string
 }
 
-const props = defineProps<Props>();
+const props = defineProps<Props>()
 
 // UTabs is local-state (v-model) only - it has no `to`/link concept, so it
 // can't drive real routes. UNavigationMenu is what AppHeader already uses
@@ -22,12 +22,16 @@ const props = defineProps<Props>();
 // `isExactActive`, which requires this to be the most specific matched
 // record, i.e. only true on the index route itself.
 const items = computed<NavigationMenuItem[]>(() => [
-  { label: "Reader Checklist", icon: "i-lucide-scroll-text", to: props.basePath, exact: true },
-  { label: "Read List", icon: "i-lucide-book-open-check", to: `${props.basePath}/read-list` },
-  { label: "Watch List", icon: "i-lucide-clapperboard", to: `${props.basePath}/watch-list` },
-]);
+  { label: 'Reader Checklist', icon: 'i-lucide-scroll-text', to: props.basePath, exact: true },
+  { label: 'Read List', icon: 'i-lucide-book-open-check', to: `${props.basePath}/read-list` },
+  { label: 'Watch List', icon: 'i-lucide-clapperboard', to: `${props.basePath}/watch-list` }
+])
 </script>
 
 <template>
-  <UNavigationMenu :items="items" highlight class="border-b border-default" />
+  <UNavigationMenu
+    :items="items"
+    highlight
+    class="border-b border-default"
+  />
 </template>

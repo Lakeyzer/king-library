@@ -180,3 +180,22 @@ The system SHALL support presenting a work's reading-status controls in an expan
 #### Scenario: Activating an expanded-mode control
 - **WHEN** a signed-in user activates any control shown in the expanded display mode
 - **THEN** it has the same effect on the work's reading status as activating the equivalent action in the compact presentation
+
+### Requirement: Works by Others share the same reading-status controls
+The system SHALL use the same reading-status components for a By Other Hands work as for a King work - the same compact and expanded control layouts, the same start-reading/mark-as-read/edit-dates prompts (including the note, format, and rating fields), and the same reading timeline - each backed by the domain's own table (`user_related_works` for a By Other Hands work, instead of `user_books`/`user_book_reads`), rather than separate, duplicated components per domain. Where a By Other Hands work genuinely has no equivalent of a King capability, that capability SHALL be omitted rather than shown non-functional: no Read Again (no reread-history table - a single mark-as-read record instead covers marking read directly, finishing an in-progress read, and editing an already-read entry), and no confirmation step before unmarking as read (nothing to lose - a single flat record, not a log of logged reads, is reset in place).
+
+#### Scenario: Starting, finishing, and marking a By Other Hands work read
+- **WHEN** a signed-in user starts reading, finishes, or marks as read directly a By Other Hands work
+- **THEN** the same prompts used for a King work appear, including the format field, and record the action against that work's own `user_related_works` row
+
+#### Scenario: No Read Again for a By Other Hands work
+- **WHEN** a signed-in user views the expanded reading-status controls for a By Other Hands work marked read and not currently-reading
+- **THEN** only a control for starting to read it again is shown, not a separate Read Again control
+
+#### Scenario: Unmarking a By Other Hands work as read needs no confirmation
+- **WHEN** a signed-in user unmarks a By Other Hands work as read
+- **THEN** it is unmarked immediately, without a confirmation step
+
+#### Scenario: A By Other Hands read can be edited from the reading timeline
+- **WHEN** the profile owner activates the edit-dates control on a By Other Hands entry in their reading timeline
+- **THEN** they can update that read's dates, note, rating, and format, the same as they can for a King entry

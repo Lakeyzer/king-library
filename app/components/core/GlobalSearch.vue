@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const open = defineModel<boolean>("open", { default: false })
+const open = defineModel<boolean>('open', { default: false })
 
 const { searchTerm, groups, ensureLoaded } = useGlobalSearch()
 
@@ -7,7 +7,7 @@ watch(open, (isOpen) => {
   if (isOpen) {
     ensureLoaded()
   } else {
-    searchTerm.value = ""
+    searchTerm.value = ''
   }
 })
 

@@ -39,10 +39,10 @@ export function useSeries() {
 
     const rows = data as unknown as SeriesRow[]
 
-    const series: Series[] = rows.map((row) => ({
+    const series: Series[] = rows.map(row => ({
       id: row.id,
       name: row.name,
-      members: row.series_works.map((member) => ({
+      members: row.series_works.map(member => ({
         workId: member.king_work_id,
         position: member.position
       }))

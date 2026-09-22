@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { WorkHighlight } from "~/composables/useBooks";
+import type { WorkHighlight } from '~/composables/useBooks'
 
 interface Props {
-  items: WorkHighlight[];
-  emptyDescription: string;
+  items: WorkHighlight[]
+  emptyDescription: string
 }
 
-defineProps<Props>();
+defineProps<Props>()
 </script>
 
 <template>
@@ -16,8 +16,14 @@ defineProps<Props>();
     title="Nothing here"
     :description="emptyDescription"
   />
-  <ul v-else class="flex flex-col divide-y divide-accented">
-    <li v-for="work in items" :key="work.id">
+  <ul
+    v-else
+    class="flex flex-col divide-y divide-accented"
+  >
+    <li
+      v-for="work in items"
+      :key="work.id"
+    >
       <NuxtLink
         :to="`/works/${work.slug}`"
         class="group flex items-center gap-3 py-2 hover:bg-elevated"

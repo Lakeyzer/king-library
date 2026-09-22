@@ -1,46 +1,55 @@
 <script setup lang="ts">
-import { NuxtLink } from "#components";
+import { NuxtLink } from '#components'
 
 export interface ConnectionListItem {
-  id: string;
-  title: string;
+  id: string
+  title: string
   /** Omit along with imageAlt for items with no image concept at all (e.g. short stories) - a plain title renders instead of a thumbnail. */
-  imageSrc?: string | null;
-  imageAlt?: string;
+  imageSrc?: string | null
+  imageAlt?: string
   /** Omit both year and typeLabel to render just a title, with no metadata line. Only shown in vertical orientation. */
-  year?: number | null;
-  typeLabel?: string;
-  to?: string;
+  year?: number | null
+  typeLabel?: string
+  to?: string
 }
 
 interface Props {
-  heading: string;
-  items: ConnectionListItem[];
+  heading: string
+  items: ConnectionListItem[]
   /** Only needed when some items have an image concept (imageSrc set, possibly to null). */
-  placeholderIcon?: string;
+  placeholderIcon?: string
   /** "horizontal" is a wrapping grid of just covers/posters, no title - for items with real cover art. Defaults to a vertical detail list. */
-  orientation?: "vertical" | "horizontal";
+  orientation?: 'vertical' | 'horizontal'
 }
 
 withDefaults(defineProps<Props>(), {
-  orientation: "vertical",
-});
+  orientation: 'vertical'
+})
 </script>
 
 <template>
-  <div v-if="items.length" class="flex flex-col gap-3">
-    <h3
-      class="sticky top-0 z-10 bg-default py-1 text-sm font-semibold text-highlighted"
-    >
+  <div
+    v-if="items.length"
+    class="flex flex-col gap-3"
+  >
+    <h2 class="heading-2 sticky top-0 z-10 bg-default py-1">
       {{ heading }}
-    </h3>
+    </h2>
 
     <ul
       v-if="orientation === 'horizontal'"
       class="hidden flex-wrap gap-3 sm:flex"
     >
-      <li v-for="item in items" :key="item.id" class="w-28">
-        <component :is="item.to ? NuxtLink : 'div'" :to="item.to" class="block">
+      <li
+        v-for="item in items"
+        :key="item.id"
+        class="w-28"
+      >
+        <component
+          :is="item.to ? NuxtLink : 'div'"
+          :to="item.to"
+          class="block"
+        >
           <ImageThumbnail
             :src="item.imageSrc ?? null"
             :alt="item.imageAlt ?? item.title"
@@ -55,7 +64,10 @@ withDefaults(defineProps<Props>(), {
       class="flex flex-col divide-y divide-default"
       :class="{ 'sm:hidden': orientation === 'horizontal' }"
     >
-      <li v-for="item in items" :key="item.id">
+      <li
+        v-for="item in items"
+        :key="item.id"
+      >
         <component
           :is="item.to ? NuxtLink : 'div'"
           :to="item.to"
@@ -78,10 +90,11 @@ withDefaults(defineProps<Props>(), {
               v-if="item.year != null || item.typeLabel"
               class="flex flex-wrap items-center gap-1 truncate text-xs text-muted"
             >
-              <NumberMotif v-if="item.year != null" :text="item.year" />
-              <span v-if="item.typeLabel"
-                ><NumberMotif :text="item.typeLabel"
-              /></span>
+              <NumberMotif
+                v-if="item.year != null"
+                :text="item.year"
+              />
+              <span v-if="item.typeLabel"><NumberMotif :text="item.typeLabel" /></span>
             </p>
           </div>
         </component>

@@ -191,7 +191,7 @@ export function useBookshelf() {
       .filter(
         (row): row is typeof row & { king_works: KingWorkRef } => row.king_works !== null && row.king_works.active
       )
-      .map((row) => ({
+      .map(row => ({
         kind: 'edition',
         editionRowId: row.id,
         workId: row.king_works.id,
@@ -204,7 +204,7 @@ export function useBookshelf() {
         ...seriesFieldsFor(row.king_works.id)
       }))
 
-    const workIdsWithEditions = new Set(editionItems.map((item) => item.workId))
+    const workIdsWithEditions = new Set(editionItems.map(item => item.workId))
 
     const workItems: BookshelfWorkItem[] = (
       ownedRows as unknown as { king_works: KingWorkRef | null }[]
@@ -212,8 +212,8 @@ export function useBookshelf() {
       .filter(
         (row): row is typeof row & { king_works: KingWorkRef } => row.king_works !== null && row.king_works.active
       )
-      .filter((row) => !workIdsWithEditions.has(row.king_works.id))
-      .map((row) => ({
+      .filter(row => !workIdsWithEditions.has(row.king_works.id))
+      .map(row => ({
         kind: 'work',
         workId: row.king_works.id,
         workSlug: row.king_works.slug,

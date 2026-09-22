@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { AdaptationHighlight } from "~/composables/useAdaptations";
+import type { AdaptationHighlight } from '~/composables/useAdaptations'
 
 interface Props {
-  adaptation: AdaptationHighlight;
-  meta?: string;
+  adaptation: AdaptationHighlight
+  meta?: string
 }
 
-defineProps<Props>();
+defineProps<Props>()
 </script>
 
 <template>
@@ -26,7 +26,10 @@ defineProps<Props>();
         <p class="truncate text-sm font-medium text-highlighted group-hover:text-primary">
           <NumberMotif :text="adaptation.title" />
         </p>
-        <p v-if="meta" class="text-xs text-muted"><NumberMotif :text="meta" /></p>
+        <p
+          v-if="meta"
+          class="text-xs text-muted"
+        ><NumberMotif :text="meta" /></p>
       </div>
     </NuxtLink>
 

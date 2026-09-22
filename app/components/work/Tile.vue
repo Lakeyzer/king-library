@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import type { WorkHighlight } from "~/composables/useBooks";
+import type { WorkHighlight } from '~/composables/useBooks'
 
 interface Props {
-  work: WorkHighlight;
-  meta?: string;
-  size?: "xs" | "sm";
-  showActions?: boolean;
+  work: WorkHighlight
+  meta?: string
+  size?: 'xs' | 'sm'
+  showActions?: boolean
 }
 
-withDefaults(defineProps<Props>(), { size: "xs", showActions: true });
+withDefaults(defineProps<Props>(), { size: 'xs', showActions: true })
 </script>
 
 <template>
@@ -28,7 +28,10 @@ withDefaults(defineProps<Props>(), { size: "xs", showActions: true });
         <p class="truncate text-sm font-medium text-highlighted group-hover:text-primary">
           <NumberMotif :text="work.title" />
         </p>
-        <p v-if="meta" class="text-xs text-muted"><NumberMotif :text="meta" /></p>
+        <p
+          v-if="meta"
+          class="text-xs text-muted"
+        ><NumberMotif :text="meta" /></p>
       </div>
     </NuxtLink>
 

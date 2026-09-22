@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import type { KingWork } from "~/composables/useKingWorks";
+import type { KingWork } from '~/composables/useKingWorks'
 
-definePageMeta({ layout: "default" });
+definePageMeta({ layout: 'default' })
 
-const { setPageSeo } = useSeo();
+const { setPageSeo } = useSeo()
 setPageSeo({
-  title: "Dark Tower",
+  title: 'Dark Tower',
   description:
-    "The eight core Dark Tower novels in reading order, plus the wider constellation of King works connected to Roland's quest.",
-});
+    'The eight core Dark Tower novels in reading order, plus the wider constellation of King works connected to Roland\'s quest.'
+})
 
-const { fetchKingWorks } = useKingWorks();
-const { fetchAllSeries } = useSeries();
+const { fetchKingWorks } = useKingWorks()
+const { fetchAllSeries } = useSeries()
 
-const user = useSupabaseUser();
+const user = useSupabaseUser()
 
 const {
   fetchUserBooks,
@@ -21,39 +21,57 @@ const {
   fetchDarkTowerRelatedProgress,
   fetchDarkTowerJourneyStats,
   fetchNextDarkTowerBook,
-  fetchNextDarkTowerRelatedBook,
-} = useBooks();
+  fetchNextDarkTowerRelatedBook
+} = useBooks()
+
+const { fetchOmnibusesWithComponents, fetchRelatedWorks, fetchUserRelatedWorks, computeCompletionCount } = useRelatedWorks()
+const { fetchUserEditions: fetchUserRelatedWorkEditions } = useRelatedWorkEditions()
 
 // Not awaited: only affects the reading-status/edition buttons' displayed
 // state, which updates reactively once it resolves - same as the works and
-// adaptations pages. Required whenever BookReadingActions/WorkTile render,
-// per nuxt-conventions "BookReadingActions... need their page to pre-fetch
-// status".
-useAsyncData("user-books", fetchUserBooks);
+// adaptations pages. Required whenever BookReadingActions (domain="king" or
+// "related") or WorkTile render, per nuxt-conventions "BookReadingActions...
+// need their page to pre-fetch status".
+useAsyncData('user-books', fetchUserBooks)
+useAsyncData('user-related-works', fetchUserRelatedWorks)
+useAsyncData('user-related-work-editions', fetchUserRelatedWorkEditions)
 
-const [{ data: works }, { data: series }] = await Promise.all([
-  useAsyncData("dark-tower-works", fetchKingWorks),
-  useAsyncData("dark-tower-series", fetchAllSeries),
-]);
+const [{ data: works }, { data: series }, { data: graphicNovelGroups }, { data: relatedWorksList }] = await Promise.all([
+  useAsyncData('dark-tower-works', fetchKingWorks),
+  useAsyncData('dark-tower-series', fetchAllSeries),
+  useAsyncData('dark-tower-graphic-novels', () => fetchOmnibusesWithComponents('comic')),
+  useAsyncData('dark-tower-related-works-list', fetchRelatedWorks)
+])
+
+// Progress over individual comics only, excluding the omnibus entries
+// themselves - same reasoning as fetchProfileBookStats' progressEligibleWorks
+// excluding King's own omnibuses (e.g. The Bachman Books): marking an
+// omnibus read cascades to mark its components read too, so counting the
+// omnibus as well would double-count the same reading.
+const comicProgress = computed(() =>
+  computeCompletionCount(
+    (relatedWorksList.value ?? []).filter(work => work.category === 'comic' && !work.is_omnibus)
+  )
+)
 
 const darkTowerSeries = computed(
-  () => (series.value ?? []).find((one) => one.name === "Dark Tower") ?? null,
-);
+  () => (series.value ?? []).find(one => one.name === 'Dark Tower') ?? null
+)
 
 // Ordered by canonical series position (not publish date) - see design.md
 // "Order the core 8 by series position, not publish date": this is what
 // correctly places The Wind Through the Keyhole 5th rather than 8th.
 const coreWorks = computed<KingWork[]>(() => {
   const positionByWorkId = new Map(
-    (darkTowerSeries.value?.members ?? []).map((member) => [
+    (darkTowerSeries.value?.members ?? []).map(member => [
       member.workId,
-      member.position,
-    ]),
-  );
+      member.position
+    ])
+  )
   return (works.value ?? [])
-    .filter((work) => positionByWorkId.has(work.id))
-    .sort((a, b) => positionByWorkId.get(a.id)! - positionByWorkId.get(b.id)!);
-});
+    .filter(work => positionByWorkId.has(work.id))
+    .sort((a, b) => positionByWorkId.get(a.id)! - positionByWorkId.get(b.id)!)
+})
 
 // Every active King work with a Dark Tower relation note is, by
 // construction, not one of the core 8 (see king-works spec's "Seed data
@@ -61,16 +79,16 @@ const coreWorks = computed<KingWork[]>(() => {
 // have no relation note), so no separate exclusion is needed here.
 const relatedWorks = computed<KingWork[]>(() =>
   (works.value ?? [])
-    .filter((work) => work.dark_tower_relation !== null)
-    .sort((a, b) => a.publish_date.localeCompare(b.publish_date)),
-);
+    .filter(work => work.dark_tower_relation !== null)
+    .sort((a, b) => a.publish_date.localeCompare(b.publish_date))
+)
 
 // Site-wide, not personal - visible to signed-out visitors too, unlike the
 // rest of the sidebar below.
 const { data: journeyStats } = useAsyncData(
-  "dark-tower-journey-stats",
-  fetchDarkTowerJourneyStats,
-);
+  'dark-tower-journey-stats',
+  fetchDarkTowerJourneyStats
+)
 
 // Sidebar content is signed-in only (per dark-tower-page spec's four
 // "Signed-in visitor sees/is suggested..." requirements) - each fetch
@@ -79,34 +97,39 @@ const [
   { data: darkTowerProgress },
   { data: relatedProgress },
   { data: nextCoreBook },
-  { data: nextRelatedBook },
+  { data: nextRelatedBook }
 ] = await Promise.all([
-  useAsyncData("dark-tower-progress", () =>
+  useAsyncData('dark-tower-progress', () =>
     user.value
-      ? fetchProfileBookStats(user.value.sub).then((stats) => stats.darkTower)
-      : Promise.resolve(null),
+      ? fetchProfileBookStats(user.value.sub).then(stats => stats.darkTower)
+      : Promise.resolve(null)
   ),
-  useAsyncData("dark-tower-related-progress", () =>
+  useAsyncData('dark-tower-related-progress', () =>
     user.value
       ? fetchDarkTowerRelatedProgress(user.value.sub)
-      : Promise.resolve(null),
+      : Promise.resolve(null)
   ),
-  useAsyncData("dark-tower-next-book", () =>
-    user.value ? fetchNextDarkTowerBook(user.value.sub) : Promise.resolve(null),
+  useAsyncData('dark-tower-next-book', () =>
+    user.value ? fetchNextDarkTowerBook(user.value.sub) : Promise.resolve(null)
   ),
-  useAsyncData("dark-tower-next-related-book", () =>
+  useAsyncData('dark-tower-next-related-book', () =>
     user.value
       ? fetchNextDarkTowerRelatedBook(user.value.sub)
-      : Promise.resolve(null),
-  ),
-]);
+      : Promise.resolve(null)
+  )
+])
 </script>
 
 <template>
   <div class="py-4">
     <div class="flex gap-2 justify-baseline items-center">
-      <UIcon name="i-lucide-rose" class="text-primary size-6" />
-      <h1 class="text-2xl font-bold grow">Dark Tower</h1>
+      <UIcon
+        name="i-lucide-rose"
+        class="text-primary size-6"
+      />
+      <h1 class="heading-1 grow">
+        Dark Tower
+      </h1>
     </div>
     <p class="text-muted italic">
       The eight core novels in reading order, and the works connected to
@@ -121,10 +144,17 @@ const [
       <div class="flex flex-col gap-4 lg:flex-row lg:items-start">
         <div class="min-w-0 flex-1">
           <section>
-            <h2 class="mb-3 text-lg font-semibold text-highlighted">
+            <h2 class="heading-2 mb-3">
               Dark Tower Related Works
             </h2>
             <DarkTowerRelatedList :works="relatedWorks" />
+          </section>
+
+          <section class="mt-8">
+            <h2 class="heading-2 mb-3">
+              Graphic Novels
+            </h2>
+            <DarkTowerGraphicNovelList :groups="graphicNovelGroups ?? []" />
           </section>
         </div>
 
@@ -147,6 +177,13 @@ const [
               :count="relatedProgress.count"
               :total="relatedProgress.total"
               color="info"
+            />
+            <ProfileProgressBar
+              label="Graphic Novels Read"
+              icon="i-lucide-book-open-check"
+              :count="comicProgress.count"
+              :total="comicProgress.total"
+              color="warning"
             />
             <DarkTowerSuggestionCard
               heading="Read Next in the Series"

@@ -1,29 +1,32 @@
 <script setup lang="ts">
 interface Props {
-  title: string;
-  icon: string;
-  ownLabel: string;
-  ownCount: number;
-  ownTotal: number;
-  targetLabel: string;
-  targetCount: number;
-  targetTotal: number;
+  title: string
+  icon: string
+  ownLabel: string
+  ownCount: number
+  ownTotal: number
+  targetLabel: string
+  targetCount: number
+  targetTotal: number
 }
 
-const props = defineProps<Props>();
+const props = defineProps<Props>()
 
 function percent(count: number, total: number): number {
-  return total > 0 ? Math.round((count / total) * 100) : 0;
+  return total > 0 ? Math.round((count / total) * 100) : 0
 }
 
-const diff = computed(() => props.ownCount - props.targetCount);
+const diff = computed(() => props.ownCount - props.targetCount)
 </script>
 
 <template>
   <div class="flex flex-col gap-4 rounded-lg bg-elevated p-4">
     <div class="flex items-center justify-between gap-2">
       <h3 class="flex items-center gap-2 text-sm font-semibold text-highlighted">
-        <UIcon :name="icon" class="size-4" />
+        <UIcon
+          :name="icon"
+          class="size-4"
+        />
         <span>{{ title }}</span>
       </h3>
       <UBadge

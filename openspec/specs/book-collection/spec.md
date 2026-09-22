@@ -17,9 +17,9 @@ The system SHALL let a signed-in user add a specific Open Library edition of a K
 - **WHEN** a signed-in user adds another edition of a King work they already own
 - **THEN** the new edition is recorded in their collection alongside the existing one, and the work remains owned
 
-#### Scenario: Signed-out visitor has no add control
-- **WHEN** a signed-out visitor views a work's editions
-- **THEN** no control for adding an edition to a collection is shown
+#### Scenario: Signed-out visitor's add control opens the sign-in modal
+- **WHEN** a signed-out visitor activates the control for adding an edition to a collection
+- **THEN** the sign-in/sign-up modal opens instead of adding the edition
 
 ### Requirement: Signed-in user can remove an edition from their collection
 The system SHALL let a signed-in user remove an edition they previously added from their collection.
@@ -54,9 +54,9 @@ The system SHALL show a signed-in user an "Add to Shelf" control among a King wo
 - **WHEN** a signed-in user who already owns a King work views that work's book actions
 - **THEN** the Add to Shelf control's label indicates the work is already on their shelf, rather than inviting them to add it
 
-#### Scenario: Signed-out visitor sees no Add to Shelf control
+#### Scenario: Signed-out visitor sees the Add to Shelf control
 - **WHEN** a signed-out visitor views a work's book actions
-- **THEN** no Add to Shelf control is shown
+- **THEN** the Add to Shelf control is shown, and activating it opens the sign-in/sign-up modal instead of the editions picker
 
 ### Requirement: Editions picker always shows the vertical layout
 The system SHALL present the editions picker opened from Add to Shelf using the vertical, paginated editions layout at every viewport width, rather than the horizontal scrolling layout used elsewhere.

@@ -1,32 +1,32 @@
 <script setup lang="ts">
-import type { KingWork } from "~/composables/useKingWorks";
+import type { KingWork } from '~/composables/useKingWorks'
 
-definePageMeta({ layout: "default" });
+definePageMeta({ layout: 'default' })
 
-const { setPageSeo } = useSeo();
+const { setPageSeo } = useSeo()
 setPageSeo({
-  title: "Works",
+  title: 'Works',
   description:
-    "Browse every Stephen King novel and collection, track what you own, and mark books as read or want-to-read.",
-});
+    'Browse every Stephen King novel and collection, track what you own, and mark books as read or want-to-read.'
+})
 
-const { fetchKingWorks } = useKingWorks();
+const { fetchKingWorks } = useKingWorks()
 
-const user = useSupabaseUser();
+const user = useSupabaseUser()
 
 const {
   fetchUserBooks,
   fetchWorkHighlights,
   fetchUnreadRecommendation,
-  fetchOwnedUnreadRecommendation,
-} = useBooks();
-const { fetchUserEditions } = useBookshelf();
+  fetchOwnedUnreadRecommendation
+} = useBooks()
+const { fetchUserEditions } = useBookshelf()
 
 // Not awaited: only affects the reading-status/edition buttons' displayed
 // state, which updates reactively once it resolves - same as the
 // adaptations page.
-useAsyncData("user-books", fetchUserBooks);
-useAsyncData("user-editions", fetchUserEditions);
+useAsyncData('user-books', fetchUserBooks)
+useAsyncData('user-editions', fetchUserEditions)
 
 // Independent fetches, run in parallel rather than one-after-another -
 // each depends only on `user`, not on any other result here.
@@ -34,36 +34,36 @@ const [
   { data: works },
   { data: workHighlights },
   { data: bookRecommendation },
-  { data: ownedUnreadRecommendation },
+  { data: ownedUnreadRecommendation }
 ] = await Promise.all([
-  useAsyncData("works", fetchKingWorks),
-  useAsyncData("works-page-highlights", fetchWorkHighlights),
-  useAsyncData("works-page-recommendation", () =>
+  useAsyncData('works', fetchKingWorks),
+  useAsyncData('works-page-highlights', fetchWorkHighlights),
+  useAsyncData('works-page-recommendation', () =>
     user.value
       ? fetchUnreadRecommendation(user.value.sub)
-      : Promise.resolve(null),
+      : Promise.resolve(null)
   ),
-  useAsyncData("works-page-owned-unread-recommendation", () =>
+  useAsyncData('works-page-owned-unread-recommendation', () =>
     user.value
       ? fetchOwnedUnreadRecommendation(user.value.sub)
-      : Promise.resolve(null),
-  ),
-]);
+      : Promise.resolve(null)
+  )
+])
 
 const readsCountLabel = (count: number) =>
-  `${count} ${count === 1 ? "read" : "reads"}`;
+  `${count} ${count === 1 ? 'read' : 'reads'}`
 
 const flagOptions = [
-  { label: "All", value: "all" },
-  { label: "Bachman", value: "bachman" },
-  { label: "Dark Tower", value: "darkTower" },
-];
-const flagFilter = ref<"all" | "bachman" | "darkTower">("all");
+  { label: 'All', value: 'all' },
+  { label: 'Bachman', value: 'bachman' },
+  { label: 'Dark Tower', value: 'darkTower' }
+]
+const flagFilter = ref<'all' | 'bachman' | 'darkTower'>('all')
 
 function extraFilter(work: KingWork) {
-  if (flagFilter.value === "bachman") return work.bachman;
-  if (flagFilter.value === "darkTower") return work.dark_tower;
-  return true;
+  if (flagFilter.value === 'bachman') return work.bachman
+  if (flagFilter.value === 'darkTower') return work.dark_tower
+  return true
 }
 </script>
 
@@ -105,7 +105,10 @@ function extraFilter(work: KingWork) {
       />
     </template>
 
-    <template v-if="workHighlights" #sidebar>
+    <template
+      v-if="workHighlights"
+      #sidebar
+    >
       <WorkRecommendation :recommendation="bookRecommendation ?? null" />
       <WorkOwnedRecommendation
         :recommendation="ownedUnreadRecommendation ?? null"

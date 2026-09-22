@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import type { ConnectionListItem } from "~/components/detail/ConnectionList.vue";
+import type { ConnectionListItem } from '~/components/detail/ConnectionList.vue'
 
-definePageMeta({ layout: false });
+definePageMeta({ layout: false })
 
-const route = useRoute();
-const slug = route.params.slug as string;
+const route = useRoute()
+const slug = route.params.slug as string
 
-const { fetchAdaptationBySlug } = useAdaptations();
+const { fetchAdaptationBySlug } = useAdaptations()
 const { data: adaptationData } = await useAsyncData(`adaptation-${slug}`, () =>
-  fetchAdaptationBySlug(slug),
-);
+  fetchAdaptationBySlug(slug)
+)
 
 if (!adaptationData.value) {
-  throw createError({ statusCode: 404, statusMessage: "Adaptation not found" });
+  throw createError({ statusCode: 404, statusMessage: 'Adaptation not found' })
 }
 
-const adaptation = adaptationData.value;
-const isMisery = adaptation.slug === "misery";
+const adaptation = adaptationData.value
+const isMisery = adaptation.slug === 'misery'
 
-const { fetchTmdbDetails } = useTmdb();
-const { fetchAdaptationStats, fetchUserAdaptations } = useAdaptations();
+const { fetchTmdbDetails } = useTmdb()
+const { fetchAdaptationStats, fetchUserAdaptations } = useAdaptations()
 
 // tmdb (a live third-party call, the slowest of the two by far) and stats
 // (our own DB) are independent - run them together instead of sequentially.
@@ -27,80 +27,80 @@ const [{ data: tmdb }, { data: stats }] = await Promise.all([
   useAsyncData(`adaptation-${slug}-tmdb`, () =>
     adaptation.tmdb_id && adaptation.tmdb_media_type
       ? fetchTmdbDetails(adaptation.tmdb_media_type, adaptation.tmdb_id)
-      : Promise.resolve(null),
+      : Promise.resolve(null)
   ),
-  useAsyncData(`adaptation-${slug}-stats`, () => fetchAdaptationStats(adaptation.id)),
-]);
+  useAsyncData(`adaptation-${slug}-stats`, () => fetchAdaptationStats(adaptation.id))
+])
 
 // Not awaited: only affects the watch-status buttons' displayed state,
 // which updates reactively once it resolves.
-useAsyncData("user-adaptations", fetchUserAdaptations);
+useAsyncData('user-adaptations', fetchUserAdaptations)
 
 const posterSrc = computed(() =>
   adaptation.tmdb_poster_path
-    ? getTmdbPosterUrl(adaptation.tmdb_poster_path, "w342")
-    : null,
-);
+    ? getTmdbPosterUrl(adaptation.tmdb_poster_path, 'w342')
+    : null
+)
 
 const runtimeOrSeasonLabel = computed(() => {
-  if (!tmdb.value) return null;
+  if (!tmdb.value) return null
 
-  if (adaptation.tmdb_media_type === "movie" && tmdb.value.runtimeMinutes) {
-    const hours = Math.floor(tmdb.value.runtimeMinutes / 60);
-    const minutes = tmdb.value.runtimeMinutes % 60;
-    return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+  if (adaptation.tmdb_media_type === 'movie' && tmdb.value.runtimeMinutes) {
+    const hours = Math.floor(tmdb.value.runtimeMinutes / 60)
+    const minutes = tmdb.value.runtimeMinutes % 60
+    return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`
   }
 
-  if (adaptation.tmdb_media_type === "tv" && tmdb.value.numberOfSeasons) {
+  if (adaptation.tmdb_media_type === 'tv' && tmdb.value.numberOfSeasons) {
     return tmdb.value.numberOfSeasons > 1
       ? `${tmdb.value.numberOfSeasons} Seasons`
-      : `${tmdb.value.numberOfEpisodes ?? 0} Episodes`;
+      : `${tmdb.value.numberOfEpisodes ?? 0} Episodes`
   }
 
-  return null;
-});
+  return null
+})
 
 const directedByLabel = computed(() =>
-  adaptation.tmdb_media_type === "tv" ? "Created by" : "Directed by",
-);
+  adaptation.tmdb_media_type === 'tv' ? 'Created by' : 'Directed by'
+)
 
 const directedByText = computed(() =>
   tmdb.value?.directedBy.length
-    ? `${directedByLabel.value} ${tmdb.value.directedBy.join(", ")}`
-    : "",
-);
+    ? `${directedByLabel.value} ${tmdb.value.directedBy.join(', ')}`
+    : ''
+)
 
 const basedOnWorkItems = computed<ConnectionListItem[]>(() =>
-  adaptation.basedOnWorks.map((work) => ({
+  adaptation.basedOnWorks.map(work => ({
     id: work.id,
     title: work.title,
-    imageSrc: work.cover_id ? getOpenLibraryCoverUrl(work.cover_id, "M") : null,
+    imageSrc: work.cover_id ? getOpenLibraryCoverUrl(work.cover_id, 'M') : null,
     imageAlt: `${work.title} cover`,
     year: Number(work.publish_date.slice(0, 4)),
     typeLabel: formatTypeLabel(work.type),
-    to: `/works/${work.slug}`,
-  })),
-);
+    to: `/works/${work.slug}`
+  }))
+)
 
 const basedOnShortStoryItems = computed<ConnectionListItem[]>(() =>
-  adaptation.basedOnShortStories.map((story) => ({
+  adaptation.basedOnShortStories.map(story => ({
     id: story.id,
     title: story.title,
     typeLabel: story.collections.length
-      ? `from ${story.collections.map((collection) => collection.title).join(", ")}`
+      ? `from ${story.collections.map(collection => collection.title).join(', ')}`
       : undefined,
-    to: `/short-works/${story.slug}`,
-  })),
-);
+    to: `/short-works/${story.slug}`
+  }))
+)
 
-const { setPageSeo } = useSeo();
+const { setPageSeo } = useSeo()
 setPageSeo({
   title: adaptation.title,
   description: tmdb.value?.overview || generateAdaptationFallbackDescription(adaptation),
   image: adaptation.tmdb_poster_path
-    ? getTmdbPosterUrl(adaptation.tmdb_poster_path, "w500")
-    : undefined,
-});
+    ? getTmdbPosterUrl(adaptation.tmdb_poster_path, 'w500')
+    : undefined
+})
 </script>
 
 <template>
@@ -115,31 +115,43 @@ setPageSeo({
           <h1
             class="text-3xl font-bold text-pretty text-highlighted sm:text-4xl"
           >
-            <GlitchLetter :text="adaptation.title" letter="n" :active="isMisery" />
+            <GlitchLetter
+              :text="adaptation.title"
+              letter="n"
+              :active="isMisery"
+            />
           </h1>
           <div
             v-if="tmdb?.directedBy.length"
             class="flex items-center gap-1.5 text-muted text-xs"
           >
-            <span
-              ><GlitchLetter :text="directedByText" letter="n" :active="isMisery"
+            <span><GlitchLetter
+              :text="directedByText"
+              letter="n"
+              :active="isMisery"
             /></span>
           </div>
           <p class="mt-4 text-muted flex gap-4 items-center">
             <NumberMotif :text="adaptation.release_year" />
-            <span
-              ><GlitchLetter
-                :text="formatTypeLabel(adaptation.type)"
-                letter="n"
-                :active="isMisery"
+            <span><GlitchLetter
+              :text="formatTypeLabel(adaptation.type)"
+              letter="n"
+              :active="isMisery"
             /></span>
             <span v-if="runtimeOrSeasonLabel">
-              <GlitchLetter :text="runtimeOrSeasonLabel" letter="n" :active="isMisery" />
+              <GlitchLetter
+                :text="runtimeOrSeasonLabel"
+                letter="n"
+                :active="isMisery"
+              />
             </span>
           </p>
         </div>
 
-        <div v-if="tmdb?.genres.length" class="flex flex-wrap gap-2">
+        <div
+          v-if="tmdb?.genres.length"
+          class="flex flex-wrap gap-2"
+        >
           <UBadge
             v-for="genre in tmdb.genres"
             :key="genre"
@@ -151,7 +163,10 @@ setPageSeo({
         </div>
 
         <div class="flex flex-wrap items-center gap-4 text-sm">
-          <div v-if="tmdb?.rating" class="flex items-center gap-1.5">
+          <div
+            v-if="tmdb?.rating"
+            class="flex items-center gap-1.5"
+          >
             <UIcon
               name="i-simple-icons-themoviedatabase"
               class="size-4 text-[#01b4e4]"
@@ -164,14 +179,25 @@ setPageSeo({
         </div>
 
         <div class="flex flex-col gap-4">
-          <p v-if="tmdb?.overview" class="whitespace-pre-line">
-            <GlitchLetter :text="tmdb.overview" letter="n" :active="isMisery" />
+          <p
+            v-if="tmdb?.overview"
+            class="whitespace-pre-line"
+          >
+            <GlitchLetter
+              :text="tmdb.overview"
+              letter="n"
+              :active="isMisery"
+            />
           </p>
           <p
             v-if="adaptation.notes"
             class="whitespace-pre-line text-sm text-muted italic"
           >
-            <GlitchLetter :text="adaptation.notes" letter="n" :active="isMisery" />
+            <GlitchLetter
+              :text="adaptation.notes"
+              letter="n"
+              :active="isMisery"
+            />
           </p>
           <UAlert
             v-if="adaptation.is_universe_only"
@@ -182,7 +208,10 @@ setPageSeo({
           />
         </div>
 
-        <template v-if="basedOnShortStoryItems.length" #related>
+        <template
+          v-if="basedOnShortStoryItems.length"
+          #related
+        >
           <DetailConnectionList
             heading="Based on"
             :items="basedOnShortStoryItems"
@@ -190,20 +219,36 @@ setPageSeo({
         </template>
 
         <template #actions>
-          <AdaptationWatchActions :adaptation-id="adaptation.id" mode="expanded" />
+          <AdaptationWatchActions
+            :adaptation-id="adaptation.id"
+            mode="expanded"
+          />
         </template>
 
-        <template v-if="stats" #stats>
+        <template
+          v-if="stats"
+          #stats
+        >
           <div class="flex items-center gap-1.5">
-            <UIcon name="i-lucide-bookmark" class="size-4" />
-            <span
-              ><strong class="text-highlighted"><NumberMotif :text="stats.want_to_watch_count" /></strong> <GlitchLetter text="want to watch" letter="n" :active="isMisery"
+            <UIcon
+              name="i-lucide-bookmark"
+              class="size-4"
+            />
+            <span><strong class="text-highlighted"><NumberMotif :text="stats.want_to_watch_count" /></strong> <GlitchLetter
+              text="want to watch"
+              letter="n"
+              :active="isMisery"
             /></span>
           </div>
           <div class="flex items-center gap-1.5">
-            <UIcon name="i-lucide-circle-check" class="size-4" />
-            <span
-              ><strong class="text-highlighted"><NumberMotif :text="stats.watched_count" /></strong> <GlitchLetter text="watched" letter="n" :active="isMisery"
+            <UIcon
+              name="i-lucide-circle-check"
+              class="size-4"
+            />
+            <span><strong class="text-highlighted"><NumberMotif :text="stats.watched_count" /></strong> <GlitchLetter
+              text="watched"
+              letter="n"
+              :active="isMisery"
             /></span>
           </div>
         </template>

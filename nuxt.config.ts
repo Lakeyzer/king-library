@@ -1,23 +1,23 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   modules: [
-    "@nuxtjs/supabase",
-    "@nuxt/eslint",
-    "@nuxt/ui",
-    "@nuxt/image",
-    "@nuxtjs/sitemap",
-    "@vite-pwa/nuxt",
-    "@vercel/analytics",
+    '@nuxtjs/supabase',
+    '@nuxt/eslint',
+    '@nuxt/ui',
+    '@nuxt/image',
+    '@nuxtjs/sitemap',
+    '@vite-pwa/nuxt',
+    '@vercel/analytics'
   ],
 
   devtools: {
-    enabled: true,
+    enabled: true
   },
 
-  css: ["~/assets/css/main.css"],
+  css: ['~/assets/css/main.css'],
 
   site: {
-    url: "https://king-library.com",
+    url: 'https://king-library.com'
   },
 
   runtimeConfig: {
@@ -26,73 +26,73 @@ export default defineNuxtConfig({
     tmdbApiKey: process.env.TMDB_API_KEY,
     public: {
       supabaseUrl: process.env.SUPABASE_URL,
-      supabaseKey: process.env.SUPABASE_KEY,
-    },
+      supabaseKey: process.env.SUPABASE_KEY
+    }
   },
 
   routeRules: {
     // OAuth code exchange relies on the PKCE code verifier in browser storage,
     // so this route can only run client-side.
-    "/confirm": { ssr: false },
+    '/confirm': { ssr: false },
     // The password recovery link's tokens arrive in the URL fragment, which never
     // reaches the server - the Supabase client can only read it client-side.
-    "/reset-password": { ssr: false },
+    '/reset-password': { ssr: false }
   },
 
-  compatibilityDate: "2026-06-30",
+  compatibilityDate: '2026-06-30',
 
   eslint: {
     config: {
       stylistic: {
-        commaDangle: "never",
-        braceStyle: "1tbs",
-      },
-    },
+        commaDangle: 'never',
+        braceStyle: '1tbs'
+      }
+    }
   },
 
   // Registers the built-in "none" provider so <NuxtImg provider="none"> type-checks.
   // Used for images already pre-sized by their source (Open Library, TMDb) that
   // don't need IPX processing - see app/components/ImageThumbnail.vue.
   image: {
-    none: {},
+    none: {}
   },
 
   pwa: {
     // Installability only - see specs/pwa/spec.md. No offline data access: the service
     // worker below intentionally precaches and runtime-caches nothing, including Supabase.
-    registerType: "autoUpdate",
-    strategies: "generateSW",
+    registerType: 'autoUpdate',
+    strategies: 'generateSW',
     manifest: {
-      name: "King Library",
-      short_name: "King Library",
-      display: "standalone",
-      start_url: "/",
+      name: 'King Library',
+      short_name: 'King Library',
+      display: 'standalone',
+      start_url: '/',
       // clay-600 / parchment-50 design tokens (app/assets/css/main.css), resolved to hex.
-      theme_color: "#c05b3c",
-      background_color: "#f9f9f4",
+      theme_color: '#c05b3c',
+      background_color: '#f9f9f4',
       // Generated from public/pwa-icon-source.svg via @resvg/resvg-js - used instead
       // of @vite-pwa/assets-generator's default sharp/libvips pipeline, which fails
       // to load its native binary on this machine (ERR_DLOPEN_FAILED).
       icons: [
         {
-          src: "/pwa-192x192.png",
-          sizes: "192x192",
-          type: "image/png",
-          purpose: "any",
+          src: '/pwa-192x192.png',
+          sizes: '192x192',
+          type: 'image/png',
+          purpose: 'any'
         },
         {
-          src: "/pwa-512x512.png",
-          sizes: "512x512",
-          type: "image/png",
-          purpose: "any",
+          src: '/pwa-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'any'
         },
         {
-          src: "/maskable-icon-512x512.png",
-          sizes: "512x512",
-          type: "image/png",
-          purpose: "maskable",
-        },
-      ],
+          src: '/maskable-icon-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'maskable'
+        }
+      ]
     },
     workbox: {
       // No app-shell precaching and no runtime caching of any request (Supabase included) -
@@ -107,19 +107,19 @@ export default defineNuxtConfig({
       globPatterns: [],
       runtimeCaching: [],
       navigateFallback: null,
-      manifestTransforms: [() => ({ manifest: [] })],
-    },
+      manifestTransforms: [() => ({ manifest: [] })]
+    }
   },
 
   sitemap: {
     // Static pages that need auth (or, for /confirm, only ever exist mid-OAuth-redirect)
     // have no SEO value and are never a link worth sharing - see specs/seo-metadata/spec.md.
-    exclude: ["/confirm", "/onboarding", "/settings", "/reset-password"],
+    exclude: ['/confirm', '/onboarding', '/settings', '/reset-password'],
     // Work/adaptation/short-work detail pages are dynamic routes the crawler can't
     // enumerate on its own - this endpoint supplies their slugs. Public per-user profile
     // pages (/profile/[username]) are deliberately NOT sourced here, so only the static
     // /profile route appears in the sitemap, never an enumerated list of usernames.
-    sources: ["/api/__sitemap__/urls"],
+    sources: ['/api/__sitemap__/urls']
   },
 
   supabase: {
@@ -128,8 +128,8 @@ export default defineNuxtConfig({
     // /login page, sign-in happens via a modal from anywhere.
     redirect: false,
     redirectOptions: {
-      login: "/",
-      callback: "/confirm",
-    },
-  },
-});
+      login: '/',
+      callback: '/confirm'
+    }
+  }
+})

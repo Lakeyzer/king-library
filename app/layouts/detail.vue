@@ -13,7 +13,10 @@
             <slot />
           </div>
 
-          <aside v-if="$slots.aside" class="w-full lg:w-96 lg:shrink-0">
+          <aside
+            v-if="$slots.aside"
+            class="w-full lg:w-96 lg:shrink-0"
+          >
             <slot name="aside" />
           </aside>
         </div>

@@ -1,30 +1,30 @@
 <script setup lang="ts">
-definePageMeta({ layout: "default" });
+definePageMeta({ layout: 'default' })
 
-const route = useRoute();
-const username = route.params.username as string;
+const route = useRoute()
+const username = route.params.username as string
 
-const { profile: ownProfile, fetchProfileByUsername } = useProfile();
+const { profile: ownProfile, fetchProfileByUsername } = useProfile()
 const { data: targetProfile } = await useAsyncData(`compare-target-${username}`, () =>
-  fetchProfileByUsername(username),
-);
+  fetchProfileByUsername(username)
+)
 
 if (!targetProfile.value) {
-  throw createError({ statusCode: 404, statusMessage: "Profile not found" });
+  throw createError({ statusCode: 404, statusMessage: 'Profile not found' })
 }
 
 // Already loaded by the onboarding middleware before this route renders
 // (compare routes require sign-in, same as /profile's own-shortcut routes)
 // - no fetch needed here, mirroring pages/profile/index.vue.
-const own = ownProfile.value!;
-const target = targetProfile.value;
+const own = ownProfile.value!
+const target = targetProfile.value
 
-const isSelfCompare = target.id === own.id;
-const isPrivate = !isSelfCompare && !target.is_public;
-const canCompare = !isSelfCompare && !isPrivate;
+const isSelfCompare = target.id === own.id
+const isPrivate = !isSelfCompare && !target.is_public
+const canCompare = !isSelfCompare && !isPrivate
 
-const { fetchProfileBookStats, fetchReadDiff, fetchOwnedDiff } = useBooks();
-const { fetchViewingProgress, fetchWatchedDiff } = useAdaptations();
+const { fetchProfileBookStats, fetchReadDiff, fetchOwnedDiff } = useBooks()
+const { fetchViewingProgress, fetchWatchedDiff } = useAdaptations()
 
 const [
   { data: ownStats },
@@ -33,66 +33,66 @@ const [
   { data: targetViewing },
   { data: readDiff },
   { data: ownedDiff },
-  { data: watchedDiff },
+  { data: watchedDiff }
 ] = await Promise.all([
   useAsyncData(`compare-${own.id}-${target.id}-own-book-stats`, () =>
-    canCompare ? fetchProfileBookStats(own.id) : Promise.resolve(null),
+    canCompare ? fetchProfileBookStats(own.id) : Promise.resolve(null)
   ),
   useAsyncData(`compare-${own.id}-${target.id}-target-book-stats`, () =>
-    canCompare ? fetchProfileBookStats(target.id) : Promise.resolve(null),
+    canCompare ? fetchProfileBookStats(target.id) : Promise.resolve(null)
   ),
   useAsyncData(`compare-${own.id}-${target.id}-own-viewing`, () =>
-    canCompare ? fetchViewingProgress(own.id) : Promise.resolve(null),
+    canCompare ? fetchViewingProgress(own.id) : Promise.resolve(null)
   ),
   useAsyncData(`compare-${own.id}-${target.id}-target-viewing`, () =>
-    canCompare ? fetchViewingProgress(target.id) : Promise.resolve(null),
+    canCompare ? fetchViewingProgress(target.id) : Promise.resolve(null)
   ),
   useAsyncData(`compare-${own.id}-${target.id}-read-diff`, () =>
-    canCompare ? fetchReadDiff(own.id, target.id) : Promise.resolve(null),
+    canCompare ? fetchReadDiff(own.id, target.id) : Promise.resolve(null)
   ),
   useAsyncData(`compare-${own.id}-${target.id}-owned-diff`, () =>
-    canCompare ? fetchOwnedDiff(own.id, target.id) : Promise.resolve(null),
+    canCompare ? fetchOwnedDiff(own.id, target.id) : Promise.resolve(null)
   ),
   useAsyncData(`compare-${own.id}-${target.id}-watched-diff`, () =>
-    canCompare ? fetchWatchedDiff(own.id, target.id) : Promise.resolve(null),
-  ),
-]);
+    canCompare ? fetchWatchedDiff(own.id, target.id) : Promise.resolve(null)
+  )
+])
 
 // The three sources that can feed the "Total Activity" bar - each toggled
 // independently via the select next to its title, so a visitor can narrow
 // the always-full bar down to just the category they care about.
 const ACTIVITY_CATEGORIES = [
-  { label: "Books Read", value: "read" },
-  { label: "Books Collected", value: "owned" },
-  { label: "Adaptations Watched", value: "watched" },
-] as const;
-type ActivityCategory = (typeof ACTIVITY_CATEGORIES)[number]["value"];
+  { label: 'Books Read', value: 'read' },
+  { label: 'Books Collected', value: 'owned' },
+  { label: 'Adaptations Watched', value: 'watched' }
+] as const
+type ActivityCategory = (typeof ACTIVITY_CATEGORIES)[number]['value']
 
-const selectedActivityCategories = ref<ActivityCategory[]>(["read", "owned", "watched"]);
+const selectedActivityCategories = ref<ActivityCategory[]>(['read', 'owned', 'watched'])
 
 const ownTotalActivity = computed(() => {
-  if (!ownStats.value || !ownViewing.value) return 0;
-  let total = 0;
-  if (selectedActivityCategories.value.includes("read")) total += ownStats.value.overall.count;
-  if (selectedActivityCategories.value.includes("owned")) total += ownStats.value.collection.count;
-  if (selectedActivityCategories.value.includes("watched")) total += ownViewing.value.count;
-  return total;
-});
+  if (!ownStats.value || !ownViewing.value) return 0
+  let total = 0
+  if (selectedActivityCategories.value.includes('read')) total += ownStats.value.overall.count
+  if (selectedActivityCategories.value.includes('owned')) total += ownStats.value.collection.count
+  if (selectedActivityCategories.value.includes('watched')) total += ownViewing.value.count
+  return total
+})
 const targetTotalActivity = computed(() => {
-  if (!targetStats.value || !targetViewing.value) return 0;
-  let total = 0;
-  if (selectedActivityCategories.value.includes("read")) total += targetStats.value.overall.count;
-  if (selectedActivityCategories.value.includes("owned")) total += targetStats.value.collection.count;
-  if (selectedActivityCategories.value.includes("watched")) total += targetViewing.value.count;
-  return total;
-});
+  if (!targetStats.value || !targetViewing.value) return 0
+  let total = 0
+  if (selectedActivityCategories.value.includes('read')) total += targetStats.value.overall.count
+  if (selectedActivityCategories.value.includes('owned')) total += targetStats.value.collection.count
+  if (selectedActivityCategories.value.includes('watched')) total += targetViewing.value.count
+  return total
+})
 
-const { setPageSeo } = useSeo();
+const { setPageSeo } = useSeo()
 setPageSeo({
   title: `${own.username} vs ${target.username}`,
-  description: `Compare ${own.username}'s and ${target.username}'s Stephen King reading and viewing progress.`,
-});
-useSeoMeta({ title: `${own.username} vs ${target.username} - Compare` });
+  description: `Compare ${own.username}'s and ${target.username}'s Stephen King reading and viewing progress.`
+})
+useSeoMeta({ title: `${own.username} vs ${target.username} - Compare` })
 </script>
 
 <template>
@@ -120,7 +120,10 @@ useSeoMeta({ title: `${own.username} vs ${target.username} - Compare` });
       <div class="flex flex-col gap-3">
         <div class="flex items-center justify-between gap-2">
           <h2 class="flex items-center gap-2 text-base font-semibold text-highlighted">
-            <UIcon name="i-lucide-scale" class="size-5" />
+            <UIcon
+              name="i-lucide-scale"
+              class="size-5"
+            />
             <span>Total Activity</span>
           </h2>
           <USelectMenu
@@ -142,7 +145,7 @@ useSeoMeta({ title: `${own.username} vs ${target.username} - Compare` });
           <UProgressGroup
             :items="[
               { value: ownTotalActivity, color: 'primary' },
-              { value: targetTotalActivity, color: 'warning' },
+              { value: targetTotalActivity, color: 'warning' }
             ]"
             :max="ownTotalActivity + targetTotalActivity"
             size="lg"
@@ -168,7 +171,10 @@ useSeoMeta({ title: `${own.username} vs ${target.username} - Compare` });
 
       <div class="flex flex-col gap-3">
         <h2 class="flex items-center gap-2 text-base font-semibold text-highlighted">
-          <UIcon name="i-lucide-book-open-check" class="size-5" />
+          <UIcon
+            name="i-lucide-book-open-check"
+            class="size-5"
+          />
           <span>Reading Progress</span>
         </h2>
 
@@ -227,7 +233,10 @@ useSeoMeta({ title: `${own.username} vs ${target.username} - Compare` });
         </div>
       </div>
 
-      <ProfileCompareRow title="Books Read" icon="i-lucide-book-open-check">
+      <ProfileCompareRow
+        title="Books Read"
+        icon="i-lucide-book-open-check"
+      >
         <template #left>
           <ProfileCompareDiffCard
             :title="`By ${own.username}`"
@@ -254,7 +263,10 @@ useSeoMeta({ title: `${own.username} vs ${target.username} - Compare` });
         </template>
       </ProfileCompareRow>
 
-      <ProfileCompareRow title="Books Owned" icon="i-lucide-library">
+      <ProfileCompareRow
+        title="Books Owned"
+        icon="i-lucide-library"
+      >
         <template #left>
           <ProfileCompareDiffCard
             :title="`By ${own.username}`"
@@ -281,7 +293,10 @@ useSeoMeta({ title: `${own.username} vs ${target.username} - Compare` });
         </template>
       </ProfileCompareRow>
 
-      <ProfileCompareRow title="Adaptations Watched" icon="i-lucide-clapperboard">
+      <ProfileCompareRow
+        title="Adaptations Watched"
+        icon="i-lucide-clapperboard"
+      >
         <template #left>
           <ProfileCompareDiffCard
             :title="`By ${own.username}`"

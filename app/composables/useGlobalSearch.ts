@@ -1,6 +1,6 @@
-import type { KingWork } from "~/composables/useKingWorks"
-import type { KingShortStory } from "~/composables/useShortStories"
-import type { Adaptation } from "~/composables/useAdaptations"
+import type { KingWork } from '~/composables/useKingWorks'
+import type { KingShortStory } from '~/composables/useShortStories'
+import type { Adaptation } from '~/composables/useAdaptations'
 
 export interface GlobalSearchResultItem {
   id: string
@@ -29,7 +29,7 @@ function toGroup(id: string, label: string, icon: string, items: GlobalSearchRes
     id,
     label,
     ignoreFilter: true,
-    items: items.length ? items : [{ id: `${id}-empty`, label: "No matches", icon, to: "", disabled: true }]
+    items: items.length ? items : [{ id: `${id}-empty`, label: 'No matches', icon, to: '', disabled: true }]
   }
 }
 
@@ -38,12 +38,12 @@ export function useGlobalSearch() {
   const { fetchShortStories } = useShortStories()
   const { fetchAdaptations } = useAdaptations()
 
-  const works = useState<KingWork[]>("globalSearchWorks", () => [])
-  const shortStories = useState<KingShortStory[]>("globalSearchShortStories", () => [])
-  const adaptations = useState<Adaptation[]>("globalSearchAdaptations", () => [])
-  const isLoaded = useState("globalSearchLoaded", () => false)
-  const searchTerm = useState("globalSearchTerm", () => "")
-  const debouncedSearchTerm = useState("globalSearchDebouncedTerm", () => "")
+  const works = useState<KingWork[]>('globalSearchWorks', () => [])
+  const shortStories = useState<KingShortStory[]>('globalSearchShortStories', () => [])
+  const adaptations = useState<Adaptation[]>('globalSearchAdaptations', () => [])
+  const isLoaded = useState('globalSearchLoaded', () => false)
+  const searchTerm = useState('globalSearchTerm', () => '')
+  const debouncedSearchTerm = useState('globalSearchDebouncedTerm', () => '')
 
   // The palette's input binds to `searchTerm` directly so typing stays
   // instant; filtering below reacts to `debouncedSearchTerm` instead so it
@@ -82,29 +82,29 @@ export function useGlobalSearch() {
     const term = debouncedSearchTerm.value.trim()
     if (!term) return []
 
-    const matchingWorks = works.value.filter((work) => matchesTitle(work.title, term))
-    const matchingShortStories = shortStories.value.filter((story) => matchesTitle(story.title, term))
-    const matchingAdaptations = adaptations.value.filter((adaptation) => matchesTitle(adaptation.title, term))
+    const matchingWorks = works.value.filter(work => matchesTitle(work.title, term))
+    const matchingShortStories = shortStories.value.filter(story => matchesTitle(story.title, term))
+    const matchingAdaptations = adaptations.value.filter(adaptation => matchesTitle(adaptation.title, term))
 
     // Room 217: a search for exactly "217" that matches nothing gets an eerie
     // message in place of the normal three-category empty state.
     if (
-      term === "217" &&
-      !matchingWorks.length &&
-      !matchingShortStories.length &&
-      !matchingAdaptations.length
+      term === '217'
+      && !matchingWorks.length
+      && !matchingShortStories.length
+      && !matchingAdaptations.length
     ) {
       return [
         {
-          id: "room-217",
-          label: "",
+          id: 'room-217',
+          label: '',
           ignoreFilter: true,
           items: [
             {
-              id: "room-217-message",
-              label: "You weren't supposed to find this.",
-              icon: "i-lucide-door-closed",
-              to: "",
+              id: 'room-217-message',
+              label: 'You weren\'t supposed to find this.',
+              icon: 'i-lucide-door-closed',
+              to: '',
               disabled: true
             }
           ]
@@ -114,22 +114,22 @@ export function useGlobalSearch() {
 
     return [
       toGroup(
-        "works",
-        "Works",
-        "i-lucide-book",
-        matchingWorks.map((work) => ({ id: work.id, label: work.title, icon: "i-lucide-book", to: `/works/${work.slug}` }))
+        'works',
+        'Works',
+        'i-lucide-book',
+        matchingWorks.map(work => ({ id: work.id, label: work.title, icon: 'i-lucide-book', to: `/works/${work.slug}` }))
       ),
       toGroup(
-        "short-stories",
-        "Short Stories",
-        "i-lucide-file-text",
-        matchingShortStories.map((story) => ({ id: story.id, label: story.title, icon: "i-lucide-file-text", to: `/short-works/${story.slug}` }))
+        'short-stories',
+        'Short Stories',
+        'i-lucide-file-text',
+        matchingShortStories.map(story => ({ id: story.id, label: story.title, icon: 'i-lucide-file-text', to: `/short-works/${story.slug}` }))
       ),
       toGroup(
-        "adaptations",
-        "Adaptations",
-        "i-lucide-clapperboard",
-        matchingAdaptations.map((adaptation) => ({ id: adaptation.id, label: adaptation.title, icon: "i-lucide-clapperboard", to: `/adaptations/${adaptation.slug}` }))
+        'adaptations',
+        'Adaptations',
+        'i-lucide-clapperboard',
+        matchingAdaptations.map(adaptation => ({ id: adaptation.id, label: adaptation.title, icon: 'i-lucide-clapperboard', to: `/adaptations/${adaptation.slug}` }))
       )
     ]
   })

@@ -41,8 +41,8 @@ export interface CollectionsOverview {
   storyIdsInCollection: string[]
 }
 
-const KING_SHORT_STORY_COLUMNS =
-  "id, title, type, original_publish_year, first_published_in, dark_tower, dark_tower_relation, slug"
+const KING_SHORT_STORY_COLUMNS
+  = 'id, title, type, original_publish_year, first_published_in, dark_tower, dark_tower_relation, slug'
 
 export function useShortStories() {
   const supabase = useSupabaseClient()
@@ -52,13 +52,13 @@ export function useShortStories() {
   // - no boolean flags on the row itself, so this just tracks which story
   // ids the user has a row for, same Record<id, ...> shape as
   // userBooksByWorkId/userAdaptationsByAdaptationId elsewhere.
-  const readShortStoryIds = useState<Record<string, boolean>>("readShortStoryIds", () => ({}))
+  const readShortStoryIds = useState<Record<string, boolean>>('readShortStoryIds', () => ({}))
 
   const fetchShortStories = async () => {
     const { data, error } = await supabase
-      .from("king_short_stories")
+      .from('king_short_stories')
       .select(KING_SHORT_STORY_COLUMNS)
-      .order("original_publish_year", { ascending: true })
+      .order('original_publish_year', { ascending: true })
 
     if (error) throw error
 
@@ -67,9 +67,9 @@ export function useShortStories() {
 
   const fetchShortStoryBySlug = async (slug: string) => {
     const { data, error } = await supabase
-      .from("king_short_stories")
+      .from('king_short_stories')
       .select(KING_SHORT_STORY_COLUMNS)
-      .eq("slug", slug)
+      .eq('slug', slug)
       .maybeSingle()
 
     if (error) throw error
@@ -79,15 +79,15 @@ export function useShortStories() {
 
   const fetchShortStoriesForCollection = async (kingWorkId: string) => {
     const { data, error } = await supabase
-      .from("king_short_story_collections")
-      .select("order_in_collection, king_short_stories ( id, title, type, slug )")
-      .eq("king_work_id", kingWorkId)
-      .order("order_in_collection", { ascending: true, nullsFirst: false })
+      .from('king_short_story_collections')
+      .select('order_in_collection, king_short_stories ( id, title, type, slug )')
+      .eq('king_work_id', kingWorkId)
+      .order('order_in_collection', { ascending: true, nullsFirst: false })
 
     if (error) throw error
 
     return (data as unknown as { king_short_stories: CollectionShortStory | null }[])
-      .map((row) => row.king_short_stories)
+      .map(row => row.king_short_stories)
       .filter((story): story is CollectionShortStory => story !== null)
   }
 
@@ -96,14 +96,14 @@ export function useShortStories() {
   // just want "the" collection (e.g. for a cover) can take the first one.
   const fetchCollectionsForShortStory = async (shortStoryId: string) => {
     const { data, error } = await supabase
-      .from("king_short_story_collections")
-      .select("king_works ( id, title, slug, cover_id, publish_date )")
-      .eq("short_story_id", shortStoryId)
+      .from('king_short_story_collections')
+      .select('king_works ( id, title, slug, cover_id, publish_date )')
+      .eq('short_story_id', shortStoryId)
 
     if (error) throw error
 
     return (data as unknown as { king_works: ShortStoryCollection | null }[])
-      .map((row) => row.king_works)
+      .map(row => row.king_works)
       .filter((collection): collection is ShortStoryCollection => collection !== null)
       .sort((a, b) => a.publish_date.localeCompare(b.publish_date))
   }
@@ -115,10 +115,10 @@ export function useShortStories() {
   // trip, join in JS" pattern as useBooks().fetchWorkHighlights.
   const fetchCollectionsOverview = async (): Promise<CollectionsOverview> => {
     const [{ data: allStories, error: storiesError }, { data: links, error: linksError }] = await Promise.all([
-      supabase.from("king_short_stories").select("id"),
+      supabase.from('king_short_stories').select('id'),
       supabase
-        .from("king_short_story_collections")
-        .select("short_story_id, king_works ( id, title, slug, cover_id, publish_date )")
+        .from('king_short_story_collections')
+        .select('short_story_id, king_works ( id, title, slug, cover_id, publish_date )')
     ])
 
     if (storiesError) throw storiesError
@@ -172,28 +172,28 @@ export function useShortStories() {
     }
 
     const { data, error } = await supabase
-      .from("user_short_story_reads")
-      .select("short_story_id")
-      .eq("user_id", user.value.sub)
+      .from('user_short_story_reads')
+      .select('short_story_id')
+      .eq('user_id', user.value.sub)
 
     if (error) throw error
 
     readShortStoryIds.value = Object.fromEntries(
-      (data as { short_story_id: string }[]).map((row) => [row.short_story_id, true])
+      (data as { short_story_id: string }[]).map(row => [row.short_story_id, true])
     )
   }
 
   // Row-existence toggle: insert to mark read, delete to unmark - there's no
   // boolean column to flip, unlike toggleWantToRead/toggleWantToWatch.
   const toggleRead = async (shortStoryId: string) => {
-    if (!user.value) throw new Error("Not signed in")
+    if (!user.value) throw new Error('Not signed in')
 
     if (readShortStoryIds.value[shortStoryId]) {
       const { error } = await supabase
-        .from("user_short_story_reads")
+        .from('user_short_story_reads')
         .delete()
-        .eq("user_id", user.value.sub)
-        .eq("short_story_id", shortStoryId)
+        .eq('user_id', user.value.sub)
+        .eq('short_story_id', shortStoryId)
 
       if (error) throw error
 
@@ -204,10 +204,10 @@ export function useShortStories() {
       // have created this row (e.g. the story's collection was marked read
       // elsewhere) without this page's state knowing about it yet.
       const { error } = await supabase
-        .from("user_short_story_reads")
+        .from('user_short_story_reads')
         .upsert(
           { user_id: user.value.sub, short_story_id: shortStoryId },
-          { onConflict: "user_id,short_story_id" }
+          { onConflict: 'user_id,short_story_id' }
         )
 
       if (error) throw error
