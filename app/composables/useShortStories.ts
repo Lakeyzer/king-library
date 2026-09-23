@@ -39,6 +39,8 @@ export interface CollectionsOverview {
   storiesInCollectionCount: number
   coveragePercent: number
   storyIdsInCollection: string[]
+  /** Collection titles a story appears in, keyed by short story id - a story can appear in more than one (see fetchCollectionsForShortStory). Absent/empty for an uncollected story. */
+  collectionTitlesByStoryId: Record<string, string[]>
 }
 
 const KING_SHORT_STORY_COLUMNS
@@ -133,11 +135,15 @@ export function useShortStories() {
 
     const collectionById = new Map<string, ShortStoryCollectionSummary>()
     const storyIdsInCollection = new Set<string>()
+    const collectionTitlesByStoryId: Record<string, string[]> = {}
 
     for (const row of linkRows) {
       if (!row.king_works) continue
 
       storyIdsInCollection.add(row.short_story_id)
+      const titles = collectionTitlesByStoryId[row.short_story_id] ?? []
+      titles.push(row.king_works.title)
+      collectionTitlesByStoryId[row.short_story_id] = titles
 
       const existing = collectionById.get(row.king_works.id)
       if (existing) {
@@ -161,7 +167,8 @@ export function useShortStories() {
       totalStories,
       storiesInCollectionCount: storyIdsInCollection.size,
       coveragePercent: totalStories > 0 ? Math.round((storyIdsInCollection.size / totalStories) * 100) : 100,
-      storyIdsInCollection: [...storyIdsInCollection]
+      storyIdsInCollection: [...storyIdsInCollection],
+      collectionTitlesByStoryId
     }
   }
 

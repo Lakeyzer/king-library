@@ -44,6 +44,11 @@ function extraFilter(story: KingShortStory) {
   }
   return true
 }
+
+function collectionNoteOf(story: KingShortStory) {
+  const titles = collectionsOverview.value?.collectionTitlesByStoryId[story.id]
+  return titles?.length ? titles.join(', ') : 'Uncollected'
+}
 </script>
 
 <template>
@@ -58,6 +63,7 @@ function extraFilter(story: KingShortStory) {
     placeholder-icon="i-lucide-file-text"
     sort-year-label="Original publish year"
     :extra-filter="extraFilter"
+    :note-of="collectionNoteOf"
   >
     <template #extra-filters>
       <UCheckbox
