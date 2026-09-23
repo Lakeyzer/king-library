@@ -7,6 +7,8 @@ interface Props {
   /** Open Library work key - needed to open the Add to Shelf editions picker. When absent, Add to Shelf falls back to a plain owned toggle. */
   workKey?: string | null
   mode?: 'compact' | 'expanded'
+  /** Compact mode only - shrinks the status icons and the dropdown trigger button. 'md' (default) matches the original size; 'sm' is for denser layouts like a carousel card footer. */
+  size?: 'sm' | 'md'
   /** 'king' (default) reads/writes king_works via useBooks()/useBookshelf(); 'related' reads/writes related_works via useRelatedWorks()/useRelatedWorkEditions() - see reading-status's "Works by Others share the same reading-status controls". A related work has no ReadFormat, no reread-history (Read Again), and its Mark as Read modal doubles as the Finish flow too (see BookMarkReadModal's own domain doc) - those are hidden/redirected below wherever domain is 'related'. */
   domain?: 'king' | 'related'
   /** True when this renders inside another interactive element's own <button> (e.g. an accordion trigger) - swaps compact mode's dropdown-menu trigger to a non-button tag, since a <button> cannot validly contain another <button>. Reka's DropdownMenuTrigger still sets the right aria-* attributes and keyboard handling regardless of the underlying tag. */
@@ -19,11 +21,14 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   workKey: null,
   mode: 'compact',
+  size: 'md',
   domain: 'king',
   nested: false,
   minEditionYear: null,
   maxEditionYear: null
 })
+
+const statusIconClass = computed(() => (props.size === 'sm' ? 'size-4' : 'size-5'))
 
 defineOptions({ inheritAttrs: false })
 
@@ -375,7 +380,8 @@ function handleShelfClick() {
     >
       <UIcon
         name="i-lucide-library"
-        class="size-5 text-muted"
+        :class="statusIconClass"
+        class="text-muted"
       />
     </UTooltip>
     <UTooltip
@@ -384,7 +390,8 @@ function handleShelfClick() {
     >
       <UIcon
         name="i-lucide-bookmark"
-        class="size-5 text-muted"
+        :class="statusIconClass"
+        class="text-muted"
       />
     </UTooltip>
     <UTooltip
@@ -393,7 +400,8 @@ function handleShelfClick() {
     >
       <UIcon
         name="i-lucide-book-open"
-        class="size-5 text-muted"
+        :class="statusIconClass"
+        class="text-muted"
       />
     </UTooltip>
     <UTooltip
@@ -402,7 +410,8 @@ function handleShelfClick() {
     >
       <UIcon
         name="i-lucide-circle-check"
-        class="size-5 text-muted"
+        :class="statusIconClass"
+        class="text-muted"
       />
     </UTooltip>
 
@@ -414,6 +423,7 @@ function handleShelfClick() {
         icon="i-lucide-ellipsis-vertical"
         color="neutral"
         variant="subtle"
+        :size="size"
         aria-label="Reading actions"
         v-bind="nested ? { as: 'div', role: 'button', tabindex: 0 } : {}"
       />

@@ -2,9 +2,6 @@
 import type { KingWork } from "~/composables/useKingWorks";
 
 interface Props {
-  /** The eight core Dark Tower novels, already ordered by the caller using
-   * the canonical series position (not publish date) - see design.md
-   * "Order the core 8 by series position, not publish date". */
   works: KingWork[];
 }
 
@@ -20,6 +17,7 @@ defineProps<Props>();
     loop
     class="w-full"
     :ui="{
+      item: 'basis-28 sm:basis-32 md:basis-36 lg:basis-40',
       controls: 'mt-4 flex items-center justify-center gap-4',
       arrows: 'contents',
       prev: 'static order-1 rounded-full translate-y-0.2',
@@ -27,6 +25,6 @@ defineProps<Props>();
       dots: 'static inset-auto order-2',
     }"
   >
-    <DarkTowerCarouselItem :work="item" />
+    <DarkTowerRelatedCard :work="item" />
   </UCarousel>
 </template>

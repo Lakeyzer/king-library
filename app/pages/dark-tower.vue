@@ -146,13 +146,15 @@ const [
           <section>
             <h2 class="heading-2 mb-3">
               Dark Tower Related Works
+              <span class="font-normal text-muted">(<NumberMotif :text="relatedWorks.length" />)</span>
             </h2>
-            <DarkTowerRelatedList :works="relatedWorks" />
+            <DarkTowerRelatedCarousel :works="relatedWorks" />
           </section>
 
           <section class="mt-8">
             <h2 class="heading-2 mb-3">
               Graphic Novels
+              <span class="font-normal text-muted">(<NumberMotif :text="comicProgress.total" />)</span>
             </h2>
             <DarkTowerGraphicNovelList :groups="graphicNovelGroups ?? []" />
           </section>
