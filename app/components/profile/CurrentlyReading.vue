@@ -2,11 +2,11 @@
 import type { CurrentlyReadingWork } from '~/composables/useBooks'
 import type { CurrentlyReadingRelatedWork } from '~/composables/useRelatedWorks'
 
-// `source` distinguishes a King work (its own finish flow, /works/ link)
-// from a Works by Others one (no ReadFormat field, /works-by-others/ link,
-// BookMarkReadModal domain="related" instead of BookFinishReadingModal) -
-// see profile-showcase's design.md "Currently Reading always includes By
-// Other Hands works".
+// `source` distinguishes a King work from a Works by Others one - only for
+// building the right /works/ vs /works-by-others/ link and picking which
+// composable BookFinishReadingModal's domain prop should write through.
+// Both finish through the same modal - see profile-showcase's design.md
+// "Currently Reading always includes By Other Hands works".
 export type CurrentlyReadingItem
   = | (CurrentlyReadingWork & { source: 'king' })
     | (CurrentlyReadingRelatedWork & { source: 'related' })
@@ -20,6 +20,22 @@ const props = defineProps<Props>()
 
 function itemHref(item: CurrentlyReadingItem) {
   return item.source === 'king' ? `/works/${item.slug}` : `/works-by-others/${item.slug}`
+}
+
+// `props.items` is a snapshot fetched once by the profile page
+// (fetchCurrentlyReading/fetchCurrentlyReadingRelatedWorks), not derived
+// from useBooks()/useRelatedWorks()'s own reactive state - finishing or
+// stopping a read here updates that reactive state, but wouldn't otherwise
+// be reflected in this list without a full page refetch. Tracking resolved
+// ids locally and filtering them out is a lighter fix than threading a
+// refetch callback all the way back up through ProfileShowcase.
+const resolvedWorkIds = ref(new Set<string>())
+
+const visibleItems = computed(() => props.items.filter(item => !resolvedWorkIds.value.has(item.id)))
+
+function markResolved(workId: string | null) {
+  if (!workId) return
+  resolvedWorkIds.value = new Set(resolvedWorkIds.value).add(workId)
 }
 
 const finishingWorkId = ref<string | null>(null)
@@ -55,7 +71,7 @@ const showFinishModal = computed({
     </h2>
 
     <UEmpty
-      v-if="!items.length"
+      v-if="!visibleItems.length"
       icon="i-lucide-book-open"
       title="Not reading anything right now"
       description="Start a book to see it show up here."
@@ -66,7 +82,7 @@ const showFinishModal = computed({
       class="flex flex-col gap-3"
     >
       <div
-        v-for="item in items"
+        v-for="item in visibleItems"
         :key="item.id"
         class="flex items-center gap-2"
       >
@@ -112,20 +128,14 @@ const showFinishModal = computed({
     </div>
 
     <BookFinishReadingModal
-      v-if="finishingWorkId && finishingWork && finishingWork.source === 'king'"
+      v-if="finishingWorkId && finishingWork"
       v-model:open="showFinishModal"
+      :domain="finishingWork.source"
       :work-id="finishingWorkId"
       :work-title="finishingWork.title"
       :initial-format="finishingWork.format"
-    />
-    <BookMarkReadModal
-      v-if="finishingWorkId && finishingWork && finishingWork.source === 'related'"
-      v-model:open="showFinishModal"
-      domain="related"
-      :work-id="finishingWorkId"
-      :work-title="finishingWork.title"
-      :initial-started-on="finishingWork.startedOn"
-      :initial-format="finishingWork.format"
+      :initial-started-on="finishingWork.source === 'related' ? finishingWork.startedOn : null"
+      @resolved="markResolved(finishingWorkId)"
     />
   </div>
 </template>

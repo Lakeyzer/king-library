@@ -119,6 +119,14 @@ setPageSeo({
           <NumberMotif :text="work.description" />
         </p>
 
+        <div class="flex justify-start">
+          <ReportButton
+            mode="issue"
+            content-area="works_by_others"
+            :item-id="work.id"
+          />
+        </div>
+
         <template
           v-if="componentWorkItems.length"
           #related

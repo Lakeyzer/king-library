@@ -189,6 +189,14 @@ setPageSeo({
               :active="isMisery"
             />
           </p>
+
+          <div class="flex justify-start">
+            <ReportButton
+              mode="issue"
+              content-area="adaptations"
+              :item-id="adaptation.id"
+            />
+          </div>
           <p
             v-if="adaptation.notes"
             class="whitespace-pre-line text-sm text-muted italic"

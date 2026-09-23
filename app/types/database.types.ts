@@ -486,6 +486,98 @@ export type Database = {
         }
         Relationships: []
       }
+      reports: {
+        Row: {
+          adaptation_id: string | null
+          content_area: string
+          created_at: string
+          description: string
+          id: string
+          king_work_id: string | null
+          related_work_id: string | null
+          short_story_id: string | null
+          status: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          adaptation_id?: string | null
+          content_area: string
+          created_at?: string
+          description: string
+          id?: string
+          king_work_id?: string | null
+          related_work_id?: string | null
+          short_story_id?: string | null
+          status?: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          adaptation_id?: string | null
+          content_area?: string
+          created_at?: string
+          description?: string
+          id?: string
+          king_work_id?: string | null
+          related_work_id?: string | null
+          short_story_id?: string | null
+          status?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'reports_adaptation_id_fkey'
+            columns: ['adaptation_id']
+            isOneToOne: false
+            referencedRelation: 'adaptation_stats'
+            referencedColumns: ['adaptation_id']
+          },
+          {
+            foreignKeyName: 'reports_adaptation_id_fkey'
+            columns: ['adaptation_id']
+            isOneToOne: false
+            referencedRelation: 'adaptations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'reports_king_work_id_fkey'
+            columns: ['king_work_id']
+            isOneToOne: false
+            referencedRelation: 'king_works'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'reports_king_work_id_fkey'
+            columns: ['king_work_id']
+            isOneToOne: false
+            referencedRelation: 'work_stats'
+            referencedColumns: ['king_work_id']
+          },
+          {
+            foreignKeyName: 'reports_related_work_id_fkey'
+            columns: ['related_work_id']
+            isOneToOne: false
+            referencedRelation: 'related_work_stats'
+            referencedColumns: ['related_work_id']
+          },
+          {
+            foreignKeyName: 'reports_related_work_id_fkey'
+            columns: ['related_work_id']
+            isOneToOne: false
+            referencedRelation: 'related_works'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'reports_short_story_id_fkey'
+            columns: ['short_story_id']
+            isOneToOne: false
+            referencedRelation: 'king_short_stories'
+            referencedColumns: ['id']
+          }
+        ]
+      }
       series: {
         Row: {
           id: string
@@ -1046,6 +1138,19 @@ export type Database = {
           read_count: number | null
           related_work_id: string | null
           want_to_read_count: number | null
+        }
+        Relationships: []
+      }
+      reports_public: {
+        Row: {
+          content_area: string | null
+          created_at: string | null
+          description: string | null
+          id: string | null
+          item_slug: string | null
+          item_title: string | null
+          status: string | null
+          type: string | null
         }
         Relationships: []
       }

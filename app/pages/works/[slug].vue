@@ -219,6 +219,14 @@ setPageSeo({
           />
         </p>
 
+        <div class="flex justify-start">
+          <ReportButton
+            mode="issue"
+            content-area="works"
+            :item-id="work.id"
+          />
+        </div>
+
         <UAlert
           v-if="work.remark"
           color="neutral"

@@ -85,6 +85,13 @@ function extraFilter(work: KingWork) {
     :extra-filter="extraFilter"
     :note-of="(work: KingWork) => work.remark"
   >
+    <template #header-actions>
+      <ReportButton
+        mode="missing-content"
+        content-area="works"
+      />
+    </template>
+
     <template #extra-filters>
       <URadioGroup
         v-model="flagFilter"

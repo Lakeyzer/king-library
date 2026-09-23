@@ -68,6 +68,10 @@ async function onSubmit(event: FormSubmitEvent<SuggestionFormState>) {
     title="New Suggestion"
   >
     <template #body>
+      <p class="text-muted text-sm mb-4">
+        Please look through existing suggestions before submitting a new one, to help avoid duplicates.
+      </p>
+
       <UForm
         :state="state"
         :validate="validate"

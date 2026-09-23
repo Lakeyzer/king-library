@@ -1237,6 +1237,57 @@ export function useBooks() {
     return row
   }
 
+  // Abandons an in-progress reading session without logging a read for it -
+  // the "Stop Reading" option in BookFinishReadingModal, for when a session
+  // started via startReading() isn't going to be finished. Nothing was ever
+  // written to user_book_reads for this session (that only happens on
+  // finish/mark-read/read-again), so there's nothing to delete there. But
+  // startReading() can be triggered from an already-`read` work (starting a
+  // reread - see finishReading()'s "currently_reading... keep true right up
+  // until it's explicitly finished" comment above), which already
+  // overwrote user_books.started_on with this session's start date - so
+  // simply clearing currently_reading isn't enough; started_on/finished_on/
+  // read_year/read need resyncing back to whatever the most recent *logged*
+  // read says, the same lookup deleteLoggedRead() does after removing a
+  // read. If there is no logged read at all, that resync correctly lands on
+  // a fully neutral, never-read state.
+  const stopReading = async (workId: string) => {
+    if (!user.value) throw new Error('Not signed in')
+
+    const { data: reads, error: readsError } = await supabase
+      .from('user_book_reads')
+      .select('started_on, read_on, read_year')
+      .eq('user_id', user.value.sub)
+      .eq('king_work_id', workId)
+
+    if (readsError) throw readsError
+
+    const sortKey = (row: { read_on: string | null, read_year: number | null }) =>
+      row.read_on ?? (row.read_year ? `${row.read_year}-01-01` : null)
+
+    const mostRecent = (reads as { started_on: string | null, read_on: string | null, read_year: number | null }[])
+      .sort((a, b) => (sortKey(b) ?? '').localeCompare(sortKey(a) ?? ''))[0]
+
+    const { data, error } = await supabase
+      .from('user_books')
+      .update(
+        mostRecent
+          ? { currently_reading: false, read: true, started_on: mostRecent.started_on, finished_on: mostRecent.read_on, read_year: mostRecent.read_year }
+          : { currently_reading: false, read: false, started_on: null, finished_on: null, read_year: null }
+      )
+      .eq('user_id', user.value.sub)
+      .eq('king_work_id', workId)
+      .select(USER_BOOK_COLUMNS)
+      .single()
+
+    if (error) throw error
+
+    const row = data as UserBook
+    userBooksByWorkId.value = { ...userBooksByWorkId.value, [workId]: row }
+
+    return row
+  }
+
   // Unmarking is a full reset, not a status flip - per reading-status's
   // "User can unmark a work as read, deleting its logged reads, after
   // confirming", it deletes every user_book_reads row for this work and
@@ -1317,6 +1368,7 @@ export function useBooks() {
     fetchOwnedDiff,
     toggleWantToRead,
     startReading,
+    stopReading,
     finishReading,
     markRead,
     readAgain,

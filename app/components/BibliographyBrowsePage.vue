@@ -100,9 +100,12 @@ const filteredItems = computed(() => {
         <NumberMotif :text="items?.length ?? 0" />
       </div>
     </div>
-    <p class="text-muted italic">
-      {{ description }}
-    </p>
+    <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+      <p class="text-muted italic">
+        {{ description }}
+      </p>
+      <slot name="header-actions" />
+    </div>
 
     <UPageBody>
       <div class="flex flex-col gap-4 lg:flex-row lg:items-start">

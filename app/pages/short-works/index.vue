@@ -65,6 +65,13 @@ function collectionNoteOf(story: KingShortStory) {
     :extra-filter="extraFilter"
     :note-of="collectionNoteOf"
   >
+    <template #header-actions>
+      <ReportButton
+        mode="missing-content"
+        content-area="short_works"
+      />
+    </template>
+
     <template #extra-filters>
       <UCheckbox
         v-model="notInCollectionOnly"

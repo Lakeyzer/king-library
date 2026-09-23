@@ -481,6 +481,49 @@ export function useRelatedWorks() {
     return row
   }
 
+  // Abandons an in-progress reading session without touching whatever
+  // read/finished_on this row already had - the related-domain equivalent
+  // of useBooks().stopReading(), used by BookFinishReadingModal's "Stop
+  // Reading" when domain="related". Unlike King, there's no per-read history
+  // table to resync started_on/finished_on/read_year from here (see
+  // markRead's own "no logged-read history" note) - if this session was a
+  // reread of an already-`read` work, startReading() already overwrote
+  // started_on with this session's date and that original date can't be
+  // recovered, so it's left as-is rather than guessed at. Only a
+  // never-before-read work gets a full reset back to neutral, the one case
+  // where the correct target state is unambiguous.
+  const stopReading = async (workId: string) => {
+    if (!user.value) throw new Error('Not signed in')
+
+    const { data: existing, error: fetchError } = await supabase
+      .from('user_related_works')
+      .select('read')
+      .eq('user_id', user.value.sub)
+      .eq('related_work_id', workId)
+      .maybeSingle()
+
+    if (fetchError) throw fetchError
+
+    const { data, error } = await supabase
+      .from('user_related_works')
+      .update(
+        existing?.read
+          ? { currently_reading: false }
+          : { currently_reading: false, started_on: null, finished_on: null }
+      )
+      .eq('user_id', user.value.sub)
+      .eq('related_work_id', workId)
+      .select(USER_RELATED_WORK_COLUMNS)
+      .single()
+
+    if (error) throw error
+
+    const row = data as UserRelatedWork
+    userRelatedWorksByWorkId.value = { ...userRelatedWorksByWorkId.value, [workId]: row }
+
+    return row
+  }
+
   // Simple toggle-off, unlike King books' confirm-then-delete unmark flow -
   // there's no logged-read history here to cascade-delete (see design.md
   // "Non-Goals: Full reread history"), so undoing a mis-click is a single
@@ -519,6 +562,7 @@ export function useRelatedWorks() {
     setOwned,
     toggleWantToRead,
     startReading,
+    stopReading,
     markRead,
     unmarkRead
   }

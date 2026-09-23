@@ -1,6 +1,7 @@
 import type { KingWork } from '~/composables/useKingWorks'
 import type { KingShortStory } from '~/composables/useShortStories'
 import type { Adaptation } from '~/composables/useAdaptations'
+import type { RelatedWork } from '~/composables/useRelatedWorks'
 
 export interface GlobalSearchResultItem {
   id: string
@@ -37,10 +38,12 @@ export function useGlobalSearch() {
   const { fetchKingWorks } = useKingWorks()
   const { fetchShortStories } = useShortStories()
   const { fetchAdaptations } = useAdaptations()
+  const { fetchRelatedWorks } = useRelatedWorks()
 
   const works = useState<KingWork[]>('globalSearchWorks', () => [])
   const shortStories = useState<KingShortStory[]>('globalSearchShortStories', () => [])
   const adaptations = useState<Adaptation[]>('globalSearchAdaptations', () => [])
+  const relatedWorks = useState<RelatedWork[]>('globalSearchRelatedWorks', () => [])
   const isLoaded = useState('globalSearchLoaded', () => false)
   const searchTerm = useState('globalSearchTerm', () => '')
   const debouncedSearchTerm = useState('globalSearchDebouncedTerm', () => '')
@@ -66,15 +69,17 @@ export function useGlobalSearch() {
   const ensureLoaded = async () => {
     if (isLoaded.value) return
 
-    const [worksData, shortStoriesData, adaptationsData] = await Promise.all([
+    const [worksData, shortStoriesData, adaptationsData, relatedWorksData] = await Promise.all([
       fetchKingWorks(),
       fetchShortStories(),
-      fetchAdaptations()
+      fetchAdaptations(),
+      fetchRelatedWorks()
     ])
 
     works.value = worksData
     shortStories.value = shortStoriesData
     adaptations.value = adaptationsData
+    relatedWorks.value = relatedWorksData
     isLoaded.value = true
   }
 
@@ -85,14 +90,16 @@ export function useGlobalSearch() {
     const matchingWorks = works.value.filter(work => matchesTitle(work.title, term))
     const matchingShortStories = shortStories.value.filter(story => matchesTitle(story.title, term))
     const matchingAdaptations = adaptations.value.filter(adaptation => matchesTitle(adaptation.title, term))
+    const matchingRelatedWorks = relatedWorks.value.filter(relatedWork => matchesTitle(relatedWork.title, term))
 
     // Room 217: a search for exactly "217" that matches nothing gets an eerie
-    // message in place of the normal three-category empty state.
+    // message in place of the normal four-category empty state.
     if (
       term === '217'
       && !matchingWorks.length
       && !matchingShortStories.length
       && !matchingAdaptations.length
+      && !matchingRelatedWorks.length
     ) {
       return [
         {
@@ -130,6 +137,17 @@ export function useGlobalSearch() {
         'Adaptations',
         'i-lucide-clapperboard',
         matchingAdaptations.map(adaptation => ({ id: adaptation.id, label: adaptation.title, icon: 'i-lucide-clapperboard', to: `/adaptations/${adaptation.slug}` }))
+      ),
+      toGroup(
+        'works-by-others',
+        'Works by Others',
+        'i-lucide-book-open-check',
+        matchingRelatedWorks.map(relatedWork => ({
+          id: relatedWork.id,
+          label: relatedWork.title,
+          icon: 'i-lucide-book-open-check',
+          to: `/works-by-others/${relatedWork.slug}`
+        }))
       )
     ]
   })

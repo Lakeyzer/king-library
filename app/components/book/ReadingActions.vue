@@ -9,7 +9,7 @@ interface Props {
   mode?: 'compact' | 'expanded'
   /** Compact mode only - shrinks the status icons and the dropdown trigger button. 'md' (default) matches the original size; 'sm' is for denser layouts like a carousel card footer. */
   size?: 'sm' | 'md'
-  /** 'king' (default) reads/writes king_works via useBooks()/useBookshelf(); 'related' reads/writes related_works via useRelatedWorks()/useRelatedWorkEditions() - see reading-status's "Works by Others share the same reading-status controls". A related work has no ReadFormat, no reread-history (Read Again), and its Mark as Read modal doubles as the Finish flow too (see BookMarkReadModal's own domain doc) - those are hidden/redirected below wherever domain is 'related'. */
+  /** 'king' (default) reads/writes king_works via useBooks()/useBookshelf(); 'related' reads/writes related_works via useRelatedWorks()/useRelatedWorkEditions() - see reading-status's "Works by Others share the same reading-status controls". A related work has no reread-history (Read Again) - hidden/redirected below wherever domain is 'related' - but otherwise shares every reading-status control, including BookFinishReadingModal, identically with King. */
   domain?: 'king' | 'related'
   /** True when this renders inside another interactive element's own <button> (e.g. an accordion trigger) - swaps compact mode's dropdown-menu trigger to a non-button tag, since a <button> cannot validly contain another <button>. Reka's DropdownMenuTrigger still sets the right aria-* attributes and keyboard handling regardless of the underlying tag. */
   nested?: boolean
@@ -121,13 +121,7 @@ function handlePrimaryClick() {
       showStartReadingModal.value = true
       break
     case 'currently_reading':
-      // A related work's Mark as Read modal doubles as its Finish flow -
-      // see BookMarkReadModal's own domain doc.
-      if (isRelated.value) {
-        showMarkReadModal.value = true
-      } else {
-        showFinishReadingModal.value = true
-      }
+      showFinishReadingModal.value = true
       break
     case 'read':
       // A related work's unmark has nothing to lose confirming - no
@@ -186,21 +180,16 @@ const readingDropdownItems = computed<DropdownMenuItem[]>(() => {
         }
       ]
     case 'currently_reading':
-      // A related work's primary action already opens the same Mark as Read
-      // modal that would go here too (see handlePrimaryClick) - no separate
-      // secondary item for it, unlike King's distinct Finish/Mark-directly split.
-      return isRelated.value
-        ? [primary]
-        : [
-            primary,
-            {
-              label: 'Mark as Read',
-              icon: 'i-lucide-circle-check',
-              onSelect: () => {
-                showMarkReadModal.value = true
-              }
-            }
-          ]
+      return [
+        primary,
+        {
+          label: 'Mark as Read',
+          icon: 'i-lucide-circle-check',
+          onSelect: () => {
+            showMarkReadModal.value = true
+          }
+        }
+      ]
     case 'read':
       return [
         primary,
@@ -304,8 +293,11 @@ const startFinishLabel = computed(() =>
 
 // Read Again has no related-works equivalent (no reread-history table), so
 // once a related work is read there's nothing left for this slot to offer -
-// King keeps it visible throughout, repurposed as Read Again.
-const showReadSlot = computed(() => (isRelated.value ? !isCurrentlyReading.value && !isRead.value : true))
+// hidden only for that one combination. Every other state (including
+// currently_reading, where this slot doubles as "Mark as Read with custom
+// dates" alongside the primary Finish action) behaves identically for both
+// domains.
+const showReadSlot = computed(() => !(isRelated.value && isRead.value))
 
 const readSlotLabel = computed(() =>
   primaryState.value === 'read' ? 'Read Again' : 'Mark as Read'
@@ -342,13 +334,7 @@ function handleStartOrFinishReading() {
     return
   }
   if (isCurrentlyReading.value) {
-    // A related work's Mark as Read modal doubles as its Finish flow - see
-    // BookMarkReadModal's own domain doc.
-    if (isRelated.value) {
-      showMarkReadModal.value = true
-    } else {
-      showFinishReadingModal.value = true
-    }
+    showFinishReadingModal.value = true
   } else {
     showStartReadingModal.value = true
   }
@@ -511,11 +497,12 @@ function handleShelfClick() {
     :domain="domain"
   />
   <BookFinishReadingModal
-    v-if="!isRelated"
     v-model:open="showFinishReadingModal"
+    :domain="domain"
     :work-id="workId"
     :work-title="workTitle"
     :initial-format="currentFormat"
+    :initial-started-on="currentStartedOn"
   />
   <BookMarkReadModal
     v-model:open="showMarkReadModal"

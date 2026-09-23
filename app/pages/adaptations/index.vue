@@ -60,6 +60,13 @@ const watchedCountLabel = (count: number) =>
     placeholder-icon="i-lucide-film"
     sort-year-label="Release year"
   >
+    <template #header-actions>
+      <ReportButton
+        mode="missing-content"
+        content-area="adaptations"
+      />
+    </template>
+
     <template #item-actions="{ item }">
       <AdaptationWatchActions
         :adaptation-id="(item as Adaptation).id"

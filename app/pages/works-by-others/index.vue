@@ -50,6 +50,13 @@ const completion = computed(() => computeCompletionCount(works.value ?? []))
     placeholder-icon="i-lucide-book-open-check"
     sort-year-label="Publish year"
   >
+    <template #header-actions>
+      <ReportButton
+        mode="missing-content"
+        content-area="works_by_others"
+      />
+    </template>
+
     <template #item-actions="{ item }">
       <BookReadingActions
         domain="related"

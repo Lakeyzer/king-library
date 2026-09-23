@@ -116,6 +116,14 @@ setPageSeo({
           <NumberMotif :text="story.dark_tower_relation" />
         </p>
 
+        <div class="flex justify-start">
+          <ReportButton
+            mode="issue"
+            content-area="short_works"
+            :item-id="story.id"
+          />
+        </div>
+
         <template
           v-if="collectionItems.length"
           #related

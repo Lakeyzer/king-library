@@ -114,7 +114,7 @@ export default defineNuxtConfig({
   sitemap: {
     // Static pages that need auth (or, for /confirm, only ever exist mid-OAuth-redirect)
     // have no SEO value and are never a link worth sharing - see specs/seo-metadata/spec.md.
-    exclude: ['/confirm', '/onboarding', '/settings', '/reset-password'],
+    exclude: ['/confirm', '/onboarding', '/settings', '/reset-password', '/suggestion-box', '/following'],
     // Work/adaptation/short-work detail pages are dynamic routes the crawler can't
     // enumerate on its own - this endpoint supplies their slugs. Public per-user profile
     // pages (/profile/[username]) are deliberately NOT sourced here, so only the static
