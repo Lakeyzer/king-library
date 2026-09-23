@@ -198,12 +198,6 @@
     "order_in_collection": null
   },
   {
-    "id": "389165cf-2cb6-4fd9-a9e3-28e2f14f4e6f",
-    "short_story_id": "9d945f34-2d96-43bb-abe4-6d8c7f4cf19f",
-    "king_work_id": "5510bbee-e9b6-4510-b647-3dcbf24fc2c6",
-    "order_in_collection": null
-  },
-  {
     "id": "ebcc6a4d-07ba-4233-b58f-f3ce0c847414",
     "short_story_id": "72a70fc0-2b2f-4b8f-99e5-f4f180f62b2a",
     "king_work_id": "5510bbee-e9b6-4510-b647-3dcbf24fc2c6",
@@ -306,26 +300,8 @@
     "order_in_collection": null
   },
   {
-    "id": "6927b1b1-c22f-4ae7-b79a-4ec8bbe442fd",
-    "short_story_id": "5f741cdd-37b9-46de-82f4-2592a477a4bd",
-    "king_work_id": "e47ffae1-dfe6-44d1-9a72-19a5e110e119",
-    "order_in_collection": null
-  },
-  {
     "id": "2f2f7ecb-b807-4673-8c8d-a93d8e3c2eaf",
     "short_story_id": "de457b46-19f0-4232-bc0f-1a001eabf19d",
-    "king_work_id": "e47ffae1-dfe6-44d1-9a72-19a5e110e119",
-    "order_in_collection": null
-  },
-  {
-    "id": "6b9d9fbe-4a8f-40ca-adc9-baf2406fda2c",
-    "short_story_id": "03932463-f5aa-4326-933e-9d908dac0184",
-    "king_work_id": "e47ffae1-dfe6-44d1-9a72-19a5e110e119",
-    "order_in_collection": null
-  },
-  {
-    "id": "da1eaccf-34de-450f-a6b2-17202252c08d",
-    "short_story_id": "fde3e790-14e3-4d4b-9a9c-9234b2484f7d",
     "king_work_id": "e47ffae1-dfe6-44d1-9a72-19a5e110e119",
     "order_in_collection": null
   },
@@ -338,12 +314,6 @@
   {
     "id": "845ed1f9-640e-4a9b-af61-ffc76d49ee7b",
     "short_story_id": "d89f365f-3929-4a47-b792-69eaaa40fb81",
-    "king_work_id": "e47ffae1-dfe6-44d1-9a72-19a5e110e119",
-    "order_in_collection": null
-  },
-  {
-    "id": "fea50037-b8e4-4195-aa49-34ca21451a10",
-    "short_story_id": "e6741e34-fec1-4b52-891f-a5d703e22060",
     "king_work_id": "e47ffae1-dfe6-44d1-9a72-19a5e110e119",
     "order_in_collection": null
   },
@@ -408,12 +378,6 @@
     "order_in_collection": null
   },
   {
-    "id": "9e21bd11-0902-441c-84f9-9f83a8198ed5",
-    "short_story_id": "378c77d1-1d20-4bd8-99f8-dbf08315a50d",
-    "king_work_id": "e47ffae1-dfe6-44d1-9a72-19a5e110e119",
-    "order_in_collection": null
-  },
-  {
     "id": "07cb1af3-fe62-4f85-a136-88dfb6acf7af",
     "short_story_id": "03533c94-8019-4640-8830-a8924427c7f0",
     "king_work_id": "e47ffae1-dfe6-44d1-9a72-19a5e110e119",
@@ -441,12 +405,6 @@
     "id": "feebb238-6f99-418f-ba24-a382c96871fa",
     "short_story_id": "7dde6844-88ef-42a5-9b56-a7ff792e5bd7",
     "king_work_id": "e47ffae1-dfe6-44d1-9a72-19a5e110e119",
-    "order_in_collection": null
-  },
-  {
-    "id": "419028cd-3d79-43f1-afe3-b9a85e783b47",
-    "short_story_id": "8335c40a-2850-407b-abc1-012474c608a9",
-    "king_work_id": "f8bd691b-5b1c-43a4-9ccb-152717acad87",
     "order_in_collection": null
   },
   {
@@ -528,12 +486,6 @@
     "order_in_collection": null
   },
   {
-    "id": "345363c4-c375-4b85-a0e7-5d94d5b5b536",
-    "short_story_id": "fb8546ad-4f4a-499d-b2f4-a787affd6211",
-    "king_work_id": "f8bd691b-5b1c-43a4-9ccb-152717acad87",
-    "order_in_collection": null
-  },
-  {
     "id": "2263df24-08b4-452f-afbd-0b52c61edf89",
     "short_story_id": "643aee3d-f3d1-42e1-bd05-a3aefe6122f2",
     "king_work_id": "f8bd691b-5b1c-43a4-9ccb-152717acad87",
@@ -570,20 +522,8 @@
     "order_in_collection": null
   },
   {
-    "id": "5f8d56c3-2a4f-41a2-9bb3-71f9c13837cd",
-    "short_story_id": "cc76b572-68fc-4250-a19a-7d1bdf711b34",
-    "king_work_id": "b63506d6-67bb-443a-bfef-e9f460f7c439",
-    "order_in_collection": null
-  },
-  {
     "id": "1f51430b-75df-4153-a96c-a536d41fcd70",
     "short_story_id": "fd704d1f-d75c-4506-bf24-9e541dd1612c",
-    "king_work_id": "b63506d6-67bb-443a-bfef-e9f460f7c439",
-    "order_in_collection": null
-  },
-  {
-    "id": "37bb4a4f-3c27-43eb-b40e-2d4af10934dd",
-    "short_story_id": "90946562-223c-410d-a31c-a34c9f891f27",
     "king_work_id": "b63506d6-67bb-443a-bfef-e9f460f7c439",
     "order_in_collection": null
   },
@@ -654,12 +594,6 @@
     "order_in_collection": null
   },
   {
-    "id": "e9723071-56d9-4e37-8a18-a924d8e63b81",
-    "short_story_id": "75dcf9c9-8f8c-405b-a529-7251d8cefd15",
-    "king_work_id": "b63506d6-67bb-443a-bfef-e9f460f7c439",
-    "order_in_collection": null
-  },
-  {
     "id": "45c6ea8c-63a8-4330-b840-6c004e1b7d53",
     "short_story_id": "fd5b6c11-0f88-400f-a1ea-77fc7955acdc",
     "king_work_id": "b63506d6-67bb-443a-bfef-e9f460f7c439",
@@ -678,18 +612,6 @@
     "order_in_collection": null
   },
   {
-    "id": "7a60e0f8-7326-4c1e-8aaa-c2c496ee43bf",
-    "short_story_id": "60a3c7eb-2a09-45b3-85df-84032d490f47",
-    "king_work_id": "dd80acc1-2a3f-4da4-9ae4-587af1ebd54d",
-    "order_in_collection": null
-  },
-  {
-    "id": "31fe0d77-e42c-4f51-9ad4-9c7dd230ee3a",
-    "short_story_id": "eb00ce07-f9be-43cf-8e07-d60078779fde",
-    "king_work_id": "dd80acc1-2a3f-4da4-9ae4-587af1ebd54d",
-    "order_in_collection": null
-  },
-  {
     "id": "9b896d64-b444-48d2-a1a0-4943dfeabe93",
     "short_story_id": "414a19c7-2e65-49cb-a964-0ff0f757cd2a",
     "king_work_id": "dd80acc1-2a3f-4da4-9ae4-587af1ebd54d",
@@ -702,38 +624,14 @@
     "order_in_collection": null
   },
   {
-    "id": "f3630619-6824-484e-ba89-7f368d6b0831",
-    "short_story_id": "5358411c-14ab-48c7-984d-dfc50b667f7a",
-    "king_work_id": "dd80acc1-2a3f-4da4-9ae4-587af1ebd54d",
-    "order_in_collection": null
-  },
-  {
     "id": "aed170c6-dd38-44ca-a397-a7582d9040b1",
     "short_story_id": "07f9656c-7da2-40de-a53d-c4d5d44b78f7",
     "king_work_id": "dd80acc1-2a3f-4da4-9ae4-587af1ebd54d",
     "order_in_collection": null
   },
   {
-    "id": "867c2c85-b222-4660-a0b1-f92575d45560",
-    "short_story_id": "f263432b-4901-40aa-9284-0cbaaf0f3964",
-    "king_work_id": "dd80acc1-2a3f-4da4-9ae4-587af1ebd54d",
-    "order_in_collection": null
-  },
-  {
-    "id": "57e671f6-95f6-496d-b3c4-602689e56fde",
-    "short_story_id": "0450734e-5e55-4abf-be7f-2323832ca47e",
-    "king_work_id": "dd80acc1-2a3f-4da4-9ae4-587af1ebd54d",
-    "order_in_collection": null
-  },
-  {
     "id": "cf368e6f-3551-477e-aea5-56fee4a8d46f",
     "short_story_id": "9fded919-c795-4c8c-af65-65ebca05a8e9",
-    "king_work_id": "dd80acc1-2a3f-4da4-9ae4-587af1ebd54d",
-    "order_in_collection": null
-  },
-  {
-    "id": "e95a6ca0-610e-4e53-9e30-54b7355bfddb",
-    "short_story_id": "595c3485-661d-43b4-89d9-775457e9d3d4",
     "king_work_id": "dd80acc1-2a3f-4da4-9ae4-587af1ebd54d",
     "order_in_collection": null
   },
@@ -780,12 +678,6 @@
     "order_in_collection": null
   },
   {
-    "id": "ffce4bc9-4391-4e26-85e1-45f31cad8d85",
-    "short_story_id": "1335728c-8aec-4451-aa01-7128a1e5810b",
-    "king_work_id": "dd80acc1-2a3f-4da4-9ae4-587af1ebd54d",
-    "order_in_collection": null
-  },
-  {
     "id": "fd710e94-2e69-4d5d-9aa1-543bf8e2df9e",
     "short_story_id": "1a2a5f41-11ae-4f84-9bfb-bdbd65e5feac",
     "king_work_id": "dd80acc1-2a3f-4da4-9ae4-587af1ebd54d",
@@ -795,6 +687,180 @@
     "id": "d8483336-5151-4a1b-8fa6-743b1e30927f",
     "short_story_id": "cb2c840f-98ee-4da0-822a-657fdef1b5c4",
     "king_work_id": "dd80acc1-2a3f-4da4-9ae4-587af1ebd54d",
+    "order_in_collection": null
+  },
+  {
+    "id": "aa30c29c-573a-4f05-a189-63de4e9383bd",
+    "short_story_id": "e27d95b4-6770-4bb5-96a1-9e39269aab2a",
+    "king_work_id": "b2ddef7e-95be-43c4-a53f-0d1997e53b60",
+    "order_in_collection": null
+  },
+  {
+    "id": "9d5e076a-d6d6-46e5-aef9-2f9149992615",
+    "short_story_id": "5358411c-14ab-48c7-984d-dfc50b667f7a",
+    "king_work_id": "b2ddef7e-95be-43c4-a53f-0d1997e53b60",
+    "order_in_collection": null
+  },
+  {
+    "id": "7b09a931-b5a5-4257-b768-4fdb70e2e3f7",
+    "short_story_id": "b4abf845-623e-4ebf-94ac-8e75ff55224b",
+    "king_work_id": "b2ddef7e-95be-43c4-a53f-0d1997e53b60",
+    "order_in_collection": null
+  },
+  {
+    "id": "6ae5dfe2-8bf1-4a04-8798-a0ea3ee00910",
+    "short_story_id": "6ce0733c-d6ed-4dbd-b006-66910d593a9f",
+    "king_work_id": "b2ddef7e-95be-43c4-a53f-0d1997e53b60",
+    "order_in_collection": null
+  },
+  {
+    "id": "5d9f784d-de8d-441c-b4c7-674f8bf4a77f",
+    "short_story_id": "ce9b793e-bdd0-449e-be3c-a9daf2b8c1a7",
+    "king_work_id": "b2ddef7e-95be-43c4-a53f-0d1997e53b60",
+    "order_in_collection": null
+  },
+  {
+    "id": "f29a075c-f089-4669-8029-8c43944cf336",
+    "short_story_id": "f2a8669a-f502-454d-8744-b47fef14daed",
+    "king_work_id": "b2ddef7e-95be-43c4-a53f-0d1997e53b60",
+    "order_in_collection": null
+  },
+  {
+    "id": "74353557-710b-45f0-98f7-c476ac1c3b2f",
+    "short_story_id": "84877f94-67f1-4dfd-a4c1-cbdb10c6b331",
+    "king_work_id": "b2ddef7e-95be-43c4-a53f-0d1997e53b60",
+    "order_in_collection": null
+  },
+  {
+    "id": "874548d4-39f8-40f1-b690-89589fc70ae2",
+    "short_story_id": "ac590ccc-cf29-45f1-8c2f-876a636b9d8b",
+    "king_work_id": "b2ddef7e-95be-43c4-a53f-0d1997e53b60",
+    "order_in_collection": null
+  },
+  {
+    "id": "964081d7-fb27-4d93-b79b-94e4b5325a73",
+    "short_story_id": "0450734e-5e55-4abf-be7f-2323832ca47e",
+    "king_work_id": "b2ddef7e-95be-43c4-a53f-0d1997e53b60",
+    "order_in_collection": null
+  },
+  {
+    "id": "2bbd11e2-d9fa-4786-84bc-067f16604840",
+    "short_story_id": "7beca928-c55b-49a0-93dc-b41eb9f4fbba",
+    "king_work_id": "b2ddef7e-95be-43c4-a53f-0d1997e53b60",
+    "order_in_collection": null
+  },
+  {
+    "id": "4630d983-3ba8-416a-b619-1a2f6891627c",
+    "short_story_id": "d8ea4c3d-0288-438e-804b-a74e4bb02279",
+    "king_work_id": "b2ddef7e-95be-43c4-a53f-0d1997e53b60",
+    "order_in_collection": null
+  },
+  {
+    "id": "2165cb25-705c-4765-ba07-8f7e4efd6ee9",
+    "short_story_id": "ed84f002-25d0-47f6-b908-6544e4ce2d4f",
+    "king_work_id": "b2ddef7e-95be-43c4-a53f-0d1997e53b60",
+    "order_in_collection": null
+  },
+  {
+    "id": "e5c05bca-0651-4f03-8580-1133e33ffe3d",
+    "short_story_id": "5df85127-a314-484e-8028-5cc5d32e310a",
+    "king_work_id": "dd80acc1-2a3f-4da4-9ae4-587af1ebd54d",
+    "order_in_collection": null
+  },
+  {
+    "id": "9601e0d1-0a4b-4356-8433-4c9a6b1f5f45",
+    "short_story_id": "7be31819-aa00-464e-a66d-7663ca12e5ef",
+    "king_work_id": "dd80acc1-2a3f-4da4-9ae4-587af1ebd54d",
+    "order_in_collection": null
+  },
+  {
+    "id": "f5a76d41-0afc-43e6-a40d-abdb9b895481",
+    "short_story_id": "a29d1286-8fe8-4d05-acd2-d3a50de7e936",
+    "king_work_id": "dd80acc1-2a3f-4da4-9ae4-587af1ebd54d",
+    "order_in_collection": null
+  },
+  {
+    "id": "bc14a297-1704-4ab3-9a05-6446a02cf1ce",
+    "short_story_id": "1642a5f9-1fff-4d95-bee7-c3514701d636",
+    "king_work_id": "dd80acc1-2a3f-4da4-9ae4-587af1ebd54d",
+    "order_in_collection": null
+  },
+  {
+    "id": "56cee9e1-5c4c-4fd2-985c-ca307dfc6e23",
+    "short_story_id": "5f741cdd-37b9-46de-82f4-2592a477a4bd",
+    "king_work_id": "b63506d6-67bb-443a-bfef-e9f460f7c439",
+    "order_in_collection": null
+  },
+  {
+    "id": "4b1895ca-2df1-4a6f-8ce9-457cdbf5371a",
+    "short_story_id": "e6741e34-fec1-4b52-891f-a5d703e22060",
+    "king_work_id": "b63506d6-67bb-443a-bfef-e9f460f7c439",
+    "order_in_collection": null
+  },
+  {
+    "id": "ecb57c09-7b02-49fe-b4d9-52de08cd5afe",
+    "short_story_id": "378c77d1-1d20-4bd8-99f8-dbf08315a50d",
+    "king_work_id": "b63506d6-67bb-443a-bfef-e9f460f7c439",
+    "order_in_collection": null
+  },
+  {
+    "id": "351b5a3a-21c9-4f59-94a7-8cadaac902b6",
+    "short_story_id": "8335c40a-2850-407b-abc1-012474c608a9",
+    "king_work_id": "b63506d6-67bb-443a-bfef-e9f460f7c439",
+    "order_in_collection": null
+  },
+  {
+    "id": "d64c1900-2fc2-4603-8c2b-741d7e47b281",
+    "short_story_id": "823cd67b-042e-4943-be6d-f42766b7ccfc",
+    "king_work_id": "b63506d6-67bb-443a-bfef-e9f460f7c439",
+    "order_in_collection": null
+  },
+  {
+    "id": "81569eab-ad7c-4610-a644-371fefc6810f",
+    "short_story_id": "acae5165-1590-41df-bc84-2625609a9c68",
+    "king_work_id": "b63506d6-67bb-443a-bfef-e9f460f7c439",
+    "order_in_collection": null
+  },
+  {
+    "id": "bba35551-4776-4800-b90d-01fe446d32b4",
+    "short_story_id": "cc76b572-68fc-4250-a19a-7d1bdf711b34",
+    "king_work_id": "f8bd691b-5b1c-43a4-9ccb-152717acad87",
+    "order_in_collection": null
+  },
+  {
+    "id": "79429be6-46b4-45ad-8e2e-5aff10cebaf9",
+    "short_story_id": "9d945f34-2d96-43bb-abe4-6d8c7f4cf19f",
+    "king_work_id": "f8bd691b-5b1c-43a4-9ccb-152717acad87",
+    "order_in_collection": null
+  },
+  {
+    "id": "6d280447-fd1e-42f0-9d2b-46f2ec54c732",
+    "short_story_id": "65efdd2b-55d6-41a3-b53e-8a19ca616af9",
+    "king_work_id": "f8bd691b-5b1c-43a4-9ccb-152717acad87",
+    "order_in_collection": null
+  },
+  {
+    "id": "e3c1a957-7e90-48ab-8bb7-fc89f6f32e7c",
+    "short_story_id": "00b67d9d-eb95-406c-90f5-042fdd15ca4d",
+    "king_work_id": "f8bd691b-5b1c-43a4-9ccb-152717acad87",
+    "order_in_collection": null
+  },
+  {
+    "id": "0fdf80c9-fbe9-4ab5-b77f-879fbcae5128",
+    "short_story_id": "f25fdf44-211a-4351-866b-4363df3fef22",
+    "king_work_id": "f8bd691b-5b1c-43a4-9ccb-152717acad87",
+    "order_in_collection": null
+  },
+  {
+    "id": "8499a432-a063-476c-ac59-c26557be687c",
+    "short_story_id": "aaed6971-5c8c-41c4-8fe1-2640caff1cde",
+    "king_work_id": "f8bd691b-5b1c-43a4-9ccb-152717acad87",
+    "order_in_collection": null
+  },
+  {
+    "id": "aaf948ea-ef27-46f1-8ee1-bc8cbfffc551",
+    "short_story_id": "ca693ea3-8171-4fac-8266-5ca5a5aa3fe0",
+    "king_work_id": "8adc7b84-2e3e-44fa-84a2-86f1741f587d",
     "order_in_collection": null
   }
 ]

@@ -910,21 +910,6 @@
     "active": true
   },
   {
-    "id": "d6e0fa26-d8e3-4453-a240-c66d526fd63f",
-    "title": "UR",
-    "type": "novella",
-    "open_library_work_key": "OL19622930W",
-    "dark_tower": false,
-    "bachman": false,
-    "dark_tower_relation": null,
-    "cover_id": 8536417,
-    "publish_date": "2009-02-12",
-    "slug": "ur",
-    "description": "A college professor's mysteriously pink Kindle turns out to pull in books and news from other, stranger worlds - and draws dangerous attention along with them.",
-    "co_author": null,
-    "active": true
-  },
-  {
     "id": "7983e891-8ca4-462d-a8a3-cc962d909045",
     "title": "Under the Dome",
     "type": "novel",
