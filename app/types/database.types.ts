@@ -1034,6 +1034,7 @@ export type Database = {
       dark_tower_journey_stats: {
         Row: {
           finished_count: number | null
+          not_started_count: number | null
           on_the_way_count: number | null
         }
         Relationships: []

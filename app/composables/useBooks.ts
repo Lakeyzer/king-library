@@ -15,6 +15,8 @@ export interface DarkTowerJourneyStats {
   finishedCount: number
   /** Users who have read at least 1 but not all 8 core Dark Tower books. */
   onTheWayCount: number
+  /** Users who haven't read any core Dark Tower book yet. */
+  notStartedCount: number
 }
 
 export interface CurrentlyReadingWork {
@@ -359,14 +361,15 @@ export function useBooks() {
   const fetchDarkTowerJourneyStats = async (): Promise<DarkTowerJourneyStats> => {
     const { data, error } = await supabase
       .from('dark_tower_journey_stats')
-      .select('finished_count, on_the_way_count')
+      .select('finished_count, on_the_way_count, not_started_count')
       .single()
 
     if (error) throw error
 
     return {
       finishedCount: data.finished_count,
-      onTheWayCount: data.on_the_way_count
+      onTheWayCount: data.on_the_way_count,
+      notStartedCount: data.not_started_count
     }
   }
 
