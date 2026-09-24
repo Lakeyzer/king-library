@@ -20,10 +20,13 @@ interface Props {
   placeholderIcon?: string
   /** "horizontal" is a wrapping grid of just covers/posters, no title - for items with real cover art. Defaults to a vertical detail list. */
   orientation?: 'vertical' | 'horizontal'
+  /** Horizontal only: show each item's truncated title, then its year and type, underneath its cover. Omit for cover-only (e.g. Adaptations, where the poster is enough). */
+  showCaption?: boolean
 }
 
 withDefaults(defineProps<Props>(), {
-  orientation: 'vertical'
+  orientation: 'vertical',
+  showCaption: false
 })
 </script>
 
@@ -48,7 +51,7 @@ withDefaults(defineProps<Props>(), {
         <component
           :is="item.to ? NuxtLink : 'div'"
           :to="item.to"
-          class="block"
+          class="group block"
         >
           <ImageThumbnail
             :src="item.imageSrc ?? null"
@@ -56,6 +59,31 @@ withDefaults(defineProps<Props>(), {
             :placeholder-icon="placeholderIcon ?? 'i-lucide-file'"
             size="lg"
           />
+          <div
+            v-if="showCaption"
+            class="mt-1.5 min-w-0"
+          >
+            <p
+              class="truncate text-sm font-medium"
+              :class="{ 'group-hover:text-primary': item.to }"
+              :title="item.title"
+            >
+              <NumberMotif :text="item.title" />
+            </p>
+            <p
+              v-if="item.year != null || item.typeLabel"
+              class="flex items-center gap-1 truncate text-xs text-muted"
+            >
+              <NumberMotif
+                v-if="item.year != null"
+                :text="item.year"
+              />
+              <span
+                v-if="item.typeLabel"
+                class="truncate"
+              ><NumberMotif :text="item.typeLabel" /></span>
+            </p>
+          </div>
         </component>
       </li>
     </ul>

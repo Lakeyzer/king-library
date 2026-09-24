@@ -51,6 +51,7 @@ defineProps<Props>();
         :work-id="work.id"
         :work-title="work.title"
         :work-key="work.open_library_work_key"
+        :publish-date="work.publish_date"
         mode="compact"
         size="sm"
         class="self-end"

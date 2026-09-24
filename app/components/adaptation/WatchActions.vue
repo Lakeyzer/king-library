@@ -4,10 +4,16 @@ import type { DropdownMenuItem } from '@nuxt/ui'
 interface Props {
   adaptationId: string
   mode?: 'compact' | 'expanded'
+  /** ISO YYYY-MM-DD release date (a series' first air date). While it's in the future, Mark as Watched is disabled - the watchlist stays available, and so does Mark as Unwatched on something already watched. */
+  releaseDate?: string | null
+  /** Fallback when there's no releaseDate: unreleased once it's after the current year. */
+  releaseYear?: number | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  mode: 'compact'
+  mode: 'compact',
+  releaseDate: null,
+  releaseYear: null
 })
 
 defineOptions({ inheritAttrs: false })
@@ -32,6 +38,11 @@ const watchlistLabel = computed(() =>
   isWantToWatch.value ? 'Remove from Watchlist' : 'Add to Watchlist'
 )
 const watchedLabel = computed(() => (isWatched.value ? 'Mark as Unwatched' : 'Mark as Watched'))
+
+const watchBlocked = computed(
+  () => isUnreleasedAdaptation(props.releaseDate, props.releaseYear) && !isWatched.value
+)
+const unreleasedTitle = 'Not released yet'
 
 // Available to a signed-out visitor too (not hidden) - both handlers open
 // the sign-in modal instead of acting, so a visitor sees what's possible
@@ -83,6 +94,7 @@ const dropdownItems = computed<DropdownMenuItem[]>(() => {
   const primary: DropdownMenuItem = {
     label: primaryLabel.value,
     icon: 'i-lucide-circle-check',
+    disabled: watchBlocked.value,
     onSelect: handlePrimaryClick
   }
 
@@ -171,6 +183,8 @@ const dropdownItems = computed<DropdownMenuItem[]>(() => {
         :label="watchedLabel"
         icon="i-lucide-circle-check"
         :filled="isWatched"
+        :disabled="watchBlocked"
+        :title="watchBlocked ? unreleasedTitle : undefined"
         @click="handleWatchedToggle"
       />
     </UFieldGroup>
@@ -190,6 +204,8 @@ const dropdownItems = computed<DropdownMenuItem[]>(() => {
         :label="watchedLabel"
         icon="i-lucide-circle-check"
         :filled="isWatched"
+        :disabled="watchBlocked"
+        :title="watchBlocked ? unreleasedTitle : undefined"
         @click="handleWatchedToggle"
       />
     </div>

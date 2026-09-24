@@ -26,7 +26,9 @@ defineProps<Props>()
         id: recommendation.id,
         title: recommendation.title,
         slug: recommendation.slug,
-        tmdbPosterPath: recommendation.tmdbPosterPath
+        tmdbPosterPath: recommendation.tmdbPosterPath,
+        releaseYear: recommendation.releaseYear,
+        releaseDate: recommendation.releaseDate
       }"
       :meta="`Because you read ${recommendation.becauseTitle}`"
     />

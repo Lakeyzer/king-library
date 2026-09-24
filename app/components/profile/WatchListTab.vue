@@ -50,6 +50,8 @@ await useAsyncData('user-adaptations', fetchUserAdaptations)
     <template #item-actions="{ item }">
       <AdaptationWatchActions
         :adaptation-id="(item as WatchListEntry).id"
+        :release-date="(item as WatchListEntry).releaseDate"
+        :release-year="(item as WatchListEntry).releaseYear"
         mode="compact"
       />
     </template>

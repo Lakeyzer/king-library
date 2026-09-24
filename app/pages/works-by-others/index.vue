@@ -63,6 +63,7 @@ const completion = computed(() => computeCompletionCount(works.value ?? []))
         :work-id="(item as RelatedWork).id"
         :work-title="(item as RelatedWork).title"
         :work-key="(item as RelatedWork).open_library_work_key"
+        :publish-date="(item as RelatedWork).publish_date"
       />
     </template>
 

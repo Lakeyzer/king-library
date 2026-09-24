@@ -148,6 +148,7 @@ setPageSeo({
       :items="adaptationItems"
       placeholder-icon="i-lucide-film"
       orientation="horizontal"
+      show-caption
     />
   </NuxtLayout>
 </template>

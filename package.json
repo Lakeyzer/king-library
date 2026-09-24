@@ -22,6 +22,7 @@
     "backfill:cover-ids": "node supabase/seed/backfill-cover-ids.ts",
     "backfill:related-works-cover-ids": "node supabase/seed/backfill-related-works-cover-ids.ts",
     "backfill:tmdb-posters": "node --env-file=.env supabase/seed/backfill-tmdb-posters.ts",
+    "backfill:tmdb-release-dates": "node --env-file=.env supabase/seed/backfill-tmdb-release-dates.ts",
     "backfill:shuffle-positions": "node --env-file=.env.development.local supabase/seed/backfill-shuffle-positions.ts",
     "backfill:shuffle-positions:hosted": "node --env-file=.env supabase/seed/backfill-shuffle-positions.ts"
   },

@@ -70,6 +70,8 @@ const watchedCountLabel = (count: number) =>
     <template #item-actions="{ item }">
       <AdaptationWatchActions
         :adaptation-id="(item as Adaptation).id"
+        :release-date="(item as Adaptation).release_date"
+        :release-year="(item as Adaptation).release_year"
         mode="compact"
       />
     </template>

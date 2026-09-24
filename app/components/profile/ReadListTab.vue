@@ -50,6 +50,7 @@ await useAsyncData('user-books', fetchUserBooks)
       <BookReadingActions
         :work-id="(item as ReadListEntry).id"
         :work-title="(item as ReadListEntry).title"
+        :publish-date="(item as ReadListEntry).publishDate"
         mode="compact"
       />
     </template>

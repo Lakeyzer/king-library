@@ -72,6 +72,7 @@ function stephenKingByline(work: KingWork) {
         :work-key="work.open_library_work_key"
         :min-edition-year="work.edition_year_min"
         :max-edition-year="work.edition_year_max"
+        :publish-date="work.publish_date"
         mode="expanded"
       />
     </div>

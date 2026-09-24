@@ -14,6 +14,10 @@ export interface RelatedWork {
   description: string | null
   relation_note: string | null
   is_omnibus: boolean
+  // Same meaning as KingWork.dark_tower - true for Marvel's Dark Tower comics
+  // and omnibuses and the Dark Tower companion books, false for everything
+  // else (e.g. Marvel's The Stand comics).
+  dark_tower: boolean
 }
 
 export interface UserRelatedWork {
@@ -61,10 +65,33 @@ export interface RelatedWorkOmnibusGroup {
   components: ComponentWork[]
 }
 
+// What a King work's detail page needs to list one of its related works.
+export interface RelatedWorkSummary {
+  id: string
+  title: string
+  slug: string
+  category: RelatedWorkCategory
+  cover_id: number | null
+  publish_date: string | null
+}
+
+// What a related work's detail page needs to list one of the King works it's
+// connected to.
+export interface RelatedKingWorkSummary {
+  id: string
+  title: string
+  slug: string
+  type: string
+  cover_id: number | null
+  publish_date: string
+}
+
 // Powers the profile page's "Works by Others" progress section - see
-// profile-showcase's design.md. `comics` mirrors dark-tower.vue's own
-// comicProgress filter (category 'comic', omnibuses excluded); `overall`
-// mirrors works-by-others/index.vue's unfiltered completion figure.
+// profile-showcase's design.md. `comics` covers every comic (category
+// 'comic', omnibuses excluded), not just the Dark Tower ones - unlike
+// dark-tower.vue's own comicProgress, which additionally filters on
+// dark_tower; `overall` mirrors works-by-others/index.vue's unfiltered
+// completion figure.
 export interface RelatedWorkProfileStats {
   overall: RelatedWorkProgress
   comics: RelatedWorkProgress
@@ -98,7 +125,7 @@ export interface ReadingTimelineRelatedEntry {
 }
 
 const RELATED_WORK_COLUMNS
-  = 'id, title, creator, category, publish_date, slug, open_library_work_key, cover_id, description, relation_note, is_omnibus'
+  = 'id, title, creator, category, publish_date, slug, open_library_work_key, cover_id, description, relation_note, is_omnibus, dark_tower'
 
 const USER_RELATED_WORK_COLUMNS
   = 'id, user_id, related_work_id, owned, want_to_read, currently_reading, started_on, read, finished_on, note, rating, format'
@@ -169,15 +196,23 @@ export function useRelatedWorks() {
   // omnibus for its components, acceptable at the handful-of-omnibuses scale
   // this app has). Reuses fetchComponentWorksForOmnibus rather than a single
   // bigger join, keeping that one query as the sole place the
-  // related_work_omnibus_works join is written.
-  const fetchOmnibusesWithComponents = async (category: RelatedWorkCategory): Promise<RelatedWorkOmnibusGroup[]> => {
-    const { data, error } = await supabase
+  // related_work_omnibus_works join is written. `darkTower: true` narrows to
+  // Dark Tower omnibuses only, so the Dark Tower page doesn't list e.g.
+  // Marvel's The Stand omnibus.
+  const fetchOmnibusesWithComponents = async (
+    category: RelatedWorkCategory,
+    { darkTower }: { darkTower?: boolean } = {}
+  ): Promise<RelatedWorkOmnibusGroup[]> => {
+    let query = supabase
       .from('related_works')
       .select(RELATED_WORK_COLUMNS)
       .eq('active', true)
       .eq('category', category)
       .eq('is_omnibus', true)
-      .order('publish_date', { ascending: true })
+
+    if (darkTower !== undefined) query = query.eq('dark_tower', darkTower)
+
+    const { data, error } = await query.order('publish_date', { ascending: true })
 
     if (error) throw error
 
@@ -189,6 +224,42 @@ export function useRelatedWorks() {
         components: await fetchComponentWorksForOmnibus(omnibus.id)
       }))
     )
+  }
+
+  // The related works connected to a King work, via related_work_king_works -
+  // the "Related Works" section on /works/[slug], the same role
+  // useAdaptations().fetchAdaptationsForWork plays for adaptations. `!inner`
+  // plus the active filter drops a link to an inactive related work entirely,
+  // rather than returning it with a null embed.
+  const fetchRelatedWorksForKingWork = async (kingWorkId: string) => {
+    const { data, error } = await supabase
+      .from('related_work_king_works')
+      .select('related_works!inner ( id, title, slug, category, cover_id, publish_date )')
+      .eq('king_work_id', kingWorkId)
+      .eq('related_works.active', true)
+
+    if (error) throw error
+
+    return (data as unknown as { related_works: RelatedWorkSummary }[])
+      .map(row => row.related_works)
+      .sort((a, b) => (a.publish_date ?? '').localeCompare(b.publish_date ?? ''))
+  }
+
+  // The reverse of fetchRelatedWorksForKingWork: the King works a related work
+  // is connected to, for the "Related Works" section on
+  // /works-by-others/[slug].
+  const fetchKingWorksForRelatedWork = async (relatedWorkId: string) => {
+    const { data, error } = await supabase
+      .from('related_work_king_works')
+      .select('king_works!inner ( id, title, slug, type, cover_id, publish_date )')
+      .eq('related_work_id', relatedWorkId)
+      .eq('king_works.active', true)
+
+    if (error) throw error
+
+    return (data as unknown as { king_works: RelatedKingWorkSummary }[])
+      .map(row => row.king_works)
+      .sort((a, b) => a.publish_date.localeCompare(b.publish_date))
   }
 
   // Mirrors useBooks().fetchWorkStats, against related_work_stats instead of
@@ -553,6 +624,8 @@ export function useRelatedWorks() {
     fetchRelatedWorkBySlug,
     fetchComponentWorksForOmnibus,
     fetchOmnibusesWithComponents,
+    fetchRelatedWorksForKingWork,
+    fetchKingWorksForRelatedWork,
     fetchRelatedWorkStats,
     fetchRelatedWorkProfileStats,
     fetchCurrentlyReadingRelatedWorks,

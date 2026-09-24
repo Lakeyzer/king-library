@@ -83,6 +83,7 @@ const ui = { label: 'flex-1 min-w-0' }
             :work-id="item.group.omnibus.id"
             :work-title="item.group.omnibus.title"
             :work-key="item.group.omnibus.open_library_work_key"
+            :publish-date="item.group.omnibus.publish_date"
           />
         </div>
       </div>
@@ -121,6 +122,7 @@ const ui = { label: 'flex-1 min-w-0' }
             :work-id="component.id"
             :work-title="component.title"
             :work-key="component.open_library_work_key"
+            :publish-date="component.publish_date"
             class="shrink-0"
           />
         </li>

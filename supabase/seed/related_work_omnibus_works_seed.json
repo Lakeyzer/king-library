@@ -73,5 +73,35 @@
     "id": "7d2d8048-73a7-4884-a5f2-87579d2b7027",
     "omnibus_related_work_id": "9379e4a0-53ca-4e2a-ab5f-bbed3add796e",
     "component_related_work_id": "a71c724a-ebd8-41cf-a8de-f7750fbada05"
+  },
+  {
+    "id": "51fb090e-1e6d-43ad-869b-2ff17f11a063",
+    "omnibus_related_work_id": "d3be6436-5f83-4cfb-b670-a2b0fbe59926",
+    "component_related_work_id": "eafcfb4b-9639-4bad-8b03-a2241ff470e4"
+  },
+  {
+    "id": "5f41b152-d275-4426-8421-eb17a7f908ba",
+    "omnibus_related_work_id": "d3be6436-5f83-4cfb-b670-a2b0fbe59926",
+    "component_related_work_id": "bc476acf-0089-4336-98a1-6a812b34755e"
+  },
+  {
+    "id": "45fff543-b5c5-4ca2-94a9-b76f085254ed",
+    "omnibus_related_work_id": "d3be6436-5f83-4cfb-b670-a2b0fbe59926",
+    "component_related_work_id": "56d91ad4-4e69-4a27-a30f-c7bd942748e8"
+  },
+  {
+    "id": "9fb7b5f1-faf6-42a5-91e4-a8e1de54d9d3",
+    "omnibus_related_work_id": "d3be6436-5f83-4cfb-b670-a2b0fbe59926",
+    "component_related_work_id": "d7b8e434-fec3-4db1-8ef3-a28880cd9ccc"
+  },
+  {
+    "id": "87f350c7-aa8b-4552-922a-d12d679d5d1a",
+    "omnibus_related_work_id": "d3be6436-5f83-4cfb-b670-a2b0fbe59926",
+    "component_related_work_id": "a703ba68-eb10-42e6-9c9b-5dee6bb915dc"
+  },
+  {
+    "id": "5dcb4e27-fe70-42e1-a0c4-48746fc36cb0",
+    "omnibus_related_work_id": "d3be6436-5f83-4cfb-b670-a2b0fbe59926",
+    "component_related_work_id": "5813ce8e-c92a-4e1d-afda-df978200b0c4"
   }
 ]

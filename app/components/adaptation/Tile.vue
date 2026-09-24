@@ -35,6 +35,8 @@ defineProps<Props>()
 
     <AdaptationWatchActions
       :adaptation-id="adaptation.id"
+      :release-date="adaptation.releaseDate"
+      :release-year="adaptation.releaseYear"
       mode="compact"
       class="shrink-0"
     />

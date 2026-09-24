@@ -112,6 +112,7 @@ function extraFilter(work: KingWork) {
         :work-key="(item as KingWork).open_library_work_key"
         :min-edition-year="(item as KingWork).edition_year_min"
         :max-edition-year="(item as KingWork).edition_year_max"
+        :publish-date="(item as KingWork).publish_date"
       />
     </template>
 

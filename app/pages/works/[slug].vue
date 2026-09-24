@@ -22,21 +22,26 @@ const isOmnibus = work.type === 'omnibus'
 const { fetchAdaptationsForWork } = useAdaptations()
 const { fetchComponentWorksForOmnibus } = useKingWorks()
 const { fetchShortStoriesForCollection } = useShortStories()
+const { fetchRelatedWorksForKingWork } = useRelatedWorks()
 const { fetchWorkStats, fetchUserBooks } = useBooks()
 const { fetchUserEditions } = useBookshelf()
 
-// These four are independent of each other, so kick them all off together
+// These are independent of each other, so kick them all off together
 // (useAsyncData starts fetching as soon as it's called) rather than
 // sequentially awaiting one at a time - each round trip otherwise stacks
 // on top of the last and the page waits for their sum instead of the max.
 const [
   { data: adaptations },
+  { data: relatedWorks },
   { data: shortStories },
   { data: componentWorks },
   { data: stats }
 ] = await Promise.all([
   useAsyncData(`work-${slug}-adaptations`, () =>
     fetchAdaptationsForWork(work.id)
+  ),
+  useAsyncData(`work-${slug}-related-works`, () =>
+    fetchRelatedWorksForKingWork(work.id)
   ),
   useAsyncData(`work-${slug}-short-stories`, () =>
     isCollection
@@ -94,6 +99,20 @@ const adaptationItems = computed<ConnectionListItem[]>(() =>
     year: adaptation.release_year,
     typeLabel: formatTypeLabel(adaptation.type),
     to: `/adaptations/${adaptation.slug}`
+  }))
+)
+
+const relatedWorkItems = computed<ConnectionListItem[]>(() =>
+  (relatedWorks.value ?? []).map(relatedWork => ({
+    id: relatedWork.id,
+    title: relatedWork.title,
+    imageSrc: relatedWork.cover_id
+      ? getOpenLibraryCoverUrl(relatedWork.cover_id, 'M')
+      : null,
+    imageAlt: `${relatedWork.title} cover`,
+    year: relatedWork.publish_date ? Number(relatedWork.publish_date.slice(0, 4)) : null,
+    typeLabel: formatTypeLabel(relatedWork.category),
+    to: `/works-by-others/${relatedWork.slug}`
   }))
 )
 
@@ -252,6 +271,7 @@ setPageSeo({
             :work-key="work.open_library_work_key"
             :min-edition-year="work.edition_year_min"
             :max-edition-year="work.edition_year_max"
+            :publish-date="work.publish_date"
             mode="expanded"
           />
         </template>
@@ -322,6 +342,15 @@ setPageSeo({
         :items="adaptationItems"
         placeholder-icon="i-lucide-film"
         orientation="horizontal"
+        show-caption
+      />
+
+      <DetailConnectionList
+        heading="Related Works"
+        :items="relatedWorkItems"
+        placeholder-icon="i-lucide-book-open-check"
+        orientation="horizontal"
+        show-caption
       />
     </div>
   </NuxtLayout>

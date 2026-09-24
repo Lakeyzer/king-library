@@ -39,6 +39,7 @@ withDefaults(defineProps<Props>(), { size: 'xs', showActions: true })
       v-if="showActions"
       :work-id="work.id"
       :work-title="work.title"
+      :publish-date="work.publishDate"
       mode="compact"
       class="shrink-0"
     />

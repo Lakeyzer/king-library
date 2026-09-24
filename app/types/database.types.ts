@@ -127,6 +127,7 @@ export type Database = {
           id: string
           is_universe_only: boolean
           notes: string | null
+          release_date: string | null
           release_year: number
           slug: string
           title: string
@@ -140,6 +141,7 @@ export type Database = {
           id?: string
           is_universe_only?: boolean
           notes?: string | null
+          release_date?: string | null
           release_year: number
           slug: string
           title: string
@@ -153,6 +155,7 @@ export type Database = {
           id?: string
           is_universe_only?: boolean
           notes?: string | null
+          release_date?: string | null
           release_year?: number
           slug?: string
           title?: string
@@ -394,6 +397,46 @@ export type Database = {
         }
         Relationships: []
       }
+      related_work_king_works: {
+        Row: {
+          id: string
+          king_work_id: string
+          related_work_id: string
+        }
+        Insert: {
+          id?: string
+          king_work_id: string
+          related_work_id: string
+        }
+        Update: {
+          id?: string
+          king_work_id?: string
+          related_work_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'related_work_king_works_king_work_id_fkey'
+            columns: ['king_work_id']
+            isOneToOne: false
+            referencedRelation: 'king_works'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'related_work_king_works_related_work_id_fkey'
+            columns: ['related_work_id']
+            isOneToOne: false
+            referencedRelation: 'related_work_stats'
+            referencedColumns: ['related_work_id']
+          },
+          {
+            foreignKeyName: 'related_work_king_works_related_work_id_fkey'
+            columns: ['related_work_id']
+            isOneToOne: false
+            referencedRelation: 'related_works'
+            referencedColumns: ['id']
+          }
+        ]
+      }
       related_work_omnibus_works: {
         Row: {
           component_related_work_id: string
@@ -447,6 +490,7 @@ export type Database = {
           category: string
           cover_id: number | null
           creator: string
+          dark_tower: boolean
           description: string | null
           id: string
           is_omnibus: boolean
@@ -461,6 +505,7 @@ export type Database = {
           category: string
           cover_id?: number | null
           creator: string
+          dark_tower?: boolean
           description?: string | null
           id?: string
           is_omnibus?: boolean
@@ -475,6 +520,7 @@ export type Database = {
           category?: string
           cover_id?: number | null
           creator?: string
+          dark_tower?: boolean
           description?: string | null
           id?: string
           is_omnibus?: boolean

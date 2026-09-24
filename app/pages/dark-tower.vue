@@ -39,18 +39,23 @@ useAsyncData('user-related-work-editions', fetchUserRelatedWorkEditions)
 const [{ data: works }, { data: series }, { data: graphicNovelGroups }, { data: relatedWorksList }] = await Promise.all([
   useAsyncData('dark-tower-works', fetchKingWorks),
   useAsyncData('dark-tower-series', fetchAllSeries),
-  useAsyncData('dark-tower-graphic-novels', () => fetchOmnibusesWithComponents('comic')),
+  useAsyncData('dark-tower-graphic-novels', () => fetchOmnibusesWithComponents('comic', { darkTower: true })),
   useAsyncData('dark-tower-related-works-list', fetchRelatedWorks)
 ])
 
-// Progress over individual comics only, excluding the omnibus entries
-// themselves - same reasoning as fetchProfileBookStats' progressEligibleWorks
-// excluding King's own omnibuses (e.g. The Bachman Books): marking an
-// omnibus read cascades to mark its components read too, so counting the
-// omnibus as well would double-count the same reading.
+// Progress over individual Dark Tower comics only - other comics (e.g.
+// Marvel's The Stand) don't belong on this page - excluding the omnibus
+// entries themselves - same reasoning as fetchProfileBookStats'
+// progressEligibleWorks excluding King's own omnibuses (e.g. The Bachman
+// Books): marking an omnibus read cascades to mark its components read too,
+// so counting the omnibus as well would double-count the same reading. The
+// profile's own Graphic Novels figure (fetchRelatedWorkProfileStats) covers
+// every comic instead.
 const comicProgress = computed(() =>
   computeCompletionCount(
-    (relatedWorksList.value ?? []).filter(work => work.category === 'comic' && !work.is_omnibus)
+    (relatedWorksList.value ?? []).filter(
+      work => work.category === 'comic' && work.dark_tower && !work.is_omnibus
+    )
   )
 )
 

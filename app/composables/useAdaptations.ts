@@ -3,6 +3,7 @@ export interface Adaptation {
   title: string
   type: string
   release_year: number
+  release_date: string | null
   slug: string
   tmdb_id: number | null
   tmdb_media_type: string | null
@@ -66,6 +67,8 @@ export interface AdaptationRecommendation {
   title: string
   slug: string
   tmdbPosterPath: string | null
+  releaseYear: number
+  releaseDate: string | null
   becauseTitle: string
 }
 
@@ -74,6 +77,11 @@ export interface AdaptationHighlight {
   title: string
   slug: string
   tmdbPosterPath: string | null
+  // Lets AdaptationTile's watch actions disable Mark as Watched for something
+  // not released yet. Optional since builders that never render those actions
+  // (e.g. the compare page's diff lists) don't need to fetch it.
+  releaseYear?: number
+  releaseDate?: string | null
 }
 
 // Adds `type` and `releaseYear` on top of AdaptationHighlight - needed by
@@ -82,6 +90,7 @@ export interface AdaptationHighlight {
 export interface WatchListEntry extends AdaptationHighlight {
   type: string
   releaseYear: number
+  releaseDate: string | null
 }
 
 export interface AdaptationLeaderboardEntry extends AdaptationHighlight {
@@ -102,7 +111,7 @@ export interface AdaptationHighlights {
 }
 
 const ADAPTATION_COLUMNS
-  = 'id, title, type, release_year, slug, tmdb_id, tmdb_media_type, tmdb_poster_path, is_universe_only, notes'
+  = 'id, title, type, release_year, release_date, slug, tmdb_id, tmdb_media_type, tmdb_poster_path, is_universe_only, notes'
 
 const USER_ADAPTATION_COLUMNS
   = 'id, user_id, adaptation_id, want_to_watch, watched, watched_at'
@@ -274,6 +283,8 @@ export function useAdaptations() {
       title: string
       slug: string
       tmdb_poster_path: string | null
+      release_year: number
+      release_date: string | null
     }
 
     interface AdaptationStatsRow {
@@ -283,7 +294,7 @@ export function useAdaptations() {
     }
 
     const [{ data: adaptations, error: adaptationsError }, { data: stats, error: statsError }] = await Promise.all([
-      supabase.from('adaptations').select('id, title, slug, tmdb_poster_path').eq('active', true),
+      supabase.from('adaptations').select('id, title, slug, tmdb_poster_path, release_year, release_date').eq('active', true),
       supabase.from('adaptation_stats').select('adaptation_id, watched_count, want_to_watch_count')
     ])
 
@@ -302,6 +313,8 @@ export function useAdaptations() {
       title: adaptation.title,
       slug: adaptation.slug,
       tmdbPosterPath: adaptation.tmdb_poster_path,
+      releaseYear: adaptation.release_year,
+      releaseDate: adaptation.release_date,
       count
     })
 
@@ -365,6 +378,8 @@ export function useAdaptations() {
       title: string
       slug: string
       tmdb_poster_path: string | null
+      release_year: number
+      release_date: string | null
       active: boolean
     }
 
@@ -436,13 +451,13 @@ export function useAdaptations() {
       workIds.length
         ? supabase
             .from('adaptation_works')
-            .select('king_work_id, adaptations ( id, title, slug, tmdb_poster_path, active )')
+            .select('king_work_id, adaptations ( id, title, slug, tmdb_poster_path, release_year, release_date, active )')
             .in('king_work_id', workIds)
         : { data: [], error: null },
       shortStoryIds.length
         ? supabase
             .from('adaptation_short_stories')
-            .select('short_story_id, adaptations ( id, title, slug, tmdb_poster_path, active )')
+            .select('short_story_id, adaptations ( id, title, slug, tmdb_poster_path, release_year, release_date, active )')
             .in('short_story_id', shortStoryIds)
         : { data: [], error: null }
     ])
@@ -467,6 +482,8 @@ export function useAdaptations() {
           title: row.adaptations.title,
           slug: row.adaptations.slug,
           tmdbPosterPath: row.adaptations.tmdb_poster_path,
+          releaseYear: row.adaptations.release_year,
+          releaseDate: row.adaptations.release_date,
           becauseTitle: workTitleById.get(row.king_work_id) ?? ''
         })
       }
@@ -487,6 +504,8 @@ export function useAdaptations() {
           title: row.adaptations.title,
           slug: row.adaptations.slug,
           tmdbPosterPath: row.adaptations.tmdb_poster_path,
+          releaseYear: row.adaptations.release_year,
+          releaseDate: row.adaptations.release_date,
           becauseTitle: shortStoryBecauseTitleById.get(row.short_story_id) ?? ''
         })
       }
@@ -510,12 +529,13 @@ export function useAdaptations() {
       tmdb_poster_path: string | null
       type: string
       release_year: number
+      release_date: string | null
       active: boolean
     }
 
     const { data, error } = await supabase
       .from('user_adaptations')
-      .select('adaptations ( id, title, slug, tmdb_poster_path, type, release_year, active )')
+      .select('adaptations ( id, title, slug, tmdb_poster_path, type, release_year, release_date, active )')
       .eq('user_id', userId)
       .eq('want_to_watch', true)
 
@@ -530,7 +550,8 @@ export function useAdaptations() {
         slug: adaptation.slug,
         tmdbPosterPath: adaptation.tmdb_poster_path,
         type: adaptation.type,
-        releaseYear: adaptation.release_year
+        releaseYear: adaptation.release_year,
+        releaseDate: adaptation.release_date
       }))
   }
 

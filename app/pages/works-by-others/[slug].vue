@@ -6,8 +6,13 @@ definePageMeta({ layout: false })
 const route = useRoute()
 const slug = route.params.slug as string
 
-const { fetchRelatedWorkBySlug, fetchComponentWorksForOmnibus, fetchRelatedWorkStats, fetchUserRelatedWorks }
-  = useRelatedWorks()
+const {
+  fetchRelatedWorkBySlug,
+  fetchComponentWorksForOmnibus,
+  fetchKingWorksForRelatedWork,
+  fetchRelatedWorkStats,
+  fetchUserRelatedWorks
+} = useRelatedWorks()
 const { fetchUserEditions } = useRelatedWorkEditions()
 
 const { data: workData } = await useAsyncData(`works-by-others-${slug}`, () =>
@@ -20,9 +25,12 @@ if (!workData.value) {
 
 const work = workData.value
 
-const [{ data: componentWorks }, { data: stats }] = await Promise.all([
+const [{ data: componentWorks }, { data: kingWorks }, { data: stats }] = await Promise.all([
   useAsyncData(`works-by-others-${slug}-components`, () =>
     work.is_omnibus ? fetchComponentWorksForOmnibus(work.id) : Promise.resolve([])
+  ),
+  useAsyncData(`works-by-others-${slug}-king-works`, () =>
+    fetchKingWorksForRelatedWork(work.id)
   ),
   useAsyncData(`works-by-others-${slug}-stats`, () => fetchRelatedWorkStats(work.id))
 ])
@@ -50,6 +58,18 @@ const componentWorkItems = computed<ConnectionListItem[]>(() =>
     imageSrc: componentWork.cover_id ? getOpenLibraryCoverUrl(componentWork.cover_id, 'M') : null,
     imageAlt: `${componentWork.title} cover`,
     to: `/works-by-others/${componentWork.slug}`
+  }))
+)
+
+const kingWorkItems = computed<ConnectionListItem[]>(() =>
+  (kingWorks.value ?? []).map(kingWork => ({
+    id: kingWork.id,
+    title: kingWork.title,
+    imageSrc: kingWork.cover_id ? getOpenLibraryCoverUrl(kingWork.cover_id, 'M') : null,
+    imageAlt: `${kingWork.title} cover`,
+    year: Number(kingWork.publish_date.slice(0, 4)),
+    typeLabel: formatTypeLabel(kingWork.type),
+    to: `/works/${kingWork.slug}`
   }))
 )
 
@@ -143,6 +163,7 @@ setPageSeo({
             :work-id="work.id"
             :work-title="work.title"
             :work-key="work.open_library_work_key"
+            :publish-date="work.publish_date"
             mode="expanded"
           />
         </template>
@@ -183,14 +204,20 @@ setPageSeo({
       </DetailHero>
     </template>
 
-    <div
-      v-if="work.open_library_work_key"
-      class="flex flex-col gap-8"
-    >
+    <div class="flex flex-col gap-8">
       <WorkEditionList
+        v-if="work.open_library_work_key"
         domain="related"
         :work-key="work.open_library_work_key"
         :work-id="work.id"
+      />
+
+      <DetailConnectionList
+        heading="Related Works"
+        :items="kingWorkItems"
+        placeholder-icon="i-lucide-book"
+        orientation="horizontal"
+        show-caption
       />
     </div>
   </NuxtLayout>

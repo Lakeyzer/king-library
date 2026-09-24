@@ -16,6 +16,8 @@ interface Props {
   /** Forwarded to the Add to Shelf editions picker - see WorkEditionList's own doc on minEditionYear/maxEditionYear. */
   minEditionYear?: number | null
   maxEditionYear?: number | null
+  /** ISO YYYY-MM-DD publish date. While it's still in the future, Start Reading, Mark as Read, Read Again and Add to Shelf are disabled - want-to-read stays available, and so does anything on a work already read, being read or on the shelf, so it can still be undone. */
+  publishDate?: string | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -25,7 +27,8 @@ const props = withDefaults(defineProps<Props>(), {
   domain: 'king',
   nested: false,
   minEditionYear: null,
-  maxEditionYear: null
+  maxEditionYear: null,
+  publishDate: null
 })
 
 const statusIconClass = computed(() => (props.size === 'sm' ? 'size-4' : 'size-5'))
@@ -69,6 +72,14 @@ const currentStartedOn = computed(
   () => (isRelated.value ? relatedState.value?.started_on : bookState.value?.started_on) ?? null
 )
 const currentFormat = computed(() => (isRelated.value ? relatedState.value?.format : bookState.value?.format) ?? null)
+
+// A work already being read is left fully actionable (Finish, Stop) - this
+// only stops a read from being started, or logged, before release. Likewise
+// a work already on the shelf can still be taken off it.
+const isUnreleased = computed(() => isUnreleasedDate(props.publishDate))
+const readingBlocked = computed(() => isUnreleased.value && !isCurrentlyReading.value)
+const shelfBlocked = computed(() => isUnreleased.value && !isOwned.value)
+const unreleasedTitle = 'Not released yet'
 
 function toggleWantToRead() {
   return isRelated.value ? toggleWantToReadRelated(props.workId) : toggleWantToReadBook(props.workId)
@@ -143,6 +154,8 @@ const readingDropdownItems = computed<DropdownMenuItem[]>(() => {
   const primary: DropdownMenuItem = {
     label: primaryLabel.value,
     icon: primaryIcon.value,
+    // 'read' -> Mark as Unread is the one primary that isn't a start/log.
+    disabled: readingBlocked.value && primaryState.value !== 'read',
     onSelect: handlePrimaryClick
   }
 
@@ -158,6 +171,7 @@ const readingDropdownItems = computed<DropdownMenuItem[]>(() => {
         {
           label: 'Start Reading',
           icon: 'i-lucide-book-open',
+          disabled: readingBlocked.value,
           onSelect: () => {
             showStartReadingModal.value = true
           }
@@ -174,6 +188,7 @@ const readingDropdownItems = computed<DropdownMenuItem[]>(() => {
         {
           label: 'Mark as Read',
           icon: 'i-lucide-circle-check',
+          disabled: readingBlocked.value,
           onSelect: () => {
             showMarkReadModal.value = true
           }
@@ -200,6 +215,7 @@ const readingDropdownItems = computed<DropdownMenuItem[]>(() => {
               {
                 label: 'Read Again',
                 icon: 'i-lucide-repeat',
+                disabled: readingBlocked.value,
                 onSelect: () => {
                   showReadAgainModal.value = true
                 }
@@ -208,6 +224,7 @@ const readingDropdownItems = computed<DropdownMenuItem[]>(() => {
         {
           label: 'Start Reading',
           icon: 'i-lucide-book-open',
+          disabled: readingBlocked.value,
           onSelect: () => {
             showStartReadingModal.value = true
           }
@@ -229,6 +246,7 @@ const dropdownItems = computed<DropdownMenuItem[]>(() => {
     {
       label: shelfLabel.value,
       icon: 'i-lucide-library',
+      disabled: shelfBlocked.value,
       onSelect: handleShelfClick
     }
   ]
@@ -436,6 +454,8 @@ function handleShelfClick() {
         :label="startFinishLabel"
         icon="i-lucide-book-open"
         :filled="isCurrentlyReading"
+        :disabled="readingBlocked"
+        :title="readingBlocked ? unreleasedTitle : undefined"
         @click="handleStartOrFinishReading"
       />
       <IconLabelButton
@@ -445,6 +465,8 @@ function handleShelfClick() {
         :label="readSlotLabel"
         :icon="readSlotIcon"
         :filled="readSlotFilled"
+        :disabled="readingBlocked"
+        :title="readingBlocked ? unreleasedTitle : undefined"
         @click="handleReadSlotClick"
       />
       <IconLabelButton
@@ -453,6 +475,8 @@ function handleShelfClick() {
         :label="shelfLabel"
         icon="i-lucide-library"
         :filled="isOwned"
+        :disabled="shelfBlocked"
+        :title="shelfBlocked ? unreleasedTitle : undefined"
         @click="handleShelfClick"
       />
     </UFieldGroup>
@@ -472,6 +496,8 @@ function handleShelfClick() {
         :label="startFinishLabel"
         icon="i-lucide-book-open"
         :filled="isCurrentlyReading"
+        :disabled="readingBlocked"
+        :title="readingBlocked ? unreleasedTitle : undefined"
         @click="handleStartOrFinishReading"
       />
       <IconLabelButton
@@ -479,12 +505,16 @@ function handleShelfClick() {
         :label="readSlotLabel"
         :icon="readSlotIcon"
         :filled="readSlotFilled"
+        :disabled="readingBlocked"
+        :title="readingBlocked ? unreleasedTitle : undefined"
         @click="handleReadSlotClick"
       />
       <IconLabelButton
         :label="shelfLabel"
         icon="i-lucide-library"
         :filled="isOwned"
+        :disabled="shelfBlocked"
+        :title="shelfBlocked ? unreleasedTitle : undefined"
         @click="handleShelfClick"
       />
     </div>

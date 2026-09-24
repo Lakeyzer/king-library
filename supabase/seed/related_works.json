@@ -11,7 +11,8 @@
     "description": "The first Marvel Dark Tower graphic novel, dramatizing young Roland Deschain's trial by combat in Gilead and his doomed romance with Susan Delgado.",
     "relation_note": "Adapts backstory from Wizard and Glass into comics form - scripted by Robin Furth (King's own research assistant) and Peter David, not by King himself.",
     "active": true,
-    "is_omnibus": false
+    "is_omnibus": false,
+    "dark_tower": true
   },
   {
     "id": "d70842ec-7c9c-4efe-8083-7a7573f6dc12",
@@ -25,7 +26,8 @@
     "description": "The second Marvel Dark Tower graphic novel, following the fall of Gilead and Roland's path onto the trail of the Man in Black.",
     "relation_note": "Continues the Gunslinger Born storyline into the ka-tet's early history - same creative team, still not King's own prose.",
     "active": true,
-    "is_omnibus": false
+    "is_omnibus": false,
+    "dark_tower": true
   },
   {
     "id": "366b65a9-bba6-4a47-be1c-d90996971347",
@@ -39,7 +41,8 @@
     "description": "Third in the Marvel Dark Tower series, covering Roland's early gunslinger training under Cort and Vannay.",
     "relation_note": "Part of the same Marvel comics continuity expanding on the core series' backstory.",
     "active": true,
-    "is_omnibus": false
+    "is_omnibus": false,
+    "dark_tower": true
   },
   {
     "id": "362cfd71-ca9f-49c0-9919-21ab9f3e29b4",
@@ -53,7 +56,8 @@
     "description": "A memoir-style reading journey through Stephen King's bibliography over the course of a year.",
     "relation_note": "Criticism/memoir about reading King's work, not a King work itself.",
     "active": true,
-    "is_omnibus": false
+    "is_omnibus": false,
+    "dark_tower": false
   },
   {
     "id": "4350230b-e08e-4c42-a790-4fadf5f4897f",
@@ -67,7 +71,8 @@
     "description": "A guide mapping the connections between King's novels, stories, and recurring characters and settings.",
     "relation_note": "A reference/companion guide written by fans and critics, not King.",
     "active": true,
-    "is_omnibus": false
+    "is_omnibus": false,
+    "dark_tower": false
   },
   {
     "id": "01845fa6-ef98-4a9e-9750-333f4aac051b",
@@ -81,7 +86,8 @@
     "description": "Opens Marvel's comics adaptation of The Gunslinger itself, following Roland's pursuit of the Man in Black across the desert.",
     "relation_note": "Adapts the opening of The Gunslinger into comics form - written by Peter David and Robin Furth, not King.",
     "active": true,
-    "is_omnibus": false
+    "is_omnibus": false,
+    "dark_tower": true
   },
   {
     "id": "248c2602-ab54-4824-bd66-16f1b1fda780",
@@ -95,7 +101,8 @@
     "description": "Adapts King's novella of the same name, in which Roland is captured by the sinister nursing sisters of Eluria.",
     "relation_note": "Comics adaptation of a King novella, scripted by Peter David and Robin Furth.",
     "active": true,
-    "is_omnibus": false
+    "is_omnibus": false,
+    "dark_tower": true
   },
   {
     "id": "b532b0fa-6e79-456d-9ea3-e01a4a126041",
@@ -109,7 +116,8 @@
     "description": "Continues the Gunslinger adaptation with Roland's confrontation in the town of Tull.",
     "relation_note": "Part of Marvel's Gunslinger comics adaptation, not King's own prose.",
     "active": true,
-    "is_omnibus": false
+    "is_omnibus": false,
+    "dark_tower": true
   },
   {
     "id": "967a46a3-3667-4196-9e4d-5060e385b33c",
@@ -123,7 +131,8 @@
     "description": "Concludes the Gunslinger comics adaptation as Roland reaches the way station and meets Jake Chambers.",
     "relation_note": "Final chapter of Marvel's Gunslinger adaptation arc.",
     "active": true,
-    "is_omnibus": false
+    "is_omnibus": false,
+    "dark_tower": true
   },
   {
     "id": "2d820368-1936-4030-a025-e1e299945de5",
@@ -137,7 +146,8 @@
     "description": "Fourth Marvel Dark Tower graphic novel, depicting Gilead's descent into chaos and betrayal.",
     "relation_note": "Continues the Beginnings storyline - Marvel comics continuity, not King's own prose.",
     "active": true,
-    "is_omnibus": false
+    "is_omnibus": false,
+    "dark_tower": true
   },
   {
     "id": "bd9c604a-aeb9-4bc8-8f1f-06b61b9d1700",
@@ -151,7 +161,8 @@
     "description": "Fifth Marvel Dark Tower graphic novel, covering the climactic battle that ends the ka-tet of Gilead's origin story.",
     "relation_note": "Concludes the Beginnings storyline - Marvel comics continuity, not King's own prose.",
     "active": true,
-    "is_omnibus": false
+    "is_omnibus": false,
+    "dark_tower": true
   },
   {
     "id": "41dd30fa-0ce9-445a-8866-4639becbce8d",
@@ -165,7 +176,8 @@
     "description": "A one-shot Marvel Dark Tower comic focused on Walter/Marten, the Man in Black.",
     "relation_note": "Standalone Marvel comics one-shot expanding the Man in Black's backstory.",
     "active": true,
-    "is_omnibus": false
+    "is_omnibus": false,
+    "dark_tower": true
   },
   {
     "id": "8135439a-3f86-4aaa-b128-5be39c8db231",
@@ -179,7 +191,8 @@
     "description": "Concludes Marvel's Gunslinger comics adaptation, collecting three shorter tales: Sheemie's Tale, Evil Ground, and So Fell Lord Perth.",
     "relation_note": "Final chapter of Marvel's Gunslinger comics adaptation - Marvel comics continuity, not King's own prose.",
     "active": true,
-    "is_omnibus": false
+    "is_omnibus": false,
+    "dark_tower": true
   },
   {
     "id": "a279cabf-8812-47f8-a589-5641c23825c9",
@@ -193,7 +206,8 @@
     "description": "Opens Marvel's comics adaptation of The Drawing of the Three, as Roland encounters Eddie Dean, a heroin smuggler drawn through the first of the three doors.",
     "relation_note": "Comics adaptation of the opening of The Drawing of the Three, scripted by Peter David and Robin Furth.",
     "active": true,
-    "is_omnibus": false
+    "is_omnibus": false,
+    "dark_tower": true
   },
   {
     "id": "e2d7755d-c7bc-4ab3-806b-0cf795fff6e4",
@@ -207,7 +221,8 @@
     "description": "Continues Marvel's comics adaptation of The Drawing of the Three, following Eddie Dean's story after he is drawn through the first door.",
     "relation_note": "Comics adaptation of The Drawing of the Three, scripted by Peter David and Robin Furth.",
     "active": true,
-    "is_omnibus": false
+    "is_omnibus": false,
+    "dark_tower": true
   },
   {
     "id": "916ca134-0259-4623-b671-fd268e68f8ad",
@@ -221,7 +236,8 @@
     "description": "Continues the Drawing of the Three adaptation as Roland draws Odetta/Detta through the second door.",
     "relation_note": "Part of Marvel's Drawing of the Three comics adaptation.",
     "active": true,
-    "is_omnibus": false
+    "is_omnibus": false,
+    "dark_tower": true
   },
   {
     "id": "a71c724a-ebd8-41cf-a8de-f7750fbada05",
@@ -235,7 +251,8 @@
     "description": "Concludes the Drawing of the Three comics adaptation.",
     "relation_note": "Final chapter of Marvel's Drawing of the Three adaptation.",
     "active": true,
-    "is_omnibus": false
+    "is_omnibus": false,
+    "dark_tower": true
   },
   {
     "id": "9c2a54bf-752b-4c3d-a91a-c1cf0725a16d",
@@ -249,7 +266,8 @@
     "description": "Omnibus collecting the five graphic novels dramatizing young Roland's origin story: The Gunslinger Born, Long Road Home, Treachery, Fall of Gilead, and The Battle of Jericho Hill.",
     "relation_note": "Collects Marvel's origin-story Dark Tower comics into one volume - not King's own prose.",
     "active": true,
-    "is_omnibus": true
+    "is_omnibus": true,
+    "dark_tower": true
   },
   {
     "id": "a10fc773-cc87-4516-8866-56d6864c7218",
@@ -263,7 +281,8 @@
     "description": "Omnibus collecting Marvel's comics adaptation of The Gunslinger: The Journey Begins, The Little Sisters of Eluria, The Battle of Tull, The Way Station, The Man in Black, and Last Shots.",
     "relation_note": "Collects the Marvel comics adaptation of King's first Dark Tower novel - not King's own prose.",
     "active": true,
-    "is_omnibus": true
+    "is_omnibus": true,
+    "dark_tower": true
   },
   {
     "id": "9379e4a0-53ca-4e2a-ab5f-bbed3add796e",
@@ -277,7 +296,8 @@
     "description": "Omnibus collecting Marvel's comics adaptation of The Drawing of the Three: The Prisoner, House of Cards, The Lady of Shadows, and Bitter Medicine.",
     "relation_note": "Collects the Marvel comics adaptation of King's second Dark Tower novel - not King's own prose.",
     "active": true,
-    "is_omnibus": true
+    "is_omnibus": true,
+    "dark_tower": true
   },
   {
     "id": "095e156f-9108-42da-85e1-090025579bdb",
@@ -291,6 +311,232 @@
     "description": "An exhaustive reference guide to the characters, places, and lore of the Dark Tower series, compiled from Robin Furth's research notes for King.",
     "relation_note": "Written by King's longtime research assistant as a companion reference, not part of the series itself.",
     "active": true,
-    "is_omnibus": false
+    "is_omnibus": false,
+    "dark_tower": true
+  },
+  {
+    "id": "eafcfb4b-9639-4bad-8b03-a2241ff470e4",
+    "active": true,
+    "is_omnibus": false,
+    "title": "The Stand: Captain Trips",
+    "creator": "Roberto Aguirre-Sacasa, Mike Perkins & Laura Martin",
+    "category": "comic",
+    "publish_date": "2009-01-01",
+    "slug": "stand-captain-trips",
+    "open_library_work_key": "OL16619489W",
+    "cover_id": 8251586,
+    "description": "Opens Marvel's six-volume adaptation of The Stand as the Captain Trips superflu escapes a military base and begins to spread across America.",
+    "relation_note": "Marvel comics adaptation of King's novel The Stand - scripted by Roberto Aguirre-Sacasa with King as consulting creative force, not King's own prose.",
+    "dark_tower": false
+  },
+  {
+    "id": "bc476acf-0089-4336-98a1-6a812b34755e",
+    "active": true,
+    "is_omnibus": false,
+    "title": "The Stand: American Nightmares",
+    "creator": "Roberto Aguirre-Sacasa, Mike Perkins & Laura Martin",
+    "category": "comic",
+    "publish_date": "2010-01-01",
+    "slug": "stand-american-nightmares",
+    "open_library_work_key": "OL35621998W",
+    "cover_id": 14331126,
+    "description": "Second volume of Marvel's The Stand adaptation, following the survivors of the plague as the dreams of Mother Abagail and the Dark Man begin.",
+    "relation_note": "Marvel comics adaptation of King's novel The Stand - scripted by Roberto Aguirre-Sacasa with King as consulting creative force, not King's own prose.",
+    "dark_tower": false
+  },
+  {
+    "id": "56d91ad4-4e69-4a27-a30f-c7bd942748e8",
+    "active": true,
+    "is_omnibus": false,
+    "title": "The Stand: Soul Survivors",
+    "creator": "Roberto Aguirre-Sacasa, Mike Perkins & Laura Martin",
+    "category": "comic",
+    "publish_date": "2010-01-01",
+    "slug": "stand-soul-survivors",
+    "open_library_work_key": "OL35660883W",
+    "cover_id": 14339079,
+    "description": "Third volume of Marvel's The Stand adaptation, in which Nick Andros and Tom Cullen travel across Nebraska and meet the dangerous Julie Lawry.",
+    "relation_note": "Marvel comics adaptation of King's novel The Stand - scripted by Roberto Aguirre-Sacasa with King as consulting creative force, not King's own prose.",
+    "dark_tower": false
+  },
+  {
+    "id": "d7b8e434-fec3-4db1-8ef3-a28880cd9ccc",
+    "active": true,
+    "is_omnibus": false,
+    "title": "The Stand: Hardcases",
+    "creator": "Roberto Aguirre-Sacasa, Mike Perkins & Laura Martin",
+    "category": "comic",
+    "publish_date": "2011-01-01",
+    "slug": "stand-hardcases",
+    "open_library_work_key": "OL19347704W",
+    "cover_id": 8459472,
+    "description": "Fourth volume of Marvel's The Stand adaptation, as the survivors gather in Boulder and Randall Flagg gathers his followers in Las Vegas.",
+    "relation_note": "Marvel comics adaptation of King's novel The Stand - scripted by Roberto Aguirre-Sacasa with King as consulting creative force, not King's own prose.",
+    "dark_tower": false
+  },
+  {
+    "id": "a703ba68-eb10-42e6-9c9b-5dee6bb915dc",
+    "active": true,
+    "is_omnibus": false,
+    "title": "The Stand: No Man's Land",
+    "creator": "Roberto Aguirre-Sacasa, Mike Perkins & Laura Martin",
+    "category": "comic",
+    "publish_date": "2012-01-01",
+    "slug": "stand-no-mans-land",
+    "open_library_work_key": "OL19347706W",
+    "cover_id": 8459474,
+    "description": "Fifth volume of Marvel's The Stand adaptation, as the Boulder Free Zone Committee sends spies west and the two camps move toward confrontation.",
+    "relation_note": "Marvel comics adaptation of King's novel The Stand - scripted by Roberto Aguirre-Sacasa with King as consulting creative force, not King's own prose.",
+    "dark_tower": false
+  },
+  {
+    "id": "5813ce8e-c92a-4e1d-afda-df978200b0c4",
+    "active": true,
+    "is_omnibus": false,
+    "title": "The Stand: The Night Has Come",
+    "creator": "Roberto Aguirre-Sacasa, Mike Perkins & Laura Martin",
+    "category": "comic",
+    "publish_date": "2012-01-01",
+    "slug": "stand-the-night-has-come",
+    "open_library_work_key": "OL19347718W",
+    "cover_id": 8459487,
+    "description": "Final volume of Marvel's The Stand adaptation, covering the march on Las Vegas and the climactic confrontation with Randall Flagg.",
+    "relation_note": "Marvel comics adaptation of King's novel The Stand - scripted by Roberto Aguirre-Sacasa with King as consulting creative force, not King's own prose.",
+    "dark_tower": false
+  },
+  {
+    "id": "d3be6436-5f83-4cfb-b670-a2b0fbe59926",
+    "active": true,
+    "is_omnibus": true,
+    "title": "The Stand Omnibus",
+    "creator": "Roberto Aguirre-Sacasa, Mike Perkins & Laura Martin",
+    "category": "comic",
+    "publish_date": "2012-01-01",
+    "slug": "stand-omnibus",
+    "open_library_work_key": "OL21043660W",
+    "cover_id": 13194814,
+    "description": "Two-volume slipcased hardcover collecting the full Marvel adaptation of The Stand: Captain Trips, American Nightmares, Soul Survivors, Hardcases, No Man's Land, and The Night Has Come.",
+    "relation_note": "Collects Marvel's six-volume comics adaptation of King's novel The Stand into one set - not King's own prose.",
+    "dark_tower": false
+  },
+  {
+    "id": "067a6e21-c694-4e6c-92c0-70395adaf6a9",
+    "active": true,
+    "is_omnibus": false,
+    "title": "Stephen King's N.",
+    "creator": "Marc Guggenheim & Alex Maleev",
+    "category": "comic",
+    "publish_date": "2010-01-01",
+    "slug": "stephen-kings-n",
+    "open_library_work_key": "OL17497592W",
+    "cover_id": 7696978,
+    "description": "Four-issue Marvel comic series adapting King's short story \"N.\", in which a psychiatrist's patient describes an obsessive-compulsive ritual that may be holding back something monstrous.",
+    "relation_note": "Comics adaptation of the short story \"N.\" from Just After Sunset, scripted by Marc Guggenheim - not King's own prose.",
+    "dark_tower": false
+  },
+  {
+    "id": "b1b90841-d0fa-4a94-9223-4e9a3ce98f9e",
+    "active": true,
+    "is_omnibus": false,
+    "title": "Creepshow (Comic Adaptation)",
+    "creator": "Stephen King & Bernie Wrightson",
+    "category": "comic",
+    "publish_date": "1982-01-01",
+    "slug": "creepshow-comic",
+    "open_library_work_key": "OL14916848W",
+    "cover_id": 9257988,
+    "description": "The comic book adaptation of the 1982 George A. Romero film, illustrated by Bernie Wrightson and presenting the film's five tales in the style of the classic EC horror comics.",
+    "relation_note": "Comics version of the Creepshow screenplay King wrote for Romero's film - a tie-in to the movie, not a prose work.",
+    "dark_tower": false
+  },
+  {
+    "id": "8d25924a-9938-401f-a579-0536085aaf2e",
+    "active": true,
+    "is_omnibus": false,
+    "title": "Road Rage",
+    "creator": "Chris Ryall, Nelson Daniel, Stephen King & Joe Hill",
+    "category": "comic",
+    "publish_date": "2012-01-01",
+    "slug": "road-rage",
+    "open_library_work_key": "OL16816183W",
+    "cover_id": 7276718,
+    "description": "IDW graphic novel adapting \"Throttle\", the King and Joe Hill novella of a biker gang stalked by a driverless truck, alongside a comics adaptation of Richard Matheson's \"Duel\".",
+    "relation_note": "Comics adaptation of the novella \"Throttle\" (from the anthology He Is Legend), co-written by King and Joe Hill - adapted to comics by others, not King's own prose.",
+    "dark_tower": false
+  },
+  {
+    "id": "06dfa34e-cc00-4b34-8741-3b71ff68ffda",
+    "active": true,
+    "is_omnibus": false,
+    "title": "The Road to the Dark Tower: Exploring Stephen King's Magnum Opus",
+    "creator": "Bev Vincent",
+    "category": "reference",
+    "publish_date": "2004-01-01",
+    "slug": "road-to-the-dark-tower",
+    "open_library_work_key": "OL8165642W",
+    "cover_id": 855358,
+    "description": "A companion guide to the Dark Tower series, covering the history of its writing, its influences, and the connections between the books and the rest of King's work.",
+    "relation_note": "Written by King scholar Bev Vincent as a reference to the Dark Tower series, not part of the series itself.",
+    "dark_tower": true
+  },
+  {
+    "id": "0129e518-489d-4c69-aae6-8b34185e2f96",
+    "active": true,
+    "is_omnibus": false,
+    "title": "The Stephen King Companion: Four Decades of Fear",
+    "creator": "George Beahm",
+    "category": "reference",
+    "publish_date": "2015-01-01",
+    "slug": "stephen-king-companion",
+    "open_library_work_key": "OL16597166W",
+    "cover_id": 12190176,
+    "description": "An illustrated overview of King's life and career, with chapters on his major works, the film adaptations, and his influences.",
+    "relation_note": "Biography and career guide by King reference author George Beahm, not King himself. This is the 2015 \"Four Decades of Fear\" edition of a book first published in 1989.",
+    "dark_tower": false
+  },
+  {
+    "id": "323b1d9a-a143-41fa-a03d-04737e8137ef",
+    "active": true,
+    "is_omnibus": false,
+    "title": "Stephen King: Uncollected, Unpublished",
+    "creator": "Rocky Wood",
+    "category": "reference",
+    "publish_date": "2006-01-01",
+    "slug": "uncollected-unpublished",
+    "open_library_work_key": "OL8963905W",
+    "cover_id": 9056272,
+    "description": "A bibliographic guide to King's rarest material: his uncollected short fiction, unpublished manuscripts, and other pieces that never appeared in his main collections.",
+    "relation_note": "Reference guide to King's rare and unpublished writing by researcher Rocky Wood, not King himself.",
+    "dark_tower": false
+  },
+  {
+    "id": "416ccc6b-7941-44a6-8a24-da9607040e06",
+    "title": "The End of the World As We Know It: New Tales of Stephen King's The Stand",
+    "creator": "Christopher Golden & Brian Keene (eds.)",
+    "category": "tie_in_novel",
+    "publish_date": "2025-01-01",
+    "slug": "end-of-the-world-as-we-know-it",
+    "open_library_work_key": "OL42444839W",
+    "cover_id": 15115692,
+    "description": "Anthology of new stories set in the world of The Stand, written by dozens of contemporary horror authors, with an introduction by Stephen King.",
+    "relation_note": "Authorized anthology of new fiction set in King's The Stand universe - written by other authors, with only an introduction from King.",
+    "active": true,
+    "is_omnibus": false,
+    "dark_tower": false
+  },
+  {
+    "id": "61297b47-3eb4-4f1d-b86d-134b2955b2ad",
+    "title": "Gwendy's Magic Feather",
+    "creator": "Richard Chizmar",
+    "category": "tie_in_novel",
+    "publish_date": "2019-11-19",
+    "slug": "gwendys-magic-feather",
+    "open_library_work_key": "OL21348195W",
+    "cover_id": 12657277,
+    "description": "Sequel to Gwendy's Button Box: years after the button box vanished, Gwendy Peterson is a successful writer and congresswoman haunted by a missing girl and the return of the box's strange influence.",
+    "relation_note": "Written by Richard Chizmar alone as the middle book of the Gwendy trilogy, with a foreword by King - the first Castle Rock novel written by another author.",
+    "active": true,
+    "is_omnibus": false,
+    "dark_tower": false
   }
 ]

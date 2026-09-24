@@ -229,6 +229,8 @@ setPageSeo({
         <template #actions>
           <AdaptationWatchActions
             :adaptation-id="adaptation.id"
+            :release-date="adaptation.release_date"
+            :release-year="adaptation.release_year"
             mode="expanded"
           />
         </template>
