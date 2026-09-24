@@ -25,9 +25,11 @@ const errorMessage = ref('')
 const loading = ref(false)
 
 const title = computed(() => (props.mode === 'issue' ? 'Report an Issue' : 'Report Missing Content'))
-const placeholder = computed(() =>
-  props.mode === 'issue' ? 'What\'s wrong with this page?' : 'What\'s missing from this list?'
-)
+const placeholder = computed(() => {
+  if (props.mode === 'issue') return 'What\'s wrong with this page?'
+  if (props.contentArea === 'dark_tower') return 'Which work is missing, or shouldn\'t be listed?'
+  return 'What\'s missing from this list?'
+})
 
 watch(open, (isOpen) => {
   if (!isOpen) {

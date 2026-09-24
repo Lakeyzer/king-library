@@ -1,3 +1,5 @@
+import type { CategoryProgress } from '~/composables/useBooks'
+
 export interface KingShortStory {
   id: string
   title: string
@@ -190,6 +192,26 @@ export function useShortStories() {
     )
   }
 
+  // Powers the profile showcase's Short Works progress card - same
+  // client-side count as useBooks().fetchProfileBookStats, and likewise takes
+  // a userId so it works for a public profile as well as the owner's own.
+  const fetchShortStoryProgress = async (userId: string): Promise<CategoryProgress> => {
+    const [{ data: stories, error: storiesError }, { data: reads, error: readsError }] = await Promise.all([
+      supabase.from('king_short_stories').select('id'),
+      supabase.from('user_short_story_reads').select('short_story_id').eq('user_id', userId)
+    ])
+
+    if (storiesError) throw storiesError
+    if (readsError) throw readsError
+
+    const storyIds = new Set((stories as { id: string }[]).map(story => story.id))
+    const readCount = (reads as { short_story_id: string }[])
+      .filter(row => storyIds.has(row.short_story_id))
+      .length
+
+    return { count: readCount, total: storyIds.size }
+  }
+
   // Row-existence toggle: insert to mark read, delete to unmark - there's no
   // boolean column to flip, unlike toggleWantToRead/toggleWantToWatch.
   const toggleRead = async (shortStoryId: string) => {
@@ -231,6 +253,7 @@ export function useShortStories() {
     fetchCollectionsOverview,
     readShortStoryIds,
     fetchUserShortStoryReads,
+    fetchShortStoryProgress,
     toggleRead
   }
 }
