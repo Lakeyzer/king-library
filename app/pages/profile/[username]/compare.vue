@@ -25,12 +25,15 @@ const canCompare = !isSelfCompare && !isPrivate
 
 const { fetchProfileBookStats, fetchReadDiff, fetchOwnedDiff } = useBooks()
 const { fetchViewingProgress, fetchWatchedDiff } = useAdaptations()
+const { fetchShortStoryProgress } = useShortStories()
 
 const [
   { data: ownStats },
   { data: targetStats },
   { data: ownViewing },
   { data: targetViewing },
+  { data: ownShortStories },
+  { data: targetShortStories },
   { data: readDiff },
   { data: ownedDiff },
   { data: watchedDiff }
@@ -46,6 +49,12 @@ const [
   ),
   useAsyncData(`compare-${own.id}-${target.id}-target-viewing`, () =>
     canCompare ? fetchViewingProgress(target.id) : Promise.resolve(null)
+  ),
+  useAsyncData(`compare-${own.id}-${target.id}-own-short-stories`, () =>
+    canCompare ? fetchShortStoryProgress(own.id) : Promise.resolve(null)
+  ),
+  useAsyncData(`compare-${own.id}-${target.id}-target-short-stories`, () =>
+    canCompare ? fetchShortStoryProgress(target.id) : Promise.resolve(null)
   ),
   useAsyncData(`compare-${own.id}-${target.id}-read-diff`, () =>
     canCompare ? fetchReadDiff(own.id, target.id) : Promise.resolve(null)
@@ -116,7 +125,7 @@ useSeoMeta({ title: `${own.username} vs ${target.username} - Compare` })
       title="This profile is private"
       description="The owner of this profile has chosen to keep it private."
     />
-    <template v-else-if="ownStats && targetStats && ownViewing && targetViewing && readDiff && ownedDiff && watchedDiff">
+    <template v-else-if="ownStats && targetStats && ownViewing && targetViewing && ownShortStories && targetShortStories && readDiff && ownedDiff && watchedDiff">
       <div class="flex flex-col gap-3">
         <div class="flex items-center justify-between gap-2">
           <h2 class="flex items-center gap-2 text-base font-semibold text-highlighted">
@@ -182,7 +191,7 @@ useSeoMeta({ title: `${own.username} vs ${target.username} - Compare` })
           <ProfileCompareProgressCard
             title="Overall Bibliography"
             icon="i-lucide-book-open"
-            class="md:col-span-2"
+            class="md:col-span-2 lg:col-span-1"
             :own-label="own.username ?? ''"
             :own-count="ownStats.overall.count"
             :own-total="ownStats.overall.total"
@@ -211,14 +220,14 @@ useSeoMeta({ title: `${own.username} vs ${target.username} - Compare` })
             :target-total="targetStats.darkTower.total"
           />
           <ProfileCompareProgressCard
-            title="Collection"
-            icon="i-lucide-library"
+            title="Short Works"
+            icon="i-lucide-file-text"
             :own-label="own.username ?? ''"
-            :own-count="ownStats.collection.count"
-            :own-total="ownStats.collection.total"
+            :own-count="ownShortStories.count"
+            :own-total="ownShortStories.total"
             :target-label="target.username ?? ''"
-            :target-count="targetStats.collection.count"
-            :target-total="targetStats.collection.total"
+            :target-count="targetShortStories.count"
+            :target-total="targetShortStories.total"
           />
           <ProfileCompareProgressCard
             title="Adaptations Watched"
@@ -229,6 +238,17 @@ useSeoMeta({ title: `${own.username} vs ${target.username} - Compare` })
             :target-label="target.username ?? ''"
             :target-count="targetViewing.count"
             :target-total="targetViewing.total"
+          />
+          <ProfileCompareProgressCard
+            title="Collection"
+            icon="i-lucide-library"
+            class="md:col-span-2 lg:col-span-1"
+            :own-label="own.username ?? ''"
+            :own-count="ownStats.collection.count"
+            :own-total="ownStats.collection.total"
+            :target-label="target.username ?? ''"
+            :target-count="targetStats.collection.count"
+            :target-total="targetStats.collection.total"
           />
         </div>
       </div>

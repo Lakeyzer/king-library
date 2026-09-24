@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type {
   BookRecommendation,
+  CategoryProgress,
   CurrentlyReadingWork,
   GiftIdeaRecommendation,
   OwnedUnreadRecommendation,
@@ -28,6 +29,7 @@ interface Props {
   timelinePath: string
   stats: ProfileBookStats
   viewing: ViewingProgress
+  shortStoryProgress: CategoryProgress
   currentlyReading: CurrentlyReadingWork[]
   readingTimeline: ReadingTimelineEntry[]
   bookshelf: BookshelfItem[]
@@ -169,11 +171,18 @@ const mergedBookshelf = computed<ProfileBookshelfItem[]>(() => {
             icon="i-lucide-rose"
             :count="stats.darkTower.count"
             :total="stats.darkTower.total"
-            color="success"
+            color="error"
           />
         </div>
 
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <ProfileProgressBar
+            label="Short Works"
+            icon="i-lucide-file-text"
+            :count="shortStoryProgress.count"
+            :total="shortStoryProgress.total"
+            color="success"
+          />
           <ProfileProgressBar
             label="Adaptations Watched"
             icon="i-lucide-film"

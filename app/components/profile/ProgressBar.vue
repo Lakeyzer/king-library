@@ -4,7 +4,7 @@ interface Props {
   icon: string
   count: number
   total: number
-  color?: 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'neutral'
+  color?: 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral'
   hint?: string
 }
 
