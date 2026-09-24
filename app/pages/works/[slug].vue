@@ -1,135 +1,154 @@
 <script setup lang="ts">
-import type { ConnectionListItem } from "~/components/detail/ConnectionList.vue";
+import type { ConnectionListItem } from '~/components/detail/ConnectionList.vue'
 
-definePageMeta({ layout: false });
+definePageMeta({ layout: false })
 
-const route = useRoute();
-const slug = route.params.slug as string;
+const route = useRoute()
+const slug = route.params.slug as string
 
-const { fetchKingWorkBySlug } = useKingWorks();
+const { fetchKingWorkBySlug } = useKingWorks()
 const { data: workData } = await useAsyncData(`work-${slug}`, () =>
-  fetchKingWorkBySlug(slug),
-);
+  fetchKingWorkBySlug(slug)
+)
 
 if (!workData.value) {
-  throw createError({ statusCode: 404, statusMessage: "Work not found" });
+  throw createError({ statusCode: 404, statusMessage: 'Work not found' })
 }
 
-const work = workData.value;
-const isCollection = work.type === "collection";
-const isOmnibus = work.type === "omnibus";
+const work = workData.value
+const isCollection = work.type === 'collection'
+const isOmnibus = work.type === 'omnibus'
 
-const { fetchAdaptationsForWork } = useAdaptations();
-const { fetchComponentWorksForOmnibus } = useKingWorks();
-const { fetchShortStoriesForCollection } = useShortStories();
-const { fetchWorkStats, fetchUserBooks } = useBooks();
-const { fetchUserEditions } = useBookshelf();
+const { fetchAdaptationsForWork } = useAdaptations()
+const { fetchComponentWorksForOmnibus } = useKingWorks()
+const { fetchShortStoriesForCollection } = useShortStories()
+const { fetchRelatedWorksForKingWork } = useRelatedWorks()
+const { fetchWorkStats, fetchUserBooks } = useBooks()
+const { fetchUserEditions } = useBookshelf()
 
-// These four are independent of each other, so kick them all off together
+// These are independent of each other, so kick them all off together
 // (useAsyncData starts fetching as soon as it's called) rather than
 // sequentially awaiting one at a time - each round trip otherwise stacks
 // on top of the last and the page waits for their sum instead of the max.
 const [
   { data: adaptations },
+  { data: relatedWorks },
   { data: shortStories },
   { data: componentWorks },
-  { data: stats },
+  { data: stats }
 ] = await Promise.all([
   useAsyncData(`work-${slug}-adaptations`, () =>
-    fetchAdaptationsForWork(work.id),
+    fetchAdaptationsForWork(work.id)
+  ),
+  useAsyncData(`work-${slug}-related-works`, () =>
+    fetchRelatedWorksForKingWork(work.id)
   ),
   useAsyncData(`work-${slug}-short-stories`, () =>
     isCollection
       ? fetchShortStoriesForCollection(work.id)
-      : Promise.resolve([]),
+      : Promise.resolve([])
   ),
   useAsyncData(`work-${slug}-component-works`, () =>
-    isOmnibus ? fetchComponentWorksForOmnibus(work.id) : Promise.resolve([]),
+    isOmnibus ? fetchComponentWorksForOmnibus(work.id) : Promise.resolve([])
   ),
-  useAsyncData(`work-${slug}-stats`, () => fetchWorkStats(work.id)),
-]);
+  useAsyncData(`work-${slug}-stats`, () => fetchWorkStats(work.id))
+])
 
 // Not awaited: this only affects the reading-status buttons' displayed
 // state, which updates reactively once it resolves - no reason to hold up
 // the rest of the page for it.
-useAsyncData("user-books", fetchUserBooks);
-useAsyncData("user-editions", fetchUserEditions);
+useAsyncData('user-books', fetchUserBooks)
+useAsyncData('user-editions', fetchUserEditions)
 
-const publishYear = computed(() => Number(work.publish_date.slice(0, 4)));
+const publishYear = computed(() => Number(work.publish_date.slice(0, 4)))
 
 const coverSrc = computed(() =>
-  work.cover_id ? getOpenLibraryCoverUrl(work.cover_id, "L") : null,
-);
+  work.cover_id ? getOpenLibraryCoverUrl(work.cover_id, 'L') : null
+)
 
-const isMisery = work.slug === "misery";
+const isMisery = work.slug === 'misery'
 
 const stephenKingByline = computed(() =>
-  work.co_author ? `By Stephen King & ${work.co_author}` : "By Stephen King",
-);
+  work.co_author ? `By Stephen King & ${work.co_author}` : 'By Stephen King'
+)
 
-const isCharlieTheChooChoo = work.slug === "charlie-the-choo-choo";
-const CHARLIE_AUTHOR_NAMES = ["Beryl Evans", "Claudia y Inez Bachman"] as const;
-const charlieAuthor = ref<string>(CHARLIE_AUTHOR_NAMES[0]);
+const isCharlieTheChooChoo = work.slug === 'charlie-the-choo-choo'
+const CHARLIE_AUTHOR_NAMES = ['Beryl Evans', 'Claudia y Inez Bachman'] as const
+const charlieAuthor = ref<string>(CHARLIE_AUTHOR_NAMES[0])
 
 if (isCharlieTheChooChoo) {
   onMounted(() => {
-    let nameIndex = 0;
+    let nameIndex = 0
     const loopTimer = setInterval(() => {
-      nameIndex = (nameIndex + 1) % CHARLIE_AUTHOR_NAMES.length;
-      charlieAuthor.value = CHARLIE_AUTHOR_NAMES[nameIndex]!;
-    }, 6000);
+      nameIndex = (nameIndex + 1) % CHARLIE_AUTHOR_NAMES.length
+      charlieAuthor.value = CHARLIE_AUTHOR_NAMES[nameIndex]!
+    }, 6000)
 
-    onUnmounted(() => clearInterval(loopTimer));
-  });
+    onUnmounted(() => clearInterval(loopTimer))
+  })
 }
 
 const adaptationItems = computed<ConnectionListItem[]>(() =>
-  (adaptations.value ?? []).map((adaptation) => ({
+  (adaptations.value ?? []).map(adaptation => ({
     id: adaptation.id,
     title: adaptation.title,
     imageSrc: adaptation.tmdb_poster_path
-      ? getTmdbPosterUrl(adaptation.tmdb_poster_path, "w154")
+      ? getTmdbPosterUrl(adaptation.tmdb_poster_path, 'w154')
       : null,
     imageAlt: `${adaptation.title} poster`,
     year: adaptation.release_year,
     typeLabel: formatTypeLabel(adaptation.type),
-    to: `/adaptations/${adaptation.slug}`,
-  })),
-);
+    to: `/adaptations/${adaptation.slug}`
+  }))
+)
+
+const relatedWorkItems = computed<ConnectionListItem[]>(() =>
+  (relatedWorks.value ?? []).map(relatedWork => ({
+    id: relatedWork.id,
+    title: relatedWork.title,
+    imageSrc: relatedWork.cover_id
+      ? getOpenLibraryCoverUrl(relatedWork.cover_id, 'M')
+      : null,
+    imageAlt: `${relatedWork.title} cover`,
+    year: relatedWork.publish_date ? Number(relatedWork.publish_date.slice(0, 4)) : null,
+    typeLabel: formatTypeLabel(relatedWork.category),
+    to: `/works-by-others/${relatedWork.slug}`
+  }))
+)
 
 const shortStoryItems = computed<ConnectionListItem[]>(() =>
-  (shortStories.value ?? []).map((story) => ({
+  (shortStories.value ?? []).map(story => ({
     id: story.id,
     title: story.title,
-    to: `/short-works/${story.slug}`,
-  })),
-);
+    to: `/short-works/${story.slug}`
+  }))
+)
 
 const componentWorkItems = computed<ConnectionListItem[]>(() =>
-  (componentWorks.value ?? []).map((componentWork) => ({
+  (componentWorks.value ?? []).map(componentWork => ({
     id: componentWork.id,
     title: componentWork.title,
     imageSrc: componentWork.cover_id
-      ? getOpenLibraryCoverUrl(componentWork.cover_id, "M")
+      ? getOpenLibraryCoverUrl(componentWork.cover_id, 'M')
       : null,
     imageAlt: `${componentWork.title} cover`,
-    to: `/works/${componentWork.slug}`,
-  })),
-);
+    to: `/works/${componentWork.slug}`
+  }))
+)
 
 // A work is either a short-story collection or a novel omnibus, never both,
 // so these two never both contribute items at once.
 const containsItems = computed<ConnectionListItem[]>(() => [
   ...shortStoryItems.value,
-  ...componentWorkItems.value,
-]);
+  ...componentWorkItems.value
+])
 
-const { setPageSeo } = useSeo();
+const { setPageSeo } = useSeo()
 setPageSeo({
   title: work.title,
   description: work.description || generateWorkFallbackDescription(work),
-  image: work.cover_id ? getOpenLibraryCoverUrl(work.cover_id, "L") : undefined,
-});
+  image: work.cover_id ? getOpenLibraryCoverUrl(work.cover_id, 'L') : undefined
+})
 </script>
 
 <template>
@@ -144,28 +163,31 @@ setPageSeo({
           <h1
             class="text-3xl font-bold text-pretty text-highlighted sm:text-4xl"
           >
-            <GlitchLetter :text="work.title" letter="n" :active="isMisery" />
+            <GlitchLetter
+              :text="work.title"
+              letter="n"
+              :active="isMisery"
+            />
           </h1>
           <div class="flex items-center gap-1.5 text-muted text-xs">
-            <span v-if="isCharlieTheChooChoo"
-              >By <ScrambleText :text="charlieAuthor"
-            /></span>
-            <span v-else
-              ><GlitchLetter
-                :text="stephenKingByline"
-                letter="n"
-                :active="isMisery"
+            <span v-if="isCharlieTheChooChoo">By <ScrambleText :text="charlieAuthor" /></span>
+            <span v-else><GlitchLetter
+              :text="stephenKingByline"
+              letter="n"
+              :active="isMisery"
             /></span>
           </div>
           <p class="mt-4 text-muted flex gap-4 items-center">
             <NumberMotif :text="publishYear" />
-            <span
-              ><GlitchLetter
-                :text="formatTypeLabel(work.type)"
-                letter="n"
-                :active="isMisery"
+            <span><GlitchLetter
+              :text="formatTypeLabel(work.type)"
+              letter="n"
+              :active="isMisery"
             /></span>
-            <UPopover v-if="isOmnibus" mode="hover">
+            <UPopover
+              v-if="isOmnibus"
+              mode="hover"
+            >
               <UButton
                 icon="i-lucide-info"
                 color="neutral"
@@ -205,7 +227,10 @@ setPageSeo({
           />
         </div>
 
-        <p v-if="work.description" class="whitespace-pre-line">
+        <p
+          v-if="work.description"
+          class="whitespace-pre-line"
+        >
           <GlitchLetter
             :text="work.description"
             letter="n"
@@ -213,8 +238,30 @@ setPageSeo({
           />
         </p>
 
-        <template v-if="containsItems.length" #related>
-          <DetailConnectionList heading="Contains" :items="containsItems" />
+        <div class="flex justify-start">
+          <ReportButton
+            mode="issue"
+            content-area="works"
+            :item-id="work.id"
+          />
+        </div>
+
+        <UAlert
+          v-if="work.remark"
+          color="neutral"
+          variant="subtle"
+          icon="i-lucide-info"
+          :description="work.remark"
+        />
+
+        <template
+          v-if="containsItems.length"
+          #related
+        >
+          <DetailConnectionList
+            heading="Contains"
+            :items="containsItems"
+          />
         </template>
 
         <template #actions>
@@ -222,33 +269,59 @@ setPageSeo({
             :work-id="work.id"
             :work-title="work.title"
             :work-key="work.open_library_work_key"
+            :min-edition-year="work.edition_year_min"
+            :max-edition-year="work.edition_year_max"
+            :publish-date="work.publish_date"
             mode="expanded"
           />
         </template>
 
-        <template v-if="stats" #stats>
+        <template
+          v-if="stats"
+          #stats
+        >
           <div class="flex items-center gap-1.5">
-            <UIcon name="i-lucide-book-open" class="size-4" />
-            <span
-              ><strong class="text-highlighted"><NumberMotif :text="stats.currently_reading_count" /></strong> <GlitchLetter text="reading" letter="n" :active="isMisery"
+            <UIcon
+              name="i-lucide-book-open"
+              class="size-4"
+            />
+            <span><strong class="text-highlighted"><NumberMotif :text="stats.currently_reading_count" /></strong> <GlitchLetter
+              text="reading"
+              letter="n"
+              :active="isMisery"
             /></span>
           </div>
           <div class="flex items-center gap-1.5">
-            <UIcon name="i-lucide-bookmark" class="size-4" />
-            <span
-              ><strong class="text-highlighted"><NumberMotif :text="stats.want_to_read_count" /></strong> <GlitchLetter text="want to read" letter="n" :active="isMisery"
+            <UIcon
+              name="i-lucide-bookmark"
+              class="size-4"
+            />
+            <span><strong class="text-highlighted"><NumberMotif :text="stats.want_to_read_count" /></strong> <GlitchLetter
+              text="want to read"
+              letter="n"
+              :active="isMisery"
             /></span>
           </div>
           <div class="flex items-center gap-1.5">
-            <UIcon name="i-lucide-circle-check" class="size-4" />
-            <span
-              ><strong class="text-highlighted"><NumberMotif :text="stats.read_count" /></strong> <GlitchLetter text="read" letter="n" :active="isMisery"
+            <UIcon
+              name="i-lucide-circle-check"
+              class="size-4"
+            />
+            <span><strong class="text-highlighted"><NumberMotif :text="stats.read_count" /></strong> <GlitchLetter
+              text="read"
+              letter="n"
+              :active="isMisery"
             /></span>
           </div>
           <div class="flex items-center gap-1.5">
-            <UIcon name="i-lucide-library" class="size-4" />
-            <span
-              ><strong class="text-highlighted"><NumberMotif :text="stats.owner_count" /></strong> <GlitchLetter text="owned" letter="n" :active="isMisery"
+            <UIcon
+              name="i-lucide-library"
+              class="size-4"
+            />
+            <span><strong class="text-highlighted"><NumberMotif :text="stats.owner_count" /></strong> <GlitchLetter
+              text="owned"
+              letter="n"
+              :active="isMisery"
             /></span>
           </div>
         </template>
@@ -260,6 +333,8 @@ setPageSeo({
         v-if="work.open_library_work_key"
         :work-key="work.open_library_work_key"
         :work-id="work.id"
+        :min-edition-year="work.edition_year_min"
+        :max-edition-year="work.edition_year_max"
       />
 
       <DetailConnectionList
@@ -267,6 +342,15 @@ setPageSeo({
         :items="adaptationItems"
         placeholder-icon="i-lucide-film"
         orientation="horizontal"
+        show-caption
+      />
+
+      <DetailConnectionList
+        heading="Related Works"
+        :items="relatedWorkItems"
+        placeholder-icon="i-lucide-book-open-check"
+        orientation="horizontal"
+        show-caption
       />
     </div>
   </NuxtLayout>

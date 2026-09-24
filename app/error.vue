@@ -48,7 +48,7 @@ function goHome() {
             </p>
 
             <div class="relative z-10 flex flex-col gap-2">
-              <h1 class="text-2xl font-bold text-highlighted">
+              <h1 class="heading-1">
                 You've wandered into a room that isn't on the floor plan.
               </h1>
               <p class="text-muted">

@@ -11,7 +11,7 @@ The system SHALL provide a page at `/dark-tower` laid out as a main content area
 
 #### Scenario: Visiting the Dark Tower page
 - **WHEN** any visitor navigates to `/dark-tower`
-- **THEN** the page shows a main content area and a sidebar, with the main content area displaying the core-series list and the related-works list
+- **THEN** the page shows a main content area and a sidebar, with the main content area displaying the core-series list, the related-works list, and the Graphic Novels list
 
 ### Requirement: Main area lists the eight core Dark Tower novels in canonical reading order
 The system SHALL display, in the main content area, all eight core Dark Tower novels - The Gunslinger, The Drawing of the Three, The Waste Lands, Wizard and Glass, The Wind Through the Keyhole, Wolves of the Calla, Song of Susannah, and The Dark Tower - ordered by their position within the canonical Dark Tower series, not by publish date. This places The Wind Through the Keyhole fifth, between Wizard and Glass and Wolves of the Calla, reflecting its in-story chronological placement rather than its later publish date.
@@ -30,6 +30,21 @@ The system SHALL display, in the main content area, a "Related Works" list of ev
 #### Scenario: An inactive related work is excluded
 - **WHEN** a King work has a Dark Tower relation note but its active flag is false
 - **THEN** it does not appear in the Related Works list
+
+### Requirement: Main area lists Dark Tower graphic novel omnibuses, each expandable to the comics it collects
+The system SHALL display, in the main content area, a "Graphic Novels" accordion listing every active comic omnibus (a By Other Hands work with `category: comic` and `is_omnibus: true`), collapsed by default and expanding one at a time. Each omnibus's own reading-status actions SHALL be visible and usable whether or not it is expanded. Expanding an omnibus SHALL reveal every comic it collects, each with its own independent reading-status actions - the same actions available on the By Other Hands page.
+
+#### Scenario: Graphic Novels list shows collapsed omnibuses with their own actions
+- **WHEN** any visitor views the Dark Tower page's Graphic Novels list
+- **THEN** it shows every active comic omnibus, collapsed, each with its own reading-status actions visible, and without their collected comics shown
+
+#### Scenario: Expanding an omnibus reveals its comics
+- **WHEN** any visitor expands an omnibus in the Graphic Novels list
+- **THEN** every comic it collects is shown
+
+#### Scenario: Reading-status actions are available on a collected comic
+- **WHEN** a signed-in user expands an omnibus in the Graphic Novels list
+- **THEN** they can mark any comic it collects read (or otherwise track it) independently of the omnibus itself
 
 ### Requirement: Signed-in visitor sees Dark Tower reading progress
 The system SHALL show a signed-in visitor, in the sidebar, their reading progress across the eight core Dark Tower novels - the same count-of-read-over-total figure and presentation already shown on their profile's Dark Tower progress bar. The system SHALL NOT show this to a signed-out visitor.

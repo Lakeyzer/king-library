@@ -100,12 +100,12 @@ export function useOpenLibraryEditions() {
         { query: { limit, offset } }
       )
 
-      const editions = data.entries.map((entry) => ({
+      const editions = data.entries.map(entry => ({
         key: entry.key,
         title: entry.title,
         // Open Library uses -1 as a "no cover" sentinel within the covers array,
         // not just omitting the field - filter it out rather than treating it as an id.
-        coverId: entry.covers?.find((id) => id > 0) ?? null,
+        coverId: entry.covers?.find(id => id > 0) ?? null,
         publisher: entry.publishers?.[0] ?? null,
         publishYear: extractYear(entry.publish_date),
         physicalFormat: entry.physical_format ?? null,

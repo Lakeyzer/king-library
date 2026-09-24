@@ -15,6 +15,8 @@ export interface DarkTowerJourneyStats {
   finishedCount: number
   /** Users who have read at least 1 but not all 8 core Dark Tower books. */
   onTheWayCount: number
+  /** Users who haven't read any core Dark Tower book yet. */
+  notStartedCount: number
 }
 
 export interface CurrentlyReadingWork {
@@ -242,7 +244,7 @@ export function useBooks() {
     if (error) throw error
 
     const rows = data as UserBook[]
-    userBooksByWorkId.value = Object.fromEntries(rows.map((row) => [row.king_work_id, row]))
+    userBooksByWorkId.value = Object.fromEntries(rows.map(row => [row.king_work_id, row]))
 
     return rows
   }
@@ -266,14 +268,14 @@ export function useBooks() {
   // function powers both the owner's own showcase and a public profile's.
   const fetchProfileBookStats = async (userId: string): Promise<ProfileBookStats> => {
     const [{ data: works, error: worksError }, { data: userBooks, error: booksError }] = await Promise.all([
-      supabase.from('king_works').select('id, type, dark_tower, bachman').eq('active', true),
+      supabase.from('king_works').select('id, type, dark_tower, bachman, counts_with_id').eq('active', true),
       supabase.from('user_books').select('king_work_id, read, owned').eq('user_id', userId)
     ])
 
     if (worksError) throw worksError
     if (booksError) throw booksError
 
-    const allWorks = works as { id: string, type: string, dark_tower: boolean, bachman: boolean }[]
+    const allWorks = works as { id: string, type: string, dark_tower: boolean, bachman: boolean, counts_with_id: string | null }[]
     const rows = userBooks as { king_work_id: string, read: boolean, owned: boolean }[]
 
     // An 'omnibus' (e.g. "The Bachman Books") never counts toward reading
@@ -283,25 +285,38 @@ export function useBooks() {
     // omnibus too would double-count the same reading. It still counts
     // toward the `collection` (ownership) total below - owning the omnibus
     // edition is a distinct, legitimate collection item.
-    const progressEligibleWorks = allWorks.filter((work) => work.type !== 'omnibus')
+    const progressEligibleWorks = allWorks.filter(work => work.type !== 'omnibus')
 
-    const readWorkIds = new Set(rows.filter((row) => row.read).map((row) => row.king_work_id))
-    const ownedWorkIds = new Set(rows.filter((row) => row.owned).map((row) => row.king_work_id))
+    const readWorkIds = new Set(rows.filter(row => row.read).map(row => row.king_work_id))
+    const ownedWorkIds = new Set(rows.filter(row => row.owned).map(row => row.king_work_id))
+
+    // Two king_works rows can represent alternate texts of the same book
+    // (e.g. the original vs. Revised Edition of "The Gunslinger" - see
+    // king_works.counts_with_id) - such a pair shares one progress slot
+    // rather than counting as two, and reading either row satisfies that
+    // slot. Grouping by this key, instead of the raw work id, is what makes
+    // that true for both the total and the read count below - it does NOT
+    // require the two rows' own `read` flags to be kept in sync with each
+    // other (they aren't).
+    const progressGroupId = (work: { id: string, counts_with_id: string | null }) => work.counts_with_id ?? work.id
 
     const progressFor = (predicate: (work: { dark_tower: boolean, bachman: boolean }) => boolean): CategoryProgress => {
       const inCategory = progressEligibleWorks.filter(predicate)
+      const readGroupIds = new Set(
+        inCategory.filter(work => readWorkIds.has(work.id)).map(progressGroupId)
+      )
       return {
-        count: inCategory.filter((work) => readWorkIds.has(work.id)).length,
-        total: inCategory.length
+        count: readGroupIds.size,
+        total: new Set(inCategory.map(progressGroupId)).size
       }
     }
 
     return {
       overall: progressFor(() => true),
-      bachman: progressFor((work) => work.bachman),
-      darkTower: progressFor((work) => work.dark_tower),
+      bachman: progressFor(work => work.bachman),
+      darkTower: progressFor(work => work.dark_tower),
       collection: {
-        count: allWorks.filter((work) => ownedWorkIds.has(work.id)).length,
+        count: allWorks.filter(work => ownedWorkIds.has(work.id)).length,
         total: allWorks.length
       }
     }
@@ -322,15 +337,15 @@ export function useBooks() {
     if (worksError) throw worksError
     if (booksError) throw booksError
 
-    const relatedWorkIds = new Set((works as { id: string }[]).map((work) => work.id))
+    const relatedWorkIds = new Set((works as { id: string }[]).map(work => work.id))
     const readWorkIds = new Set(
       (userBooks as { king_work_id: string, read: boolean }[])
-        .filter((row) => row.read)
-        .map((row) => row.king_work_id)
+        .filter(row => row.read)
+        .map(row => row.king_work_id)
     )
 
     return {
-      count: [...relatedWorkIds].filter((id) => readWorkIds.has(id)).length,
+      count: [...relatedWorkIds].filter(id => readWorkIds.has(id)).length,
       total: relatedWorkIds.size
     }
   }
@@ -346,14 +361,15 @@ export function useBooks() {
   const fetchDarkTowerJourneyStats = async (): Promise<DarkTowerJourneyStats> => {
     const { data, error } = await supabase
       .from('dark_tower_journey_stats')
-      .select('finished_count, on_the_way_count')
+      .select('finished_count, on_the_way_count, not_started_count')
       .single()
 
     if (error) throw error
 
     return {
       finishedCount: data.finished_count,
-      onTheWayCount: data.on_the_way_count
+      onTheWayCount: data.on_the_way_count,
+      notStartedCount: data.not_started_count
     }
   }
 
@@ -368,21 +384,29 @@ export function useBooks() {
   const fetchNextDarkTowerBook = async (userId: string): Promise<WorkHighlight | null> => {
     const { fetchAllSeries } = useSeries()
     const series = await fetchAllSeries()
-    const darkTowerSeries = series.find((one) => one.name === 'Dark Tower')
+    const darkTowerSeries = series.find(one => one.name === 'Dark Tower')
 
     if (!darkTowerSeries || !darkTowerSeries.members.length) return null
 
-    const workIds = darkTowerSeries.members.map((member) => member.workId)
+    const workIds = darkTowerSeries.members.map(member => member.workId)
 
-    const [{ data: works, error: worksError }, { data: userBooks, error: booksError }] = await Promise.all([
+    const [{ data: works, error: worksError }, { data: alternates, error: alternatesError }, { data: userBooks, error: booksError }] = await Promise.all([
       supabase
         .from('king_works')
         .select('id, title, slug, cover_id, publish_date, active')
         .in('id', workIds),
+      // A series member can have an "alternate" king_works row pointing at
+      // it via counts_with_id (e.g. the original Gunslinger pointing at its
+      // Revised Edition, which is the actual series member) - see
+      // fetchProfileBookStats' progressGroupId. Reading either row satisfies
+      // the member's slot here too, so this suggestion doesn't keep
+      // recommending a book the user already read under its other version.
+      supabase.from('king_works').select('id, counts_with_id').in('counts_with_id', workIds),
       supabase.from('user_books').select('king_work_id').eq('user_id', userId).eq('read', true)
     ])
 
     if (worksError) throw worksError
+    if (alternatesError) throw alternatesError
     if (booksError) throw booksError
 
     interface WorkRef {
@@ -394,14 +418,23 @@ export function useBooks() {
       active: boolean
     }
 
-    const workById = new Map((works as WorkRef[]).map((work) => [work.id, work]))
-    const readWorkIds = new Set((userBooks as { king_work_id: string }[]).map((row) => row.king_work_id))
+    const workById = new Map((works as WorkRef[]).map(work => [work.id, work]))
+    const readWorkIds = new Set((userBooks as { king_work_id: string }[]).map(row => row.king_work_id))
+
+    const alternateIdsByMemberId = new Map<string, string[]>()
+    for (const alternate of alternates as { id: string, counts_with_id: string | null }[]) {
+      const memberId = alternate.counts_with_id!
+      alternateIdsByMemberId.set(memberId, [...(alternateIdsByMemberId.get(memberId) ?? []), alternate.id])
+    }
+
+    const isMemberRead = (workId: string) =>
+      readWorkIds.has(workId) || (alternateIdsByMemberId.get(workId) ?? []).some(id => readWorkIds.has(id))
 
     const nextMember = [...darkTowerSeries.members]
       .sort((a, b) => a.position - b.position)
       .find((member) => {
         const work = workById.get(member.workId)
-        return work !== undefined && work.active && !readWorkIds.has(member.workId)
+        return work !== undefined && work.active && !isMemberRead(member.workId)
       })
 
     if (!nextMember) return null
@@ -447,8 +480,8 @@ export function useBooks() {
     if (worksError) throw worksError
     if (booksError) throw booksError
 
-    const readWorkIds = new Set((userBooks as { king_work_id: string }[]).map((row) => row.king_work_id))
-    const candidates = (works as WorkRef[]).filter((work) => !readWorkIds.has(work.id))
+    const readWorkIds = new Set((userBooks as { king_work_id: string }[]).map(row => row.king_work_id))
+    const candidates = (works as WorkRef[]).filter(work => !readWorkIds.has(work.id))
 
     if (!candidates.length) return null
 
@@ -484,8 +517,8 @@ export function useBooks() {
     if (worksError) throw worksError
     if (statsError) throw statsError
 
-    const statsByWorkId = new Map((stats as WorkStatsRow[]).map((row) => [row.king_work_id, row]))
-    const worksWithStats: WorkWithStats[] = (works as KingWorkRow[]).map((work) => ({
+    const statsByWorkId = new Map((stats as WorkStatsRow[]).map(row => [row.king_work_id, row]))
+    const worksWithStats: WorkWithStats[] = (works as KingWorkRow[]).map(work => ({
       ...work,
       readCount: statsByWorkId.get(work.id)?.read_count ?? 0,
       currentlyReadingCount: statsByWorkId.get(work.id)?.currently_reading_count ?? 0,
@@ -505,22 +538,22 @@ export function useBooks() {
     const sortedByShuffle = [...worksWithStats].sort((a, b) => a.shuffle_position - b.shuffle_position)
     const bookOfTheWeekWork = sortedByShuffle.length > 0 ? sortedByShuffle[isoWeekNumber() % sortedByShuffle.length]! : null
 
-    const bookBirthdayWorks = worksWithStats.filter((work) => work.publish_date.slice(5) === todayMonthDay)
+    const bookBirthdayWorks = worksWithStats.filter(work => work.publish_date.slice(5) === todayMonthDay)
 
     const mostReadBooks = [...worksWithStats]
       .sort((a, b) => b.readCount - a.readCount)
       .slice(0, 5)
-      .map((work) => toWorkLeaderboardEntry(work, work.readCount))
+      .map(work => toWorkLeaderboardEntry(work, work.readCount))
 
     const currentlyReadingLeaderboard = [...worksWithStats]
       .sort((a, b) => b.currentlyReadingCount - a.currentlyReadingCount)
       .slice(0, 5)
-      .map((work) => toWorkLeaderboardEntry(work, work.currentlyReadingCount))
+      .map(work => toWorkLeaderboardEntry(work, work.currentlyReadingCount))
 
     // Released works only, lowest read count first, tie-broken by
     // shuffle_position so the same work is picked on every load - see
     // design.md "Least read book: tie-break on shuffle_position".
-    const releasedWorks = worksWithStats.filter((work) => work.publish_date <= today)
+    const releasedWorks = worksWithStats.filter(work => work.publish_date <= today)
     const leastReadWork = [...releasedWorks].sort(
       (a, b) => a.readCount - b.readCount || a.shuffle_position - b.shuffle_position
     )[0]
@@ -588,13 +621,13 @@ export function useBooks() {
         adaptation_id: string
         adaptations: { title: string } | null
       }[]
-    ).filter((row) => row.adaptations !== null)
+    ).filter(row => row.adaptations !== null)
 
     if (!watchedAdaptationRows.length) return null
 
-    const readWorkIds = new Set((readBooks as { king_work_id: string }[]).map((row) => row.king_work_id))
+    const readWorkIds = new Set((readBooks as { king_work_id: string }[]).map(row => row.king_work_id))
     const adaptationTitleById = new Map(
-      watchedAdaptationRows.map((row) => [row.adaptation_id, row.adaptations?.title ?? ''])
+      watchedAdaptationRows.map(row => [row.adaptation_id, row.adaptations?.title ?? ''])
     )
     const adaptationIds = [...adaptationTitleById.keys()]
 
@@ -674,7 +707,7 @@ export function useBooks() {
     if (error) throw error
 
     const candidates = (data as unknown as { king_works: WorkRef | null }[])
-      .map((row) => row.king_works)
+      .map(row => row.king_works)
       .filter((work): work is WorkRef => work !== null && work.active)
 
     if (!candidates.length) return null
@@ -718,7 +751,7 @@ export function useBooks() {
     if (error) throw error
 
     const candidates = (data as unknown as { king_works: WorkRef | null }[])
-      .map((row) => row.king_works)
+      .map(row => row.king_works)
       .filter((work): work is WorkRef => work !== null && work.active)
 
     if (!candidates.length) return null
@@ -759,9 +792,9 @@ export function useBooks() {
     if (error) throw error
 
     return (data as unknown as { king_works: WorkRef | null }[])
-      .map((row) => row.king_works)
+      .map(row => row.king_works)
       .filter((work): work is WorkRef => work !== null && work.active)
-      .map((work) => ({
+      .map(work => ({
         id: work.id,
         title: work.title,
         slug: work.slug,
@@ -793,8 +826,8 @@ export function useBooks() {
     const allWorks = works as { id: string, title: string, slug: string, cover_id: number | null, publish_date: string }[]
     const rows = userBooks as { user_id: string, king_work_id: string }[]
 
-    const readByA = new Set(rows.filter((row) => row.user_id === userIdA).map((row) => row.king_work_id))
-    const readByB = new Set(rows.filter((row) => row.user_id === userIdB).map((row) => row.king_work_id))
+    const readByA = new Set(rows.filter(row => row.user_id === userIdA).map(row => row.king_work_id))
+    const readByB = new Set(rows.filter(row => row.user_id === userIdB).map(row => row.king_work_id))
 
     const toHighlight = (work: (typeof allWorks)[number]): WorkHighlight => ({
       id: work.id,
@@ -805,8 +838,8 @@ export function useBooks() {
     })
 
     return {
-      onlyA: allWorks.filter((work) => readByA.has(work.id) && !readByB.has(work.id)).map(toHighlight),
-      onlyB: allWorks.filter((work) => readByB.has(work.id) && !readByA.has(work.id)).map(toHighlight)
+      onlyA: allWorks.filter(work => readByA.has(work.id) && !readByB.has(work.id)).map(toHighlight),
+      onlyB: allWorks.filter(work => readByB.has(work.id) && !readByA.has(work.id)).map(toHighlight)
     }
   }
 
@@ -827,8 +860,8 @@ export function useBooks() {
     const allWorks = works as { id: string, title: string, slug: string, cover_id: number | null, publish_date: string }[]
     const rows = userBooks as { user_id: string, king_work_id: string }[]
 
-    const ownedByA = new Set(rows.filter((row) => row.user_id === userIdA).map((row) => row.king_work_id))
-    const ownedByB = new Set(rows.filter((row) => row.user_id === userIdB).map((row) => row.king_work_id))
+    const ownedByA = new Set(rows.filter(row => row.user_id === userIdA).map(row => row.king_work_id))
+    const ownedByB = new Set(rows.filter(row => row.user_id === userIdB).map(row => row.king_work_id))
 
     const toHighlight = (work: (typeof allWorks)[number]): WorkHighlight => ({
       id: work.id,
@@ -839,8 +872,8 @@ export function useBooks() {
     })
 
     return {
-      onlyA: allWorks.filter((work) => ownedByA.has(work.id) && !ownedByB.has(work.id)).map(toHighlight),
-      onlyB: allWorks.filter((work) => ownedByB.has(work.id) && !ownedByA.has(work.id)).map(toHighlight)
+      onlyA: allWorks.filter(work => ownedByA.has(work.id) && !ownedByB.has(work.id)).map(toHighlight),
+      onlyB: allWorks.filter(work => ownedByB.has(work.id) && !ownedByA.has(work.id)).map(toHighlight)
     }
   }
 
@@ -865,7 +898,7 @@ export function useBooks() {
         (row): row is typeof row & { king_works: NonNullable<typeof row.king_works> } =>
           row.king_works !== null && row.king_works.active
       )
-      .map((row) => ({
+      .map(row => ({
         id: row.king_works.id,
         title: row.king_works.title,
         slug: row.king_works.slug,
@@ -911,7 +944,7 @@ export function useBooks() {
           row.king_works !== null && row.king_works.active
       )
       .sort((a, b) => (sortKey(b) ?? '').localeCompare(sortKey(a) ?? ''))
-      .map((row) => ({
+      .map(row => ({
         readId: row.id,
         workId: row.king_works.id,
         title: row.king_works.title,
@@ -1152,6 +1185,109 @@ export function useBooks() {
     return data as UserBookRead
   }
 
+  // Deletes one specific logged read (the reading timeline's delete
+  // affordance), unlike unmarkRead below which wipes every logged read for
+  // the work. Re-syncs user_books' current-status summary afterward: if
+  // reads remain, to whichever is now most recent (same "most recent" rule
+  // as updateLoggedRead); if none remain, the work reverts to unread - the
+  // same end state unmarkRead reaches by deleting all of them at once.
+  const deleteLoggedRead = async (readId: string, workId: string) => {
+    if (!user.value) throw new Error('Not signed in')
+
+    const { error: deleteError } = await supabase
+      .from('user_book_reads')
+      .delete()
+      .eq('id', readId)
+      .eq('user_id', user.value.sub)
+
+    if (deleteError) throw deleteError
+
+    const { data: remainingReads, error: remainingError } = await supabase
+      .from('user_book_reads')
+      .select('started_on, read_on, read_year')
+      .eq('user_id', user.value.sub)
+      .eq('king_work_id', workId)
+
+    if (remainingError) throw remainingError
+
+    const sortKey = (row: { read_on: string | null, read_year: number | null }) =>
+      row.read_on ?? (row.read_year ? `${row.read_year}-01-01` : null)
+
+    const mostRecent = (
+      remainingReads as { started_on: string | null, read_on: string | null, read_year: number | null }[]
+    ).sort((a, b) => (sortKey(b) ?? '').localeCompare(sortKey(a) ?? ''))[0]
+
+    const { data, error } = await supabase
+      .from('user_books')
+      .update(
+        mostRecent
+          ? { read: true, started_on: mostRecent.started_on, finished_on: mostRecent.read_on, read_year: mostRecent.read_year }
+          : { read: false, started_on: null, finished_on: null, read_year: null }
+      )
+      .eq('user_id', user.value.sub)
+      .eq('king_work_id', workId)
+      .select(USER_BOOK_COLUMNS)
+      .single()
+
+    if (error) throw error
+
+    const row = data as UserBook
+    userBooksByWorkId.value = { ...userBooksByWorkId.value, [workId]: row }
+
+    return row
+  }
+
+  // Abandons an in-progress reading session without logging a read for it -
+  // the "Stop Reading" option in BookFinishReadingModal, for when a session
+  // started via startReading() isn't going to be finished. Nothing was ever
+  // written to user_book_reads for this session (that only happens on
+  // finish/mark-read/read-again), so there's nothing to delete there. But
+  // startReading() can be triggered from an already-`read` work (starting a
+  // reread - see finishReading()'s "currently_reading... keep true right up
+  // until it's explicitly finished" comment above), which already
+  // overwrote user_books.started_on with this session's start date - so
+  // simply clearing currently_reading isn't enough; started_on/finished_on/
+  // read_year/read need resyncing back to whatever the most recent *logged*
+  // read says, the same lookup deleteLoggedRead() does after removing a
+  // read. If there is no logged read at all, that resync correctly lands on
+  // a fully neutral, never-read state.
+  const stopReading = async (workId: string) => {
+    if (!user.value) throw new Error('Not signed in')
+
+    const { data: reads, error: readsError } = await supabase
+      .from('user_book_reads')
+      .select('started_on, read_on, read_year')
+      .eq('user_id', user.value.sub)
+      .eq('king_work_id', workId)
+
+    if (readsError) throw readsError
+
+    const sortKey = (row: { read_on: string | null, read_year: number | null }) =>
+      row.read_on ?? (row.read_year ? `${row.read_year}-01-01` : null)
+
+    const mostRecent = (reads as { started_on: string | null, read_on: string | null, read_year: number | null }[])
+      .sort((a, b) => (sortKey(b) ?? '').localeCompare(sortKey(a) ?? ''))[0]
+
+    const { data, error } = await supabase
+      .from('user_books')
+      .update(
+        mostRecent
+          ? { currently_reading: false, read: true, started_on: mostRecent.started_on, finished_on: mostRecent.read_on, read_year: mostRecent.read_year }
+          : { currently_reading: false, read: false, started_on: null, finished_on: null, read_year: null }
+      )
+      .eq('user_id', user.value.sub)
+      .eq('king_work_id', workId)
+      .select(USER_BOOK_COLUMNS)
+      .single()
+
+    if (error) throw error
+
+    const row = data as UserBook
+    userBooksByWorkId.value = { ...userBooksByWorkId.value, [workId]: row }
+
+    return row
+  }
+
   // Unmarking is a full reset, not a status flip - per reading-status's
   // "User can unmark a work as read, deleting its logged reads, after
   // confirming", it deletes every user_book_reads row for this work and
@@ -1232,10 +1368,12 @@ export function useBooks() {
     fetchOwnedDiff,
     toggleWantToRead,
     startReading,
+    stopReading,
     finishReading,
     markRead,
     readAgain,
     updateLoggedRead,
+    deleteLoggedRead,
     unmarkRead,
     setOwned
   }

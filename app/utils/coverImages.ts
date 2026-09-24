@@ -1,17 +1,17 @@
-export type OpenLibraryCoverSize = "S" | "M" | "L";
+export type OpenLibraryCoverSize = 'S' | 'M' | 'L'
 
 export function getOpenLibraryCoverUrl(coverId: number, size: OpenLibraryCoverSize) {
-  return `https://covers.openlibrary.org/b/id/${coverId}-${size}.jpg`;
+  return `https://covers.openlibrary.org/b/id/${coverId}-${size}.jpg`
 }
 
-export type TmdbPosterSize = "w92" | "w154" | "w185" | "w342" | "w500" | "original";
+export type TmdbPosterSize = 'w92' | 'w154' | 'w185' | 'w342' | 'w500' | 'original'
 
 // TMDb's image base URL is documented as effectively static, so it's hardcoded
 // here rather than fetched from /configuration on every render.
-const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p";
+const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p'
 
 export function getTmdbPosterUrl(posterPath: string, size: TmdbPosterSize) {
-  return `${TMDB_IMAGE_BASE_URL}/${size}${posterPath}`;
+  return `${TMDB_IMAGE_BASE_URL}/${size}${posterPath}`
 }
 
 // Cover for a specific Open Library edition a user has added to their
@@ -26,8 +26,8 @@ export function getTmdbPosterUrl(posterPath: string, size: TmdbPosterSize) {
 // olid endpoint wants just the bare id, so strip everything up to the last
 // "/" (a no-op if a bare id is ever passed instead).
 export function getEditionCoverUrl(editionId: string, size: OpenLibraryCoverSize) {
-  const olid = editionId.split("/").pop() || editionId;
-  return `https://covers.openlibrary.org/b/olid/${olid}-${size}.jpg`;
+  const olid = editionId.split('/').pop() || editionId
+  return `https://covers.openlibrary.org/b/olid/${olid}-${size}.jpg`
 }
 
 // Fallback cover for a King work marked owned with no edition picked - live
@@ -38,10 +38,10 @@ export function getEditionCoverUrl(editionId: string, size: OpenLibraryCoverSize
 // not blocking" treatment of Open Library calls.
 export async function getWorkCoverUrl(workKey: string, size: OpenLibraryCoverSize): Promise<string | null> {
   try {
-    const data = await $fetch<{ covers?: number[] }>(`https://openlibrary.org/works/${workKey}.json`);
-    const coverId = data.covers?.find((id) => id > 0) ?? null;
-    return coverId ? getOpenLibraryCoverUrl(coverId, size) : null;
+    const data = await $fetch<{ covers?: number[] }>(`https://openlibrary.org/works/${workKey}.json`)
+    const coverId = data.covers?.find(id => id > 0) ?? null
+    return coverId ? getOpenLibraryCoverUrl(coverId, size) : null
   } catch {
-    return null;
+    return null
   }
 }

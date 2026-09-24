@@ -8,6 +8,7 @@ type AuthFormState = { email: string, password?: string }
 const { isOpen, close } = useAuthModal()
 const supabase = useSupabaseClient()
 const { fetchProfile } = useProfile()
+const route = useRoute()
 
 const mode = ref<AuthMode>('signin')
 const errorMessage = ref('')
@@ -39,6 +40,23 @@ function validate(state: Partial<AuthFormState>): FormError[] {
 
 async function signInWithOAuth(provider: OAuthProvider) {
   errorMessage.value = ''
+
+  // Unlike password sign-in (no navigation involved at all - the modal just
+  // closes wherever it was opened), OAuth always makes a full round trip
+  // through /confirm regardless of where it was started from, so returning
+  // to "wherever the visitor was" has to be captured explicitly here, not
+  // just forwarded when already present. `route.query.next` wins when set
+  // (the onboarding middleware bounced a signed-out visitor to `/` from a
+  // page that requires sign-in - that original destination, not `/` itself,
+  // is where they should land); otherwise the current page is wherever they
+  // opened the modal from, and that's what to return to.
+  //
+  // Can't pass this via the redirectTo URL - Supabase's own client-side
+  // OAuth code-exchange strips query params from this page's URL before
+  // /confirm's script runs (see OAUTH_NEXT_PATH_KEY). sessionStorage
+  // survives that instead.
+  const returnPath = typeof route.query.next === 'string' ? route.query.next : route.fullPath
+  sessionStorage.setItem(OAUTH_NEXT_PATH_KEY, returnPath)
 
   const { error } = await supabase.auth.signInWithOAuth({
     provider,
@@ -117,6 +135,15 @@ async function handleSubmit(event: FormSubmitEvent<AuthFormState>) {
   const profile = await fetchProfile()
   if (!profile?.username) {
     await navigateTo('/onboarding')
+    return
+  }
+
+  // `next` is set when the onboarding middleware bounced a signed-out
+  // visitor here from a page that requires sign-in - send them back to it
+  // rather than stranding them on the homepage. Absent for a plain "Sign in"
+  // click on a page that didn't require it, so this is a no-op there.
+  if (route.query.next) {
+    await navigateTo(safeNextPath(route.query.next))
   }
 }
 

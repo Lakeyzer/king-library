@@ -1,17 +1,23 @@
 <script setup lang="ts">
-import type { AdaptationRecommendation } from "~/composables/useAdaptations";
+import type { AdaptationRecommendation } from '~/composables/useAdaptations'
 
 interface Props {
-  recommendation: AdaptationRecommendation | null;
+  recommendation: AdaptationRecommendation | null
 }
 
-defineProps<Props>();
+defineProps<Props>()
 </script>
 
 <template>
-  <div v-if="recommendation" class="flex flex-col gap-3 rounded-lg bg-elevated p-4">
+  <div
+    v-if="recommendation"
+    class="flex flex-col gap-3 rounded-lg bg-elevated p-4"
+  >
     <h2 class="flex items-center gap-2 text-sm font-semibold text-highlighted">
-      <UIcon name="i-lucide-clapperboard" class="size-4" />
+      <UIcon
+        name="i-lucide-clapperboard"
+        class="size-4"
+      />
       Watch This Next
     </h2>
 
@@ -21,6 +27,8 @@ defineProps<Props>();
         title: recommendation.title,
         slug: recommendation.slug,
         tmdbPosterPath: recommendation.tmdbPosterPath,
+        releaseYear: recommendation.releaseYear,
+        releaseDate: recommendation.releaseDate
       }"
       :meta="`Because you read ${recommendation.becauseTitle}`"
     />

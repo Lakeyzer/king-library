@@ -1,25 +1,25 @@
 <script setup lang="ts">
-definePageMeta({ layout: "default" });
+definePageMeta({ layout: 'default' })
 
-const route = useRoute();
-const username = route.params.username as string;
+const route = useRoute()
+const username = route.params.username as string
 
-const { fetchProfileByUsername } = useProfile();
+const { fetchProfileByUsername } = useProfile()
 const { data: viewedProfile } = await useAsyncData(`profile-${username}`, () =>
-  fetchProfileByUsername(username),
-);
+  fetchProfileByUsername(username)
+)
 
 if (!viewedProfile.value) {
-  throw createError({ statusCode: 404, statusMessage: "Profile not found" });
+  throw createError({ statusCode: 404, statusMessage: 'Profile not found' })
 }
 
-const { profile, isOwner, isPrivate } = provideViewedProfile(viewedProfile.value);
+const { profile, isOwner, isPrivate } = provideViewedProfile(viewedProfile.value)
 
-const { setPageSeo } = useSeo();
+const { setPageSeo } = useSeo()
 setPageSeo({
   title: `${profile.username}'s Watch List`,
-  description: `See what ${profile.username} wants to watch on King Library.`,
-});
+  description: `See what ${profile.username} wants to watch on King Library.`
+})
 </script>
 
 <template>

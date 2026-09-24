@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import type { WatchListEntry } from "~/composables/useAdaptations";
+import type { WatchListEntry } from '~/composables/useAdaptations'
 
-const { profile, isOwner } = useViewedProfile();
+const { profile, isOwner } = useViewedProfile()
 
-const title = computed(() => (isOwner.value ? "Watch List" : `${profile.username}'s Watch List`));
+const title = computed(() => (isOwner.value ? 'Watch List' : `${profile.username}'s Watch List`))
 const emptyDescription = computed(() =>
   isOwner.value
-    ? "Adaptations you mark want-to-watch will show up here."
-    : `${profile.username} hasn't marked anything want-to-watch yet.`,
-);
+    ? 'Adaptations you mark want-to-watch will show up here.'
+    : `${profile.username} hasn't marked anything want-to-watch yet.`
+)
 
-const { fetchWatchList, fetchUserAdaptations } = useAdaptations();
+const { fetchWatchList, fetchUserAdaptations } = useAdaptations()
 
 // Always query, even for a private profile viewed by its own owner mid-
 // transition - RLS on user_adaptations is the actual gate (see
@@ -18,14 +18,14 @@ const { fetchWatchList, fetchUserAdaptations } = useAdaptations();
 // render this tab at all for a non-owner visitor when the profile is
 // private (RouteChrome's isPrivate prop, set via useProfileRouteByUsername).
 const { data: adaptations } = await useAsyncData(`profile-${profile.id}-watch-list`, () =>
-  fetchWatchList(profile.id),
-);
+  fetchWatchList(profile.id)
+)
 
 // Populates userAdaptationsByAdaptationId so each item's
 // AdaptationWatchActions reflects the *viewer's own* want-to-watch/watched
 // state for that adaptation - same as every other bibliography-browsing
 // page, regardless of whose list this is.
-await useAsyncData("user-adaptations", fetchUserAdaptations);
+await useAsyncData('user-adaptations', fetchUserAdaptations)
 </script>
 
 <template>
@@ -48,7 +48,12 @@ await useAsyncData("user-adaptations", fetchUserAdaptations);
     :empty-description="emptyDescription"
   >
     <template #item-actions="{ item }">
-      <AdaptationWatchActions :adaptation-id="(item as WatchListEntry).id" mode="compact" />
+      <AdaptationWatchActions
+        :adaptation-id="(item as WatchListEntry).id"
+        :release-date="(item as WatchListEntry).releaseDate"
+        :release-year="(item as WatchListEntry).releaseYear"
+        mode="compact"
+      />
     </template>
   </BibliographyBrowsePage>
 </template>

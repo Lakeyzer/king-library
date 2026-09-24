@@ -1,15 +1,53 @@
 <script setup lang="ts">
-import type { BookshelfItem } from "~/composables/useBookshelf";
-
-interface Props {
-  items: BookshelfItem[];
-  isOwner: boolean;
+// Same shape as useBookshelf()'s BookshelfEditionItem/BookshelfWorkItem,
+// plus `source` (tells BookshelfTile which link prefix and removal
+// composable to use - see profile-showcase's design.md "Bookshelf and
+// reading timeline always include By Other Hands works"). A related item
+// has no series concept and a nullable publishDate, so its seriesId/
+// seriesName/seriesPosition/publishDate are normalized to this same flat
+// shape at the merge site (Showcase.vue) - every field here is guaranteed
+// present regardless of source, unlike a plain union of the two
+// composables' own (structurally different) item types would be.
+export interface ProfileBookshelfEditionItem {
+  source: 'king' | 'related'
+  kind: 'edition'
+  editionRowId: string
+  workId: string
+  workSlug: string
+  workTitle: string
+  publishDate: string
+  openLibraryWorkKey: string | null
+  editionId: string
+  editionTitle: string
+  seriesId: string | null
+  seriesName: string | null
+  seriesPosition: number | null
 }
 
-const props = defineProps<Props>();
+export interface ProfileBookshelfWorkItem {
+  source: 'king' | 'related'
+  kind: 'work'
+  workId: string
+  workSlug: string
+  workTitle: string
+  publishDate: string
+  openLibraryWorkKey: string | null
+  seriesId: string | null
+  seriesName: string | null
+  seriesPosition: number | null
+}
 
-function itemKey(item: BookshelfItem) {
-  return item.kind === "edition" ? item.editionRowId : item.workId;
+export type ProfileBookshelfItem = ProfileBookshelfEditionItem | ProfileBookshelfWorkItem
+
+interface Props {
+  items: ProfileBookshelfItem[]
+  isOwner: boolean
+}
+
+const props = defineProps<Props>()
+
+function itemKey(item: ProfileBookshelfItem) {
+  return item.kind === 'edition' ? item.editionRowId : item.workId
 }
 
 // A local, mutable copy of the incoming items - fetchBookshelf() is a
@@ -18,48 +56,48 @@ function itemKey(item: BookshelfItem) {
 // than leaving a stale, already-deleted row on screen until the next full
 // page load. Resynced whenever the prop itself changes (e.g. navigating to
 // a different profile).
-const localItems = ref<BookshelfItem[]>([...props.items]);
+const localItems = ref<ProfileBookshelfItem[]>([...props.items])
 watch(
   () => props.items,
   (next) => {
-    localItems.value = [...next];
-  },
-);
+    localItems.value = [...next]
+  }
+)
 
-function handleRemoved(item: BookshelfItem) {
-  localItems.value = localItems.value.filter((other) => itemKey(other) !== itemKey(item));
+function handleRemoved(item: ProfileBookshelfItem) {
+  localItems.value = localItems.value.filter(other => itemKey(other) !== itemKey(item))
 }
 
-const search = ref("");
+const search = ref('')
 
-type SortField = "title" | "year";
+type SortField = 'title' | 'year'
 const sortOptions = [
-  { label: "Title", value: "title" },
-  { label: "Release year", value: "year" },
-];
-const sortBy = ref<SortField>("year");
-const sortDir = ref<"asc" | "desc">("asc");
+  { label: 'Title', value: 'title' },
+  { label: 'Release year', value: 'year' }
+]
+const sortBy = ref<SortField>('year')
+const sortDir = ref<'asc' | 'desc'>('asc')
 
 function toggleSortDir() {
-  sortDir.value = sortDir.value === "asc" ? "desc" : "asc";
+  sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc'
 }
 
 const visibleItems = computed(() => {
-  const term = search.value.trim().toLowerCase();
+  const term = search.value.trim().toLowerCase()
   const filtered = term
-    ? localItems.value.filter((item) => item.workTitle.toLowerCase().includes(term))
-    : localItems.value;
+    ? localItems.value.filter(item => item.workTitle.toLowerCase().includes(term))
+    : localItems.value
 
-  const sorted = [...filtered];
+  const sorted = [...filtered]
   sorted.sort((a, b) => {
-    const cmp =
-      sortBy.value === "title"
+    const cmp
+      = sortBy.value === 'title'
         ? a.workTitle.localeCompare(b.workTitle)
-        : a.publishDate.localeCompare(b.publishDate);
-    return sortDir.value === "asc" ? cmp : -cmp;
-  });
-  return sorted;
-});
+        : a.publishDate.localeCompare(b.publishDate)
+    return sortDir.value === 'asc' ? cmp : -cmp
+  })
+  return sorted
+})
 
 // True masonry places each new tile into whichever column is currently
 // shortest, which needs real per-column height tracking. CSS multi-column's
@@ -72,38 +110,38 @@ const visibleItems = computed(() => {
 const COLUMN_BREAKPOINTS = [
   { minWidth: 1024, columns: 5 }, // lg
   { minWidth: 640, columns: 3 }, // sm
-  { minWidth: 0, columns: 2 },
-];
+  { minWidth: 0, columns: 2 }
+]
 
-const columnCount = ref(2);
+const columnCount = ref(2)
 
 function updateColumnCount() {
-  columnCount.value = COLUMN_BREAKPOINTS.find((bp) => window.innerWidth >= bp.minWidth)?.columns ?? 2;
+  columnCount.value = COLUMN_BREAKPOINTS.find(bp => window.innerWidth >= bp.minWidth)?.columns ?? 2
 }
 
 onMounted(() => {
-  updateColumnCount();
-  window.addEventListener("resize", updateColumnCount);
-});
+  updateColumnCount()
+  window.addEventListener('resize', updateColumnCount)
+})
 
 onUnmounted(() => {
-  window.removeEventListener("resize", updateColumnCount);
-});
+  window.removeEventListener('resize', updateColumnCount)
+})
 
 // Round-robin: item at flat index i goes to column i % columnCount, which
 // is what makes the grid read left-to-right, wrapping to the first column
 // on the next row - see the comment above COLUMN_BREAKPOINTS.
-function assignToColumns(items: BookshelfItem[], columnCount: number) {
-  const cols: BookshelfItem[][] = Array.from({ length: columnCount }, () => []);
+function assignToColumns(items: ProfileBookshelfItem[], columnCount: number) {
+  const cols: ProfileBookshelfItem[][] = Array.from({ length: columnCount }, () => [])
   items.forEach((item, index) => {
-    cols[index % columnCount]!.push(item);
-  });
-  return cols;
+    cols[index % columnCount]!.push(item)
+  })
+  return cols
 }
 
-const columns = computed(() => assignToColumns(visibleItems.value, columnCount.value));
+const columns = computed(() => assignToColumns(visibleItems.value, columnCount.value))
 
-const groupSeries = ref(false);
+const groupSeries = ref(false)
 
 // Reorders visibleItems so each series' tiles sit at consecutive flat
 // indices (sorted by their series reading order, restricted to what's
@@ -114,42 +152,48 @@ const groupSeries = ref(false);
 // wrapping to the next row, rather than being stacked into one column -
 // see design.md "Grouping algorithm lives in Bookshelf.vue".
 const groupedOrder = computed(() => {
-  const ordered: BookshelfItem[] = [];
-  const placedSeriesIds = new Set<string>();
+  const ordered: ProfileBookshelfItem[] = []
+  const placedSeriesIds = new Set<string>()
 
   for (const item of visibleItems.value) {
     if (item.seriesId) {
-      if (placedSeriesIds.has(item.seriesId)) continue;
-      placedSeriesIds.add(item.seriesId);
+      if (placedSeriesIds.has(item.seriesId)) continue
+      placedSeriesIds.add(item.seriesId)
 
       const members = visibleItems.value
-        .filter((other) => other.seriesId === item.seriesId)
-        .sort((a, b) => (a.seriesPosition ?? 0) - (b.seriesPosition ?? 0));
+        .filter(other => other.seriesId === item.seriesId)
+        .sort((a, b) => (a.seriesPosition ?? 0) - (b.seriesPosition ?? 0))
 
-      ordered.push(...members);
+      ordered.push(...members)
     } else {
-      ordered.push(item);
+      ordered.push(item)
     }
   }
 
-  return ordered;
-});
+  return ordered
+})
 
-const groupedColumns = computed(() => assignToColumns(groupedOrder.value, columnCount.value));
+const groupedColumns = computed(() => assignToColumns(groupedOrder.value, columnCount.value))
 
-const displayedColumns = computed(() => (groupSeries.value ? groupedColumns.value : columns.value));
+const displayedColumns = computed(() => (groupSeries.value ? groupedColumns.value : columns.value))
 </script>
 
 <template>
   <div class="flex flex-col gap-3">
     <div class="flex flex-wrap items-center justify-between gap-3">
       <h2 class="flex items-center gap-2 text-lg font-semibold text-highlighted">
-        <UIcon name="i-lucide-library" class="size-5" />
+        <UIcon
+          name="i-lucide-library"
+          class="size-5"
+        />
         Bookshelf
         <span class="text-sm font-normal text-muted">(<NumberMotif :text="localItems.length" />)</span>
       </h2>
 
-      <div v-if="localItems.length" class="flex flex-wrap items-center gap-2">
+      <div
+        v-if="localItems.length"
+        class="flex flex-wrap items-center gap-2"
+      >
         <UInput
           v-model="search"
           placeholder="Search by title"
@@ -175,7 +219,10 @@ const displayedColumns = computed(() => (groupSeries.value ? groupedColumns.valu
             @click="toggleSortDir"
           />
         </div>
-        <UCheckbox v-model="groupSeries" label="Group series" />
+        <UCheckbox
+          v-model="groupSeries"
+          label="Group series"
+        />
       </div>
     </div>
 
@@ -194,8 +241,15 @@ const displayedColumns = computed(() => (groupSeries.value ? groupedColumns.valu
         description="No book on your shelf matches that search."
       />
 
-      <div v-else class="flex gap-4">
-        <div v-for="(column, index) in displayedColumns" :key="index" class="flex flex-1 flex-col gap-4">
+      <div
+        v-else
+        class="flex gap-4"
+      >
+        <div
+          v-for="(column, index) in displayedColumns"
+          :key="index"
+          class="flex flex-1 flex-col gap-4"
+        >
           <ProfileBookshelfTile
             v-for="item in column"
             :key="itemKey(item)"

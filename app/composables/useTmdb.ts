@@ -25,13 +25,13 @@ export function useTmdb() {
       const data = await $fetch<TmdbRawResponse>(`/api/tmdb/${mediaType}/${id}`)
 
       const directedBy = mediaType === 'movie'
-        ? (data.credits?.crew ?? []).filter((member) => member.job === 'Director').map((member) => member.name)
-        : (data.created_by ?? []).map((creator) => creator.name)
+        ? (data.credits?.crew ?? []).filter(member => member.job === 'Director').map(member => member.name)
+        : (data.created_by ?? []).map(creator => creator.name)
 
       return {
         overview: data.overview ?? null,
         rating: data.vote_average ?? null,
-        genres: (data.genres ?? []).map((genre) => genre.name),
+        genres: (data.genres ?? []).map(genre => genre.name),
         runtimeMinutes: data.runtime ?? null,
         numberOfSeasons: data.number_of_seasons ?? null,
         numberOfEpisodes: data.number_of_episodes ?? null,

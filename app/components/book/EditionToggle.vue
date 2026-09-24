@@ -1,37 +1,51 @@
 <script setup lang="ts">
 interface Props {
-  workId: string;
-  editionId: string;
-  editionTitle: string;
+  workId: string
+  editionId: string
+  editionTitle: string
+  /** 'king' (default) writes to user_book_editions via useBookshelf(); 'related' writes to user_related_work_editions via useRelatedWorkEditions() - see reading-status's "Works by Others share the same reading-status controls". */
+  domain?: 'king' | 'related'
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  domain: 'king'
+})
 
-const user = useSupabaseUser();
-const { isEditionAdded, addEdition, removeEdition } = useBookshelf();
+const user = useSupabaseUser()
+const bookEditionsApi = useBookshelf()
+const relatedEditionsApi = useRelatedWorkEditions()
+const { open: openAuthModal } = useAuthModal()
 
-const added = computed(() => isEditionAdded(props.workId, props.editionId));
-const pending = ref(false);
+const isRelated = computed(() => props.domain === 'related')
+const { isEditionAdded, addEdition, removeEdition } = isRelated.value ? relatedEditionsApi : bookEditionsApi
 
+const added = computed(() => isEditionAdded(props.workId, props.editionId))
+const pending = ref(false)
+
+// Available to a signed-out visitor too (not hidden) - opens the sign-in
+// modal instead of acting, same as BookReadingActions.
 async function toggle() {
-  if (pending.value) return;
+  if (!user.value) {
+    openAuthModal()
+    return
+  }
+  if (pending.value) return
 
-  pending.value = true;
+  pending.value = true
   try {
     if (added.value) {
-      await removeEdition(props.workId, props.editionId);
+      await removeEdition(props.workId, props.editionId)
     } else {
-      await addEdition(props.workId, { key: props.editionId, title: props.editionTitle });
+      await addEdition(props.workId, { key: props.editionId, title: props.editionTitle })
     }
   } finally {
-    pending.value = false;
+    pending.value = false
   }
 }
 </script>
 
 <template>
   <UButton
-    v-if="user"
     :icon="added ? 'i-lucide-check' : 'i-lucide-plus'"
     :color="added ? 'success' : 'neutral'"
     :variant="added ? 'solid' : 'soft'"

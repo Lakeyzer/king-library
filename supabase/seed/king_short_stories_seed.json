@@ -142,7 +142,7 @@
   {
     "id": "bfe9bb34-2713-4009-a67e-323bfed4418d",
     "title": "A Very Tight Place",
-    "type": "short_story",
+    "type": "novella",
     "original_publish_year": 2008,
     "first_published_in": null,
     "dark_tower": false,
@@ -682,7 +682,7 @@
   {
     "id": "378c77d1-1d20-4bd8-99f8-dbf08315a50d",
     "title": "Paranoid: A Chant",
-    "type": "short_story",
+    "type": "poem",
     "original_publish_year": 1978,
     "first_published_in": null,
     "dark_tower": false,
@@ -1173,7 +1173,7 @@
     "id": "5358411c-14ab-48c7-984d-dfc50b667f7a",
     "title": "The Fifth Step",
     "type": "short_story",
-    "original_publish_year": 2015,
+    "original_publish_year": null,
     "first_published_in": null,
     "dark_tower": false,
     "dark_tower_relation": null,
@@ -1203,7 +1203,7 @@
     "id": "0450734e-5e55-4abf-be7f-2323832ca47e",
     "title": "Laurie",
     "type": "short_story",
-    "original_publish_year": 2015,
+    "original_publish_year": null,
     "first_published_in": null,
     "dark_tower": false,
     "dark_tower_relation": null,
@@ -1312,7 +1312,7 @@
   {
     "id": "1a2a5f41-11ae-4f84-9bfb-bdbd65e5feac",
     "title": "Tommy",
-    "type": "short_story",
+    "type": "poem",
     "original_publish_year": 2015,
     "first_published_in": null,
     "dark_tower": false,
@@ -1458,5 +1458,165 @@
     "dark_tower": false,
     "dark_tower_relation": null,
     "slug": "the-turbulence-expert"
+  },
+  {
+    "id": "e27d95b4-6770-4bb5-96a1-9e39269aab2a",
+    "title": "Two Talented Bastids",
+    "type": "short_story",
+    "original_publish_year": null,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null,
+    "slug": "two-talented-bastids"
+  },
+  {
+    "id": "b4abf845-623e-4ebf-94ac-8e75ff55224b",
+    "title": "Willie the Weirdo",
+    "type": "short_story",
+    "original_publish_year": null,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null,
+    "slug": "willie-the-weirdo"
+  },
+  {
+    "id": "6ce0733c-d6ed-4dbd-b006-66910d593a9f",
+    "title": "Danny Coughlin's Bad Dream",
+    "type": "short_story",
+    "original_publish_year": null,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null,
+    "slug": "danny-coughlins-bad-dream"
+  },
+  {
+    "id": "f2a8669a-f502-454d-8744-b47fef14daed",
+    "title": "On Slide Inn Road",
+    "type": "short_story",
+    "original_publish_year": null,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null,
+    "slug": "on-slide-inn-road"
+  },
+  {
+    "id": "d8ea4c3d-0288-438e-804b-a74e4bb02279",
+    "title": "The Dreamers",
+    "type": "short_story",
+    "original_publish_year": null,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null,
+    "slug": "the-dreamers"
+  },
+  {
+    "id": "ed84f002-25d0-47f6-b908-6544e4ce2d4f",
+    "title": "The Answer Man",
+    "type": "short_story",
+    "original_publish_year": null,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null,
+    "slug": "the-answer-man"
+  },
+  {
+    "id": "7be31819-aa00-464e-a66d-7663ca12e5ef",
+    "title": "Batman and Robin Have an Altercation",
+    "type": "short_story",
+    "original_publish_year": null,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null,
+    "slug": "batman-and-robin-have-an-altercation"
+  },
+  {
+    "id": "a29d1286-8fe8-4d05-acd2-d3a50de7e936",
+    "title": "The Bone Church",
+    "type": "poem",
+    "original_publish_year": null,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null,
+    "slug": "the-bone-church"
+  },
+  {
+    "id": "1642a5f9-1fff-4d95-bee7-c3514701d636",
+    "title": "UR",
+    "type": "novella",
+    "original_publish_year": null,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null,
+    "slug": "ur"
+  },
+  {
+    "id": "823cd67b-042e-4943-be6d-f42766b7ccfc",
+    "title": "The Ballad of the Flexible Bullet",
+    "type": "short_story",
+    "original_publish_year": null,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null,
+    "slug": "the-ballad-of-the-flexible-bullet"
+  },
+  {
+    "id": "acae5165-1590-41df-bc84-2625609a9c68",
+    "title": "For Owen",
+    "type": "poem",
+    "original_publish_year": null,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null,
+    "slug": "for-owen"
+  },
+  {
+    "id": "65efdd2b-55d6-41a3-b53e-8a19ca616af9",
+    "title": "Head Down",
+    "type": "essay",
+    "original_publish_year": null,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null,
+    "slug": "head-down"
+  },
+  {
+    "id": "00b67d9d-eb95-406c-90f5-042fdd15ca4d",
+    "title": "Sorry, Right Number",
+    "type": "screenplay",
+    "original_publish_year": null,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null,
+    "slug": "sorry-right-number"
+  },
+  {
+    "id": "f25fdf44-211a-4351-866b-4363df3fef22",
+    "title": "Brooklyn August",
+    "type": "poem",
+    "original_publish_year": null,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null,
+    "slug": "brooklyn-august"
+  },
+  {
+    "id": "aaed6971-5c8c-41c4-8fe1-2640caff1cde",
+    "title": "The House on Maple Street",
+    "type": "short_story",
+    "original_publish_year": null,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null,
+    "slug": "the-house-on-maple-street"
+  },
+  {
+    "id": "ca693ea3-8171-4fac-8266-5ca5a5aa3fe0",
+    "title": "N",
+    "type": "novella",
+    "original_publish_year": null,
+    "first_published_in": null,
+    "dark_tower": false,
+    "dark_tower_relation": null,
+    "slug": "n-novella"
   }
 ]

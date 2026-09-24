@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const open = defineModel<boolean>("open", { default: false })
+const open = defineModel<boolean>('open', { default: false })
 
 const { searchTerm, groups, ensureLoaded } = useGlobalSearch()
 
@@ -7,7 +7,7 @@ watch(open, (isOpen) => {
   if (isOpen) {
     ensureLoaded()
   } else {
-    searchTerm.value = ""
+    searchTerm.value = ''
   }
 })
 
@@ -24,7 +24,7 @@ function onSelect(item: { disabled?: boolean }) {
   <UModal
     v-model:open="open"
     title="Search"
-    description="Search works, short stories, and adaptations"
+    description="Search works, short stories, adaptations, and works by others"
     :ui="{
       content: 'top-(--ui-header-height) mt-4 translate-y-0 max-h-[calc(100dvh-var(--ui-header-height)-2rem)] sm:max-h-[calc(100dvh-var(--ui-header-height)-4rem)]'
     }"
@@ -33,7 +33,7 @@ function onSelect(item: { disabled?: boolean }) {
       <UCommandPalette
         v-model:search-term="searchTerm"
         :groups="groups"
-        placeholder="Search works, short stories, adaptations..."
+        placeholder="Search works, short stories, adaptations, works by others..."
         @update:model-value="onSelect"
       />
     </template>

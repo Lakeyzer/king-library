@@ -1,46 +1,46 @@
 <script setup lang="ts">
-import type { Adaptation } from "~/composables/useAdaptations";
+import type { Adaptation } from '~/composables/useAdaptations'
 
-definePageMeta({ layout: "default" });
+definePageMeta({ layout: 'default' })
 
-const { setPageSeo } = useSeo();
+const { setPageSeo } = useSeo()
 setPageSeo({
-  title: "Adaptations",
+  title: 'Adaptations',
   description:
-    "Browse every movie and TV adaptation of Stephen King's work, and track what you've watched and what's on your watchlist.",
-});
+    'Browse every movie and TV adaptation of Stephen King\'s work, and track what you\'ve watched and what\'s on your watchlist.'
+})
 
-const user = useSupabaseUser();
+const user = useSupabaseUser()
 
 const {
   fetchAdaptations,
   fetchAdaptationHighlights,
   fetchUnwatchedRecommendation,
-  fetchUserAdaptations,
-} = useAdaptations();
+  fetchUserAdaptations
+} = useAdaptations()
 const { data: adaptations } = await useAsyncData(
-  "adaptations",
-  fetchAdaptations,
-);
+  'adaptations',
+  fetchAdaptations
+)
 
 // Not awaited: only affects the watch-status buttons' displayed state,
 // which updates reactively once it resolves - same as the adaptation
 // detail page.
-useAsyncData("user-adaptations", fetchUserAdaptations);
+useAsyncData('user-adaptations', fetchUserAdaptations)
 const { data: adaptationHighlights } = await useAsyncData(
-  "adaptations-page-highlights",
-  fetchAdaptationHighlights,
-);
+  'adaptations-page-highlights',
+  fetchAdaptationHighlights
+)
 const { data: adaptationRecommendation } = await useAsyncData(
-  "adaptations-page-recommendation",
+  'adaptations-page-recommendation',
   () =>
     user.value
       ? fetchUnwatchedRecommendation(user.value.sub)
-      : Promise.resolve(null),
-);
+      : Promise.resolve(null)
+)
 
 const watchedCountLabel = (count: number) =>
-  `${count} ${count === 1 ? "watch" : "watches"}`;
+  `${count} ${count === 1 ? 'watch' : 'watches'}`
 </script>
 
 <template>
@@ -60,11 +60,26 @@ const watchedCountLabel = (count: number) =>
     placeholder-icon="i-lucide-film"
     sort-year-label="Release year"
   >
-    <template #item-actions="{ item }">
-      <AdaptationWatchActions :adaptation-id="(item as Adaptation).id" mode="compact" />
+    <template #header-actions>
+      <ReportButton
+        mode="missing-content"
+        content-area="adaptations"
+      />
     </template>
 
-    <template v-if="adaptationHighlights" #sidebar>
+    <template #item-actions="{ item }">
+      <AdaptationWatchActions
+        :adaptation-id="(item as Adaptation).id"
+        :release-date="(item as Adaptation).release_date"
+        :release-year="(item as Adaptation).release_year"
+        mode="compact"
+      />
+    </template>
+
+    <template
+      v-if="adaptationHighlights"
+      #sidebar
+    >
       <AdaptationRecommendation
         :recommendation="adaptationRecommendation ?? null"
       />

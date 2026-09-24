@@ -1,19 +1,19 @@
 <script setup lang="ts">
 interface Props {
-  label: string;
-  icon: string;
+  label: string
+  icon: string
   /** Renders the icon filled (solid) rather than outline - e.g. to show a toggle is currently on. */
-  filled?: boolean;
-  disabled?: boolean;
+  filled?: boolean
+  disabled?: boolean
   /** Icon-above-label layout for use inside a full-width UFieldGroup on small screens. */
-  stacked?: boolean;
+  stacked?: boolean
 }
 
 withDefaults(defineProps<Props>(), {
   filled: false,
   disabled: false,
-  stacked: false,
-});
+  stacked: false
+})
 </script>
 
 <template>

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 interface Props {
-  imageSrc: string | null;
-  imageAlt: string;
-  imagePlaceholderIcon: string;
+  imageSrc: string | null
+  imageAlt: string
+  imagePlaceholderIcon: string
 }
 
-defineProps<Props>();
+defineProps<Props>()
 </script>
 
 <template>

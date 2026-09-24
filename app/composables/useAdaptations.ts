@@ -3,6 +3,7 @@ export interface Adaptation {
   title: string
   type: string
   release_year: number
+  release_date: string | null
   slug: string
   tmdb_id: number | null
   tmdb_media_type: string | null
@@ -25,7 +26,7 @@ export interface AdaptationSourceShortStory {
   title: string
   type: string
   slug: string
-  collections: { id: string; title: string; slug: string }[]
+  collections: { id: string, title: string, slug: string }[]
 }
 
 export interface AdaptationWithSources extends Adaptation {
@@ -66,6 +67,8 @@ export interface AdaptationRecommendation {
   title: string
   slug: string
   tmdbPosterPath: string | null
+  releaseYear: number
+  releaseDate: string | null
   becauseTitle: string
 }
 
@@ -74,6 +77,11 @@ export interface AdaptationHighlight {
   title: string
   slug: string
   tmdbPosterPath: string | null
+  // Lets AdaptationTile's watch actions disable Mark as Watched for something
+  // not released yet. Optional since builders that never render those actions
+  // (e.g. the compare page's diff lists) don't need to fetch it.
+  releaseYear?: number
+  releaseDate?: string | null
 }
 
 // Adds `type` and `releaseYear` on top of AdaptationHighlight - needed by
@@ -82,6 +90,7 @@ export interface AdaptationHighlight {
 export interface WatchListEntry extends AdaptationHighlight {
   type: string
   releaseYear: number
+  releaseDate: string | null
 }
 
 export interface AdaptationLeaderboardEntry extends AdaptationHighlight {
@@ -101,17 +110,17 @@ export interface AdaptationHighlights {
   mostAnticipatedAdaptation: AdaptationLeaderboardEntry | null
 }
 
-const ADAPTATION_COLUMNS =
-  "id, title, type, release_year, slug, tmdb_id, tmdb_media_type, tmdb_poster_path, is_universe_only, notes"
+const ADAPTATION_COLUMNS
+  = 'id, title, type, release_year, release_date, slug, tmdb_id, tmdb_media_type, tmdb_poster_path, is_universe_only, notes'
 
-const USER_ADAPTATION_COLUMNS =
-  "id, user_id, adaptation_id, want_to_watch, watched, watched_at"
+const USER_ADAPTATION_COLUMNS
+  = 'id, user_id, adaptation_id, want_to_watch, watched, watched_at'
 
 export function useAdaptations() {
   const supabase = useSupabaseClient()
   const user = useSupabaseUser()
   const userAdaptationsByAdaptationId = useState<Record<string, UserAdaptation>>(
-    "userAdaptationsByAdaptationId",
+    'userAdaptationsByAdaptationId',
     () => ({})
   )
 
@@ -120,10 +129,10 @@ export function useAdaptations() {
   // through this one fetch.
   const fetchAdaptations = async () => {
     const { data, error } = await supabase
-      .from("adaptations")
+      .from('adaptations')
       .select(ADAPTATION_COLUMNS)
-      .eq("active", true)
-      .order("release_year", { ascending: true })
+      .eq('active', true)
+      .order('release_year', { ascending: true })
 
     if (error) throw error
 
@@ -137,7 +146,7 @@ export function useAdaptations() {
   // sources have no active flag and are unaffected).
   const fetchAdaptationBySlug = async (slug: string) => {
     const { data, error } = await supabase
-      .from("adaptations")
+      .from('adaptations')
       .select(
         `${ADAPTATION_COLUMNS},
         adaptation_works ( king_works ( id, title, slug, type, publish_date, cover_id, active ) ),
@@ -146,8 +155,8 @@ export function useAdaptations() {
           king_short_story_collections ( king_works ( id, title, slug ) )
         ) )`
       )
-      .eq("slug", slug)
-      .eq("active", true)
+      .eq('slug', slug)
+      .eq('active', true)
       .maybeSingle()
 
     if (error) throw error
@@ -159,7 +168,7 @@ export function useAdaptations() {
         title: string
         type: string
         slug: string
-        king_short_story_collections: { king_works: { id: string; title: string; slug: string } | null }[]
+        king_short_story_collections: { king_works: { id: string, title: string, slug: string } | null }[]
       } | null
     }
 
@@ -171,19 +180,19 @@ export function useAdaptations() {
     return {
       ...adaptation,
       basedOnWorks: adaptation_works
-        .map((row) => row.king_works)
+        .map(row => row.king_works)
         .filter((work): work is AdaptationSourceWork & { active: boolean } => work !== null && work.active),
       basedOnShortStories: adaptation_short_stories
-        .map((row) => row.king_short_stories)
-        .filter((story): story is NonNullable<ShortStoryRow["king_short_stories"]> => story !== null)
-        .map((story) => ({
+        .map(row => row.king_short_stories)
+        .filter((story): story is NonNullable<ShortStoryRow['king_short_stories']> => story !== null)
+        .map(story => ({
           id: story.id,
           title: story.title,
           type: story.type,
           slug: story.slug,
           collections: story.king_short_story_collections
-            .map((row) => row.king_works)
-            .filter((work): work is { id: string; title: string; slug: string } => work !== null)
+            .map(row => row.king_works)
+            .filter((work): work is { id: string, title: string, slug: string } => work !== null)
         }))
     } satisfies AdaptationWithSources
   }
@@ -201,32 +210,32 @@ export function useAdaptations() {
   const fetchAdaptationsForWork = async (kingWorkId: string) => {
     const [direct, viaShortStory] = await Promise.all([
       supabase
-        .from("adaptation_works")
-        .select("adaptations ( id, title, slug, type, release_year, tmdb_poster_path )")
-        .eq("king_work_id", kingWorkId)
-        .eq("adaptations.active", true),
+        .from('adaptation_works')
+        .select('adaptations ( id, title, slug, type, release_year, tmdb_poster_path )')
+        .eq('king_work_id', kingWorkId)
+        .eq('adaptations.active', true),
       supabase
-        .from("king_short_story_collections")
+        .from('king_short_story_collections')
         .select(
-          "king_short_stories ( adaptation_short_stories ( adaptations ( id, title, slug, type, release_year, tmdb_poster_path ) ) )"
+          'king_short_stories ( adaptation_short_stories ( adaptations ( id, title, slug, type, release_year, tmdb_poster_path ) ) )'
         )
-        .eq("king_work_id", kingWorkId)
-        .eq("king_short_stories.adaptation_short_stories.adaptations.active", true)
+        .eq('king_work_id', kingWorkId)
+        .eq('king_short_stories.adaptation_short_stories.adaptations.active', true)
     ])
 
     if (direct.error) throw direct.error
     if (viaShortStory.error) throw viaShortStory.error
 
     const directAdaptations = (direct.data as unknown as { adaptations: WorkAdaptationSummary | null }[])
-      .map((row) => row.adaptations)
+      .map(row => row.adaptations)
 
     const viaShortStoryAdaptations = (
       viaShortStory.data as unknown as {
         king_short_stories: { adaptation_short_stories: { adaptations: WorkAdaptationSummary | null }[] } | null
       }[]
     )
-      .flatMap((row) => row.king_short_stories?.adaptation_short_stories ?? [])
-      .map((row) => row.adaptations)
+      .flatMap(row => row.king_short_stories?.adaptation_short_stories ?? [])
+      .map(row => row.adaptations)
 
     const byId = new Map<string, WorkAdaptationSummary>()
     for (const adaptation of [...directAdaptations, ...viaShortStoryAdaptations]) {
@@ -238,22 +247,22 @@ export function useAdaptations() {
 
   const fetchAdaptationsForShortStory = async (shortStoryId: string) => {
     const { data, error } = await supabase
-      .from("adaptation_short_stories")
-      .select("adaptations ( id, title, slug, type, release_year, tmdb_poster_path )")
-      .eq("short_story_id", shortStoryId)
+      .from('adaptation_short_stories')
+      .select('adaptations ( id, title, slug, type, release_year, tmdb_poster_path )')
+      .eq('short_story_id', shortStoryId)
 
     if (error) throw error
 
     return (data as unknown as { adaptations: WorkAdaptationSummary | null }[])
-      .map((row) => row.adaptations)
+      .map(row => row.adaptations)
       .filter((adaptation): adaptation is WorkAdaptationSummary => adaptation !== null)
   }
 
   const fetchAdaptationStats = async (adaptationId: string) => {
     const { data, error } = await supabase
-      .from("adaptation_stats")
-      .select("want_to_watch_count, watched_count")
-      .eq("adaptation_id", adaptationId)
+      .from('adaptation_stats')
+      .select('want_to_watch_count, watched_count')
+      .eq('adaptation_id', adaptationId)
       .maybeSingle()
 
     if (error) throw error
@@ -274,6 +283,8 @@ export function useAdaptations() {
       title: string
       slug: string
       tmdb_poster_path: string | null
+      release_year: number
+      release_date: string | null
     }
 
     interface AdaptationStatsRow {
@@ -283,15 +294,15 @@ export function useAdaptations() {
     }
 
     const [{ data: adaptations, error: adaptationsError }, { data: stats, error: statsError }] = await Promise.all([
-      supabase.from("adaptations").select("id, title, slug, tmdb_poster_path").eq("active", true),
-      supabase.from("adaptation_stats").select("adaptation_id, watched_count, want_to_watch_count")
+      supabase.from('adaptations').select('id, title, slug, tmdb_poster_path, release_year, release_date').eq('active', true),
+      supabase.from('adaptation_stats').select('adaptation_id, watched_count, want_to_watch_count')
     ])
 
     if (adaptationsError) throw adaptationsError
     if (statsError) throw statsError
 
-    const statsByAdaptationId = new Map((stats as AdaptationStatsRow[]).map((row) => [row.adaptation_id, row]))
-    const adaptationsWithStats = (adaptations as AdaptationRow[]).map((adaptation) => ({
+    const statsByAdaptationId = new Map((stats as AdaptationStatsRow[]).map(row => [row.adaptation_id, row]))
+    const adaptationsWithStats = (adaptations as AdaptationRow[]).map(adaptation => ({
       ...adaptation,
       watchedCount: statsByAdaptationId.get(adaptation.id)?.watched_count ?? 0,
       wantToWatchCount: statsByAdaptationId.get(adaptation.id)?.want_to_watch_count ?? 0
@@ -302,6 +313,8 @@ export function useAdaptations() {
       title: adaptation.title,
       slug: adaptation.slug,
       tmdbPosterPath: adaptation.tmdb_poster_path,
+      releaseYear: adaptation.release_year,
+      releaseDate: adaptation.release_date,
       count
     })
 
@@ -317,11 +330,11 @@ export function useAdaptations() {
     )[0]
 
     return {
-      mostWatchedAdaptations: sortedByWatched.slice(0, 5).map((adaptation) => toEntry(adaptation, adaptation.watchedCount)),
+      mostWatchedAdaptations: sortedByWatched.slice(0, 5).map(adaptation => toEntry(adaptation, adaptation.watchedCount)),
       leastWatchedAdaptations: [...sortedByWatched]
         .reverse()
         .slice(0, 5)
-        .map((adaptation) => toEntry(adaptation, adaptation.watchedCount)),
+        .map(adaptation => toEntry(adaptation, adaptation.watchedCount)),
       mostAnticipatedAdaptation: mostAnticipated ? toEntry(mostAnticipated, mostAnticipated.wantToWatchCount) : null
     }
   }
@@ -331,19 +344,19 @@ export function useAdaptations() {
   // fetchProfileBookStats in useBooks().
   const fetchViewingProgress = async (userId: string): Promise<ViewingProgress> => {
     const [{ data: adaptationRows, error: adaptationsError }, { data: userAdaptationRows, error: userAdaptationsError }] = await Promise.all([
-      supabase.from("adaptations").select("id").eq("active", true),
-      supabase.from("user_adaptations").select("adaptation_id, watched").eq("user_id", userId)
+      supabase.from('adaptations').select('id').eq('active', true),
+      supabase.from('user_adaptations').select('adaptation_id, watched').eq('user_id', userId)
     ])
 
     if (adaptationsError) throw adaptationsError
     if (userAdaptationsError) throw userAdaptationsError
 
-    const activeIds = new Set((adaptationRows as { id: string }[]).map((row) => row.id))
+    const activeIds = new Set((adaptationRows as { id: string }[]).map(row => row.id))
 
     const watchedIds = new Set(
       (userAdaptationRows as { adaptation_id: string, watched: boolean }[])
-        .filter((row) => row.watched && activeIds.has(row.adaptation_id))
-        .map((row) => row.adaptation_id)
+        .filter(row => row.watched && activeIds.has(row.adaptation_id))
+        .map(row => row.adaptation_id)
     )
 
     return {
@@ -365,6 +378,8 @@ export function useAdaptations() {
       title: string
       slug: string
       tmdb_poster_path: string | null
+      release_year: number
+      release_date: string | null
       active: boolean
     }
 
@@ -374,21 +389,21 @@ export function useAdaptations() {
       { data: watchedRows, error: watchedError }
     ] = await Promise.all([
       supabase
-        .from("user_books")
-        .select("king_work_id, king_works!user_books_king_work_id_fkey ( title, active )")
-        .eq("user_id", userId)
-        .eq("read", true),
+        .from('user_books')
+        .select('king_work_id, king_works!user_books_king_work_id_fkey ( title, active )')
+        .eq('user_id', userId)
+        .eq('read', true),
       supabase
-        .from("user_short_story_reads")
+        .from('user_short_story_reads')
         .select(
-          "short_story_id, king_short_stories ( title, king_short_story_collections ( king_works ( title, publish_date ) ) )"
+          'short_story_id, king_short_stories ( title, king_short_story_collections ( king_works ( title, publish_date ) ) )'
         )
-        .eq("user_id", userId),
+        .eq('user_id', userId),
       supabase
-        .from("user_adaptations")
-        .select("adaptation_id")
-        .eq("user_id", userId)
-        .eq("watched", true)
+        .from('user_adaptations')
+        .select('adaptation_id')
+        .eq('user_id', userId)
+        .eq('watched', true)
     ])
 
     if (readBooksError) throw readBooksError
@@ -397,7 +412,7 @@ export function useAdaptations() {
 
     const readWorkRows = (
       readBooks as unknown as { king_work_id: string, king_works: { title: string, active: boolean } | null }[]
-    ).filter((row) => row.king_works?.active)
+    ).filter(row => row.king_works?.active)
     const readShortStoryRows = readShortStories as unknown as {
       short_story_id: string
       king_short_stories: {
@@ -408,8 +423,8 @@ export function useAdaptations() {
 
     if (!readWorkRows.length && !readShortStoryRows.length) return null
 
-    const watchedIds = new Set((watchedRows as { adaptation_id: string }[]).map((row) => row.adaptation_id))
-    const workTitleById = new Map(readWorkRows.map((row) => [row.king_work_id, row.king_works?.title ?? ""]))
+    const watchedIds = new Set((watchedRows as { adaptation_id: string }[]).map(row => row.adaptation_id))
+    const workTitleById = new Map(readWorkRows.map(row => [row.king_work_id, row.king_works?.title ?? '']))
 
     // Prefer the story's earliest collection (per fetchCollectionsForShortStory's
     // same "take the first one" convention) as the recommendation's reason,
@@ -422,7 +437,7 @@ export function useAdaptations() {
       if (!story) continue
 
       const collections = story.king_short_story_collections
-        .map((link) => link.king_works)
+        .map(link => link.king_works)
         .filter((work): work is { title: string, publish_date: string } => work !== null)
         .sort((a, b) => a.publish_date.localeCompare(b.publish_date))
 
@@ -435,15 +450,15 @@ export function useAdaptations() {
     const [viaWorksResult, viaShortStoriesResult] = await Promise.all([
       workIds.length
         ? supabase
-            .from("adaptation_works")
-            .select("king_work_id, adaptations ( id, title, slug, tmdb_poster_path, active )")
-            .in("king_work_id", workIds)
+            .from('adaptation_works')
+            .select('king_work_id, adaptations ( id, title, slug, tmdb_poster_path, release_year, release_date, active )')
+            .in('king_work_id', workIds)
         : { data: [], error: null },
       shortStoryIds.length
         ? supabase
-            .from("adaptation_short_stories")
-            .select("short_story_id, adaptations ( id, title, slug, tmdb_poster_path, active )")
-            .in("short_story_id", shortStoryIds)
+            .from('adaptation_short_stories')
+            .select('short_story_id, adaptations ( id, title, slug, tmdb_poster_path, release_year, release_date, active )')
+            .in('short_story_id', shortStoryIds)
         : { data: [], error: null }
     ])
 
@@ -457,17 +472,19 @@ export function useAdaptations() {
       adaptations: AdaptationRef | null
     }[]) {
       if (
-        row.adaptations &&
-        row.adaptations.active &&
-        !watchedIds.has(row.adaptations.id) &&
-        !candidatesById.has(row.adaptations.id)
+        row.adaptations
+        && row.adaptations.active
+        && !watchedIds.has(row.adaptations.id)
+        && !candidatesById.has(row.adaptations.id)
       ) {
         candidatesById.set(row.adaptations.id, {
           id: row.adaptations.id,
           title: row.adaptations.title,
           slug: row.adaptations.slug,
           tmdbPosterPath: row.adaptations.tmdb_poster_path,
-          becauseTitle: workTitleById.get(row.king_work_id) ?? ""
+          releaseYear: row.adaptations.release_year,
+          releaseDate: row.adaptations.release_date,
+          becauseTitle: workTitleById.get(row.king_work_id) ?? ''
         })
       }
     }
@@ -477,17 +494,19 @@ export function useAdaptations() {
       adaptations: AdaptationRef | null
     }[]) {
       if (
-        row.adaptations &&
-        row.adaptations.active &&
-        !watchedIds.has(row.adaptations.id) &&
-        !candidatesById.has(row.adaptations.id)
+        row.adaptations
+        && row.adaptations.active
+        && !watchedIds.has(row.adaptations.id)
+        && !candidatesById.has(row.adaptations.id)
       ) {
         candidatesById.set(row.adaptations.id, {
           id: row.adaptations.id,
           title: row.adaptations.title,
           slug: row.adaptations.slug,
           tmdbPosterPath: row.adaptations.tmdb_poster_path,
-          becauseTitle: shortStoryBecauseTitleById.get(row.short_story_id) ?? ""
+          releaseYear: row.adaptations.release_year,
+          releaseDate: row.adaptations.release_date,
+          becauseTitle: shortStoryBecauseTitleById.get(row.short_story_id) ?? ''
         })
       }
     }
@@ -510,27 +529,29 @@ export function useAdaptations() {
       tmdb_poster_path: string | null
       type: string
       release_year: number
+      release_date: string | null
       active: boolean
     }
 
     const { data, error } = await supabase
-      .from("user_adaptations")
-      .select("adaptations ( id, title, slug, tmdb_poster_path, type, release_year, active )")
-      .eq("user_id", userId)
-      .eq("want_to_watch", true)
+      .from('user_adaptations')
+      .select('adaptations ( id, title, slug, tmdb_poster_path, type, release_year, release_date, active )')
+      .eq('user_id', userId)
+      .eq('want_to_watch', true)
 
     if (error) throw error
 
     return (data as unknown as { adaptations: AdaptationRef | null }[])
-      .map((row) => row.adaptations)
+      .map(row => row.adaptations)
       .filter((adaptation): adaptation is AdaptationRef => adaptation !== null && adaptation.active)
-      .map((adaptation) => ({
+      .map(adaptation => ({
         id: adaptation.id,
         title: adaptation.title,
         slug: adaptation.slug,
         tmdbPosterPath: adaptation.tmdb_poster_path,
         type: adaptation.type,
-        releaseYear: adaptation.release_year
+        releaseYear: adaptation.release_year,
+        releaseDate: adaptation.release_date
       }))
   }
 
@@ -538,14 +559,14 @@ export function useAdaptations() {
   // useBooks().fetchReadDiff one table over - every adaptation exactly one
   // of the two given users has marked watched.
   const fetchWatchedDiff = async (userIdA: string, userIdB: string): Promise<WatchedDiff> => {
-    const [{ data: adaptationRows, error: adaptationsError }, { data: userAdaptationRows, error: userAdaptationsError }] =
-      await Promise.all([
-        supabase.from("adaptations").select("id, title, slug, tmdb_poster_path"),
+    const [{ data: adaptationRows, error: adaptationsError }, { data: userAdaptationRows, error: userAdaptationsError }]
+      = await Promise.all([
+        supabase.from('adaptations').select('id, title, slug, tmdb_poster_path'),
         supabase
-          .from("user_adaptations")
-          .select("user_id, adaptation_id")
-          .in("user_id", [userIdA, userIdB])
-          .eq("watched", true)
+          .from('user_adaptations')
+          .select('user_id, adaptation_id')
+          .in('user_id', [userIdA, userIdB])
+          .eq('watched', true)
       ])
 
     if (adaptationsError) throw adaptationsError
@@ -554,8 +575,8 @@ export function useAdaptations() {
     const allAdaptations = adaptationRows as { id: string, title: string, slug: string, tmdb_poster_path: string | null }[]
     const rows = userAdaptationRows as { user_id: string, adaptation_id: string }[]
 
-    const watchedByA = new Set(rows.filter((row) => row.user_id === userIdA).map((row) => row.adaptation_id))
-    const watchedByB = new Set(rows.filter((row) => row.user_id === userIdB).map((row) => row.adaptation_id))
+    const watchedByA = new Set(rows.filter(row => row.user_id === userIdA).map(row => row.adaptation_id))
+    const watchedByB = new Set(rows.filter(row => row.user_id === userIdB).map(row => row.adaptation_id))
 
     const toHighlight = (adaptation: (typeof allAdaptations)[number]): AdaptationHighlight => ({
       id: adaptation.id,
@@ -566,10 +587,10 @@ export function useAdaptations() {
 
     return {
       onlyA: allAdaptations
-        .filter((adaptation) => watchedByA.has(adaptation.id) && !watchedByB.has(adaptation.id))
+        .filter(adaptation => watchedByA.has(adaptation.id) && !watchedByB.has(adaptation.id))
         .map(toHighlight),
       onlyB: allAdaptations
-        .filter((adaptation) => watchedByB.has(adaptation.id) && !watchedByA.has(adaptation.id))
+        .filter(adaptation => watchedByB.has(adaptation.id) && !watchedByA.has(adaptation.id))
         .map(toHighlight)
     }
   }
@@ -581,35 +602,35 @@ export function useAdaptations() {
     }
 
     const { data, error } = await supabase
-      .from("user_adaptations")
+      .from('user_adaptations')
       .select(USER_ADAPTATION_COLUMNS)
-      .eq("user_id", user.value.sub)
+      .eq('user_id', user.value.sub)
 
     if (error) throw error
 
     const rows = data as UserAdaptation[]
-    userAdaptationsByAdaptationId.value = Object.fromEntries(rows.map((row) => [row.adaptation_id, row]))
+    userAdaptationsByAdaptationId.value = Object.fromEntries(rows.map(row => [row.adaptation_id, row]))
 
     return rows
   }
 
   const toggleWantToWatch = async (adaptationId: string) => {
-    if (!user.value) throw new Error("Not signed in")
+    if (!user.value) throw new Error('Not signed in')
 
     const { data: existing, error: fetchError } = await supabase
-      .from("user_adaptations")
-      .select("want_to_watch")
-      .eq("user_id", user.value.sub)
-      .eq("adaptation_id", adaptationId)
+      .from('user_adaptations')
+      .select('want_to_watch')
+      .eq('user_id', user.value.sub)
+      .eq('adaptation_id', adaptationId)
       .maybeSingle()
 
     if (fetchError) throw fetchError
 
     const { data, error } = await supabase
-      .from("user_adaptations")
+      .from('user_adaptations')
       .upsert(
         { user_id: user.value.sub, adaptation_id: adaptationId, want_to_watch: !existing?.want_to_watch },
-        { onConflict: "user_id,adaptation_id" }
+        { onConflict: 'user_id,adaptation_id' }
       )
       .select(USER_ADAPTATION_COLUMNS)
       .single()
@@ -623,13 +644,13 @@ export function useAdaptations() {
   }
 
   const markWatched = async (adaptationId: string) => {
-    if (!user.value) throw new Error("Not signed in")
+    if (!user.value) throw new Error('Not signed in')
 
     const { data, error } = await supabase
-      .from("user_adaptations")
+      .from('user_adaptations')
       .upsert(
         { user_id: user.value.sub, adaptation_id: adaptationId, watched: true, watched_at: new Date().toISOString() },
-        { onConflict: "user_id,adaptation_id" }
+        { onConflict: 'user_id,adaptation_id' }
       )
       .select(USER_ADAPTATION_COLUMNS)
       .single()
@@ -643,13 +664,13 @@ export function useAdaptations() {
   }
 
   const unmarkWatched = async (adaptationId: string) => {
-    if (!user.value) throw new Error("Not signed in")
+    if (!user.value) throw new Error('Not signed in')
 
     const { data, error } = await supabase
-      .from("user_adaptations")
+      .from('user_adaptations')
       .update({ watched: false })
-      .eq("user_id", user.value.sub)
-      .eq("adaptation_id", adaptationId)
+      .eq('user_id', user.value.sub)
+      .eq('adaptation_id', adaptationId)
       .select(USER_ADAPTATION_COLUMNS)
       .single()
 

@@ -1,14 +1,14 @@
 <script setup lang="ts">
-definePageMeta({ layout: "default" });
+definePageMeta({ layout: 'default' })
 
-const { setPageSeo } = useSeo();
+const { setPageSeo } = useSeo()
 setPageSeo({
-  title: "Watch List",
-  description: "Every Stephen King adaptation you want to watch.",
-});
+  title: 'Watch List',
+  description: 'Every Stephen King adaptation you want to watch.'
+})
 
-const { profile: ownProfile } = useProfile();
-const { profile, isOwner, isPrivate } = provideViewedProfile(ownProfile.value!);
+const { profile: ownProfile } = useProfile()
+const { profile, isOwner, isPrivate } = provideViewedProfile(ownProfile.value!)
 </script>
 
 <template>

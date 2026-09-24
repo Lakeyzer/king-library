@@ -55,15 +55,15 @@ export function useHomepage() {
     if (workStatsError) throw workStatsError
     if (adaptationStatsError) throw adaptationStatsError
 
-    const activeWorkIds = new Set((activeWorkRows as { id: string }[]).map((row) => row.id))
-    const activeAdaptationIds = new Set((activeAdaptationRows as { id: string }[]).map((row) => row.id))
+    const activeWorkIds = new Set((activeWorkRows as { id: string }[]).map(row => row.id))
+    const activeAdaptationIds = new Set((activeAdaptationRows as { id: string }[]).map(row => row.id))
 
     const workStats = (workStatsRows as { king_work_id: string, read_count: number, owner_count: number }[]).filter(
-      (row) => activeWorkIds.has(row.king_work_id)
+      row => activeWorkIds.has(row.king_work_id)
     )
     const adaptationStats = (
       adaptationStatsRows as { adaptation_id: string, watched_count: number }[]
-    ).filter((row) => activeAdaptationIds.has(row.adaptation_id))
+    ).filter(row => activeAdaptationIds.has(row.adaptation_id))
 
     return {
       stats: {

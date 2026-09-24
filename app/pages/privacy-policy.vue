@@ -1,17 +1,19 @@
 <script setup lang="ts">
-definePageMeta({ layout: "default" });
+definePageMeta({ layout: 'default' })
 
-const { setPageSeo } = useSeo();
+const { setPageSeo } = useSeo()
 setPageSeo({
-  title: "Privacy Policy",
-  description: "How King Library collects, uses, and protects your data.",
-});
+  title: 'Privacy Policy',
+  description: 'How King Library collects, uses, and protects your data.'
+})
 </script>
 
 <template>
   <div class="max-w-2xl mx-auto py-16 space-y-8">
     <div>
-      <h1 class="text-2xl font-semibold">Privacy Policy</h1>
+      <h1 class="text-2xl font-semibold">
+        Privacy Policy
+      </h1>
       <p class="text-muted mt-1">
         King Library &middot; Effective 11 September 2026
       </p>
@@ -24,7 +26,9 @@ setPageSeo({
     </p>
 
     <div class="space-y-3">
-      <h2 class="text-lg font-semibold">1. What we collect</h2>
+      <h2 class="text-lg font-semibold">
+        1. What we collect
+      </h2>
       <p>
         When you create an account we collect your
         <strong>email address</strong> (for authentication and account recovery)
@@ -44,7 +48,9 @@ setPageSeo({
     </div>
 
     <div class="space-y-3">
-      <h2 class="text-lg font-semibold">2. How we use your information</h2>
+      <h2 class="text-lg font-semibold">
+        2. How we use your information
+      </h2>
       <p>
         We use your data to operate your account and the content you've stored,
         display your profile and collection, contribute your activity to
@@ -58,7 +64,9 @@ setPageSeo({
     </div>
 
     <div class="space-y-3">
-      <h2 class="text-lg font-semibold">3. Aggregate statistics</h2>
+      <h2 class="text-lg font-semibold">
+        3. Aggregate statistics
+      </h2>
       <UAlert
         color="neutral"
         variant="subtle"
@@ -78,7 +86,9 @@ setPageSeo({
     </div>
 
     <div class="space-y-3">
-      <h2 class="text-lg font-semibold">4. Sharing &amp; disclosure</h2>
+      <h2 class="text-lg font-semibold">
+        4. Sharing &amp; disclosure
+      </h2>
       <p>
         We do not sell, rent, or trade your personal data. We share it only in
         these circumstances:
@@ -102,7 +112,9 @@ setPageSeo({
     </div>
 
     <div class="space-y-3">
-      <h2 class="text-lg font-semibold">5. Your privacy settings</h2>
+      <h2 class="text-lg font-semibold">
+        5. Your privacy settings
+      </h2>
       <p>You control whether your profile is visible to others:</p>
       <ul class="list-disc pl-6 space-y-1">
         <li>
@@ -122,7 +134,9 @@ setPageSeo({
     </div>
 
     <div class="space-y-3">
-      <h2 class="text-lg font-semibold">6. Your rights</h2>
+      <h2 class="text-lg font-semibold">
+        6. Your rights
+      </h2>
       <p>
         You can manage all of your data directly from your account settings:
       </p>
@@ -143,7 +157,9 @@ setPageSeo({
     </div>
 
     <div class="space-y-3">
-      <h2 class="text-lg font-semibold">7. Data retention</h2>
+      <h2 class="text-lg font-semibold">
+        7. Data retention
+      </h2>
       <p>
         We keep your data for as long as your profile exists. When you delete
         your profile, all your data - email address, username, collection,
@@ -153,7 +169,9 @@ setPageSeo({
     </div>
 
     <div class="space-y-3">
-      <h2 class="text-lg font-semibold">8. Cookies &amp; browser storage</h2>
+      <h2 class="text-lg font-semibold">
+        8. Cookies &amp; browser storage
+      </h2>
       <p>King Library uses only what's strictly necessary:</p>
       <ul class="list-disc pl-6 space-y-1">
         <li>
@@ -172,7 +190,9 @@ setPageSeo({
     </div>
 
     <div class="space-y-3">
-      <h2 class="text-lg font-semibold">9. Changes to this policy</h2>
+      <h2 class="text-lg font-semibold">
+        9. Changes to this policy
+      </h2>
       <p>
         If we make material changes - such as collecting new categories of data
         - we will notify you by email at least 14 days before they take effect.
@@ -182,12 +202,15 @@ setPageSeo({
     </div>
 
     <div class="border-t border-default pt-6 space-y-2">
-      <h2 class="text-lg font-semibold">Contact</h2>
+      <h2 class="text-lg font-semibold">
+        Contact
+      </h2>
       <p>
         Questions or requests:
-        <a href="mailto:contact.king.library@gmail.com" class="text-primary"
-          >contact.king.library@gmail.com</a
-        >
+        <a
+          href="mailto:contact.king.library@gmail.com"
+          class="text-primary"
+        >contact.king.library@gmail.com</a>
       </p>
       <p class="text-muted text-sm">
         King Library is a personal, non-commercial fan project and is not

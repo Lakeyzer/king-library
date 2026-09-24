@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import type { Profile } from "~/composables/useProfile";
+import type { Profile } from '~/composables/useProfile'
 
 interface Props {
-  profile: Profile;
-  isOwner: boolean;
-  isPrivate: boolean;
+  profile: Profile
+  isOwner: boolean
+  isPrivate: boolean
   /** "/profile" for the signed-in user's own routes, "/profile/[username]" for a viewed profile's. */
-  basePath: string;
+  basePath: string
 }
 
-defineProps<Props>();
+defineProps<Props>()
 </script>
 
 <template>

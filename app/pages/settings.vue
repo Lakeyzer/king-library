@@ -176,10 +176,16 @@ const showDeleteModal = ref(false)
           Settings
         </h1>
         <p class="text-muted mt-1">
-          <NumberMotif v-if="profile?.username" :text="profile.username" />
+          <NumberMotif
+            v-if="profile?.username"
+            :text="profile.username"
+          />
         </p>
         <p class="text-muted">
-          <NumberMotif v-if="user?.email" :text="user.email" />
+          <NumberMotif
+            v-if="user?.email"
+            :text="user.email"
+          />
         </p>
       </div>
     </div>

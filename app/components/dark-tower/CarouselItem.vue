@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import type { KingWork } from "~/composables/useKingWorks";
+import type { KingWork } from '~/composables/useKingWorks'
 
 interface Props {
-  work: KingWork;
+  work: KingWork
 }
 
-defineProps<Props>();
+defineProps<Props>()
 
 function stephenKingByline(work: KingWork) {
   return work.co_author
     ? `By Stephen King & ${work.co_author}`
-    : "By Stephen King";
+    : 'By Stephen King'
 }
 </script>
 
@@ -40,7 +40,10 @@ function stephenKingByline(work: KingWork) {
 
     <div class="flex min-w-0 flex-1 flex-col gap-4">
       <div>
-        <NuxtLink :to="`/works/${work.slug}`" class="group">
+        <NuxtLink
+          :to="`/works/${work.slug}`"
+          class="group"
+        >
           <h3
             class="text-xl font-bold text-highlighted group-hover:text-primary"
           >
@@ -56,7 +59,10 @@ function stephenKingByline(work: KingWork) {
         </p>
       </div>
 
-      <p v-if="work.description" class="line-clamp-3 text-sm text-muted">
+      <p
+        v-if="work.description"
+        class="line-clamp-3 text-sm text-muted"
+      >
         <NumberMotif :text="work.description" />
       </p>
 
@@ -64,6 +70,9 @@ function stephenKingByline(work: KingWork) {
         :work-id="work.id"
         :work-title="work.title"
         :work-key="work.open_library_work_key"
+        :min-edition-year="work.edition_year_min"
+        :max-edition-year="work.edition_year_max"
+        :publish-date="work.publish_date"
         mode="expanded"
       />
     </div>

@@ -1,6 +1,6 @@
 <script setup>
 useHead({
-  titleTemplate: (title) => (title ? `${title} • King Library` : 'King Library'),
+  titleTemplate: title => (title ? `${title} • King Library` : 'King Library'),
   meta: [
     { name: 'viewport', content: 'width=device-width, initial-scale=1' }
   ],

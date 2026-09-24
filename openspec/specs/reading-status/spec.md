@@ -71,6 +71,21 @@ The system SHALL let a signed-in user finish a King work that is currently-readi
 - **WHEN** a signed-in user confirms the finish prompt with a note, format, and rating supplied
 - **THEN** the created logged read stores the confirmed end date along with the supplied note, format, and rating
 
+### Requirement: User can stop a currently-reading work without logging a read
+The system SHALL let a signed-in user abandon a currently-reading work from the same prompt used to finish it, via a "Stop Reading" control requiring a second confirming activation within a short window before it takes effect. Stopping SHALL NOT create a logged read. If the work was not read before this reading session began, stopping SHALL return it to its state before the session started (not currently-reading, not read, no start date). If the work was already read before this session began (a reread in progress), stopping SHALL leave its read state, and its most recently completed read's dates, unaffected, changing only its currently-reading state to false.
+
+#### Scenario: Stopping a first-time read in progress
+- **WHEN** a signed-in user activates "Stop Reading" twice (confirming) on a work that is currently-reading and has never been read
+- **THEN** the work returns to not currently-reading, not read, with no start date, and no logged read is created
+
+#### Scenario: Stopping a reread in progress
+- **WHEN** a signed-in user activates "Stop Reading" twice (confirming) on a work that is currently-reading and was already read before this session began
+- **THEN** the work becomes not currently-reading while remaining read, its previously completed read's dates are unaffected, and no logged read is created for the abandoned session
+
+#### Scenario: A single activation does not stop the session
+- **WHEN** a signed-in user activates "Stop Reading" once
+- **THEN** the work remains currently-reading and the control instead asks for a second, confirming activation
+
 ### Requirement: User can mark a work as read directly, with optional dates
 The system SHALL let a signed-in user mark a King work as read without first marking it currently-reading, via a prompt offering a start date, an end date, a year, a note, a format, and a rating, all optional and independently skippable. Confirming SHALL mark the work as read and SHALL create a new logged read record capturing whichever of these fields were supplied.
 
@@ -180,3 +195,22 @@ The system SHALL support presenting a work's reading-status controls in an expan
 #### Scenario: Activating an expanded-mode control
 - **WHEN** a signed-in user activates any control shown in the expanded display mode
 - **THEN** it has the same effect on the work's reading status as activating the equivalent action in the compact presentation
+
+### Requirement: Works by Others share the same reading-status controls
+The system SHALL use the same reading-status components for a By Other Hands work as for a King work - the same compact and expanded control layouts, the same start-reading/finish/stop-reading/mark-as-read/edit-dates prompts (including the note, format, and rating fields), and the same reading timeline - each backed by the domain's own table (`user_related_works` for a By Other Hands work, instead of `user_books`/`user_book_reads`), rather than separate, duplicated components per domain. Where a By Other Hands work genuinely has no equivalent of a King capability, that capability SHALL be omitted rather than shown non-functional: no Read Again (no reread-history table - a single mark-as-read record instead covers marking read directly and editing an already-read entry), and no confirmation step before unmarking as read (nothing to lose - a single flat record, not a log of logged reads, is reset in place). Because there is no reread-history table, stopping an in-progress reread on a By Other Hands work that was already read cannot recover that earlier read's original start date the way a King work's can (see "User can stop a currently-reading work without logging a read") - the start date the abandoned reread had already overwritten stays as-is, since nothing preserved the original.
+
+#### Scenario: Starting, finishing, stopping, and marking a By Other Hands work read
+- **WHEN** a signed-in user starts reading, finishes, stops reading, or marks as read directly a By Other Hands work
+- **THEN** the same prompts used for a King work appear, including the format field, and record the action against that work's own `user_related_works` row
+
+#### Scenario: No Read Again for a By Other Hands work
+- **WHEN** a signed-in user views the expanded reading-status controls for a By Other Hands work marked read and not currently-reading
+- **THEN** only a control for starting to read it again is shown, not a separate Read Again control
+
+#### Scenario: Unmarking a By Other Hands work as read needs no confirmation
+- **WHEN** a signed-in user unmarks a By Other Hands work as read
+- **THEN** it is unmarked immediately, without a confirmation step
+
+#### Scenario: A By Other Hands read can be edited from the reading timeline
+- **WHEN** the profile owner activates the edit-dates control on a By Other Hands entry in their reading timeline
+- **THEN** they can update that read's dates, note, rating, and format, the same as they can for a King entry

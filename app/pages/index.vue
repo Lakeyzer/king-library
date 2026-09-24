@@ -1,71 +1,81 @@
 <script setup lang="ts">
-definePageMeta({ layout: "default" });
+definePageMeta({ layout: 'default' })
 
-const { setPageSeo } = useSeo();
+const { setPageSeo } = useSeo()
 setPageSeo({
-  title: "Constant Reader Checklist",
+  title: 'Constant Reader Checklist',
   description:
-    "An unofficial Stephen King reading checklist. Build your own bookshelf and track your reading progress, wishlist, and check off books, short works, and adaptations.",
-});
+    'An unofficial Stephen King reading checklist. Build your own bookshelf and track your reading progress, wishlist, and check off books, short works, and adaptations.'
+})
 
-const user = useSupabaseUser();
-const { open: openAuthModal } = useAuthModal();
+const user = useSupabaseUser()
+const { open: openAuthModal } = useAuthModal()
 
-const { fetchHomepageMeta } = useHomepage();
+// Landing here with ?signin=1 means the onboarding middleware just bounced
+// a signed-out visitor away from a page that requires sign-in (its `next`
+// query param, read by AuthModal on successful sign-in, is what sends them
+// back there afterward) - open the modal for them rather than leaving them
+// to notice and click "Sign in" themselves.
+const route = useRoute()
+onMounted(() => {
+  if (route.query.signin) openAuthModal()
+})
+
+const { fetchHomepageMeta } = useHomepage()
 const {
   fetchWorkHighlights,
   fetchUserBooks,
   fetchUnreadRecommendation,
-  fetchOwnedUnreadRecommendation,
-} = useBooks();
+  fetchOwnedUnreadRecommendation
+} = useBooks()
 const {
   fetchAdaptationHighlights,
   fetchUnwatchedRecommendation,
-  fetchUserAdaptations,
-} = useAdaptations();
+  fetchUserAdaptations
+} = useAdaptations()
 
 const [
   { data: meta },
   { data: workHighlights },
-  { data: adaptationHighlights },
+  { data: adaptationHighlights }
 ] = await Promise.all([
-  useAsyncData("homepage-meta", fetchHomepageMeta),
-  useAsyncData("homepage-work-highlights", fetchWorkHighlights),
-  useAsyncData("homepage-adaptation-highlights", fetchAdaptationHighlights),
-]);
+  useAsyncData('homepage-meta', fetchHomepageMeta),
+  useAsyncData('homepage-work-highlights', fetchWorkHighlights),
+  useAsyncData('homepage-adaptation-highlights', fetchAdaptationHighlights)
+])
 
-await useAsyncData("user-books", fetchUserBooks);
-await useAsyncData("user-adaptations", fetchUserAdaptations);
+await useAsyncData('user-books', fetchUserBooks)
+await useAsyncData('user-adaptations', fetchUserAdaptations)
 
 const [
   { data: bookRecommendation },
   { data: ownedUnreadRecommendation },
-  { data: adaptationRecommendation },
+  { data: adaptationRecommendation }
 ] = await Promise.all([
-  useAsyncData("book-recommendation", () =>
+  useAsyncData('book-recommendation', () =>
     user.value
       ? fetchUnreadRecommendation(user.value.sub)
-      : Promise.resolve(null),
+      : Promise.resolve(null)
   ),
-  useAsyncData("owned-unread-recommendation", () =>
+  useAsyncData('owned-unread-recommendation', () =>
     user.value
       ? fetchOwnedUnreadRecommendation(user.value.sub)
-      : Promise.resolve(null),
+      : Promise.resolve(null)
   ),
-  useAsyncData("adaptation-recommendation", () =>
+  useAsyncData('adaptation-recommendation', () =>
     user.value
       ? fetchUnwatchedRecommendation(user.value.sub)
-      : Promise.resolve(null),
-  ),
-]);
+      : Promise.resolve(null)
+  )
+])
 
 const readsCountLabel = (count: number) =>
-  `${count} ${count === 1 ? "read" : "reads"}`;
-const currentlyReadingCountLabel = (count: number) => `${count} reading now`;
+  `${count} ${count === 1 ? 'read' : 'reads'}`
+const currentlyReadingCountLabel = (count: number) => `${count} reading now`
 const watchedCountLabel = (count: number) =>
-  `${count} ${count === 1 ? "watch" : "watches"}`;
-const wantToReadCountLabel = (count: number) => `${count} want to read this`;
-const wantToWatchCountLabel = (count: number) => `${count} want to watch this`;
+  `${count} ${count === 1 ? 'watch' : 'watches'}`
+const wantToReadCountLabel = (count: number) => `${count} want to read this`
+const wantToWatchCountLabel = (count: number) => `${count} want to watch this`
 </script>
 
 <template>
@@ -184,8 +194,8 @@ const wantToWatchCountLabel = (count: number) => `${count} want to watch this`;
             :meta="
               adaptationHighlights.mostAnticipatedAdaptation
                 ? wantToWatchCountLabel(
-                    adaptationHighlights.mostAnticipatedAdaptation.count,
-                  )
+                  adaptationHighlights.mostAnticipatedAdaptation.count
+                )
                 : undefined
             "
             empty-message="No one is looking forward to an adaptation yet."

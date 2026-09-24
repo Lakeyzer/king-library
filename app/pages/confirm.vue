@@ -6,17 +6,15 @@ const route = useRoute()
 
 const oauthError = (route.query.error_description ?? route.query.error) as string | undefined
 
-// Only accept an internal, single-leading-slash path - never a full URL - so a crafted
-// ?next= query param can't be used to redirect a signed-in visitor off-site.
-function safeNextPath(value: unknown): string {
-  if (typeof value !== 'string' || !value.startsWith('/') || value.startsWith('//')) {
-    return '/'
-  }
+// Prefer the OAuth-flow value stashed in sessionStorage (see
+// OAUTH_NEXT_PATH_KEY - the URL's own `next` param, if this page was
+// reached via OAuth, has already been stripped by Supabase's client-side
+// code-exchange by the time this runs). Falls back to the URL's `next` for
+// the email-confirmation flow, which never goes through that stripping.
+const storedNextPath = sessionStorage.getItem(OAUTH_NEXT_PATH_KEY)
+sessionStorage.removeItem(OAUTH_NEXT_PATH_KEY)
 
-  return value
-}
-
-const nextPath = safeNextPath(route.query.next)
+const nextPath = safeNextPath(storedNextPath ?? route.query.next)
 
 if (!oauthError) {
   if (user.value) {

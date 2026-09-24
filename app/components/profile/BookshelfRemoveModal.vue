@@ -1,38 +1,51 @@
 <script setup lang="ts">
-import type { BookshelfItem } from "~/composables/useBookshelf";
+import type { ProfileBookshelfItem } from '~/components/profile/Bookshelf.vue'
 
 interface Props {
-  item: BookshelfItem;
+  item: ProfileBookshelfItem
 }
 
-const props = defineProps<Props>();
-const open = defineModel<boolean>("open", { default: false });
+const props = defineProps<Props>()
+const open = defineModel<boolean>('open', { default: false })
 
-const emit = defineEmits<{ removed: [] }>();
+const emit = defineEmits<{ removed: [] }>()
 
-const { removeEdition } = useBookshelf();
-const { setOwned } = useBooks();
+const { removeEdition: removeBookEdition } = useBookshelf()
+const { setOwned: setBookOwned } = useBooks()
+const { removeEdition: removeRelatedWorkEdition } = useRelatedWorkEditions()
+const { setOwned: setRelatedWorkOwned } = useRelatedWorks()
 
-const removing = ref(false);
+const removing = ref(false)
 
 async function confirmRemove() {
-  removing.value = true;
+  removing.value = true
   try {
-    if (props.item.kind === "edition") {
-      await removeEdition(props.item.workId, props.item.editionId);
+    if (props.item.source === 'king') {
+      if (props.item.kind === 'edition') {
+        await removeBookEdition(props.item.workId, props.item.editionId)
+      } else {
+        await setBookOwned(props.item.workId, false)
+      }
     } else {
-      await setOwned(props.item.workId, false);
+      if (props.item.kind === 'edition') {
+        await removeRelatedWorkEdition(props.item.workId, props.item.editionId)
+      } else {
+        await setRelatedWorkOwned(props.item.workId, false)
+      }
     }
-    open.value = false;
-    emit("removed");
+    open.value = false
+    emit('removed')
   } finally {
-    removing.value = false;
+    removing.value = false
   }
 }
 </script>
 
 <template>
-  <UModal v-model:open="open" title="Say true?">
+  <UModal
+    v-model:open="open"
+    title="Say true?"
+  >
     <template #body>
       <p class="text-sm text-muted">
         Remove <strong class="text-highlighted"><NumberMotif :text="item.workTitle" /></strong> from your shelf?
@@ -41,13 +54,25 @@ async function confirmRemove() {
         <template v-if="item.kind === 'edition'">
           If this is the last edition you have of it, the work will no longer be marked owned.
         </template>
-        <template v-else> This work will no longer be marked owned. </template>
+        <template v-else>
+          This work will no longer be marked owned.
+        </template>
       </p>
     </template>
 
     <template #footer="{ close }">
-      <UButton label="Cancel" color="neutral" variant="soft" @click="close" />
-      <UButton label="Say thankya" color="error" :loading="removing" @click="confirmRemove" />
+      <UButton
+        label="Cancel"
+        color="neutral"
+        variant="soft"
+        @click="close"
+      />
+      <UButton
+        label="Say thankya"
+        color="error"
+        :loading="removing"
+        @click="confirmRemove"
+      />
     </template>
   </UModal>
 </template>

@@ -1,10 +1,10 @@
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[]
+export type Json
+  = | string
+    | number
+    | boolean
+    | null
+    | { [key: string]: Json | undefined }
+    | Json[]
 
 export type Database = {
   graphql_public: {
@@ -52,26 +52,26 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "adaptation_short_stories_adaptation_id_fkey"
-            columns: ["adaptation_id"]
+            foreignKeyName: 'adaptation_short_stories_adaptation_id_fkey'
+            columns: ['adaptation_id']
             isOneToOne: false
-            referencedRelation: "adaptation_stats"
-            referencedColumns: ["adaptation_id"]
+            referencedRelation: 'adaptation_stats'
+            referencedColumns: ['adaptation_id']
           },
           {
-            foreignKeyName: "adaptation_short_stories_adaptation_id_fkey"
-            columns: ["adaptation_id"]
+            foreignKeyName: 'adaptation_short_stories_adaptation_id_fkey'
+            columns: ['adaptation_id']
             isOneToOne: false
-            referencedRelation: "adaptations"
-            referencedColumns: ["id"]
+            referencedRelation: 'adaptations'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "adaptation_short_stories_short_story_id_fkey"
-            columns: ["short_story_id"]
+            foreignKeyName: 'adaptation_short_stories_short_story_id_fkey'
+            columns: ['short_story_id']
             isOneToOne: false
-            referencedRelation: "king_short_stories"
-            referencedColumns: ["id"]
-          },
+            referencedRelation: 'king_short_stories'
+            referencedColumns: ['id']
+          }
         ]
       }
       adaptation_works: {
@@ -92,33 +92,33 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "adaptation_works_adaptation_id_fkey"
-            columns: ["adaptation_id"]
+            foreignKeyName: 'adaptation_works_adaptation_id_fkey'
+            columns: ['adaptation_id']
             isOneToOne: false
-            referencedRelation: "adaptation_stats"
-            referencedColumns: ["adaptation_id"]
+            referencedRelation: 'adaptation_stats'
+            referencedColumns: ['adaptation_id']
           },
           {
-            foreignKeyName: "adaptation_works_adaptation_id_fkey"
-            columns: ["adaptation_id"]
+            foreignKeyName: 'adaptation_works_adaptation_id_fkey'
+            columns: ['adaptation_id']
             isOneToOne: false
-            referencedRelation: "adaptations"
-            referencedColumns: ["id"]
+            referencedRelation: 'adaptations'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "adaptation_works_king_work_id_fkey"
-            columns: ["king_work_id"]
+            foreignKeyName: 'adaptation_works_king_work_id_fkey'
+            columns: ['king_work_id']
             isOneToOne: false
-            referencedRelation: "king_works"
-            referencedColumns: ["id"]
+            referencedRelation: 'king_works'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "adaptation_works_king_work_id_fkey"
-            columns: ["king_work_id"]
+            foreignKeyName: 'adaptation_works_king_work_id_fkey'
+            columns: ['king_work_id']
             isOneToOne: false
-            referencedRelation: "work_stats"
-            referencedColumns: ["king_work_id"]
-          },
+            referencedRelation: 'work_stats'
+            referencedColumns: ['king_work_id']
+          }
         ]
       }
       adaptations: {
@@ -127,6 +127,7 @@ export type Database = {
           id: string
           is_universe_only: boolean
           notes: string | null
+          release_date: string | null
           release_year: number
           slug: string
           title: string
@@ -140,6 +141,7 @@ export type Database = {
           id?: string
           is_universe_only?: boolean
           notes?: string | null
+          release_date?: string | null
           release_year: number
           slug: string
           title: string
@@ -153,6 +155,7 @@ export type Database = {
           id?: string
           is_universe_only?: boolean
           notes?: string | null
+          release_date?: string | null
           release_year?: number
           slug?: string
           title?: string
@@ -217,26 +220,26 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "king_short_story_collections_king_work_id_fkey"
-            columns: ["king_work_id"]
+            foreignKeyName: 'king_short_story_collections_king_work_id_fkey'
+            columns: ['king_work_id']
             isOneToOne: false
-            referencedRelation: "king_works"
-            referencedColumns: ["id"]
+            referencedRelation: 'king_works'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "king_short_story_collections_king_work_id_fkey"
-            columns: ["king_work_id"]
+            foreignKeyName: 'king_short_story_collections_king_work_id_fkey'
+            columns: ['king_work_id']
             isOneToOne: false
-            referencedRelation: "work_stats"
-            referencedColumns: ["king_work_id"]
+            referencedRelation: 'work_stats'
+            referencedColumns: ['king_work_id']
           },
           {
-            foreignKeyName: "king_short_story_collections_short_story_id_fkey"
-            columns: ["short_story_id"]
+            foreignKeyName: 'king_short_story_collections_short_story_id_fkey'
+            columns: ['short_story_id']
             isOneToOne: false
-            referencedRelation: "king_short_stories"
-            referencedColumns: ["id"]
-          },
+            referencedRelation: 'king_short_stories'
+            referencedColumns: ['id']
+          }
         ]
       }
       king_work_omnibus_works: {
@@ -257,33 +260,33 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "king_work_omnibus_works_component_king_work_id_fkey"
-            columns: ["component_king_work_id"]
+            foreignKeyName: 'king_work_omnibus_works_component_king_work_id_fkey'
+            columns: ['component_king_work_id']
             isOneToOne: false
-            referencedRelation: "king_works"
-            referencedColumns: ["id"]
+            referencedRelation: 'king_works'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "king_work_omnibus_works_component_king_work_id_fkey"
-            columns: ["component_king_work_id"]
+            foreignKeyName: 'king_work_omnibus_works_component_king_work_id_fkey'
+            columns: ['component_king_work_id']
             isOneToOne: false
-            referencedRelation: "work_stats"
-            referencedColumns: ["king_work_id"]
+            referencedRelation: 'work_stats'
+            referencedColumns: ['king_work_id']
           },
           {
-            foreignKeyName: "king_work_omnibus_works_omnibus_king_work_id_fkey"
-            columns: ["omnibus_king_work_id"]
+            foreignKeyName: 'king_work_omnibus_works_omnibus_king_work_id_fkey'
+            columns: ['omnibus_king_work_id']
             isOneToOne: false
-            referencedRelation: "king_works"
-            referencedColumns: ["id"]
+            referencedRelation: 'king_works'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "king_work_omnibus_works_omnibus_king_work_id_fkey"
-            columns: ["omnibus_king_work_id"]
+            foreignKeyName: 'king_work_omnibus_works_omnibus_king_work_id_fkey'
+            columns: ['omnibus_king_work_id']
             isOneToOne: false
-            referencedRelation: "work_stats"
-            referencedColumns: ["king_work_id"]
-          },
+            referencedRelation: 'work_stats'
+            referencedColumns: ['king_work_id']
+          }
         ]
       }
       king_works: {
@@ -291,13 +294,17 @@ export type Database = {
           active: boolean
           bachman: boolean
           co_author: string | null
+          counts_with_id: string | null
           cover_id: number | null
           dark_tower: boolean
           dark_tower_relation: string | null
           description: string | null
+          edition_year_max: number | null
+          edition_year_min: number | null
           id: string
           open_library_work_key: string | null
           publish_date: string
+          remark: string | null
           shuffle_position: number
           slug: string
           title: string
@@ -307,13 +314,17 @@ export type Database = {
           active?: boolean
           bachman?: boolean
           co_author?: string | null
+          counts_with_id?: string | null
           cover_id?: number | null
           dark_tower?: boolean
           dark_tower_relation?: string | null
           description?: string | null
+          edition_year_max?: number | null
+          edition_year_min?: number | null
           id?: string
           open_library_work_key?: string | null
           publish_date: string
+          remark?: string | null
           shuffle_position: number
           slug: string
           title: string
@@ -323,19 +334,38 @@ export type Database = {
           active?: boolean
           bachman?: boolean
           co_author?: string | null
+          counts_with_id?: string | null
           cover_id?: number | null
           dark_tower?: boolean
           dark_tower_relation?: string | null
           description?: string | null
+          edition_year_max?: number | null
+          edition_year_min?: number | null
           id?: string
           open_library_work_key?: string | null
           publish_date?: string
+          remark?: string | null
           shuffle_position?: number
           slug?: string
           title?: string
           type?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: 'king_works_counts_with_id_fkey'
+            columns: ['counts_with_id']
+            isOneToOne: false
+            referencedRelation: 'king_works'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'king_works_counts_with_id_fkey'
+            columns: ['counts_with_id']
+            isOneToOne: false
+            referencedRelation: 'work_stats'
+            referencedColumns: ['king_work_id']
+          }
+        ]
       }
       profiles: {
         Row: {
@@ -366,6 +396,233 @@ export type Database = {
           username_lower?: string | null
         }
         Relationships: []
+      }
+      related_work_king_works: {
+        Row: {
+          id: string
+          king_work_id: string
+          related_work_id: string
+        }
+        Insert: {
+          id?: string
+          king_work_id: string
+          related_work_id: string
+        }
+        Update: {
+          id?: string
+          king_work_id?: string
+          related_work_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'related_work_king_works_king_work_id_fkey'
+            columns: ['king_work_id']
+            isOneToOne: false
+            referencedRelation: 'king_works'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'related_work_king_works_related_work_id_fkey'
+            columns: ['related_work_id']
+            isOneToOne: false
+            referencedRelation: 'related_work_stats'
+            referencedColumns: ['related_work_id']
+          },
+          {
+            foreignKeyName: 'related_work_king_works_related_work_id_fkey'
+            columns: ['related_work_id']
+            isOneToOne: false
+            referencedRelation: 'related_works'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+      related_work_omnibus_works: {
+        Row: {
+          component_related_work_id: string
+          id: string
+          omnibus_related_work_id: string
+        }
+        Insert: {
+          component_related_work_id: string
+          id?: string
+          omnibus_related_work_id: string
+        }
+        Update: {
+          component_related_work_id?: string
+          id?: string
+          omnibus_related_work_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'related_work_omnibus_works_component_related_work_id_fkey'
+            columns: ['component_related_work_id']
+            isOneToOne: false
+            referencedRelation: 'related_work_stats'
+            referencedColumns: ['related_work_id']
+          },
+          {
+            foreignKeyName: 'related_work_omnibus_works_component_related_work_id_fkey'
+            columns: ['component_related_work_id']
+            isOneToOne: false
+            referencedRelation: 'related_works'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'related_work_omnibus_works_omnibus_related_work_id_fkey'
+            columns: ['omnibus_related_work_id']
+            isOneToOne: false
+            referencedRelation: 'related_work_stats'
+            referencedColumns: ['related_work_id']
+          },
+          {
+            foreignKeyName: 'related_work_omnibus_works_omnibus_related_work_id_fkey'
+            columns: ['omnibus_related_work_id']
+            isOneToOne: false
+            referencedRelation: 'related_works'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+      related_works: {
+        Row: {
+          active: boolean
+          category: string
+          cover_id: number | null
+          creator: string
+          dark_tower: boolean
+          description: string | null
+          id: string
+          is_omnibus: boolean
+          open_library_work_key: string | null
+          publish_date: string | null
+          relation_note: string | null
+          slug: string
+          title: string
+        }
+        Insert: {
+          active?: boolean
+          category: string
+          cover_id?: number | null
+          creator: string
+          dark_tower?: boolean
+          description?: string | null
+          id?: string
+          is_omnibus?: boolean
+          open_library_work_key?: string | null
+          publish_date?: string | null
+          relation_note?: string | null
+          slug: string
+          title: string
+        }
+        Update: {
+          active?: boolean
+          category?: string
+          cover_id?: number | null
+          creator?: string
+          dark_tower?: boolean
+          description?: string | null
+          id?: string
+          is_omnibus?: boolean
+          open_library_work_key?: string | null
+          publish_date?: string | null
+          relation_note?: string | null
+          slug?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      reports: {
+        Row: {
+          adaptation_id: string | null
+          content_area: string
+          created_at: string
+          description: string
+          id: string
+          king_work_id: string | null
+          related_work_id: string | null
+          short_story_id: string | null
+          status: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          adaptation_id?: string | null
+          content_area: string
+          created_at?: string
+          description: string
+          id?: string
+          king_work_id?: string | null
+          related_work_id?: string | null
+          short_story_id?: string | null
+          status?: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          adaptation_id?: string | null
+          content_area?: string
+          created_at?: string
+          description?: string
+          id?: string
+          king_work_id?: string | null
+          related_work_id?: string | null
+          short_story_id?: string | null
+          status?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'reports_adaptation_id_fkey'
+            columns: ['adaptation_id']
+            isOneToOne: false
+            referencedRelation: 'adaptation_stats'
+            referencedColumns: ['adaptation_id']
+          },
+          {
+            foreignKeyName: 'reports_adaptation_id_fkey'
+            columns: ['adaptation_id']
+            isOneToOne: false
+            referencedRelation: 'adaptations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'reports_king_work_id_fkey'
+            columns: ['king_work_id']
+            isOneToOne: false
+            referencedRelation: 'king_works'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'reports_king_work_id_fkey'
+            columns: ['king_work_id']
+            isOneToOne: false
+            referencedRelation: 'work_stats'
+            referencedColumns: ['king_work_id']
+          },
+          {
+            foreignKeyName: 'reports_related_work_id_fkey'
+            columns: ['related_work_id']
+            isOneToOne: false
+            referencedRelation: 'related_work_stats'
+            referencedColumns: ['related_work_id']
+          },
+          {
+            foreignKeyName: 'reports_related_work_id_fkey'
+            columns: ['related_work_id']
+            isOneToOne: false
+            referencedRelation: 'related_works'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'reports_short_story_id_fkey'
+            columns: ['short_story_id']
+            isOneToOne: false
+            referencedRelation: 'king_short_stories'
+            referencedColumns: ['id']
+          }
+        ]
       }
       series: {
         Row: {
@@ -403,26 +660,26 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "series_works_king_work_id_fkey"
-            columns: ["king_work_id"]
+            foreignKeyName: 'series_works_king_work_id_fkey'
+            columns: ['king_work_id']
             isOneToOne: false
-            referencedRelation: "king_works"
-            referencedColumns: ["id"]
+            referencedRelation: 'king_works'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "series_works_king_work_id_fkey"
-            columns: ["king_work_id"]
+            foreignKeyName: 'series_works_king_work_id_fkey'
+            columns: ['king_work_id']
             isOneToOne: false
-            referencedRelation: "work_stats"
-            referencedColumns: ["king_work_id"]
+            referencedRelation: 'work_stats'
+            referencedColumns: ['king_work_id']
           },
           {
-            foreignKeyName: "series_works_series_id_fkey"
-            columns: ["series_id"]
+            foreignKeyName: 'series_works_series_id_fkey'
+            columns: ['series_id']
             isOneToOne: false
-            referencedRelation: "series"
-            referencedColumns: ["id"]
-          },
+            referencedRelation: 'series'
+            referencedColumns: ['id']
+          }
         ]
       }
       suggestion_votes: {
@@ -449,26 +706,26 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "suggestion_votes_suggestion_id_fkey"
-            columns: ["suggestion_id"]
+            foreignKeyName: 'suggestion_votes_suggestion_id_fkey'
+            columns: ['suggestion_id']
             isOneToOne: false
-            referencedRelation: "suggestion_vote_counts"
-            referencedColumns: ["suggestion_id"]
+            referencedRelation: 'suggestion_vote_counts'
+            referencedColumns: ['suggestion_id']
           },
           {
-            foreignKeyName: "suggestion_votes_suggestion_id_fkey"
-            columns: ["suggestion_id"]
+            foreignKeyName: 'suggestion_votes_suggestion_id_fkey'
+            columns: ['suggestion_id']
             isOneToOne: false
-            referencedRelation: "suggestions"
-            referencedColumns: ["id"]
+            referencedRelation: 'suggestions'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "suggestion_votes_suggestion_id_fkey"
-            columns: ["suggestion_id"]
+            foreignKeyName: 'suggestion_votes_suggestion_id_fkey'
+            columns: ['suggestion_id']
             isOneToOne: false
-            referencedRelation: "suggestions_with_author"
-            referencedColumns: ["id"]
-          },
+            referencedRelation: 'suggestions_with_author'
+            referencedColumns: ['id']
+          }
         ]
       }
       suggestions: {
@@ -528,19 +785,19 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "user_adaptations_adaptation_id_fkey"
-            columns: ["adaptation_id"]
+            foreignKeyName: 'user_adaptations_adaptation_id_fkey'
+            columns: ['adaptation_id']
             isOneToOne: false
-            referencedRelation: "adaptation_stats"
-            referencedColumns: ["adaptation_id"]
+            referencedRelation: 'adaptation_stats'
+            referencedColumns: ['adaptation_id']
           },
           {
-            foreignKeyName: "user_adaptations_adaptation_id_fkey"
-            columns: ["adaptation_id"]
+            foreignKeyName: 'user_adaptations_adaptation_id_fkey'
+            columns: ['adaptation_id']
             isOneToOne: false
-            referencedRelation: "adaptations"
-            referencedColumns: ["id"]
-          },
+            referencedRelation: 'adaptations'
+            referencedColumns: ['id']
+          }
         ]
       }
       user_book_editions: {
@@ -570,19 +827,19 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "user_book_editions_king_work_id_fkey"
-            columns: ["king_work_id"]
+            foreignKeyName: 'user_book_editions_king_work_id_fkey'
+            columns: ['king_work_id']
             isOneToOne: false
-            referencedRelation: "king_works"
-            referencedColumns: ["id"]
+            referencedRelation: 'king_works'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "user_book_editions_king_work_id_fkey"
-            columns: ["king_work_id"]
+            foreignKeyName: 'user_book_editions_king_work_id_fkey'
+            columns: ['king_work_id']
             isOneToOne: false
-            referencedRelation: "work_stats"
-            referencedColumns: ["king_work_id"]
-          },
+            referencedRelation: 'work_stats'
+            referencedColumns: ['king_work_id']
+          }
         ]
       }
       user_book_reads: {
@@ -624,19 +881,19 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "user_book_reads_king_work_id_fkey"
-            columns: ["king_work_id"]
+            foreignKeyName: 'user_book_reads_king_work_id_fkey'
+            columns: ['king_work_id']
             isOneToOne: false
-            referencedRelation: "king_works"
-            referencedColumns: ["id"]
+            referencedRelation: 'king_works'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "user_book_reads_king_work_id_fkey"
-            columns: ["king_work_id"]
+            foreignKeyName: 'user_book_reads_king_work_id_fkey'
+            columns: ['king_work_id']
             isOneToOne: false
-            referencedRelation: "work_stats"
-            referencedColumns: ["king_work_id"]
-          },
+            referencedRelation: 'work_stats'
+            referencedColumns: ['king_work_id']
+          }
         ]
       }
       user_books: {
@@ -687,33 +944,33 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "user_books_king_work_id_fkey"
-            columns: ["king_work_id"]
+            foreignKeyName: 'user_books_king_work_id_fkey'
+            columns: ['king_work_id']
             isOneToOne: false
-            referencedRelation: "king_works"
-            referencedColumns: ["id"]
+            referencedRelation: 'king_works'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "user_books_king_work_id_fkey"
-            columns: ["king_work_id"]
+            foreignKeyName: 'user_books_king_work_id_fkey'
+            columns: ['king_work_id']
             isOneToOne: false
-            referencedRelation: "work_stats"
-            referencedColumns: ["king_work_id"]
+            referencedRelation: 'work_stats'
+            referencedColumns: ['king_work_id']
           },
           {
-            foreignKeyName: "user_books_via_omnibus_id_fkey"
-            columns: ["via_omnibus_id"]
+            foreignKeyName: 'user_books_via_omnibus_id_fkey'
+            columns: ['via_omnibus_id']
             isOneToOne: false
-            referencedRelation: "king_works"
-            referencedColumns: ["id"]
+            referencedRelation: 'king_works'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "user_books_via_omnibus_id_fkey"
-            columns: ["via_omnibus_id"]
+            foreignKeyName: 'user_books_via_omnibus_id_fkey'
+            columns: ['via_omnibus_id']
             isOneToOne: false
-            referencedRelation: "work_stats"
-            referencedColumns: ["king_work_id"]
-          },
+            referencedRelation: 'work_stats'
+            referencedColumns: ['king_work_id']
+          }
         ]
       }
       user_follows: {
@@ -736,6 +993,125 @@ export type Database = {
           id?: string
         }
         Relationships: []
+      }
+      user_related_work_editions: {
+        Row: {
+          added_at: string
+          edition_id: string
+          edition_title: string
+          id: string
+          related_work_id: string
+          user_id: string
+        }
+        Insert: {
+          added_at?: string
+          edition_id: string
+          edition_title: string
+          id?: string
+          related_work_id: string
+          user_id: string
+        }
+        Update: {
+          added_at?: string
+          edition_id?: string
+          edition_title?: string
+          id?: string
+          related_work_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'user_related_work_editions_related_work_id_fkey'
+            columns: ['related_work_id']
+            isOneToOne: false
+            referencedRelation: 'related_work_stats'
+            referencedColumns: ['related_work_id']
+          },
+          {
+            foreignKeyName: 'user_related_work_editions_related_work_id_fkey'
+            columns: ['related_work_id']
+            isOneToOne: false
+            referencedRelation: 'related_works'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+      user_related_works: {
+        Row: {
+          currently_reading: boolean
+          finished_on: string | null
+          format: string | null
+          id: string
+          note: string | null
+          owned: boolean
+          rating: number | null
+          read: boolean
+          related_work_id: string
+          started_on: string | null
+          user_id: string
+          via_omnibus_id: string | null
+          want_to_read: boolean
+        }
+        Insert: {
+          currently_reading?: boolean
+          finished_on?: string | null
+          format?: string | null
+          id?: string
+          note?: string | null
+          owned?: boolean
+          rating?: number | null
+          read?: boolean
+          related_work_id: string
+          started_on?: string | null
+          user_id: string
+          via_omnibus_id?: string | null
+          want_to_read?: boolean
+        }
+        Update: {
+          currently_reading?: boolean
+          finished_on?: string | null
+          format?: string | null
+          id?: string
+          note?: string | null
+          owned?: boolean
+          rating?: number | null
+          read?: boolean
+          related_work_id?: string
+          started_on?: string | null
+          user_id?: string
+          via_omnibus_id?: string | null
+          want_to_read?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'user_related_works_related_work_id_fkey'
+            columns: ['related_work_id']
+            isOneToOne: false
+            referencedRelation: 'related_work_stats'
+            referencedColumns: ['related_work_id']
+          },
+          {
+            foreignKeyName: 'user_related_works_related_work_id_fkey'
+            columns: ['related_work_id']
+            isOneToOne: false
+            referencedRelation: 'related_works'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'user_related_works_via_omnibus_id_fkey'
+            columns: ['via_omnibus_id']
+            isOneToOne: false
+            referencedRelation: 'related_work_stats'
+            referencedColumns: ['related_work_id']
+          },
+          {
+            foreignKeyName: 'user_related_works_via_omnibus_id_fkey'
+            columns: ['via_omnibus_id']
+            isOneToOne: false
+            referencedRelation: 'related_works'
+            referencedColumns: ['id']
+          }
+        ]
       }
       user_short_story_reads: {
         Row: {
@@ -761,26 +1137,26 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "user_short_story_reads_short_story_id_fkey"
-            columns: ["short_story_id"]
+            foreignKeyName: 'user_short_story_reads_short_story_id_fkey'
+            columns: ['short_story_id']
             isOneToOne: false
-            referencedRelation: "king_short_stories"
-            referencedColumns: ["id"]
+            referencedRelation: 'king_short_stories'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "user_short_story_reads_via_collection_id_fkey"
-            columns: ["via_collection_id"]
+            foreignKeyName: 'user_short_story_reads_via_collection_id_fkey'
+            columns: ['via_collection_id']
             isOneToOne: false
-            referencedRelation: "king_works"
-            referencedColumns: ["id"]
+            referencedRelation: 'king_works'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "user_short_story_reads_via_collection_id_fkey"
-            columns: ["via_collection_id"]
+            foreignKeyName: 'user_short_story_reads_via_collection_id_fkey'
+            columns: ['via_collection_id']
             isOneToOne: false
-            referencedRelation: "work_stats"
-            referencedColumns: ["king_work_id"]
-          },
+            referencedRelation: 'work_stats'
+            referencedColumns: ['king_work_id']
+          }
         ]
       }
     }
@@ -796,7 +1172,31 @@ export type Database = {
       dark_tower_journey_stats: {
         Row: {
           finished_count: number | null
+          not_started_count: number | null
           on_the_way_count: number | null
+        }
+        Relationships: []
+      }
+      related_work_stats: {
+        Row: {
+          currently_reading_count: number | null
+          owner_count: number | null
+          read_count: number | null
+          related_work_id: string | null
+          want_to_read_count: number | null
+        }
+        Relationships: []
+      }
+      reports_public: {
+        Row: {
+          content_area: string | null
+          created_at: string | null
+          description: string | null
+          id: string | null
+          item_slug: string | null
+          item_title: string | null
+          status: string | null
+          type: string | null
         }
         Relationships: []
       }
@@ -850,129 +1250,128 @@ export type Database = {
   }
 }
 
-type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+type DatabaseWithoutInternals = Omit<Database, '__InternalSupabase'>
 
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, 'public'>]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
-    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof DatabaseWithoutInternals },
+  | keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
+  | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+      & DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])
+    : never = never
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    & DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])[TableName] extends {
       Row: infer R
     }
-    ? R
-    : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])
-    ? (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
-        Row: infer R
-      }
       ? R
       : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema['Tables']
+    & DefaultSchema['Views'])
+    ? (DefaultSchema['Tables']
+      & DefaultSchema['Views'])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+        ? R
+        : never
     : never
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
+  | keyof DefaultSchema['Tables']
+  | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    : never = never
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I
-    }
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+    Insert: infer I
+  }
     ? I
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Insert: infer I
-      }
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
+    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+      Insert: infer I
+    }
       ? I
       : never
     : never
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
+  | keyof DefaultSchema['Tables']
+  | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    : never = never
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U
-    }
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+    Update: infer U
+  }
     ? U
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Update: infer U
-      }
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
+    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+      Update: infer U
+    }
       ? U
       : never
     : never
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema["Enums"]
-    | { schema: keyof DatabaseWithoutInternals },
+  | keyof DefaultSchema['Enums']
+  | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums']
+    : never = never
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
-    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums'][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums']
+    ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
     : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof DatabaseWithoutInternals },
+  | keyof DefaultSchema['CompositeTypes']
+  | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
+    : never = never
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
-    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
+    ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
     : never
 
 export const Constants = {
   graphql_public: {
-    Enums: {},
+    Enums: {}
   },
   public: {
-    Enums: {},
-  },
+    Enums: {}
+  }
 } as const
-

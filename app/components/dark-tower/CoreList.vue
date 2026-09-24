@@ -17,12 +17,14 @@ defineProps<Props>();
     :items="works"
     arrows
     dots
-    class="w-full px-0 sm:px-10"
+    loop
+    class="w-full"
     :ui="{
-      arrows: 'hidden sm:block',
-      prev: 'start-0 sm:start-0 top-1/2 -translate-y-1/2',
-      next: 'end-0 sm:end-0 top-1/2 -translate-y-1/2',
-      dots: 'static inset-auto mt-4',
+      controls: 'mt-4 flex items-center justify-center gap-4',
+      arrows: 'contents',
+      prev: 'static order-1 rounded-full translate-y-0.2',
+      next: 'static order-3 rounded-full translate-y-0.2',
+      dots: 'static inset-auto order-2',
     }"
   >
     <DarkTowerCarouselItem :work="item" />

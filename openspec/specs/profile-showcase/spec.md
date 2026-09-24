@@ -330,6 +330,47 @@ The system SHALL show the profile owner a remove control on each Bookshelf tile,
 - **WHEN** the profile owner activates a Bookshelf tile's remove control
 - **THEN** the confirmation prompt reads "Say true?" and its confirm action reads "Say thankya"
 
+### Requirement: Currently Reading always includes By Other Hands works
+The system SHALL show, in the Currently Reading section, every By Other Hands work the profile owner currently has marked currently-reading, in addition to King works. A By Other Hands item SHALL link to its By Other Hands detail page and SHALL offer the same owner-only finish action as a King item, using By Other Hands' own mark-read flow.
+
+#### Scenario: By Other Hands work shown in Currently Reading
+- **WHEN** a visitor views a showcase where the profile owner is currently reading a By Other Hands work
+- **THEN** that work appears in the Currently Reading section alongside any King works
+
+#### Scenario: Owner can finish a By Other Hands currently-reading item
+- **WHEN** the profile owner activates the finish action on a By Other Hands work in their Currently Reading section
+- **THEN** they are prompted with By Other Hands' own mark-read flow rather than King's finish-reading flow
+
+### Requirement: Bookshelf and reading timeline always include By Other Hands works
+The system SHALL include By Other Hands works in the Bookshelf grid and the reading timeline alongside King works, each linking to its By Other Hands detail page rather than a King work page, with the same edit-dates control on a timeline entry as a King entry gets (see reading-status's "Works by Others share the same reading-status controls"). A By Other Hands entry SHALL NOT appear for a work only marked read as part of an omnibus cascading onto it - only a work read on its own or explicitly marked read directly (see the by-other-hands capability).
+
+#### Scenario: A By Other Hands work on the shelf
+- **WHEN** the profile owner owns at least one By Other Hands work
+- **THEN** the Bookshelf shows a tile for that work, linking to its By Other Hands detail page
+
+#### Scenario: A By Other Hands read on the timeline
+- **WHEN** the profile owner has read at least one By Other Hands work
+- **THEN** the reading timeline shows an entry for that read, linking to its By Other Hands detail page, editable the same as a King entry
+
+#### Scenario: A cascaded omnibus component is not shown separately
+- **WHEN** the profile owner marks a By Other Hands omnibus read, cascading read status onto the individual works it collects
+- **THEN** only the omnibus itself appears as a reading timeline entry, not the works it collects
+
+### Requirement: By Other Hands progress only appears once something has been read
+The system SHALL show a "By Other Hands" progress section, alongside the King progress indicators, only when the profile owner has read at least one active By Other Hands work - showing nothing in its place otherwise. Within that section, the system SHALL show the overall By Other Hands progress card only when the owner has read at least one active By Other Hands work, and the Dark Tower comics progress card only when the owner has read at least one active By Other Hands comic, each independently of the other.
+
+#### Scenario: Nothing read yet shows no section
+- **WHEN** the profile owner has not read any active By Other Hands work
+- **THEN** no "By Other Hands" progress section is shown
+
+#### Scenario: A non-comic read shows only the overall card
+- **WHEN** the profile owner has read an active By Other Hands work that is not a comic, and has read no comics
+- **THEN** the "By Other Hands" progress section shows the overall progress card only, not the Dark Tower comics card
+
+#### Scenario: A comic read shows both cards
+- **WHEN** the profile owner has read at least one active By Other Hands comic
+- **THEN** the "By Other Hands" progress section shows both the overall progress card and the Dark Tower comics progress card
+
 ### Requirement: Currently Reading items support finishing directly from the showcase
 The system SHALL let the profile owner finish a King work shown in the Currently Reading section directly from the showcase, using the same finish-reading flow (an end date, defaulted to today and adjustable) defined by the reading-status capability, without navigating away from the showcase. The system SHALL NOT show this action to a visitor who is not the profile owner.
 

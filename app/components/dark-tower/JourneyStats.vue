@@ -1,22 +1,34 @@
 <script setup lang="ts">
-import type { DarkTowerJourneyStats } from "~/composables/useBooks";
+import type { DarkTowerJourneyStats } from '~/composables/useBooks'
 
 interface Props {
-  stats: DarkTowerJourneyStats | null;
+  stats: DarkTowerJourneyStats | null
 }
 
-const props = defineProps<Props>();
+const props = defineProps<Props>()
 
 const tiles = computed(() => [
-  { label: "Reached the Tower", icon: "i-lucide-flag", value: props.stats?.finishedCount ?? 0 },
-  { label: "Still on the Path", icon: "i-lucide-footprints", value: props.stats?.onTheWayCount ?? 0 },
-]);
+  { label: 'Reached the Tower', icon: 'i-lucide-flag', value: props.stats?.finishedCount ?? 0 },
+  { label: 'Still on the Path', icon: 'i-lucide-footprints', value: props.stats?.onTheWayCount ?? 0 },
+  {
+    label: 'Forgotten Their Father\'s Face',
+    hint: 'Haven\'t started the Dark Tower yet',
+    icon: 'i-lucide-door-open',
+    value: props.stats?.notStartedCount ?? 0
+  }
+])
 </script>
 
 <template>
-  <div v-if="stats" class="flex flex-col gap-2 rounded-lg bg-elevated pt-3">
+  <div
+    v-if="stats"
+    class="flex flex-col gap-2 rounded-lg bg-elevated pt-3"
+  >
     <h2 class="flex items-center gap-2 px-4 text-sm font-semibold text-highlighted">
-      <UIcon name="i-lucide-rose" class="size-4" />
+      <UIcon
+        name="i-lucide-rose"
+        class="size-4"
+      />
       The Journey So Far
     </h2>
 
@@ -26,8 +38,16 @@ const tiles = computed(() => [
         :key="tile.label"
         class="flex items-center gap-3 px-4 py-1.5"
       >
-        <UIcon :name="tile.icon" class="size-5 shrink-0 text-primary" />
-        <span class="flex-1 truncate text-sm text-muted">{{ tile.label }}</span>
+        <UIcon
+          :name="tile.icon"
+          class="size-5 shrink-0 text-primary"
+        />
+        <UTooltip
+          :text="tile.hint"
+          :disabled="!tile.hint"
+        >
+          <span class="flex-1 truncate text-sm text-muted">{{ tile.label }}</span>
+        </UTooltip>
         <span class="text-lg font-bold tabular-nums text-highlighted"><NumberMotif :text="tile.value.toLocaleString()" /></span>
       </li>
     </ul>

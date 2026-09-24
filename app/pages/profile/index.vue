@@ -1,21 +1,21 @@
 <script setup lang="ts">
-definePageMeta({ layout: "default" });
+definePageMeta({ layout: 'default' })
 
-const { setPageSeo } = useSeo();
+const { setPageSeo } = useSeo()
 setPageSeo({
-  title: "Your Profile",
+  title: 'Your Profile',
   description:
-    "View your Stephen King reading stats, watch progress, and bookshelf.",
-});
+    'View your Stephen King reading stats, watch progress, and bookshelf.'
+})
 
 // Already loaded by the onboarding middleware before this route renders -
 // no fetch needed here.
-const { profile: ownProfile } = useProfile();
-const { profile, isOwner, isPrivate } = provideViewedProfile(ownProfile.value!);
+const { profile: ownProfile } = useProfile()
+const { profile, isOwner, isPrivate } = provideViewedProfile(ownProfile.value!)
 
 useSeoMeta({
-  title: profile.username ? `${profile.username}` : "Profile",
-});
+  title: profile.username ? `${profile.username}` : 'Profile'
+})
 </script>
 
 <template>

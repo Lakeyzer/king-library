@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import type { ReadListEntry } from "~/composables/useBooks";
+import type { ReadListEntry } from '~/composables/useBooks'
 
-const { profile, isOwner } = useViewedProfile();
+const { profile, isOwner } = useViewedProfile()
 
-const title = computed(() => (isOwner.value ? "Read List" : `${profile.username}'s Read List`));
+const title = computed(() => (isOwner.value ? 'Read List' : `${profile.username}'s Read List`))
 const emptyDescription = computed(() =>
   isOwner.value
-    ? "King works you mark want-to-read will show up here."
-    : `${profile.username} hasn't marked anything want-to-read yet.`,
-);
+    ? 'King works you mark want-to-read will show up here.'
+    : `${profile.username} hasn't marked anything want-to-read yet.`
+)
 
-const { fetchReadList, fetchUserBooks } = useBooks();
+const { fetchReadList, fetchUserBooks } = useBooks()
 
 // Always query, even for a private profile viewed by its own owner mid-
 // transition - RLS on user_books is the actual gate (see
@@ -18,13 +18,13 @@ const { fetchReadList, fetchUserBooks } = useBooks();
 // render this tab at all for a non-owner visitor when the profile is
 // private (RouteChrome's isPrivate prop, set via useProfileRouteByUsername).
 const { data: works } = await useAsyncData(`profile-${profile.id}-read-list`, () =>
-  fetchReadList(profile.id),
-);
+  fetchReadList(profile.id)
+)
 
 // Populates userBooksByWorkId so each item's BookReadingActions reflects
 // the *viewer's own* want-to-read/owned/read state for that work - same as
 // every other bibliography-browsing page, regardless of whose list this is.
-await useAsyncData("user-books", fetchUserBooks);
+await useAsyncData('user-books', fetchUserBooks)
 </script>
 
 <template>
@@ -50,6 +50,7 @@ await useAsyncData("user-books", fetchUserBooks);
       <BookReadingActions
         :work-id="(item as ReadListEntry).id"
         :work-title="(item as ReadListEntry).title"
+        :publish-date="(item as ReadListEntry).publishDate"
         mode="compact"
       />
     </template>

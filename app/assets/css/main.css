@@ -105,6 +105,22 @@
   }
 }
 
+/* Canonical heading sizes - apply alongside layout/positioning classes
+   (e.g. class="heading-2 mb-3") so every h1/h2/h3 in the project stays the
+   same size instead of each spot picking its own text-size/font-weight
+   combo. */
+@utility heading-1 {
+  @apply text-2xl font-bold text-highlighted;
+}
+
+@utility heading-2 {
+  @apply text-lg font-bold text-highlighted;
+}
+
+@utility heading-3 {
+  @apply text-sm font-semibold text-highlighted;
+}
+
 :root {
   --ui-radius: 0.375rem;
 }
