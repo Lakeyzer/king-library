@@ -149,10 +149,16 @@ const [
       <div class="flex flex-col gap-4 lg:flex-row lg:items-start">
         <div class="min-w-0 flex-1">
           <section>
-            <h2 class="heading-2 mb-3">
-              Dark Tower Related Works
-              <span class="font-normal text-muted">(<NumberMotif :text="relatedWorks.length" />)</span>
-            </h2>
+            <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+              <h2 class="heading-2">
+                Dark Tower Related Works
+                <span class="font-normal text-muted">(<NumberMotif :text="relatedWorks.length" />)</span>
+              </h2>
+              <ReportButton
+                mode="missing-content"
+                content-area="dark_tower"
+              />
+            </div>
             <DarkTowerRelatedCarousel :works="relatedWorks" />
           </section>
 
@@ -175,7 +181,7 @@ const [
               icon="i-lucide-rose"
               :count="darkTowerProgress.count"
               :total="darkTowerProgress.total"
-              color="success"
+              color="error"
             />
             <ProfileProgressBar
               v-if="relatedProgress"

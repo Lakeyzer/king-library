@@ -42,7 +42,10 @@ const CONTENT_AREA_PATH_PREFIX: Record<ReportContentArea, string> = {
   works: '/works',
   short_works: '/short-works',
   adaptations: '/adaptations',
-  works_by_others: '/works-by-others'
+  works_by_others: '/works-by-others',
+  // Never used for a link in practice - dark_tower reports are
+  // missing-content only, so they never carry an itemSlug.
+  dark_tower: '/dark-tower'
 }
 
 interface ReportAccordionItem extends AccordionItem {

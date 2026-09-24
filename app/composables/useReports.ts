@@ -1,4 +1,4 @@
-export type ReportContentArea = 'works' | 'short_works' | 'adaptations' | 'works_by_others'
+export type ReportContentArea = 'works' | 'short_works' | 'adaptations' | 'works_by_others' | 'dark_tower'
 export type ReportType = 'issue' | 'missing_content'
 export type ReportStatus = 'new' | 'rejected' | 'applied'
 export type ReportStatusFilter = ReportStatus | 'all'
@@ -152,6 +152,11 @@ export function useReports() {
       case 'works_by_others':
         ({ error } = await supabase.from('reports').insert({ ...baseRow, related_work_id: itemId }))
         break
+      // Missing-content only - the Dark Tower lists span king_works and
+      // king_short_stories, so there's no single item FK to report against
+      // (also enforced by reports_dark_tower_missing_content_only).
+      case 'dark_tower':
+        throw new Error('Dark Tower reports are missing-content only')
     }
 
     if (error) throw error
