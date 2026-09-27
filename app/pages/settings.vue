@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import type { UserIdentity } from '@supabase/supabase-js'
+import { EMAIL_PREFERENCE_OPTIONS } from '~/composables/useEmailPreferences'
+import type { EmailPreferenceKey } from '~/composables/useEmailPreferences'
 
 definePageMeta({ layout: 'default' })
 
@@ -94,6 +96,23 @@ const isPublic = computed({
     })
   }
 })
+
+const { preferences: emailPreferences, fetchPreferences, updatePreference }
+  = useEmailPreferences()
+
+await useAsyncData('email-preferences', fetchPreferences)
+
+const emailPreferenceError = ref('')
+
+// Optimistic like the visibility toggle above: updatePreference() only
+// writes the shared state once the upsert succeeds, so a failed save leaves
+// the switch showing the saved value.
+function setEmailPreference(key: EmailPreferenceKey, enabled: boolean) {
+  emailPreferenceError.value = ''
+  updatePreference(key, enabled).catch(() => {
+    emailPreferenceError.value = 'Could not update email settings. Please try again.'
+  })
+}
 
 const avatarFile = ref<File | null>(null)
 const avatarUploading = ref(false)
@@ -331,6 +350,45 @@ const showDeleteModal = ref(false)
         />
       </div>
       <USwitch v-model="isPublic" />
+    </div>
+
+    <div class="border-t border-default pt-6">
+      <h2 class="font-medium">
+        Email notifications
+      </h2>
+      <p class="text-muted text-sm mt-1">
+        Choose which emails King Library sends you. Notifications in the app
+        are always shown.
+      </p>
+      <UAlert
+        v-if="emailPreferenceError"
+        color="error"
+        variant="subtle"
+        :title="emailPreferenceError"
+        class="mt-2"
+      />
+
+      <div class="mt-4 space-y-4">
+        <div
+          v-for="option in EMAIL_PREFERENCE_OPTIONS"
+          :key="option.key"
+          class="flex items-center justify-between gap-4"
+        >
+          <div>
+            <p class="font-medium">
+              {{ option.label }}
+            </p>
+            <p class="text-muted text-sm">
+              {{ option.description }}
+            </p>
+          </div>
+          <USwitch
+            :model-value="emailPreferences[option.key]"
+            :aria-label="option.label"
+            @update:model-value="(value) => setEmailPreference(option.key, value)"
+          />
+        </div>
+      </div>
     </div>
 
     <div class="border-t border-default pt-6">

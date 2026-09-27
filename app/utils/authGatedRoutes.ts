@@ -17,6 +17,7 @@ export function isAuthGatedRoute(path: string) {
     || path === '/settings'
     || path === '/following'
     || path === '/suggestion-box'
+    || path === '/notifications'
     || isCompareRoute
   )
 }

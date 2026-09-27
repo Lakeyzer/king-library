@@ -166,6 +166,24 @@ export type Database = {
         }
         Relationships: []
       }
+      email_preferences: {
+        Row: {
+          suggestion_updates: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          suggestion_updates?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          suggestion_updates?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       king_short_stories: {
         Row: {
           dark_tower: boolean
@@ -367,6 +385,67 @@ export type Database = {
           }
         ]
       }
+      notifications: {
+        Row: {
+          admin_comment: string | null
+          created_at: string
+          email_sent_at: string | null
+          id: string
+          read_at: string | null
+          status: string | null
+          suggestion_id: string
+          suggestion_title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          admin_comment?: string | null
+          created_at?: string
+          email_sent_at?: string | null
+          id?: string
+          read_at?: string | null
+          status?: string | null
+          suggestion_id: string
+          suggestion_title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          admin_comment?: string | null
+          created_at?: string
+          email_sent_at?: string | null
+          id?: string
+          read_at?: string | null
+          status?: string | null
+          suggestion_id?: string
+          suggestion_title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'notifications_suggestion_id_fkey'
+            columns: ['suggestion_id']
+            isOneToOne: false
+            referencedRelation: 'suggestion_vote_counts'
+            referencedColumns: ['suggestion_id']
+          },
+          {
+            foreignKeyName: 'notifications_suggestion_id_fkey'
+            columns: ['suggestion_id']
+            isOneToOne: false
+            referencedRelation: 'suggestions'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'notifications_suggestion_id_fkey'
+            columns: ['suggestion_id']
+            isOneToOne: false
+            referencedRelation: 'suggestions_with_author'
+            referencedColumns: ['id']
+          }
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -420,6 +499,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: 'king_works'
             referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'related_work_king_works_king_work_id_fkey'
+            columns: ['king_work_id']
+            isOneToOne: false
+            referencedRelation: 'work_stats'
+            referencedColumns: ['king_work_id']
           },
           {
             foreignKeyName: 'related_work_king_works_related_work_id_fkey'
@@ -730,6 +816,8 @@ export type Database = {
       }
       suggestions: {
         Row: {
+          admin_comment: string | null
+          admin_comment_updated_at: string | null
           body: string
           created_at: string
           id: string
@@ -739,6 +827,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          admin_comment?: string | null
+          admin_comment_updated_at?: string | null
           body: string
           created_at?: string
           id?: string
@@ -748,6 +838,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          admin_comment?: string | null
+          admin_comment_updated_at?: string | null
           body?: string
           created_at?: string
           id?: string
@@ -1211,6 +1303,8 @@ export type Database = {
       }
       suggestions_with_author: {
         Row: {
+          admin_comment: string | null
+          admin_comment_updated_at: string | null
           body: string | null
           created_at: string | null
           downvote_count: number | null

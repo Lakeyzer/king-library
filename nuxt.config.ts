@@ -24,6 +24,10 @@ export default defineNuxtConfig({
     // Server-only: never exposed to the client. Used by server/api/tmdb/[mediaType]/[id].get.ts
     // to proxy TMDb detail lookups so the API key never ships to the browser.
     tmdbApiKey: process.env.TMDB_API_KEY,
+    // Server-only: used by server/utils/sendEmail.ts to send suggestion status emails via
+    // Resend. Left unset locally, in which case emails are logged instead of sent.
+    resendApiKey: process.env.RESEND_API_KEY,
+    emailFrom: process.env.EMAIL_FROM,
     public: {
       supabaseUrl: process.env.SUPABASE_URL,
       supabaseKey: process.env.SUPABASE_KEY
@@ -114,7 +118,7 @@ export default defineNuxtConfig({
   sitemap: {
     // Static pages that need auth (or, for /confirm, only ever exist mid-OAuth-redirect)
     // have no SEO value and are never a link worth sharing - see specs/seo-metadata/spec.md.
-    exclude: ['/confirm', '/onboarding', '/settings', '/reset-password', '/suggestion-box', '/following'],
+    exclude: ['/confirm', '/onboarding', '/settings', '/reset-password', '/suggestion-box', '/following', '/notifications'],
     // Work/adaptation/short-work/works-by-others detail pages are dynamic routes the crawler can't
     // enumerate on its own - this endpoint supplies their slugs. Public per-user profile
     // pages (/profile/[username]) are deliberately NOT sourced here, so only the static
