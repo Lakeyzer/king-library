@@ -132,8 +132,10 @@ export type Database = {
           slug: string
           title: string
           tmdb_id: number | null
+          tmdb_episode_number: number | null
           tmdb_media_type: string | null
           tmdb_poster_path: string | null
+          tmdb_season_number: number | null
           type: string
         }
         Insert: {
@@ -146,8 +148,10 @@ export type Database = {
           slug: string
           title: string
           tmdb_id?: number | null
+          tmdb_episode_number?: number | null
           tmdb_media_type?: string | null
           tmdb_poster_path?: string | null
+          tmdb_season_number?: number | null
           type: string
         }
         Update: {
@@ -160,8 +164,10 @@ export type Database = {
           slug?: string
           title?: string
           tmdb_id?: number | null
+          tmdb_episode_number?: number | null
           tmdb_media_type?: string | null
           tmdb_poster_path?: string | null
+          tmdb_season_number?: number | null
           type?: string
         }
         Relationships: []

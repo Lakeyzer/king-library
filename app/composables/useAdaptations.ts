@@ -7,6 +7,8 @@ export interface Adaptation {
   slug: string
   tmdb_id: number | null
   tmdb_media_type: string | null
+  tmdb_season_number: number | null
+  tmdb_episode_number: number | null
   tmdb_poster_path: string | null
   is_universe_only: boolean
   notes: string | null
@@ -111,7 +113,7 @@ export interface AdaptationHighlights {
 }
 
 const ADAPTATION_COLUMNS
-  = 'id, title, type, release_year, release_date, slug, tmdb_id, tmdb_media_type, tmdb_poster_path, is_universe_only, notes'
+  = 'id, title, type, release_year, release_date, slug, tmdb_id, tmdb_media_type, tmdb_season_number, tmdb_episode_number, tmdb_poster_path, is_universe_only, notes'
 
 const USER_ADAPTATION_COLUMNS
   = 'id, user_id, adaptation_id, want_to_watch, watched, watched_at'

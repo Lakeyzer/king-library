@@ -118,6 +118,22 @@
     "release_date": "1984-05-11"
   },
   {
+    "id": "c79c8c70-d23c-4a0d-9c15-2c379ee97347",
+    "title": "The Word Processor of the Gods",
+    "type": "episode",
+    "release_year": 1984,
+    "tmdb_id": 1386,
+    "is_universe_only": false,
+    "notes": "Episode of Tales from the Darkside (S01E08), one of two episodes of the series based on King's work. Teleplay by Michael McDowell.",
+    "tmdb_media_type": "tv",
+    "tmdb_season_number": 1,
+    "tmdb_episode_number": 8,
+    "tmdb_poster_path": "/926R0wiLCiP7J7x2Hjo53Voea0w.jpg",
+    "slug": "the-word-processor-of-the-gods",
+    "active": true,
+    "release_date": "1984-11-25"
+  },
+  {
     "id": "499bdc96-6e45-43e5-8552-6b2df7e3e9d5",
     "title": "Cat's Eye",
     "type": "movie",
@@ -142,6 +158,22 @@
     "slug": "silver-bullet",
     "active": true,
     "release_date": "1985-10-10"
+  },
+  {
+    "id": "bc929704-1c0b-4785-83d3-031a419152b4",
+    "title": "Gramma",
+    "type": "episode",
+    "release_year": 1986,
+    "tmdb_id": 1918,
+    "is_universe_only": false,
+    "notes": "Episode of The Twilight Zone (1985) (S01E18), the only episode of the series based on King's work. Gramma is one of three segments in the episode, alongside 'Personal Demons' and 'Cold Reading'. Teleplay by Harlan Ellison.",
+    "tmdb_media_type": "tv",
+    "tmdb_season_number": 1,
+    "tmdb_episode_number": 18,
+    "tmdb_poster_path": "/5OYHoUEKE3RJMqiHcJ8XA5kB7bw.jpg",
+    "slug": "gramma",
+    "active": true,
+    "release_date": "1986-02-14"
   },
   {
     "id": "4fb4c15c-9079-47bc-ab57-3768b27fb8e3",
@@ -196,6 +228,22 @@
     "release_date": "1987-11-13"
   },
   {
+    "id": "e49abef3-3d10-4b61-9ca8-5050bb15e7f1",
+    "title": "Sorry, Right Number",
+    "type": "episode",
+    "release_year": 1987,
+    "tmdb_id": 1386,
+    "is_universe_only": false,
+    "notes": "Episode of Tales from the Darkside (S04E09), one of two episodes of the series based on King's work. King wrote the teleplay himself.",
+    "tmdb_media_type": "tv",
+    "tmdb_season_number": 4,
+    "tmdb_episode_number": 9,
+    "tmdb_poster_path": "/926R0wiLCiP7J7x2Hjo53Voea0w.jpg",
+    "slug": "sorry-right-number",
+    "active": true,
+    "release_date": "1987-11-22"
+  },
+  {
     "id": "eae56fc7-7463-4e1e-9873-1e9643b44e50",
     "title": "Pet Sematary",
     "type": "movie",
@@ -207,6 +255,20 @@
     "slug": "pet-sematary-1989",
     "active": true,
     "release_date": "1989-04-21"
+  },
+  {
+    "id": "75cd11e3-5217-4295-aef0-31a7914255a8",
+    "title": "Tales from the Darkside: The Movie",
+    "type": "movie",
+    "release_year": 1990,
+    "tmdb_id": 20701,
+    "is_universe_only": false,
+    "notes": "Anthology film; only the segment 'The Cat from Hell' adapts King's work. The other segments, 'Lot 249' and 'Lover's Vow', are based on Arthur Conan Doyle and Lafcadio Hearn.",
+    "tmdb_media_type": "movie",
+    "tmdb_poster_path": "/5q8WK4gW45Knxhpb29IVOCbbfI7.jpg",
+    "slug": "tales-from-the-darkside-the-movie",
+    "active": true,
+    "release_date": "1990-05-03"
   },
   {
     "id": "c81ec258-87f7-472f-94c4-edd36a27cabc",
@@ -246,6 +308,22 @@
     "slug": "misery",
     "active": true,
     "release_date": "1990-11-30"
+  },
+  {
+    "id": "7e14c5dd-1e0d-4229-9135-f1d8b8b0291c",
+    "title": "The Moving Finger",
+    "type": "episode",
+    "release_year": 1991,
+    "tmdb_id": 6323,
+    "is_universe_only": false,
+    "notes": "Episode of Monsters (S03E24), the only episode of the series based on King's work.",
+    "tmdb_media_type": "tv",
+    "tmdb_season_number": 3,
+    "tmdb_episode_number": 24,
+    "tmdb_poster_path": "/fnBz19xGCKc7mfEo9NOeRWIe4iX.jpg",
+    "slug": "the-moving-finger",
+    "active": true,
+    "release_date": "1991-04-26"
   },
   {
     "id": "b847cd25-9104-45e4-81f0-c0336365a93e",
@@ -419,6 +497,50 @@
     "release_date": "1997-04-27"
   },
   {
+    "id": "edd84031-8605-4560-9e70-79dbd0e9f3a3",
+    "title": "The Night Flier",
+    "type": "movie",
+    "release_year": 1997,
+    "tmdb_id": 12238,
+    "is_universe_only": false,
+    "notes": "Premiered on HBO in 1997, followed by a limited theatrical release in 1998.",
+    "tmdb_media_type": "movie",
+    "tmdb_poster_path": "/3bMb6CzdKfpw0pZWVW2RbQRneIC.jpg",
+    "slug": "the-night-flier",
+    "active": true,
+    "release_date": "1997-04-30"
+  },
+  {
+    "id": "84be61eb-a862-4346-bbfe-0c9f4e0eb888",
+    "title": "Quicksilver Highway",
+    "type": "tv_movie",
+    "release_year": 1997,
+    "tmdb_id": 26215,
+    "is_universe_only": false,
+    "notes": "Anthology TV movie; the segment 'Chattery Teeth' adapts King's short story, while 'The Body Politic' adapts Clive Barker.",
+    "tmdb_media_type": "movie",
+    "tmdb_poster_path": "/ktKeyB6yNo81wD60NxZvb7f1nZz.jpg",
+    "slug": "quicksilver-highway",
+    "active": true,
+    "release_date": "1997-05-13"
+  },
+  {
+    "id": "dbacd610-55a0-468e-b4b3-902a19d23da6",
+    "title": "The Revelations of 'Becka Paulson",
+    "type": "episode",
+    "release_year": 1997,
+    "tmdb_id": 21561,
+    "is_universe_only": false,
+    "notes": "Episode of The Outer Limits (1995) (S03E15), the only episode of the series based on King's work.",
+    "tmdb_media_type": "tv",
+    "tmdb_season_number": 3,
+    "tmdb_episode_number": 15,
+    "tmdb_poster_path": "/1mf3GKgYeEIBhsp61uTGmI58NIB.jpg",
+    "slug": "the-revelations-of-becka-paulson",
+    "active": true,
+    "release_date": "1997-06-06"
+  },
+  {
     "id": "9d406229-b6bf-492f-b369-8dbea6edd207",
     "title": "Trucks",
     "type": "tv_movie",
@@ -565,6 +687,19 @@
     "release_date": "2004-03-03"
   },
   {
+    "id": "08bc8a3e-6b2e-4238-bca3-ea7fbe4e6dd8",
+    "title": "Riding the Bullet",
+    "type": "movie",
+    "release_year": 2004,
+    "tmdb_id": 12483,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie",
+    "tmdb_poster_path": "/oM9X7NvJ0Ses0thXu70Wuar9Afd.jpg",
+    "slug": "riding-the-bullet",
+    "active": true,
+    "release_date": "2004-10-15"
+  },
+  {
     "id": "6c2e0fbe-eaff-4395-8088-d32a294ff24c",
     "title": "Desperation",
     "type": "tv_movie",
@@ -631,6 +766,19 @@
     "release_date": "2009-06-10"
   },
   {
+    "id": "ec7d82f5-29fa-4db0-a856-40471a4b4c41",
+    "title": "Dolan's Cadillac",
+    "type": "movie",
+    "release_year": 2009,
+    "tmdb_id": 19823,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie",
+    "tmdb_poster_path": "/5R9MivzBtRpZCq3amYmNjEmfChT.jpg",
+    "slug": "dolans-cadillac",
+    "active": true,
+    "release_date": "2009-07-01"
+  },
+  {
     "id": "ed719529-a0f2-4fb8-9e3a-498e5f9f2962",
     "title": "Haven",
     "type": "series",
@@ -682,6 +830,19 @@
     "slug": "under-the-dome",
     "active": true,
     "release_date": "2013-06-24"
+  },
+  {
+    "id": "b358b42f-c014-4ffe-bb9e-069366c79884",
+    "title": "A Good Marriage",
+    "type": "movie",
+    "release_year": 2014,
+    "tmdb_id": 288281,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie",
+    "tmdb_poster_path": "/8odAiCOM9qwzzGRW69aKfAvK85q.jpg",
+    "slug": "a-good-marriage",
+    "active": true,
+    "release_date": "2014-10-03"
   },
   {
     "id": "806e95fd-7dbb-4e3b-a9a4-0759244453d9",
