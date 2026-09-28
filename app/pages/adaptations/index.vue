@@ -39,6 +39,14 @@ const { data: adaptationRecommendation } = await useAsyncData(
       : Promise.resolve(null)
 )
 
+// A single anthology episode is listed under its own title, with its series
+// and episode number underneath, e.g. "Tales from the Darkside · S01E08".
+const episodeSubtitle = (adaptation: Adaptation) => {
+  if (!adaptation.episode_of || adaptation.tmdb_season_number == null || adaptation.tmdb_episode_number == null) return null
+  const pad = (value: number) => String(value).padStart(2, '0')
+  return `${adaptation.episode_of} · S${pad(adaptation.tmdb_season_number)}E${pad(adaptation.tmdb_episode_number)}`
+}
+
 const watchedCountLabel = (count: number) =>
   `${count} ${count === 1 ? 'watch' : 'watches'}`
 </script>
@@ -57,6 +65,7 @@ const watchedCountLabel = (count: number) =>
           : null
     "
     :image-alt-of="(adaptation: Adaptation) => `${adaptation.title} poster`"
+    :subtitle-of="episodeSubtitle"
     placeholder-icon="i-lucide-film"
     sort-year-label="Release year"
   >

@@ -49,7 +49,7 @@
 
 ## 7. Release (only when the user asks to release; each hosted step needs an explicit go-ahead)
 
-- [ ] 7.1 Run the read-only hosted pre-flight checks: related works with null `publish_date`; slugs shared between `king_works` and `related_works`; `(user_id, edition_id)` pairs present in both `user_book_editions` and `user_related_work_editions`; the current row counts of every table in D5. Verify that all collision counts are zero, or resolve each one with the user.
-- [ ] 7.2 Take a data-only dump of the affected hosted tables (design.md Risks). Verify that the dump file exists and is non-empty.
-- [ ] 7.3 `supabase db push`, then compare hosted post-migration counts with the 7.1 figures and spot-check one user's related reads, editions, and timeline. Then reseed hosted (`seed:bibliography:hosted`, `seed:related-works:hosted`) and verify the upsert counts match the seed files.
-- [ ] 7.4 Immediately bump the version in its own commit, merge to `main`, and tag, per CLAUDE.md. Verify that the Vercel deploy succeeds and that `/works`, `/works-by-others`, home, and a profile with related data render correctly.
+- [x] 7.1 Run the read-only hosted pre-flight checks: related works with null `publish_date`; slugs shared between `king_works` and `related_works`; `(user_id, edition_id)` pairs present in both `user_book_editions` and `user_related_work_editions`; the current row counts of every table in D5. Verify that all collision counts are zero, or resolve each one with the user.
+- [x] 7.2 Take a data-only dump of the affected hosted tables (design.md Risks). Verify that the dump file exists and is non-empty.
+- [x] 7.3 `supabase db push`, then compare hosted post-migration counts with the 7.1 figures and spot-check one user's related reads, editions, and timeline. Then reseed hosted (`seed:bibliography:hosted`, `seed:related-works:hosted`) and verify the upsert counts match the seed files.
+- [x] 7.4 Immediately bump the version in its own commit, merge to `main`, and tag, per CLAUDE.md. Verify that the Vercel deploy succeeds and that `/works`, `/works-by-others`, home, and a profile with related data render correctly.

@@ -124,6 +124,7 @@ export type Database = {
       adaptations: {
         Row: {
           active: boolean
+          episode_of: string | null
           id: string
           is_universe_only: boolean
           notes: string | null
@@ -132,12 +133,15 @@ export type Database = {
           slug: string
           title: string
           tmdb_id: number | null
+          tmdb_episode_number: number | null
           tmdb_media_type: string | null
           tmdb_poster_path: string | null
+          tmdb_season_number: number | null
           type: string
         }
         Insert: {
           active?: boolean
+          episode_of?: string | null
           id?: string
           is_universe_only?: boolean
           notes?: string | null
@@ -146,12 +150,15 @@ export type Database = {
           slug: string
           title: string
           tmdb_id?: number | null
+          tmdb_episode_number?: number | null
           tmdb_media_type?: string | null
           tmdb_poster_path?: string | null
+          tmdb_season_number?: number | null
           type: string
         }
         Update: {
           active?: boolean
+          episode_of?: string | null
           id?: string
           is_universe_only?: boolean
           notes?: string | null
@@ -160,8 +167,10 @@ export type Database = {
           slug?: string
           title?: string
           tmdb_id?: number | null
+          tmdb_episode_number?: number | null
           tmdb_media_type?: string | null
           tmdb_poster_path?: string | null
+          tmdb_season_number?: number | null
           type?: string
         }
         Relationships: []

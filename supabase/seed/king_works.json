@@ -970,6 +970,22 @@
     "active": true
   },
   {
+    "id": "d6e0fa26-d8e3-4453-a240-c66d526fd63f",
+    "kind": "king",
+    "title": "UR",
+    "type": "novella",
+    "open_library_work_key": "OL19622930W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null,
+    "cover_id": 8536417,
+    "publish_date": "2009-02-12",
+    "slug": "ur",
+    "description": "A college professor's mysteriously pink Kindle turns out to pull in books and news from other, stranger worlds - and draws dangerous attention along with them.",
+    "co_author": null,
+    "active": false
+  },
+  {
     "id": "7983e891-8ca4-462d-a8a3-cc962d909045",
     "kind": "king",
     "title": "Under the Dome",
@@ -1382,6 +1398,22 @@
     "publish_date": "2025-05-20",
     "slug": "never-flinch",
     "description": "Holly Gibney takes on a killer vowing to murder innocents in atonement for one wrongful execution, while also guarding a controversial speaker facing death threats.",
+    "co_author": null,
+    "active": true
+  },
+  {
+    "id": "d4caccb9-359c-4cc3-a6fa-2017b4cea932",
+    "kind": "king",
+    "title": "Hansel and Gretel",
+    "type": "childrens_book",
+    "open_library_work_key": "OL44235537W",
+    "dark_tower": false,
+    "bachman": false,
+    "dark_tower_relation": null,
+    "cover_id": 15131772,
+    "publish_date": "2025-09-02",
+    "slug": "hansel-and-gretel",
+    "description": "King retells the Brothers Grimm fairy tale around Maurice Sendak's artwork, originally drawn as set and costume designs for a 1997 production of Humperdinck's opera.",
     "co_author": null,
     "active": true
   },

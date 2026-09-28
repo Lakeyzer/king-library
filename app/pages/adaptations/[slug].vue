@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ConnectionListItem } from '~/components/detail/ConnectionList.vue'
+import type { TmdbEpisodeRef } from '~/composables/useTmdb'
 
 definePageMeta({ layout: false })
 
@@ -19,6 +20,13 @@ const adaptation = adaptationData.value
 const isMisery = adaptation.slug === 'misery'
 
 const { fetchTmdbDetails } = useTmdb()
+
+// A single anthology episode: tmdb_id is the parent series, and these say which episode.
+const episodeRef: TmdbEpisodeRef | undefined
+  = adaptation.tmdb_season_number != null && adaptation.tmdb_episode_number != null
+    ? { season: adaptation.tmdb_season_number, episode: adaptation.tmdb_episode_number }
+    : undefined
+
 const { fetchAdaptationStats, fetchUserAdaptations } = useAdaptations()
 
 // tmdb (a live third-party call, the slowest of the two by far) and stats
@@ -26,7 +34,7 @@ const { fetchAdaptationStats, fetchUserAdaptations } = useAdaptations()
 const [{ data: tmdb }, { data: stats }] = await Promise.all([
   useAsyncData(`adaptation-${slug}-tmdb`, () =>
     adaptation.tmdb_id && adaptation.tmdb_media_type
-      ? fetchTmdbDetails(adaptation.tmdb_media_type, adaptation.tmdb_id)
+      ? fetchTmdbDetails(adaptation.tmdb_media_type, adaptation.tmdb_id, episodeRef)
       : Promise.resolve(null)
   ),
   useAsyncData(`adaptation-${slug}-stats`, () => fetchAdaptationStats(adaptation.id))
@@ -45,7 +53,7 @@ const posterSrc = computed(() =>
 const runtimeOrSeasonLabel = computed(() => {
   if (!tmdb.value) return null
 
-  if (adaptation.tmdb_media_type === 'movie' && tmdb.value.runtimeMinutes) {
+  if ((adaptation.tmdb_media_type === 'movie' || episodeRef) && tmdb.value.runtimeMinutes) {
     const hours = Math.floor(tmdb.value.runtimeMinutes / 60)
     const minutes = tmdb.value.runtimeMinutes % 60
     return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`
@@ -61,7 +69,7 @@ const runtimeOrSeasonLabel = computed(() => {
 })
 
 const directedByLabel = computed(() =>
-  adaptation.tmdb_media_type === 'tv' ? 'Created by' : 'Directed by'
+  adaptation.tmdb_media_type === 'tv' && !episodeRef ? 'Created by' : 'Directed by'
 )
 
 const directedByText = computed(() =>
@@ -100,6 +108,7 @@ setPageSeo({
   image: adaptation.tmdb_poster_path
     ? getTmdbPosterUrl(adaptation.tmdb_poster_path, 'w500')
     : undefined
+
 })
 </script>
 
