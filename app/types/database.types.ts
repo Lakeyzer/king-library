@@ -168,16 +168,19 @@ export type Database = {
       }
       email_preferences: {
         Row: {
+          new_followers: boolean
           suggestion_updates: boolean
           updated_at: string
           user_id: string
         }
         Insert: {
+          new_followers?: boolean
           suggestion_updates?: boolean
           updated_at?: string
           user_id: string
         }
         Update: {
+          new_followers?: boolean
           suggestion_updates?: boolean
           updated_at?: string
           user_id?: string
@@ -387,42 +390,52 @@ export type Database = {
       }
       notifications: {
         Row: {
+          actor_id: string | null
           admin_comment: string | null
           created_at: string
           email_sent_at: string | null
           id: string
           read_at: string | null
           status: string | null
-          suggestion_id: string
-          suggestion_title: string
+          suggestion_id: string | null
+          suggestion_title: string | null
           type: string
           user_id: string
         }
         Insert: {
+          actor_id?: string | null
           admin_comment?: string | null
           created_at?: string
           email_sent_at?: string | null
           id?: string
           read_at?: string | null
           status?: string | null
-          suggestion_id: string
-          suggestion_title: string
+          suggestion_id?: string | null
+          suggestion_title?: string | null
           type: string
           user_id: string
         }
         Update: {
+          actor_id?: string | null
           admin_comment?: string | null
           created_at?: string
           email_sent_at?: string | null
           id?: string
           read_at?: string | null
           status?: string | null
-          suggestion_id?: string
-          suggestion_title?: string
+          suggestion_id?: string | null
+          suggestion_title?: string | null
           type?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: 'notifications_actor_id_fkey'
+            columns: ['actor_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
           {
             foreignKeyName: 'notifications_suggestion_id_fkey'
             columns: ['suggestion_id']

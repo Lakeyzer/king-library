@@ -1,48 +1,87 @@
 import type { SuggestionStatus } from '~/composables/useSuggestions'
 
-export type NotificationType = 'suggestion_status_changed' | 'suggestion_commented'
+export type NotificationType = 'suggestion_status_changed' | 'suggestion_commented' | 'new_follower'
 
-export interface NotificationEntry {
+export interface NotificationActor {
   id: string
-  type: NotificationType
+  username: string | null
+  avatarUrl: string | null
+}
+
+interface NotificationBase {
+  id: string
+  readAt: string | null
+  createdAt: string
+}
+
+export interface SuggestionNotificationEntry extends NotificationBase {
+  type: 'suggestion_status_changed' | 'suggestion_commented'
   suggestionId: string
   suggestionTitle: string
   // Set for suggestion_status_changed - the status it changed to.
   status: SuggestionStatus | null
   // Set for suggestion_commented - the response text at that moment.
   adminComment: string | null
-  readAt: string | null
-  createdAt: string
 }
+
+export interface NewFollowerNotificationEntry extends NotificationBase {
+  type: 'new_follower'
+  // The follower's current profile. null when it couldn't be resolved (a
+  // realtime toast whose profile fetch failed).
+  actor: NotificationActor | null
+}
+
+export type NotificationEntry = SuggestionNotificationEntry | NewFollowerNotificationEntry
 
 export interface NotificationPage {
   notifications: NotificationEntry[]
   total: number
 }
 
-const NOTIFICATION_COLUMNS = 'id, type, suggestion_id, suggestion_title, status, admin_comment, read_at, created_at'
+// actor is embedded through notifications_actor_id_fkey (actor_id references
+// profiles), so it always shows the follower's current username and avatar.
+const NOTIFICATION_COLUMNS = 'id, type, suggestion_id, suggestion_title, status, admin_comment, actor_id, read_at, created_at, actor:profiles!notifications_actor_id_fkey(id, username, avatar_url)'
+
+interface ActorRow {
+  id: string
+  username: string | null
+  avatar_url: string | null
+}
 
 interface NotificationRow {
   id: string
   type: NotificationType
-  suggestion_id: string
-  suggestion_title: string
+  suggestion_id: string | null
+  suggestion_title: string | null
   status: SuggestionStatus | null
   admin_comment: string | null
+  actor_id: string | null
   read_at: string | null
   created_at: string
+  // Only present on rows fetched with the embed - Realtime payloads carry
+  // the bare row.
+  actor?: ActorRow | null
+}
+
+function toActor(row: ActorRow | null | undefined): NotificationActor | null {
+  return row ? { id: row.id, username: row.username, avatarUrl: row.avatar_url } : null
 }
 
 function toNotificationEntry(row: NotificationRow): NotificationEntry {
+  const base = { id: row.id, readAt: row.read_at, createdAt: row.created_at }
+
+  if (row.type === 'new_follower') {
+    return { ...base, type: row.type, actor: toActor(row.actor) }
+  }
+
+  // notifications_subject_valid guarantees both are set for suggestion types.
   return {
-    id: row.id,
+    ...base,
     type: row.type,
-    suggestionId: row.suggestion_id,
-    suggestionTitle: row.suggestion_title,
+    suggestionId: row.suggestion_id!,
+    suggestionTitle: row.suggestion_title!,
     status: row.status,
-    adminComment: row.admin_comment,
-    readAt: row.read_at,
-    createdAt: row.created_at
+    adminComment: row.admin_comment
   }
 }
 
@@ -158,7 +197,27 @@ export function useNotifications() {
         { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
         (payload) => {
           refresh()
-          onNew?.(toNotificationEntry(payload.new as NotificationRow))
+          if (!onNew) return
+
+          const row = payload.new as NotificationRow
+
+          // Realtime payloads have no embed, so a new_follower row needs its
+          // actor looked up (profiles are readable by everyone). A failed
+          // lookup still announces the notification, just without a name.
+          if (row.type === 'new_follower' && row.actor_id) {
+            supabase
+              .from('profiles')
+              .select('id, username, avatar_url')
+              .eq('id', row.actor_id)
+              .maybeSingle()
+              .then(
+                ({ data }) => onNew(toNotificationEntry({ ...row, actor: data })),
+                () => onNew(toNotificationEntry({ ...row, actor: null }))
+              )
+            return
+          }
+
+          onNew(toNotificationEntry(row))
         }
       )
       .on(

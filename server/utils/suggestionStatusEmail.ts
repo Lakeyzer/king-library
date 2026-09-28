@@ -1,4 +1,5 @@
 import type { EmailMessage } from './sendEmail'
+import { escapeHtml } from './escapeHtml'
 
 // Mirrors SUGGESTION_STATUS_LABEL in app/composables/useSuggestions.ts -
 // server code can't import from app/, and four labels aren't worth a
@@ -10,15 +11,6 @@ const STATUS_LABEL: Record<string, string> = {
   applied: 'Applied'
 }
 
-function escapeHtml(value: string) {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
-}
-
 // `origin` is the request's own origin (getRequestURL(event).origin), so
 // emails sent from local dev link back to localhost rather than production.
 export function buildSuggestionStatusEmail(
@@ -27,7 +19,7 @@ export function buildSuggestionStatusEmail(
 ): EmailMessage {
   const statusLabel = STATUS_LABEL[status] ?? status
   const notificationsUrl = `${origin}/notifications`
-  const settingsUrl = `${origin}/settings`
+  const settingsUrl = `${origin}/settings/notifications`
 
   const subject = `Your suggestion "${suggestionTitle}" is now ${statusLabel}`
 
@@ -36,7 +28,7 @@ export function buildSuggestionStatusEmail(
     '',
     `See your notifications: ${notificationsUrl}`,
     '',
-    `You're receiving this because you submitted this suggestion on King Library. To stop these emails, turn off "Suggestion updates" in your settings: ${settingsUrl}`
+    `You're receiving this because you submitted this suggestion on King Library. To stop these emails, turn off "Suggestion updates" in your notification settings: ${settingsUrl}`
   ].join('\n')
 
   const title = escapeHtml(suggestionTitle)
@@ -53,7 +45,7 @@ export function buildSuggestionStatusEmail(
       </p>
       <p style="margin:0;font-size:12px;line-height:1.5;color:#6b675e;">
         You're receiving this because you submitted this suggestion on King Library.
-        To stop these emails, turn off "Suggestion updates" in your <a href="${settingsUrl}" style="color:#c05b3c;">settings</a>.
+        To stop these emails, turn off "Suggestion updates" in your <a href="${settingsUrl}" style="color:#c05b3c;">notification settings</a>.
       </p>
     </div>
   </body>

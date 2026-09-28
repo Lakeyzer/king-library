@@ -7,14 +7,15 @@ definePageMeta({ layout: 'default' })
 const { setPageSeo } = useSeo()
 setPageSeo({
   title: 'Notifications',
-  description: 'Updates about the suggestions you submitted to King Library.'
+  description: 'Updates about your suggestions and new followers on King Library.'
 })
 
 const PAGE_SIZE = 20
 
 const TYPE_ICON: Record<NotificationType, string> = {
   suggestion_status_changed: 'i-lucide-circle-dot',
-  suggestion_commented: 'i-lucide-message-square'
+  suggestion_commented: 'i-lucide-message-square',
+  new_follower: 'i-lucide-user-plus'
 }
 
 const { fetchNotifications, markAllRead } = useNotifications()
@@ -67,14 +68,14 @@ onMounted(async () => {
       </h1>
     </div>
     <p class="text-muted text-sm mt-1 mb-6">
-      Updates about the suggestions you submitted.
+      Updates about your suggestions and new followers.
     </p>
 
     <UEmpty
       v-if="!notifications.length"
       icon="i-lucide-bell"
       title="No notifications yet"
-      description="When an admin updates or responds to one of your suggestions, it will show up here."
+      description="Updates about your suggestions and new followers will show up here."
     />
 
     <template v-else>
@@ -93,7 +94,22 @@ onMounted(async () => {
 
           <div class="min-w-0 flex-1">
             <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
-              <template v-if="notification.type === 'suggestion_status_changed' && notification.status">
+              <template v-if="notification.type === 'new_follower'">
+                <UUser
+                  v-if="notification.actor?.username"
+                  :name="notification.actor.username"
+                  :avatar="{ src: notification.actor.avatarUrl ?? undefined, icon: 'i-lucide-user' }"
+                  :to="`/profile/${notification.actor.username.toLowerCase()}`"
+                  size="sm"
+                >
+                  <template #name>
+                    <NumberMotif :text="notification.actor.username" />
+                  </template>
+                </UUser>
+                <span v-else>Someone</span>
+                <span>started following you</span>
+              </template>
+              <template v-else-if="notification.type === 'suggestion_status_changed' && notification.status">
                 <span>
                   Your suggestion
                   <span class="font-medium">"<NumberMotif :text="notification.suggestionTitle" />"</span>

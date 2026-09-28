@@ -61,10 +61,21 @@ let unsubscribeFromUnread: (() => void) | null = null
 
 // Only fires for notifications created while the app is open - ones that
 // were already waiting on load show just the dot and count.
-function toastNewNotification(notification: NotificationEntry) {
-  const description = notification.type === 'suggestion_status_changed' && notification.status
+function notificationDescription(notification: NotificationEntry) {
+  if (notification.type === 'new_follower') {
+    // actor is null when the realtime profile lookup failed.
+    return notification.actor?.username
+      ? `${notification.actor.username} started following you.`
+      : 'Someone started following you.'
+  }
+
+  return notification.type === 'suggestion_status_changed' && notification.status
     ? `Your suggestion "${notification.suggestionTitle}" changed to ${SUGGESTION_STATUS_LABEL[notification.status]}.`
     : `An admin responded to your suggestion "${notification.suggestionTitle}".`
+}
+
+function toastNewNotification(notification: NotificationEntry) {
+  const description = notificationDescription(notification)
 
   toast.add({
     title: 'New notification',

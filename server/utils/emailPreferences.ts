@@ -3,13 +3,15 @@ import { serverSupabaseServiceRole } from '#supabase/server'
 
 export interface EmailPreferences {
   suggestion_updates: boolean
+  new_followers: boolean
 }
 
 // Must match the column defaults on email_preferences. A user with no row
 // has never changed a toggle, so every preference is at its default - see
 // the suggestion-notifications change's design.md "Email preferences".
 export const DEFAULT_EMAIL_PREFERENCES: EmailPreferences = {
-  suggestion_updates: true
+  suggestion_updates: true,
+  new_followers: true
 }
 
 // Every email-sending path checks the recipient's preferences through this
@@ -21,7 +23,7 @@ export async function getEmailPreferences(event: H3Event, userId: string): Promi
 
   const { data, error } = await supabaseAdmin
     .from('email_preferences')
-    .select('suggestion_updates')
+    .select('suggestion_updates, new_followers')
     .eq('user_id', userId)
     .maybeSingle()
 

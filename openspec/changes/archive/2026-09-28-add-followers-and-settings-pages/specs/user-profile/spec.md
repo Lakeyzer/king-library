@@ -1,10 +1,21 @@
-# user-profile Specification
+## ADDED Requirements
 
-## Purpose
+### Requirement: Settings are split into three pages with side navigation
+The system SHALL divide account settings into three pages: Profile (`/settings/profile`), Account (`/settings/account`) and Notifications (`/settings/notifications`). Each settings page SHALL show a navigation linking to all three, with the current page marked as active. On large screens the navigation SHALL sit in a sidebar to the left of the page content. On small screens it SHALL be shown above the content. Navigating to `/settings` SHALL take the user to `/settings/profile`.
 
-Gives a signed-in user account settings, split into Profile, Account and Notifications pages, where they can view their account details, manage their avatar, tagline and sign-in methods, control whether their collections are publicly visible, and permanently delete their account.
+#### Scenario: Navigating between settings pages
+- **WHEN** a signed-in user on any settings page selects another entry in the settings navigation
+- **THEN** they are taken to that settings page, and that entry is shown as active
 
-## Requirements
+#### Scenario: Visiting /settings
+- **WHEN** a signed-in user navigates to `/settings` (for example from the header's Settings entry)
+- **THEN** they are taken to `/settings/profile`
+
+#### Scenario: Settings navigation on a small screen
+- **WHEN** a signed-in user opens a settings page on a small screen
+- **THEN** the settings navigation is shown above the page content rather than in a sidebar
+
+## MODIFIED Requirements
 
 ### Requirement: Profile page requires sign-in
 The system SHALL only allow a signed-in user to view any account settings page (`/settings` and every page beneath it), and SHALL require a username to be set (see the onboarding capability) before showing one.
@@ -108,29 +119,3 @@ The system SHALL let a signed-in user who does not yet have an email/password id
 #### Scenario: Email/password already linked
 - **WHEN** a signed-in user already has an email/password identity linked
 - **THEN** the Account settings page shows it among their linked identities rather than offering to link it again
-
-### Requirement: Unlinking a sign-in method requires at least one remaining
-The system SHALL let a signed-in user unlink one of their linked sign-in identities, provided at least one identity remains linked afterward, and SHALL prevent unlinking the last remaining identity.
-
-#### Scenario: Unlinking one of several linked identities
-- **WHEN** a signed-in user with more than one linked identity activates "Unlink" for one of them
-- **THEN** that identity is removed and they can no longer sign in using it, while their other identities and access remain unaffected
-
-#### Scenario: Attempting to unlink the only remaining identity
-- **WHEN** a signed-in user with exactly one linked identity attempts to unlink it
-- **THEN** the system prevents the unlink and the identity remains linked
-
-### Requirement: Settings are split into three pages with side navigation
-The system SHALL divide account settings into three pages: Profile (`/settings/profile`), Account (`/settings/account`) and Notifications (`/settings/notifications`). Each settings page SHALL show a navigation linking to all three, with the current page marked as active. On large screens the navigation SHALL sit in a sidebar to the left of the page content. On small screens it SHALL be shown above the content. Navigating to `/settings` SHALL take the user to `/settings/profile`.
-
-#### Scenario: Navigating between settings pages
-- **WHEN** a signed-in user on any settings page selects another entry in the settings navigation
-- **THEN** they are taken to that settings page, and that entry is shown as active
-
-#### Scenario: Visiting /settings
-- **WHEN** a signed-in user navigates to `/settings` (for example from the header's Settings entry)
-- **THEN** they are taken to `/settings/profile`
-
-#### Scenario: Settings navigation on a small screen
-- **WHEN** a signed-in user opens a settings page on a small screen
-- **THEN** the settings navigation is shown above the page content rather than in a sidebar

@@ -1,6 +1,6 @@
 ---
 name: supabase-conventions
-description: Database schema, RLS policies, and query conventions for the Stephen King Library app's Supabase backend. Use this whenever writing or modifying anything that touches the database - Supabase queries, composables, migrations, RLS policies, seed files, or the tables king_works, adaptations, adaptation_works, adaptation_short_stories, king_short_stories, king_short_story_collections, profiles, user_books, user_book_editions, user_book_reads, user_adaptations, or user_short_story_reads. Also use when adding any feature that reads or writes user collections, wishlists, read status, watch status, short story reads, cover images, or statistics/leaderboards, since these all depend on this schema. Consult this skill before writing a single `supabase.from(...)` call anywhere in the app.
+description: Database schema, RLS policies, and query conventions for the Stephen King Library app's Supabase backend. Use this whenever writing or modifying anything that touches the database - Supabase queries, composables, migrations, RLS policies, seed files, or the tables king_works, adaptations, adaptation_works, adaptation_short_stories, king_short_stories, king_short_story_collections, profiles, user_books, user_book_editions, user_book_reads, user_adaptations, user_short_story_reads, user_follows, notifications, or email_preferences. Also use when adding any feature that reads or writes user collections, wishlists, read status, watch status, short story reads, cover images, or statistics/leaderboards, since these all depend on this schema. Consult this skill before writing a single `supabase.from(...)` call anywhere in the app.
 ---
 
 # Supabase Conventions - Stephen King Library
@@ -302,6 +302,54 @@ Same boolean-flag pattern as `user_books`, minus ownership - adaptations don't h
 Unique constraint on `(user_id, adaptation_id)` - one row per user per adaptation. **Invariant, enforced with a trigger (see "Triggers"):** marking `watched = true` clears `want_to_watch`. No "currently watching" state - that's an intentional simplification for now; if multi-episode TV series later warrant tracking watch-in-progress the way `currently_reading` does for books, that's a new column and trigger update, not a repurposing of these two.
 
 **No standalone `editions` table.** Open Library is the source of truth for edition data (cover, ISBN, publisher, etc.) and is queried live via `openlibrary-integration`. We only ever persist a reference (id + title) once a user actually adds an edition to their collection - never a full cached copy, and never speculative caching of editions a user hasn't chosen.
+
+### `user_follows` (one-way follow between two users)
+
+| column        | type                         | notes |
+| ------------- | ---------------------------- | ----- |
+| `id`          | uuid, PK                     |       |
+| `follower_id` | uuid, FK → `auth.users.id`, `on delete cascade` | the user doing the following |
+| `followed_id` | uuid, FK → `auth.users.id`, `on delete cascade` | the user being followed |
+| `created_at`  | timestamptz, default `now()` | orders both the Following and Followers tabs, newest first |
+
+Unique on `(follower_id, followed_id)`, plus a `user_follows_no_self_follow` check. Index `user_follows_followed_created_idx` on `(followed_id, created_at desc)` serves the Followers tab.
+
+- **RLS**: one select policy, `"user_follows readable by follower or followed"` (`to authenticated`, `(select auth.uid()) in (follower_id, followed_id)`) - you can see who you follow and who follows you, but never another user's follows or followers. Insert and delete are follower-only (`follower_id = auth.uid()`).
+- **No FK to `profiles`**, so `useFollowing()` fetches profiles in a second `.in('id', ids)` query rather than embedding.
+- **Following goes through `POST /api/follows`**, not a client insert, so the followed user can be emailed (see the third service-role exception under "Migrations & seed files"). The route still inserts with the user-scoped client, so the insert policy and no-self-follow check apply. Unfollowing stays a direct client delete.
+- **`notify_on_follow()`** (`security definer`, `after insert`) creates a `new_follower` notification for `followed_id`, unless the same follower already produced one for that user in the last 24 hours - so unfollow/follow toggling can't spam notifications or emails.
+
+### `notifications` (in-app notifications, written only by triggers)
+
+| column             | type                         | notes |
+| ------------------ | ---------------------------- | ----- |
+| `id`               | uuid, PK                     |       |
+| `user_id`          | uuid, FK → `auth.users.id`, `on delete cascade` | the recipient |
+| `type`             | text                         | `suggestion_status_changed` / `suggestion_commented` / `new_follower` (`notifications_type_valid`) |
+| `suggestion_id`    | uuid, nullable, FK → `suggestions.id`, `on delete cascade` | set for the suggestion types only |
+| `suggestion_title` | text, nullable               | snapshot at creation, suggestion types only |
+| `status`           | text, nullable               | set for `suggestion_status_changed` |
+| `admin_comment`    | text, nullable               | set for `suggestion_commented` |
+| `actor_id`         | uuid, nullable, FK → `profiles.id`, `on delete cascade` | set for `new_follower` - the follower. References `profiles` (not `auth.users`) so PostgREST can embed `actor:profiles!notifications_actor_id_fkey(id, username, avatar_url)`, which always shows the follower's *current* username. No username snapshot is stored |
+| `read_at`          | timestamptz, nullable        | the only column the owner can update (column-level grant) |
+| `email_sent_at`    | timestamptz, nullable        | stamped by the server route that emailed about this row (service role) |
+| `created_at`       | timestamptz, default `now()` |       |
+
+`notifications_subject_valid` enforces the right columns per type: `new_follower` rows need `actor_id` and no `suggestion_id`; suggestion rows need `suggestion_id` and `suggestion_title`. A new notification type is a new `type` value, its columns, and an update to both checks - not a new table, so the unread count, mark-all-read, pagination and Realtime subscription keep working on one table.
+
+- **RLS**: owner-only select and update. No insert or delete policy - rows are only created by `security definer` triggers (`notify_on_suggestion_update()`, `notify_on_follow()`) and removed by cascades.
+- The client-side `NotificationEntry` (`useNotifications()`) is a discriminated union on `type`. Realtime INSERT payloads carry no embed, so `subscribeToUnread()` looks up the actor profile for `new_follower` rows before calling `onNew`.
+
+### `email_preferences` (per-user email toggles, owner-only)
+
+| column               | type                         | notes |
+| -------------------- | ---------------------------- | ----- |
+| `user_id`            | uuid, PK, FK → `auth.users.id`, `on delete cascade` |       |
+| `suggestion_updates` | boolean, default `true`      | suggestion status-change emails |
+| `new_followers`      | boolean, default `true`      | new-follower emails |
+| `updated_at`         | timestamptz, default `now()` |       |
+
+One boolean column per email type. A missing row means every default - rows are only upserted the first time a user changes a toggle. Adding an email type is one `add column ... boolean not null default true`, one entry in both `DEFAULT_EMAIL_PREFERENCES` copies (`app/composables/useEmailPreferences.ts`, `server/utils/emailPreferences.ts`, plus the server's select list), and one entry in `EMAIL_PREFERENCE_OPTIONS`. Owner-only RLS (select/insert/update), unlike `profiles`, so settings stay private. Server code reads another user's preferences only through `getEmailPreferences()` (service role).
 
 ## Cover images
 
@@ -763,5 +811,6 @@ The composable divides `read_count / total_count` client-side (or in a small SQL
   - `seed:*:hosted` reads a **separate, gitignored admin env file** - not the local dev file, and not anything Vercel reads - holding hosted's URL and hosted's service role key specifically. This file is never loaded by the running app in any context (local or deployed); it exists solely for these scripts to read when deliberately run.
 - **The deployed app's env (Vercel) never has a service role key at all** - with one narrow, deliberate exception: account deletion (`server/api/account.delete.ts`) must call `auth.admin.deleteUser`, which only an elevated key can do. That route reads a server-only `NUXT_SUPABASE_SECRET_KEY` env var (the `@nuxtjs/supabase` module's own admin-key convention, via its `serverSupabaseServiceRole()` helper) - distinct from `SUPABASE_SERVICE_ROLE_KEY` above, which stays script-only and is never read by the running app. `NUXT_SUPABASE_SECRET_KEY` is never in `runtimeConfig.public`, so it's never bundled to the client, and it's used only after verifying the caller's own session - never to act on an arbitrary user ID from the client.
 - **Second exception: suggestion status emails** (`server/api/suggestions/[id]/status.patch.ts` and the `getEmailPreferences()` helper in `server/utils/emailPreferences.ts`). After an admin changes a suggestion's status, the route has to read the author's trigger-created `notifications` row, their owner-only `email_preferences` row, and their email from `auth.users`, none of which the admin's own session can see. It uses the same `NUXT_SUPABASE_SECRET_KEY` via `serverSupabaseServiceRole()`, only after verifying the caller is an admin, and only for the recipient id read from the notification row. It never uses a user id supplied by the request. The status update itself still runs through the admin's user-scoped client, so RLS and `auth.uid()` apply to it.
+- **Third exception: new follower emails** (`server/api/follows.post.ts`). After the caller's follow is inserted through their own user-scoped client, the route reads the `new_follower` notification `notify_on_follow()` just created (matching `user_id = followedId`, `actor_id = caller`, unsent, created in the last minute), the followed user's `email_preferences` and their email from `auth.users`, then stamps `email_sent_at`. The recipient is only ever the user the caller just successfully followed, and no row means the trigger de-duplicated the follow, so nothing is emailed.
 
 Every other table/feature still follows the plain rule: no service-role key in the deployed app.

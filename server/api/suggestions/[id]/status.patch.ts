@@ -71,7 +71,7 @@ export default defineEventHandler(async (event) => {
     if (notificationError) throw notificationError
 
     // No row: the status didn't actually change, so there's nothing to email.
-    if (notification?.status) {
+    if (notification?.status && notification.suggestion_title) {
       const preferences = await getEmailPreferences(event, notification.user_id)
 
       if (preferences.suggestion_updates) {

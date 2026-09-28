@@ -1,25 +1,4 @@
-# user-following Specification
-
-## Purpose
-
-Lets a signed-in user follow other users' profiles and gives them a dedicated page to see who they follow, who follows them, and what the users they follow are currently reading, so users can keep track of friends' reading activity across the library.
-
-## Requirements
-
-### Requirement: Signed-in user can follow and unfollow another user
-The system SHALL let a signed-in user follow another user's profile, and SHALL let them unfollow a profile they currently follow. A user SHALL NOT be able to follow their own profile.
-
-#### Scenario: Following a profile
-- **WHEN** a signed-in user activates the follow control on another user's profile
-- **THEN** that user is added to their following list
-
-#### Scenario: Unfollowing a profile
-- **WHEN** a signed-in user who already follows a profile activates the control again
-- **THEN** that user is removed from their following list
-
-#### Scenario: A user's own profile has no follow control
-- **WHEN** a signed-in user views their own profile
-- **THEN** no follow control is shown
+## MODIFIED Requirements
 
 ### Requirement: Following overview page
 The system SHALL provide a `/following` page, reachable only by a signed-in user. Its main area SHALL have two tabs: "Following", listing every user the signed-in user follows, and "Followers", listing every user who follows the signed-in user. "Following" SHALL be the tab shown by default, and the page SHALL open on the "Followers" tab when a link asks for it. Each tab SHALL show the total number of users it lists, not only the number on the current page. Alongside the tabs, a sidebar SHALL show what the users the signed-in user follows are currently reading.
@@ -67,6 +46,8 @@ The system SHALL provide a `/following` page, reachable only by a signed-in user
 #### Scenario: Sidebar is not limited to the current page of the Following tab
 - **WHEN** a signed-in user follows more users than fit on one page of the "Following" tab
 - **THEN** the sidebar still considers every followed user, not only those on the page being shown
+
+## ADDED Requirements
 
 ### Requirement: Following and followers lists are paginated
 The system SHALL show at most 15 users per page on each of the "Following" and "Followers" tabs, ordered by when the follow happened, most recent first. Each tab SHALL offer pagination controls when it has more than 15 users, and SHALL NOT show them otherwise. Each tab SHALL keep its own current page.
