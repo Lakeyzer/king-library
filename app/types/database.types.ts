@@ -124,6 +124,7 @@ export type Database = {
       adaptations: {
         Row: {
           active: boolean
+          episode_of: string | null
           id: string
           is_universe_only: boolean
           notes: string | null
@@ -140,6 +141,7 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          episode_of?: string | null
           id?: string
           is_universe_only?: boolean
           notes?: string | null
@@ -156,6 +158,7 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          episode_of?: string | null
           id?: string
           is_universe_only?: boolean
           notes?: string | null
