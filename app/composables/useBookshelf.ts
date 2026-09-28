@@ -1,16 +1,20 @@
+import type { WorkKind } from '~/utils/workPath'
+
 export interface UserBookEdition {
   id: string
   user_id: string
-  king_work_id: string
+  work_id: string
   edition_id: string
   edition_title: string
   added_at: string
 }
 
-const USER_BOOK_EDITION_COLUMNS = 'id, user_id, king_work_id, edition_id, edition_title, added_at'
+const USER_BOOK_EDITION_COLUMNS = 'id, user_id, work_id, edition_id, edition_title, added_at'
 
-// One tile per added edition, plus one fallback-cover tile per King work
-// marked owned with zero editions picked - see design.md "Tile count = total
+// One tile per added edition, plus one fallback-cover tile per work marked
+// owned with zero editions picked - King and related works alike, see
+// profile-showcase "Bookshelf and reading timeline always include By Other
+// Hands works" - see design.md "Tile count = total
 // tiles rendered". `kind` tells a bookshelf tile which cover-resolution path
 // to use (an edition cover, falling back to the work's cover, vs. the
 // work-level fallback directly). Both kinds carry openLibraryWorkKey and
@@ -19,13 +23,16 @@ const USER_BOOK_EDITION_COLUMNS = 'id, user_id, king_work_id, edition_id, editio
 // need publishDate for the Bookshelf's release-year sort.
 // seriesId/seriesName/seriesPosition are null for a work with no series
 // membership. Populated from useSeries().seriesByWorkId - see design.md
-// "One useSeries composable, consumed by useBookshelf".
+// "One useSeries composable, consumed by useBookshelf". `workKind` (not to be
+// confused with the tile's own `kind`) picks the work's detail page via
+// workPath().
 export interface BookshelfEditionItem {
   kind: 'edition'
   editionRowId: string
   workId: string
   workSlug: string
   workTitle: string
+  workKind: WorkKind
   publishDate: string
   openLibraryWorkKey: string | null
   editionId: string
@@ -40,6 +47,7 @@ export interface BookshelfWorkItem {
   workId: string
   workSlug: string
   workTitle: string
+  workKind: WorkKind
   publishDate: string
   openLibraryWorkKey: string | null
   seriesId: string | null
@@ -49,8 +57,9 @@ export interface BookshelfWorkItem {
 
 export type BookshelfItem = BookshelfEditionItem | BookshelfWorkItem
 
-interface KingWorkRef {
+interface WorkRef {
   id: string
+  kind: WorkKind
   title: string
   slug: string
   publish_date: string
@@ -63,7 +72,7 @@ export function useBookshelf() {
   const user = useSupabaseUser()
   const { setOwned } = useBooks()
 
-  // Map of king_work_id -> the set of that work's edition_ids the signed-in
+  // Map of work_id -> the set of that work's edition_ids the signed-in
   // user has added, mirroring useBooks()'s userBooksByWorkId shape/pattern -
   // see design.md "One toggle component, three call sites".
   const userEditionsByWorkId = useState<Record<string, Set<string>>>('userEditionsByWorkId', () => ({}))
@@ -84,9 +93,9 @@ export function useBookshelf() {
     const rows = data as UserBookEdition[]
     const grouped: Record<string, Set<string>> = {}
     for (const row of rows) {
-      const existing = grouped[row.king_work_id] ?? new Set<string>()
+      const existing = grouped[row.work_id] ?? new Set<string>()
       existing.add(row.edition_id)
-      grouped[row.king_work_id] = existing
+      grouped[row.work_id] = existing
     }
     userEditionsByWorkId.value = grouped
 
@@ -108,7 +117,7 @@ export function useBookshelf() {
       .from('user_book_editions')
       .insert({
         user_id: user.value.sub,
-        king_work_id: workId,
+        work_id: workId,
         edition_id: edition.key,
         edition_title: edition.title
       })
@@ -132,7 +141,7 @@ export function useBookshelf() {
       .from('user_book_editions')
       .delete()
       .eq('user_id', user.value.sub)
-      .eq('king_work_id', workId)
+      .eq('work_id', workId)
       .eq('edition_id', editionId)
 
     if (editionError) throw editionError
@@ -159,12 +168,12 @@ export function useBookshelf() {
       supabase
         .from('user_book_editions')
         .select(
-          'id, edition_id, edition_title, king_works ( id, title, slug, publish_date, open_library_work_key, active )'
+          'id, edition_id, edition_title, works ( id, kind, title, slug, publish_date, open_library_work_key, active )'
         )
         .eq('user_id', userId),
       supabase
         .from('user_books')
-        .select('king_works!user_books_king_work_id_fkey ( id, title, slug, publish_date, open_library_work_key, active )')
+        .select('works!user_books_work_id_fkey ( id, kind, title, slug, publish_date, open_library_work_key, active )')
         .eq('user_id', userId)
         .eq('owned', true),
       fetchAllSeries()
@@ -185,42 +194,44 @@ export function useBookshelf() {
         id: string
         edition_id: string
         edition_title: string
-        king_works: KingWorkRef | null
+        works: WorkRef | null
       }[]
     )
       .filter(
-        (row): row is typeof row & { king_works: KingWorkRef } => row.king_works !== null && row.king_works.active
+        (row): row is typeof row & { works: WorkRef } => row.works !== null && row.works.active
       )
       .map(row => ({
         kind: 'edition',
         editionRowId: row.id,
-        workId: row.king_works.id,
-        workSlug: row.king_works.slug,
-        workTitle: row.king_works.title,
-        publishDate: row.king_works.publish_date,
-        openLibraryWorkKey: row.king_works.open_library_work_key,
+        workId: row.works.id,
+        workSlug: row.works.slug,
+        workTitle: row.works.title,
+        workKind: row.works.kind,
+        publishDate: row.works.publish_date,
+        openLibraryWorkKey: row.works.open_library_work_key,
         editionId: row.edition_id,
         editionTitle: row.edition_title,
-        ...seriesFieldsFor(row.king_works.id)
+        ...seriesFieldsFor(row.works.id)
       }))
 
     const workIdsWithEditions = new Set(editionItems.map(item => item.workId))
 
     const workItems: BookshelfWorkItem[] = (
-      ownedRows as unknown as { king_works: KingWorkRef | null }[]
+      ownedRows as unknown as { works: WorkRef | null }[]
     )
       .filter(
-        (row): row is typeof row & { king_works: KingWorkRef } => row.king_works !== null && row.king_works.active
+        (row): row is typeof row & { works: WorkRef } => row.works !== null && row.works.active
       )
-      .filter(row => !workIdsWithEditions.has(row.king_works.id))
+      .filter(row => !workIdsWithEditions.has(row.works.id))
       .map(row => ({
         kind: 'work',
-        workId: row.king_works.id,
-        workSlug: row.king_works.slug,
-        workTitle: row.king_works.title,
-        publishDate: row.king_works.publish_date,
-        openLibraryWorkKey: row.king_works.open_library_work_key,
-        ...seriesFieldsFor(row.king_works.id)
+        workId: row.works.id,
+        workSlug: row.works.slug,
+        workTitle: row.works.title,
+        workKind: row.works.kind,
+        publishDate: row.works.publish_date,
+        openLibraryWorkKey: row.works.open_library_work_key,
+        ...seriesFieldsFor(row.works.id)
       }))
 
     return [...editionItems, ...workItems].sort((a, b) => a.workTitle.localeCompare(b.workTitle))

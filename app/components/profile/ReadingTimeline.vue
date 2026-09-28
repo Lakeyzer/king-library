@@ -1,28 +1,11 @@
 <script setup lang="ts">
-import type { ReadFormat, UserBookRead } from '~/composables/useBooks'
+import type { ReadingTimelineEntry, UserBookRead } from '~/composables/useBooks'
 
-// A flat shape (rather than a discriminated union) since a King entry and a
-// Works by Others one differ only in which fields are always null for the
-// latter (readYear, format - see useRelatedWorks' ReadingTimelineRelatedEntry)
-// - not in overall shape - so every existing template binding below keeps
-// working unchanged for both. `readId` is the related work's own id for a
-// 'related' entry, standing in for the readId a per-read history table would
-// otherwise provide (see useRelatedWorks.ts's own note on markRead: "there's
-// no logged-read history here").
-export interface ReadingTimelineItem {
-  source: 'king' | 'related'
-  readId: string
-  workId: string
-  title: string
-  slug: string
-  coverId: number | null
-  startedOn: string | null
-  readOn: string | null
-  readYear: number | null
-  note: string | null
-  format: ReadFormat | null
-  rating: number | null
-}
+// One logged read (user_book_reads row) of a King or related work alike -
+// `kind` only decides which detail page the entry links to; editing and
+// deleting work the same for both (see reading-timeline "Reading Timeline
+// includes Works by Others reads").
+export type ReadingTimelineItem = ReadingTimelineEntry
 
 interface Props {
   items: ReadingTimelineItem[]
@@ -68,25 +51,6 @@ function handleSaved(row: UserBookRead) {
   )
 }
 
-function handleRelatedSaved(
-  details: { startedOn: string | null, finishedOn: string | null, note: string | null, rating: number | null, format: ReadFormat | null }
-) {
-  if (!editingEntry.value) return
-  const readId = editingEntry.value.readId
-  localItems.value = localItems.value.map(entry =>
-    entry.readId === readId
-      ? {
-          ...entry,
-          startedOn: details.startedOn,
-          readOn: details.finishedOn,
-          note: details.note,
-          rating: details.rating,
-          format: details.format
-        }
-      : entry
-  )
-}
-
 function handleDeleted() {
   if (!editingEntry.value) return
   const readId = editingEntry.value.readId
@@ -105,12 +69,12 @@ function displayDate(entry: ReadingTimelineItem) {
 
 const timelineItems = computed(() =>
   localItems.value.map(entry => ({
-    source: entry.source,
+    kind: entry.kind,
     readId: entry.readId,
     workId: entry.workId,
     slug: entry.slug,
     title: entry.title,
-    href: entry.source === 'king' ? `/works/${entry.slug}` : `/works-by-others/${entry.slug}`,
+    href: workPath(entry.kind, entry.slug),
     date: displayDate(entry),
     startedOn: entry.startedOn,
     readOn: entry.readOn,
@@ -488,7 +452,7 @@ onBeforeUnmount(() => {
   </div>
 
   <BookEditReadDatesModal
-    v-if="editingEntry && editingEntry.source === 'king'"
+    v-if="editingEntry"
     v-model:open="showEditDatesModal"
     :read-id="editingEntry.readId"
     :work-id="editingEntry.workId"
@@ -500,21 +464,6 @@ onBeforeUnmount(() => {
     :initial-format="editingEntry.format"
     :initial-rating="editingEntry.rating"
     @saved="handleSaved"
-    @deleted="handleDeleted"
-  />
-  <BookMarkReadModal
-    v-if="editingEntry && editingEntry.source === 'related'"
-    v-model:open="showEditDatesModal"
-    domain="related"
-    allow-delete
-    :work-id="editingEntry.workId"
-    :work-title="editingEntry.title"
-    :initial-started-on="editingEntry.startedOn"
-    :initial-finished-on="editingEntry.readOn"
-    :initial-note="editingEntry.note"
-    :initial-rating="editingEntry.rating"
-    :initial-format="editingEntry.format"
-    @saved="handleRelatedSaved"
     @deleted="handleDeleted"
   />
 </template>

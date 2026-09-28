@@ -9,8 +9,6 @@ interface Props {
   mode?: 'compact' | 'expanded'
   /** Compact mode only - shrinks the status icons and the dropdown trigger button. 'md' (default) matches the original size; 'sm' is for denser layouts like a carousel card footer. */
   size?: 'sm' | 'md'
-  /** 'king' (default) reads/writes king_works via useBooks()/useBookshelf(); 'related' reads/writes related_works via useRelatedWorks()/useRelatedWorkEditions() - see reading-status's "Works by Others share the same reading-status controls". A related work has no reread-history (Read Again) - hidden/redirected below wherever domain is 'related' - but otherwise shares every reading-status control, including BookFinishReadingModal, identically with King. */
-  domain?: 'king' | 'related'
   /** True when this renders inside another interactive element's own <button> (e.g. an accordion trigger) - swaps compact mode's dropdown-menu trigger to a non-button tag, since a <button> cannot validly contain another <button>. Reka's DropdownMenuTrigger still sets the right aria-* attributes and keyboard handling regardless of the underlying tag. */
   nested?: boolean
   /** Forwarded to the Add to Shelf editions picker - see WorkEditionList's own doc on minEditionYear/maxEditionYear. */
@@ -24,7 +22,6 @@ const props = withDefaults(defineProps<Props>(), {
   workKey: null,
   mode: 'compact',
   size: 'md',
-  domain: 'king',
   nested: false,
   minEditionYear: null,
   maxEditionYear: null,
@@ -36,42 +33,31 @@ const statusIconClass = computed(() => (props.size === 'sm' ? 'size-4' : 'size-5
 defineOptions({ inheritAttrs: false })
 
 const user = useSupabaseUser()
-// userBooksByWorkId/userRelatedWorksByWorkId are only populated once
-// something calls fetchUserBooks()/fetchUserRelatedWorks() - this component
+// Works for King and related works alike - both are tracked in user_books
+// (see reading-status "Works by Others share every reading-status control
+// except the wishlist", and there's no wishlist control here anyway).
+//
+// userBooksByWorkId is only populated once something calls
+// fetchUserBooks() - this component
 // does NOT do that itself. Any page rendering this (directly or via
 // WorkTile) must await useAsyncData(...) for the relevant fetch itself, or
 // every tile silently shows neutral status regardless of the user's actual
 // reading state - see nuxt-conventions "BookReadingActions... need their
 // page to pre-fetch status" for why this isn't just pushed into this
 // component.
-const { userBooksByWorkId, toggleWantToRead: toggleWantToReadBook, setOwned: setBookOwned } = useBooks()
-const {
-  userRelatedWorksByWorkId,
-  toggleWantToRead: toggleWantToReadRelated,
-  setOwned: setRelatedOwned,
-  unmarkRead: unmarkRelatedRead
-} = useRelatedWorks()
+const { userBooksByWorkId, toggleWantToRead: toggleWantToReadBook, setOwned } = useBooks()
 const { open: openAuthModal } = useAuthModal()
-
-const isRelated = computed(() => props.domain === 'related')
 
 const showEditionsModal = ref(false)
 
 const bookState = computed(() => userBooksByWorkId.value[props.workId])
-const relatedState = computed(() => userRelatedWorksByWorkId.value[props.workId])
 
-const isOwned = computed(() => (isRelated.value ? relatedState.value?.owned : bookState.value?.owned) ?? false)
-const isWantToRead = computed(
-  () => (isRelated.value ? relatedState.value?.want_to_read : bookState.value?.want_to_read) ?? false
-)
-const isCurrentlyReading = computed(
-  () => (isRelated.value ? relatedState.value?.currently_reading : bookState.value?.currently_reading) ?? false
-)
-const isRead = computed(() => (isRelated.value ? relatedState.value?.read : bookState.value?.read) ?? false)
-const currentStartedOn = computed(
-  () => (isRelated.value ? relatedState.value?.started_on : bookState.value?.started_on) ?? null
-)
-const currentFormat = computed(() => (isRelated.value ? relatedState.value?.format : bookState.value?.format) ?? null)
+const isOwned = computed(() => bookState.value?.owned ?? false)
+const isWantToRead = computed(() => bookState.value?.want_to_read ?? false)
+const isCurrentlyReading = computed(() => bookState.value?.currently_reading ?? false)
+const isRead = computed(() => bookState.value?.read ?? false)
+const currentStartedOn = computed(() => bookState.value?.started_on ?? null)
+const currentFormat = computed(() => bookState.value?.format ?? null)
 
 // A work already being read is left fully actionable (Finish, Stop) - this
 // only stops a read from being started, or logged, before release. Likewise
@@ -82,7 +68,7 @@ const shelfBlocked = computed(() => isUnreleased.value && !isOwned.value)
 const unreleasedTitle = 'Not released yet'
 
 function toggleWantToRead() {
-  return isRelated.value ? toggleWantToReadRelated(props.workId) : toggleWantToReadBook(props.workId)
+  return toggleWantToReadBook(props.workId)
 }
 
 type PrimaryState = 'neutral' | 'want_to_read' | 'currently_reading' | 'read'
@@ -135,14 +121,7 @@ function handlePrimaryClick() {
       showFinishReadingModal.value = true
       break
     case 'read':
-      // A related work's unmark has nothing to lose confirming - no
-      // reread-history to cascade-delete, unlike King's (see
-      // useRelatedWorks.ts's own note on markRead).
-      if (isRelated.value) {
-        unmarkRelatedRead(props.workId)
-      } else {
-        showUnmarkReadModal.value = true
-      }
+      showUnmarkReadModal.value = true
       break
   }
 }
@@ -208,19 +187,14 @@ const readingDropdownItems = computed<DropdownMenuItem[]>(() => {
     case 'read':
       return [
         primary,
-        // Read Again has no related-works equivalent (no reread-history table).
-        ...(isRelated.value
-          ? []
-          : [
-              {
-                label: 'Read Again',
-                icon: 'i-lucide-repeat',
-                disabled: readingBlocked.value,
-                onSelect: () => {
-                  showReadAgainModal.value = true
-                }
-              } satisfies DropdownMenuItem
-            ]),
+        {
+          label: 'Read Again',
+          icon: 'i-lucide-repeat',
+          disabled: readingBlocked.value,
+          onSelect: () => {
+            showReadAgainModal.value = true
+          }
+        },
         {
           label: 'Start Reading',
           icon: 'i-lucide-book-open',
@@ -295,11 +269,7 @@ function handleLeftmostClick() {
     return
   }
   if (primaryState.value === 'read') {
-    if (isRelated.value) {
-      unmarkRelatedRead(props.workId)
-    } else {
-      showUnmarkReadModal.value = true
-    }
+    showUnmarkReadModal.value = true
   } else {
     toggleWantToRead()
   }
@@ -308,14 +278,6 @@ function handleLeftmostClick() {
 const startFinishLabel = computed(() =>
   isCurrentlyReading.value ? 'Finish Reading' : 'Start Reading'
 )
-
-// Read Again has no related-works equivalent (no reread-history table), so
-// once a related work is read there's nothing left for this slot to offer -
-// hidden only for that one combination. Every other state (including
-// currently_reading, where this slot doubles as "Mark as Read with custom
-// dates" alongside the primary Finish action) behaves identically for both
-// domains.
-const showReadSlot = computed(() => !(isRelated.value && isRead.value))
 
 const readSlotLabel = computed(() =>
   primaryState.value === 'read' ? 'Read Again' : 'Mark as Read'
@@ -366,7 +328,6 @@ function handleShelfClick() {
   if (props.workKey) {
     showEditionsModal.value = true
   } else {
-    const setOwned = isRelated.value ? setRelatedOwned : setBookOwned
     setOwned(props.workId, !isOwned.value)
   }
 }
@@ -459,7 +420,6 @@ function handleShelfClick() {
         @click="handleStartOrFinishReading"
       />
       <IconLabelButton
-        v-if="showReadSlot"
         stacked
         class="flex-1"
         :label="readSlotLabel"
@@ -501,7 +461,6 @@ function handleShelfClick() {
         @click="handleStartOrFinishReading"
       />
       <IconLabelButton
-        v-if="showReadSlot"
         :label="readSlotLabel"
         :icon="readSlotIcon"
         :filled="readSlotFilled"
@@ -524,11 +483,9 @@ function handleShelfClick() {
     v-model:open="showStartReadingModal"
     :work-id="workId"
     :work-title="workTitle"
-    :domain="domain"
   />
   <BookFinishReadingModal
     v-model:open="showFinishReadingModal"
-    :domain="domain"
     :work-id="workId"
     :work-title="workTitle"
     :initial-format="currentFormat"
@@ -538,19 +495,16 @@ function handleShelfClick() {
     v-model:open="showMarkReadModal"
     :work-id="workId"
     :work-title="workTitle"
-    :domain="domain"
     :initial-started-on="currentStartedOn"
     :initial-format="currentFormat"
   />
   <BookMarkReadModal
-    v-if="!isRelated"
     v-model:open="showReadAgainModal"
     mode="again"
     :work-id="workId"
     :work-title="workTitle"
   />
   <BookUnmarkReadModal
-    v-if="!isRelated"
     v-model:open="showUnmarkReadModal"
     :work-id="workId"
     :work-title="workTitle"
@@ -560,7 +514,6 @@ function handleShelfClick() {
     v-model:open="showEditionsModal"
     :work-id="workId"
     :work-key="workKey"
-    :domain="domain"
     :min-edition-year="minEditionYear"
     :max-edition-year="maxEditionYear"
   />

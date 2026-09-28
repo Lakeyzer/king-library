@@ -3,21 +3,14 @@ interface Props {
   workId: string
   editionId: string
   editionTitle: string
-  /** 'king' (default) writes to user_book_editions via useBookshelf(); 'related' writes to user_related_work_editions via useRelatedWorkEditions() - see reading-status's "Works by Others share the same reading-status controls". */
-  domain?: 'king' | 'related'
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  domain: 'king'
-})
+const props = defineProps<Props>()
 
 const user = useSupabaseUser()
-const bookEditionsApi = useBookshelf()
-const relatedEditionsApi = useRelatedWorkEditions()
+// King and related works alike - both record editions in user_book_editions.
+const { isEditionAdded, addEdition, removeEdition } = useBookshelf()
 const { open: openAuthModal } = useAuthModal()
-
-const isRelated = computed(() => props.domain === 'related')
-const { isEditionAdded, addEdition, removeEdition } = isRelated.value ? relatedEditionsApi : bookEditionsApi
 
 const added = computed(() => isEditionAdded(props.workId, props.editionId))
 const pending = ref(false)

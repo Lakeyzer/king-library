@@ -2,45 +2,31 @@
 interface Props {
   workId: string
   workKey: string
-  /** 'king' (default) reads/writes king_works via useBooks()/useBookshelf(); 'related' reads/writes related_works via useRelatedWorks()/useRelatedWorkEditions() - see reading-status's "Works by Others share the same reading-status controls". */
-  domain?: 'king' | 'related'
   /** Forwarded to WorkEditionList - see its own doc on minEditionYear/maxEditionYear. */
   minEditionYear?: number | null
   maxEditionYear?: number | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  domain: 'king',
   minEditionYear: null,
   maxEditionYear: null
 })
 const open = defineModel<boolean>('open', { default: false })
 
-const isRelated = computed(() => props.domain === 'related')
+// King and related works alike - both are tracked in user_books and
+// user_book_editions.
+const { userBooksByWorkId, setOwned } = useBooks()
+const { userEditionsByWorkId } = useBookshelf()
 
-const { userBooksByWorkId, setOwned: setBookOwned } = useBooks()
-const { userEditionsByWorkId: userBookEditionsByWorkId } = useBookshelf()
-const { userRelatedWorksByWorkId, setOwned: setRelatedOwned } = useRelatedWorks()
-const { userEditionsByWorkId: userRelatedEditionsByWorkId } = useRelatedWorkEditions()
-
-const isOwned = computed(() => {
-  const owned = isRelated.value
-    ? userRelatedWorksByWorkId.value[props.workId]?.owned
-    : userBooksByWorkId.value[props.workId]?.owned
-  return owned ?? false
-})
+const isOwned = computed(() => userBooksByWorkId.value[props.workId]?.owned ?? false)
 // Ownership becomes edition-driven the moment any edition is added (see
-// useBookshelf's/useRelatedWorkEditions' addEdition/removeEdition) - this
+// useBookshelf's addEdition/removeEdition) - this
 // generic toggle only makes sense while there's no edition to hang ownership
 // off instead, otherwise unchecking it here would desync owned=false from
 // still-present edition rows.
-const hasEditions = computed(() => {
-  const editionsByWorkId = isRelated.value ? userRelatedEditionsByWorkId : userBookEditionsByWorkId
-  return (editionsByWorkId.value[props.workId]?.size ?? 0) > 0
-})
+const hasEditions = computed(() => (userEditionsByWorkId.value[props.workId]?.size ?? 0) > 0)
 
 function handleOwnedToggle(value: boolean | 'indeterminate') {
-  const setOwned = isRelated.value ? setRelatedOwned : setBookOwned
   setOwned(props.workId, value === true)
 }
 
@@ -70,7 +56,6 @@ const openLibraryAddEditionUrl = computed(
         <WorkEditionList
           :work-key="workKey"
           :work-id="workId"
-          :domain="domain"
           :min-edition-year="minEditionYear"
           :max-edition-year="maxEditionYear"
           orientation="vertical"

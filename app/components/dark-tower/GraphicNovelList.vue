@@ -79,7 +79,6 @@ const ui = { label: 'flex-1 min-w-0' }
         >
           <BookReadingActions
             nested
-            domain="related"
             :work-id="item.group.omnibus.id"
             :work-title="item.group.omnibus.title"
             :work-key="item.group.omnibus.open_library_work_key"
@@ -118,7 +117,6 @@ const ui = { label: 'flex-1 min-w-0' }
           </NuxtLink>
 
           <BookReadingActions
-            domain="related"
             :work-id="component.id"
             :work-title="component.title"
             :work-key="component.open_library_work_key"

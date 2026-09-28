@@ -85,7 +85,7 @@ export function useShortStories() {
     const { data, error } = await supabase
       .from('king_short_story_collections')
       .select('order_in_collection, king_short_stories ( id, title, type, slug )')
-      .eq('king_work_id', kingWorkId)
+      .eq('work_id', kingWorkId)
       .order('order_in_collection', { ascending: true, nullsFirst: false })
 
     if (error) throw error
@@ -101,13 +101,13 @@ export function useShortStories() {
   const fetchCollectionsForShortStory = async (shortStoryId: string) => {
     const { data, error } = await supabase
       .from('king_short_story_collections')
-      .select('king_works ( id, title, slug, cover_id, publish_date )')
+      .select('works ( id, title, slug, cover_id, publish_date )')
       .eq('short_story_id', shortStoryId)
 
     if (error) throw error
 
-    return (data as unknown as { king_works: ShortStoryCollection | null }[])
-      .map(row => row.king_works)
+    return (data as unknown as { works: ShortStoryCollection | null }[])
+      .map(row => row.works)
       .filter((collection): collection is ShortStoryCollection => collection !== null)
       .sort((a, b) => a.publish_date.localeCompare(b.publish_date))
   }
@@ -122,7 +122,7 @@ export function useShortStories() {
       supabase.from('king_short_stories').select('id'),
       supabase
         .from('king_short_story_collections')
-        .select('short_story_id, king_works ( id, title, slug, cover_id, publish_date )')
+        .select('short_story_id, works ( id, title, slug, cover_id, publish_date )')
     ])
 
     if (storiesError) throw storiesError
@@ -132,7 +132,7 @@ export function useShortStories() {
 
     const linkRows = links as unknown as {
       short_story_id: string
-      king_works: ShortStoryCollection | null
+      works: ShortStoryCollection | null
     }[]
 
     const collectionById = new Map<string, ShortStoryCollectionSummary>()
@@ -140,23 +140,23 @@ export function useShortStories() {
     const collectionTitlesByStoryId: Record<string, string[]> = {}
 
     for (const row of linkRows) {
-      if (!row.king_works) continue
+      if (!row.works) continue
 
       storyIdsInCollection.add(row.short_story_id)
       const titles = collectionTitlesByStoryId[row.short_story_id] ?? []
-      titles.push(row.king_works.title)
+      titles.push(row.works.title)
       collectionTitlesByStoryId[row.short_story_id] = titles
 
-      const existing = collectionById.get(row.king_works.id)
+      const existing = collectionById.get(row.works.id)
       if (existing) {
         existing.storyCount += 1
       } else {
-        collectionById.set(row.king_works.id, {
-          id: row.king_works.id,
-          title: row.king_works.title,
-          slug: row.king_works.slug,
-          coverId: row.king_works.cover_id,
-          publishDate: row.king_works.publish_date,
+        collectionById.set(row.works.id, {
+          id: row.works.id,
+          title: row.works.title,
+          slug: row.works.slug,
+          coverId: row.works.cover_id,
+          publishDate: row.works.publish_date,
           storyCount: 1
         })
       }

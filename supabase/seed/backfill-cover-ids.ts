@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url'
 
 interface KingWorkSeedRow {
   id: string
+  kind: 'king'
   title: string
   type: string
   original_publish_year: number

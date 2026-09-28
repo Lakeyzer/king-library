@@ -21,12 +21,7 @@ const {
 const { fetchViewingProgress, fetchUnwatchedRecommendation } = useAdaptations()
 const { fetchBookshelf } = useBookshelf()
 const { fetchShortStoryProgress } = useShortStories()
-const {
-  fetchRelatedWorkProfileStats,
-  fetchCurrentlyReadingRelatedWorks,
-  fetchReadingTimelineRelatedWorks
-} = useRelatedWorks()
-const { fetchBookshelf: fetchRelatedWorkBookshelf } = useRelatedWorkEditions()
+const { fetchRelatedWorkProfileStats } = useRelatedWorks()
 
 const [
   { data: stats },
@@ -35,10 +30,7 @@ const [
   { data: currentlyReading },
   { data: readingTimeline },
   { data: bookshelf },
-  { data: relatedWorkStats },
-  { data: relatedCurrentlyReading },
-  { data: relatedTimeline },
-  { data: relatedBookshelf }
+  { data: relatedWorkStats }
 ] = await Promise.all([
   useAsyncData(`profile-${profile.id}-book-stats`, () => fetchProfileBookStats(profile.id)),
   useAsyncData(`profile-${profile.id}-viewing-progress`, () => fetchViewingProgress(profile.id)),
@@ -46,14 +38,11 @@ const [
   useAsyncData(`profile-${profile.id}-currently-reading`, () => fetchCurrentlyReading(profile.id)),
   useAsyncData(`profile-${profile.id}-reading-timeline`, () => fetchReadingTimeline(profile.id)),
   useAsyncData(`profile-${profile.id}-bookshelf`, () => fetchBookshelf(profile.id)),
-  // Reading Progress, Bookshelf, and the reading timeline all always
-  // include Works by Others works too now (see ProfileShowcase's merged*
-  // computeds), so these four are fetched unconditionally, same as their
-  // King counterparts above.
-  useAsyncData(`profile-${profile.id}-related-work-stats`, () => fetchRelatedWorkProfileStats(profile.id)),
-  useAsyncData(`profile-${profile.id}-related-currently-reading`, () => fetchCurrentlyReadingRelatedWorks(profile.id)),
-  useAsyncData(`profile-${profile.id}-related-timeline`, () => fetchReadingTimelineRelatedWorks(profile.id)),
-  useAsyncData(`profile-${profile.id}-related-bookshelf`, () => fetchRelatedWorkBookshelf(profile.id))
+  // Currently Reading, the reading timeline, and the Bookshelf above already
+  // cover Works by Others works too (they share user_books/user_book_reads/
+  // user_book_editions with King works); only the Works by Others progress
+  // figures need their own fetch.
+  useAsyncData(`profile-${profile.id}-related-work-stats`, () => fetchRelatedWorkProfileStats(profile.id))
 ])
 
 // Unlike the fetches above, these two really are owner-gated (not just
@@ -98,9 +87,6 @@ const { data: giftIdeaRecommendation } = await useAsyncData(
     :reading-timeline="readingTimeline"
     :bookshelf="bookshelf ?? []"
     :related-work-stats="relatedWorkStats"
-    :related-currently-reading="relatedCurrentlyReading ?? []"
-    :related-timeline="relatedTimeline ?? []"
-    :related-bookshelf="relatedBookshelf ?? []"
     :book-recommendation="bookRecommendation ?? null"
     :owned-unread-recommendation="ownedUnreadRecommendation ?? null"
     :adaptation-recommendation="adaptationRecommendation ?? null"

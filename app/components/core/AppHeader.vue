@@ -38,8 +38,6 @@ const { fetchUserBooks } = useBooks()
 const { fetchUserAdaptations } = useAdaptations()
 const { fetchUserEditions: fetchUserBookEditions } = useBookshelf()
 const { fetchUserShortStoryReads } = useShortStories()
-const { fetchUserRelatedWorks } = useRelatedWorks()
-const { fetchUserEditions: fetchUserRelatedWorkEditions } = useRelatedWorkEditions()
 const { unreadCount, fetchUnreadCount, subscribeToUnread } = useNotifications()
 
 // Client-only and best-effort: a failed count just leaves the dot as it
@@ -118,8 +116,6 @@ watch(user, () => {
   fetchUserAdaptations()
   fetchUserBookEditions()
   fetchUserShortStoryReads()
-  fetchUserRelatedWorks()
-  fetchUserRelatedWorkEditions()
   refreshUnreadCount()
 })
 

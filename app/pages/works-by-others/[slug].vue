@@ -10,10 +10,10 @@ const {
   fetchRelatedWorkBySlug,
   fetchComponentWorksForOmnibus,
   fetchKingWorksForRelatedWork,
-  fetchRelatedWorkStats,
-  fetchUserRelatedWorks
+  fetchRelatedWorkStats
 } = useRelatedWorks()
-const { fetchUserEditions } = useRelatedWorkEditions()
+const { fetchUserBooks } = useBooks()
+const { fetchUserEditions } = useBookshelf()
 
 const { data: workData } = await useAsyncData(`works-by-others-${slug}`, () =>
   fetchRelatedWorkBySlug(slug)
@@ -38,8 +38,8 @@ const [{ data: componentWorks }, { data: kingWorks }, { data: stats }] = await P
 // Not awaited: only affects the actions/edition buttons' displayed state,
 // which updates reactively once it resolves - see nuxt-conventions
 // "BookReadingActions... need their page to pre-fetch status".
-useAsyncData('user-related-works', fetchUserRelatedWorks)
-useAsyncData('user-related-work-editions', fetchUserEditions)
+useAsyncData('user-books', fetchUserBooks)
+useAsyncData('user-editions', fetchUserEditions)
 
 const publishYear = computed(() =>
   work.publish_date ? Number(work.publish_date.slice(0, 4)) : null
@@ -159,7 +159,6 @@ setPageSeo({
 
         <template #actions>
           <BookReadingActions
-            domain="related"
             :work-id="work.id"
             :work-title="work.title"
             :work-key="work.open_library_work_key"
@@ -207,7 +206,6 @@ setPageSeo({
     <div class="flex flex-col gap-8">
       <WorkEditionList
         v-if="work.open_library_work_key"
-        domain="related"
         :work-key="work.open_library_work_key"
         :work-id="work.id"
       />

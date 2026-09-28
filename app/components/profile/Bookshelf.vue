@@ -1,43 +1,13 @@
 <script setup lang="ts">
-// Same shape as useBookshelf()'s BookshelfEditionItem/BookshelfWorkItem,
-// plus `source` (tells BookshelfTile which link prefix and removal
-// composable to use - see profile-showcase's design.md "Bookshelf and
-// reading timeline always include By Other Hands works"). A related item
-// has no series concept and a nullable publishDate, so its seriesId/
-// seriesName/seriesPosition/publishDate are normalized to this same flat
-// shape at the merge site (Showcase.vue) - every field here is guaranteed
-// present regardless of source, unlike a plain union of the two
-// composables' own (structurally different) item types would be.
-export interface ProfileBookshelfEditionItem {
-  source: 'king' | 'related'
-  kind: 'edition'
-  editionRowId: string
-  workId: string
-  workSlug: string
-  workTitle: string
-  publishDate: string
-  openLibraryWorkKey: string | null
-  editionId: string
-  editionTitle: string
-  seriesId: string | null
-  seriesName: string | null
-  seriesPosition: number | null
-}
+import type { BookshelfEditionItem, BookshelfItem, BookshelfWorkItem } from '~/composables/useBookshelf'
 
-export interface ProfileBookshelfWorkItem {
-  source: 'king' | 'related'
-  kind: 'work'
-  workId: string
-  workSlug: string
-  workTitle: string
-  publishDate: string
-  openLibraryWorkKey: string | null
-  seriesId: string | null
-  seriesName: string | null
-  seriesPosition: number | null
-}
-
-export type ProfileBookshelfItem = ProfileBookshelfEditionItem | ProfileBookshelfWorkItem
+// useBookshelf()'s items cover King and related works alike - `workKind`
+// tells BookshelfTile which detail page to link to (see profile-showcase
+// "Bookshelf and reading timeline always include By Other Hands works").
+// Kept as aliases so the tile/remove components keep their own names.
+export type ProfileBookshelfEditionItem = BookshelfEditionItem
+export type ProfileBookshelfWorkItem = BookshelfWorkItem
+export type ProfileBookshelfItem = BookshelfItem
 
 interface Props {
   items: ProfileBookshelfItem[]

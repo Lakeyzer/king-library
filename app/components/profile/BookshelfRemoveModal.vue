@@ -10,28 +10,20 @@ const open = defineModel<boolean>('open', { default: false })
 
 const emit = defineEmits<{ removed: [] }>()
 
-const { removeEdition: removeBookEdition } = useBookshelf()
-const { setOwned: setBookOwned } = useBooks()
-const { removeEdition: removeRelatedWorkEdition } = useRelatedWorkEditions()
-const { setOwned: setRelatedWorkOwned } = useRelatedWorks()
+// King and related works alike - both are tracked in user_books and
+// user_book_editions.
+const { removeEdition } = useBookshelf()
+const { setOwned } = useBooks()
 
 const removing = ref(false)
 
 async function confirmRemove() {
   removing.value = true
   try {
-    if (props.item.source === 'king') {
-      if (props.item.kind === 'edition') {
-        await removeBookEdition(props.item.workId, props.item.editionId)
-      } else {
-        await setBookOwned(props.item.workId, false)
-      }
+    if (props.item.kind === 'edition') {
+      await removeEdition(props.item.workId, props.item.editionId)
     } else {
-      if (props.item.kind === 'edition') {
-        await removeRelatedWorkEdition(props.item.workId, props.item.editionId)
-      } else {
-        await setRelatedWorkOwned(props.item.workId, false)
-      }
+      await setOwned(props.item.workId, false)
     }
     open.value = false
     emit('removed')

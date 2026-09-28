@@ -16,6 +16,8 @@ const props = withDefaults(
     sortYearLabel: string
     extraFilter?: (item: T) => boolean
     detailPathPrefix?: string
+    /** Per-item detail link, taking precedence over detailPathPrefix - for a list mixing King and related works (e.g. the Read List), whose items don't share one prefix. */
+    detailPathOf?: (item: T) => string
     /** Optional line shown directly under each item's title, above the year/type meta row - see BibliographyListItem's `subtitle` prop (e.g. "By Robin Furth"). */
     subtitleOf?: (item: T) => string | null | undefined
     /** Optional context line shown below each item's title/year/type meta row - see BibliographyListItem's `note` prop. Omit for pages with nothing extra to say per item. */
@@ -186,9 +188,11 @@ const filteredItems = computed(() => {
               :type-label="formatTypeLabel(item.type)"
               :note="noteOf?.(item)"
               :to="
-                detailPathPrefix && item.slug
-                  ? `${detailPathPrefix}/${item.slug}`
-                  : undefined
+                detailPathOf
+                  ? detailPathOf(item)
+                  : detailPathPrefix && item.slug
+                    ? `${detailPathPrefix}/${item.slug}`
+                    : undefined
               "
             >
               <template #actions>

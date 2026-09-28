@@ -4,32 +4,25 @@ import type { ReadFormat } from '~/composables/useBooks'
 interface Props {
   workId: string
   workTitle: string
-  /** 'king' (default) writes to user_books via useBooks(); 'related' writes to user_related_works via useRelatedWorks() - see reading-status's "Works by Others share the same reading-status controls". Used by ProfileCurrentlyReading for both domains, so Finish/Stop Reading behave identically regardless of which kind of work is in progress. */
-  domain?: 'king' | 'related'
-  /** The format captured when this work's current reading session was started (`user_books.format`/`user_related_works.format`), if any - prefills the field here rather than making the user re-enter what they already told us. */
+  /** The format captured when this work's current reading session was started (`user_books.format`), if any - prefills the field here rather than making the user re-enter what they already told us. */
   initialFormat?: ReadFormat | null
-  /** domain="related" only: the session's start date, captured when it began. Related's markRead() nulls out any date not explicitly passed (see its own note - no logged-read history to fall back on), so this has to be threaded back through on submit or a related work's started_on would be silently wiped by finishing it. King doesn't need this - useBooks().finishReading() already preserves the existing started_on server-side. */
-  initialStartedOn?: string | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  domain: 'king',
-  initialFormat: null,
-  initialStartedOn: null
+  initialFormat: null
 })
 const open = defineModel<boolean>('open', { default: false })
 // Fired after either action succeeds - lets a caller that keeps its own
 // local snapshot of "currently reading" items (e.g. ProfileCurrentlyReading,
-// which isn't derived from useBooks()/useRelatedWorks()'s own reactive
+// which isn't derived from useBooks()'s own reactive
 // state) know this work is no longer in progress, without needing a full
 // refetch. Mirrors BookMarkReadModal's `logged`/`deleted` emits, used the
 // same way.
 const emit = defineEmits<{ resolved: [] }>()
 
+// King and related works alike - both are tracked in user_books, so
+// Finish/Stop Reading behave identically whichever kind is in progress.
 const { finishReading, stopReading } = useBooks()
-const { markRead: markReadRelated, stopReading: stopReadingRelated } = useRelatedWorks()
-
-const isRelated = computed(() => props.domain === 'related')
 
 const finishedOn = ref(todayLocalDate())
 const note = ref('')
@@ -57,21 +50,11 @@ watch(open, (isOpen) => {
 async function confirm() {
   loading.value = true
   try {
-    if (isRelated.value) {
-      await markReadRelated(props.workId, {
-        startedOn: props.initialStartedOn ?? undefined,
-        finishedOn: finishedOn.value,
-        note: note.value || undefined,
-        format: format.value ?? undefined,
-        rating: rating.value ?? undefined
-      })
-    } else {
-      await finishReading(props.workId, finishedOn.value, {
-        note: note.value || undefined,
-        format: format.value ?? undefined,
-        rating: rating.value ?? undefined
-      })
-    }
+    await finishReading(props.workId, finishedOn.value, {
+      note: note.value || undefined,
+      format: format.value ?? undefined,
+      rating: rating.value ?? undefined
+    })
     // Emit before closing, not after - closing sets `open` to false, which
     // (via the parent's v-model setter, e.g. ProfileCurrentlyReading's
     // showFinishModal) can synchronously null out whatever identified this
@@ -100,11 +83,7 @@ function handleStopClick() {
 async function confirmStop() {
   loading.value = true
   try {
-    if (isRelated.value) {
-      await stopReadingRelated(props.workId)
-    } else {
-      await stopReading(props.workId)
-    }
+    await stopReading(props.workId)
     // Same emit-before-close ordering as confirm() above.
     emit('resolved')
     open.value = false

@@ -133,7 +133,8 @@ export function useReports() {
 
     // One insert per content area rather than a computed FK-column key -
     // see add-content-reporting's design.md "One `reports` table, four
-    // nullable item-reference columns". A computed key here would widen the
+    // nullable item-reference columns" (three since works and works by
+    // others share the works table - content_area still tells them apart). A computed key here would widen the
     // insert payload to a `{ [x: string]: string }` index signature, which
     // Supabase's generated insert types reject.
     const baseRow = { user_id: user.value.sub, type: 'issue' as const, content_area: contentArea, description: validDescription }
@@ -141,7 +142,8 @@ export function useReports() {
     let error
     switch (contentArea) {
       case 'works':
-        ({ error } = await supabase.from('reports').insert({ ...baseRow, king_work_id: itemId }))
+      case 'works_by_others':
+        ({ error } = await supabase.from('reports').insert({ ...baseRow, work_id: itemId }))
         break
       case 'short_works':
         ({ error } = await supabase.from('reports').insert({ ...baseRow, short_story_id: itemId }))
@@ -149,10 +151,7 @@ export function useReports() {
       case 'adaptations':
         ({ error } = await supabase.from('reports').insert({ ...baseRow, adaptation_id: itemId }))
         break
-      case 'works_by_others':
-        ({ error } = await supabase.from('reports').insert({ ...baseRow, related_work_id: itemId }))
-        break
-      // Missing-content only - the Dark Tower lists span king_works and
+      // Missing-content only - the Dark Tower lists span works and
       // king_short_stories, so there's no single item FK to report against
       // (also enforced by reports_dark_tower_missing_content_only).
       case 'dark_tower':

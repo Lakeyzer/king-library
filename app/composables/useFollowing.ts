@@ -145,7 +145,7 @@ export function useFollowing() {
 
     const { data, error } = await supabase
       .from('user_books')
-      .select('user_id, started_on, king_works!user_books_king_work_id_fkey ( id, title, slug, cover_id )')
+      .select('user_id, started_on, works!user_books_work_id_fkey ( id, kind, title, slug, cover_id )')
       .in('user_id', followedIds)
       .eq('currently_reading', true)
       .order('started_on', { ascending: false, nullsFirst: false })
@@ -155,19 +155,21 @@ export function useFollowing() {
     const rows = data as unknown as {
       user_id: string
       started_on: string | null
-      king_works: { id: string, title: string, slug: string, cover_id: number | null } | null
+      works: { id: string, kind: 'king' | 'related', title: string, slug: string, cover_id: number | null } | null
     }[]
 
     const worksByUserId = new Map<string, CurrentlyReadingWork[]>()
 
     for (const row of rows) {
-      if (!row.king_works) continue
+      // The Following sidebar stays King-only, per user-following spec.
+      if (!row.works || row.works.kind !== 'king') continue
 
       const work: CurrentlyReadingWork = {
-        id: row.king_works.id,
-        title: row.king_works.title,
-        slug: row.king_works.slug,
-        coverId: row.king_works.cover_id,
+        id: row.works.id,
+        kind: row.works.kind,
+        title: row.works.title,
+        slug: row.works.slug,
+        coverId: row.works.cover_id,
         startedOn: row.started_on,
         // Not displayed in the Following feed (see app/pages/following.vue) -
         // fetching the column would be pointless without a rendering need.

@@ -18,13 +18,13 @@ export interface SeriesMembership {
 interface SeriesRow {
   id: string
   name: string
-  series_works: { king_work_id: string, position: number }[]
+  series_works: { work_id: string, position: number }[]
 }
 
 export function useSeries() {
   const supabase = useSupabaseClient()
 
-  // Map of king_work_id -> that work's series membership, mirroring
+  // Map of work_id -> that work's series membership, mirroring
   // useBooks()'s userBooksByWorkId pattern - see design.md "One useSeries
   // composable, consumed by useBookshelf".
   const seriesByWorkId = useState<Record<string, SeriesMembership>>('seriesByWorkId', () => ({}))
@@ -32,7 +32,7 @@ export function useSeries() {
   const fetchAllSeries = async (): Promise<Series[]> => {
     const { data, error } = await supabase
       .from('series')
-      .select('id, name, series_works ( king_work_id, position )')
+      .select('id, name, series_works ( work_id, position )')
       .order('position', { referencedTable: 'series_works', ascending: true })
 
     if (error) throw error
@@ -43,7 +43,7 @@ export function useSeries() {
       id: row.id,
       name: row.name,
       members: row.series_works.map(member => ({
-        workId: member.king_work_id,
+        workId: member.work_id,
         position: member.position
       }))
     }))

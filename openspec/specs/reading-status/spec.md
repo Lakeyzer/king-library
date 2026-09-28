@@ -196,21 +196,35 @@ The system SHALL support presenting a work's reading-status controls in an expan
 - **WHEN** a signed-in user activates any control shown in the expanded display mode
 - **THEN** it has the same effect on the work's reading status as activating the equivalent action in the compact presentation
 
-### Requirement: Works by Others share the same reading-status controls
-The system SHALL use the same reading-status components for a By Other Hands work as for a King work - the same compact and expanded control layouts, the same start-reading/finish/stop-reading/mark-as-read/edit-dates prompts (including the note, format, and rating fields), and the same reading timeline - each backed by the domain's own table (`user_related_works` for a By Other Hands work, instead of `user_books`/`user_book_reads`), rather than separate, duplicated components per domain. Where a By Other Hands work genuinely has no equivalent of a King capability, that capability SHALL be omitted rather than shown non-functional: no Read Again (no reread-history table - a single mark-as-read record instead covers marking read directly and editing an already-read entry), and no confirmation step before unmarking as read (nothing to lose - a single flat record, not a log of logged reads, is reset in place). Because there is no reread-history table, stopping an in-progress reread on a By Other Hands work that was already read cannot recover that earlier read's original start date the way a King work's can (see "User can stop a currently-reading work without logging a read") - the start date the abandoned reread had already overwritten stays as-is, since nothing preserved the original.
+### Requirement: Works by Others share every reading-status control except the wishlist
+The system SHALL use the same reading-status components for a By Other Hands work as for a King work. That covers:
+- the same compact and expanded control layouts
+- the same start-reading, finish, stop-reading, mark-as-read, Read Again, and edit-dates prompts (including the note, format, and rating fields)
+- the same confirm-before-unmark flow
+- the same reading timeline
+
+Both kinds of work are backed by the same per-user tracking and logged-read history, rather than separate, duplicated components or storage per kind. The one King capability omitted for a By Other Hands work is the wishlist, which By Other Hands works do not have (see by-other-hands's "By Other Hands works have no wishlist").
 
 #### Scenario: Starting, finishing, stopping, and marking a By Other Hands work read
 - **WHEN** a signed-in user starts reading, finishes, stops reading, or marks as read directly a By Other Hands work
-- **THEN** the same prompts used for a King work appear, including the format field, and record the action against that work's own `user_related_works` row
+- **THEN** the same prompts used for a King work appear, including the format field, and record the action the same way they would for a King work
 
-#### Scenario: No Read Again for a By Other Hands work
+#### Scenario: Read Again is offered for a By Other Hands work
 - **WHEN** a signed-in user views the expanded reading-status controls for a By Other Hands work marked read and not currently-reading
-- **THEN** only a control for starting to read it again is shown, not a separate Read Again control
+- **THEN** a Read Again control is shown, the same as for a read King work, and using it logs an additional read without removing the earlier one
 
-#### Scenario: Unmarking a By Other Hands work as read needs no confirmation
+#### Scenario: Unmarking a By Other Hands work as read asks for confirmation
 - **WHEN** a signed-in user unmarks a By Other Hands work as read
-- **THEN** it is unmarked immediately, without a confirmation step
+- **THEN** they are asked to confirm first, the same as for a King work, and confirming deletes that work's logged reads
+
+#### Scenario: Stopping a reread of a By Other Hands work restores the earlier read's dates
+- **WHEN** a signed-in user stops an in-progress reread of a By Other Hands work that was already read
+- **THEN** the work stays read, and its summary start and finish dates return to those of its most recent logged read
 
 #### Scenario: A By Other Hands read can be edited from the reading timeline
 - **WHEN** the profile owner activates the edit-dates control on a By Other Hands entry in their reading timeline
 - **THEN** they can update that read's dates, note, rating, and format, the same as they can for a King entry
+
+#### Scenario: No wishlist control for a By Other Hands work
+- **WHEN** a signed-in user views the reading-status or collection controls for a By Other Hands work
+- **THEN** no wishlist control is shown
