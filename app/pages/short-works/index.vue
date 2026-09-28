@@ -16,7 +16,7 @@ const { fetchUserBooks } = useBooks()
 
 // Not awaited: only affects the read-status/owned indicators shown via
 // ShortStoryReadingActions and WorkTile, which update reactively once they
-// resolve - same as the adaptations page. Collections are king_works rows,
+// resolve - same as the adaptations page. Collections are King works rows,
 // so their owned indicator needs userBooksByWorkId, same as any other work
 // listing.
 useAsyncData('user-short-story-reads', fetchUserShortStoryReads)

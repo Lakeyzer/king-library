@@ -6,7 +6,7 @@ const { profile, isOwner } = useViewedProfile()
 const title = computed(() => (isOwner.value ? 'Read List' : `${profile.username}'s Read List`))
 const emptyDescription = computed(() =>
   isOwner.value
-    ? 'King works you mark want-to-read will show up here.'
+    ? 'Works you mark want-to-read will show up here.'
     : `${profile.username} hasn't marked anything want-to-read yet.`
 )
 
@@ -30,8 +30,8 @@ await useAsyncData('user-books', fetchUserBooks)
 <template>
   <BibliographyBrowsePage
     :title="title"
-    description="King works marked want-to-read."
-    detail-path-prefix="/works"
+    description="Works marked want-to-read."
+    :detail-path-of="(work: ReadListEntry) => workPath(work.kind, work.slug)"
     :items="works ?? []"
     :year-of="(work: ReadListEntry) => Number(work.publishDate.slice(0, 4))"
     :image-src-of="

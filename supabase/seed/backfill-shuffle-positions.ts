@@ -11,25 +11,28 @@ if (!supabaseUrl || !serviceRoleKey) {
 
 const supabase = createClient(supabaseUrl, serviceRoleKey)
 
-// Only ever targets rows with shuffle_position still null, so re-running this
-// script is a no-op for works already assigned a position - see design.md
-// "Risks / Trade-offs".
+// King works only - related works never get a shuffle_position (see
+// works_kind_shape_check). Only ever targets rows with shuffle_position
+// still null, so re-running this script is a no-op for works already
+// assigned a position - see design.md "Risks / Trade-offs".
 async function main() {
   const { data: unassigned, error: fetchError } = await supabase
-    .from('king_works')
+    .from('works')
     .select('id')
+    .eq('kind', 'king')
     .is('shuffle_position', null)
 
   if (fetchError) throw fetchError
 
   if (!unassigned || unassigned.length === 0) {
-    console.log('No king_works rows need a shuffle_position. Nothing to do.')
+    console.log('No King works rows need a shuffle_position. Nothing to do.')
     return
   }
 
   const { data: assigned, error: maxError } = await supabase
-    .from('king_works')
+    .from('works')
     .select('shuffle_position')
+    .eq('kind', 'king')
     .not('shuffle_position', 'is', null)
     .order('shuffle_position', { ascending: false })
     .limit(1)
@@ -50,14 +53,14 @@ async function main() {
   // being set here - a genuine Postgres gotcha, not a supabase-js quirk.
   for (const [index, id] of ids.entries()) {
     const { error: updateError } = await supabase
-      .from('king_works')
+      .from('works')
       .update({ shuffle_position: startingPosition + index })
       .eq('id', id)
 
     if (updateError) throw updateError
   }
 
-  console.log(`Assigned shuffle_position to ${ids.length} king_works row(s).`)
+  console.log(`Assigned shuffle_position to ${ids.length} King works row(s).`)
 }
 
 await main()

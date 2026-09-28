@@ -7,11 +7,11 @@ export default defineSitemapEventHandler(async (event) => {
   const supabase = await serverSupabaseClient(event)
 
   const [works, adaptations, shortStories, relatedWorks] = await Promise.all([
-    supabase.from('king_works').select('slug'),
+    supabase.from('works').select('slug').eq('kind', 'king'),
     supabase.from('adaptations').select('slug'),
     supabase.from('king_short_stories').select('slug'),
     // An inactive related work's detail page 404s, so it must not be listed.
-    supabase.from('related_works').select('slug').eq('active', true)
+    supabase.from('works').select('slug').eq('kind', 'related').eq('active', true)
   ])
 
   if (works.error) throw works.error

@@ -78,17 +78,17 @@ export type Database = {
         Row: {
           adaptation_id: string
           id: string
-          king_work_id: string
+          work_id: string
         }
         Insert: {
           adaptation_id: string
           id?: string
-          king_work_id: string
+          work_id: string
         }
         Update: {
           adaptation_id?: string
           id?: string
-          king_work_id?: string
+          work_id?: string
         }
         Relationships: [
           {
@@ -106,18 +106,18 @@ export type Database = {
             referencedColumns: ['id']
           },
           {
-            foreignKeyName: 'adaptation_works_king_work_id_fkey'
-            columns: ['king_work_id']
-            isOneToOne: false
-            referencedRelation: 'king_works'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'adaptation_works_king_work_id_fkey'
-            columns: ['king_work_id']
+            foreignKeyName: 'adaptation_works_work_id_fkey'
+            columns: ['work_id']
             isOneToOne: false
             referencedRelation: 'work_stats'
-            referencedColumns: ['king_work_id']
+            referencedColumns: ['work_id']
+          },
+          {
+            foreignKeyName: 'adaptation_works_work_id_fkey'
+            columns: ['work_id']
+            isOneToOne: false
+            referencedRelation: 'works'
+            referencedColumns: ['id']
           }
         ]
       }
@@ -166,6 +166,27 @@ export type Database = {
         }
         Relationships: []
       }
+      email_preferences: {
+        Row: {
+          new_followers: boolean
+          suggestion_updates: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          new_followers?: boolean
+          suggestion_updates?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          new_followers?: boolean
+          suggestion_updates?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       king_short_stories: {
         Row: {
           dark_tower: boolean
@@ -202,168 +223,114 @@ export type Database = {
       king_short_story_collections: {
         Row: {
           id: string
-          king_work_id: string
           order_in_collection: number | null
           short_story_id: string
+          work_id: string
         }
         Insert: {
           id?: string
-          king_work_id: string
           order_in_collection?: number | null
           short_story_id: string
+          work_id: string
         }
         Update: {
           id?: string
-          king_work_id?: string
           order_in_collection?: number | null
           short_story_id?: string
+          work_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: 'king_short_story_collections_king_work_id_fkey'
-            columns: ['king_work_id']
-            isOneToOne: false
-            referencedRelation: 'king_works'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'king_short_story_collections_king_work_id_fkey'
-            columns: ['king_work_id']
-            isOneToOne: false
-            referencedRelation: 'work_stats'
-            referencedColumns: ['king_work_id']
-          },
           {
             foreignKeyName: 'king_short_story_collections_short_story_id_fkey'
             columns: ['short_story_id']
             isOneToOne: false
             referencedRelation: 'king_short_stories'
             referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'king_short_story_collections_work_id_fkey'
+            columns: ['work_id']
+            isOneToOne: false
+            referencedRelation: 'work_stats'
+            referencedColumns: ['work_id']
+          },
+          {
+            foreignKeyName: 'king_short_story_collections_work_id_fkey'
+            columns: ['work_id']
+            isOneToOne: false
+            referencedRelation: 'works'
+            referencedColumns: ['id']
           }
         ]
       }
-      king_work_omnibus_works: {
+      notifications: {
         Row: {
-          component_king_work_id: string
+          actor_id: string | null
+          admin_comment: string | null
+          created_at: string
+          email_sent_at: string | null
           id: string
-          omnibus_king_work_id: string
+          read_at: string | null
+          status: string | null
+          suggestion_id: string | null
+          suggestion_title: string | null
+          type: string
+          user_id: string
         }
         Insert: {
-          component_king_work_id: string
+          actor_id?: string | null
+          admin_comment?: string | null
+          created_at?: string
+          email_sent_at?: string | null
           id?: string
-          omnibus_king_work_id: string
+          read_at?: string | null
+          status?: string | null
+          suggestion_id?: string | null
+          suggestion_title?: string | null
+          type: string
+          user_id: string
         }
         Update: {
-          component_king_work_id?: string
+          actor_id?: string | null
+          admin_comment?: string | null
+          created_at?: string
+          email_sent_at?: string | null
           id?: string
-          omnibus_king_work_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'king_work_omnibus_works_component_king_work_id_fkey'
-            columns: ['component_king_work_id']
-            isOneToOne: false
-            referencedRelation: 'king_works'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'king_work_omnibus_works_component_king_work_id_fkey'
-            columns: ['component_king_work_id']
-            isOneToOne: false
-            referencedRelation: 'work_stats'
-            referencedColumns: ['king_work_id']
-          },
-          {
-            foreignKeyName: 'king_work_omnibus_works_omnibus_king_work_id_fkey'
-            columns: ['omnibus_king_work_id']
-            isOneToOne: false
-            referencedRelation: 'king_works'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'king_work_omnibus_works_omnibus_king_work_id_fkey'
-            columns: ['omnibus_king_work_id']
-            isOneToOne: false
-            referencedRelation: 'work_stats'
-            referencedColumns: ['king_work_id']
-          }
-        ]
-      }
-      king_works: {
-        Row: {
-          active: boolean
-          bachman: boolean
-          co_author: string | null
-          counts_with_id: string | null
-          cover_id: number | null
-          dark_tower: boolean
-          dark_tower_relation: string | null
-          description: string | null
-          edition_year_max: number | null
-          edition_year_min: number | null
-          id: string
-          open_library_work_key: string | null
-          publish_date: string
-          remark: string | null
-          shuffle_position: number
-          slug: string
-          title: string
-          type: string
-        }
-        Insert: {
-          active?: boolean
-          bachman?: boolean
-          co_author?: string | null
-          counts_with_id?: string | null
-          cover_id?: number | null
-          dark_tower?: boolean
-          dark_tower_relation?: string | null
-          description?: string | null
-          edition_year_max?: number | null
-          edition_year_min?: number | null
-          id?: string
-          open_library_work_key?: string | null
-          publish_date: string
-          remark?: string | null
-          shuffle_position: number
-          slug: string
-          title: string
-          type: string
-        }
-        Update: {
-          active?: boolean
-          bachman?: boolean
-          co_author?: string | null
-          counts_with_id?: string | null
-          cover_id?: number | null
-          dark_tower?: boolean
-          dark_tower_relation?: string | null
-          description?: string | null
-          edition_year_max?: number | null
-          edition_year_min?: number | null
-          id?: string
-          open_library_work_key?: string | null
-          publish_date?: string
-          remark?: string | null
-          shuffle_position?: number
-          slug?: string
-          title?: string
+          read_at?: string | null
+          status?: string | null
+          suggestion_id?: string | null
+          suggestion_title?: string | null
           type?: string
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: 'king_works_counts_with_id_fkey'
-            columns: ['counts_with_id']
+            foreignKeyName: 'notifications_actor_id_fkey'
+            columns: ['actor_id']
             isOneToOne: false
-            referencedRelation: 'king_works'
+            referencedRelation: 'profiles'
             referencedColumns: ['id']
           },
           {
-            foreignKeyName: 'king_works_counts_with_id_fkey'
-            columns: ['counts_with_id']
+            foreignKeyName: 'notifications_suggestion_id_fkey'
+            columns: ['suggestion_id']
             isOneToOne: false
-            referencedRelation: 'work_stats'
-            referencedColumns: ['king_work_id']
+            referencedRelation: 'suggestion_vote_counts'
+            referencedColumns: ['suggestion_id']
+          },
+          {
+            foreignKeyName: 'notifications_suggestion_id_fkey'
+            columns: ['suggestion_id']
+            isOneToOne: false
+            referencedRelation: 'suggestions'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'notifications_suggestion_id_fkey'
+            columns: ['suggestion_id']
+            isOneToOne: false
+            referencedRelation: 'suggestions_with_author'
+            referencedColumns: ['id']
           }
         ]
       }
@@ -418,119 +385,31 @@ export type Database = {
             foreignKeyName: 'related_work_king_works_king_work_id_fkey'
             columns: ['king_work_id']
             isOneToOne: false
-            referencedRelation: 'king_works'
+            referencedRelation: 'work_stats'
+            referencedColumns: ['work_id']
+          },
+          {
+            foreignKeyName: 'related_work_king_works_king_work_id_fkey'
+            columns: ['king_work_id']
+            isOneToOne: false
+            referencedRelation: 'works'
             referencedColumns: ['id']
           },
           {
             foreignKeyName: 'related_work_king_works_related_work_id_fkey'
             columns: ['related_work_id']
             isOneToOne: false
-            referencedRelation: 'related_work_stats'
-            referencedColumns: ['related_work_id']
+            referencedRelation: 'work_stats'
+            referencedColumns: ['work_id']
           },
           {
             foreignKeyName: 'related_work_king_works_related_work_id_fkey'
             columns: ['related_work_id']
             isOneToOne: false
-            referencedRelation: 'related_works'
+            referencedRelation: 'works'
             referencedColumns: ['id']
           }
         ]
-      }
-      related_work_omnibus_works: {
-        Row: {
-          component_related_work_id: string
-          id: string
-          omnibus_related_work_id: string
-        }
-        Insert: {
-          component_related_work_id: string
-          id?: string
-          omnibus_related_work_id: string
-        }
-        Update: {
-          component_related_work_id?: string
-          id?: string
-          omnibus_related_work_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'related_work_omnibus_works_component_related_work_id_fkey'
-            columns: ['component_related_work_id']
-            isOneToOne: false
-            referencedRelation: 'related_work_stats'
-            referencedColumns: ['related_work_id']
-          },
-          {
-            foreignKeyName: 'related_work_omnibus_works_component_related_work_id_fkey'
-            columns: ['component_related_work_id']
-            isOneToOne: false
-            referencedRelation: 'related_works'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'related_work_omnibus_works_omnibus_related_work_id_fkey'
-            columns: ['omnibus_related_work_id']
-            isOneToOne: false
-            referencedRelation: 'related_work_stats'
-            referencedColumns: ['related_work_id']
-          },
-          {
-            foreignKeyName: 'related_work_omnibus_works_omnibus_related_work_id_fkey'
-            columns: ['omnibus_related_work_id']
-            isOneToOne: false
-            referencedRelation: 'related_works'
-            referencedColumns: ['id']
-          }
-        ]
-      }
-      related_works: {
-        Row: {
-          active: boolean
-          category: string
-          cover_id: number | null
-          creator: string
-          dark_tower: boolean
-          description: string | null
-          id: string
-          is_omnibus: boolean
-          open_library_work_key: string | null
-          publish_date: string | null
-          relation_note: string | null
-          slug: string
-          title: string
-        }
-        Insert: {
-          active?: boolean
-          category: string
-          cover_id?: number | null
-          creator: string
-          dark_tower?: boolean
-          description?: string | null
-          id?: string
-          is_omnibus?: boolean
-          open_library_work_key?: string | null
-          publish_date?: string | null
-          relation_note?: string | null
-          slug: string
-          title: string
-        }
-        Update: {
-          active?: boolean
-          category?: string
-          cover_id?: number | null
-          creator?: string
-          dark_tower?: boolean
-          description?: string | null
-          id?: string
-          is_omnibus?: boolean
-          open_library_work_key?: string | null
-          publish_date?: string | null
-          relation_note?: string | null
-          slug?: string
-          title?: string
-        }
-        Relationships: []
       }
       reports: {
         Row: {
@@ -539,12 +418,11 @@ export type Database = {
           created_at: string
           description: string
           id: string
-          king_work_id: string | null
-          related_work_id: string | null
           short_story_id: string | null
           status: string
           type: string
           user_id: string
+          work_id: string | null
         }
         Insert: {
           adaptation_id?: string | null
@@ -552,12 +430,11 @@ export type Database = {
           created_at?: string
           description: string
           id?: string
-          king_work_id?: string | null
-          related_work_id?: string | null
           short_story_id?: string | null
           status?: string
           type: string
           user_id: string
+          work_id?: string | null
         }
         Update: {
           adaptation_id?: string | null
@@ -565,12 +442,11 @@ export type Database = {
           created_at?: string
           description?: string
           id?: string
-          king_work_id?: string | null
-          related_work_id?: string | null
           short_story_id?: string | null
           status?: string
           type?: string
           user_id?: string
+          work_id?: string | null
         }
         Relationships: [
           {
@@ -588,38 +464,24 @@ export type Database = {
             referencedColumns: ['id']
           },
           {
-            foreignKeyName: 'reports_king_work_id_fkey'
-            columns: ['king_work_id']
-            isOneToOne: false
-            referencedRelation: 'king_works'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'reports_king_work_id_fkey'
-            columns: ['king_work_id']
-            isOneToOne: false
-            referencedRelation: 'work_stats'
-            referencedColumns: ['king_work_id']
-          },
-          {
-            foreignKeyName: 'reports_related_work_id_fkey'
-            columns: ['related_work_id']
-            isOneToOne: false
-            referencedRelation: 'related_work_stats'
-            referencedColumns: ['related_work_id']
-          },
-          {
-            foreignKeyName: 'reports_related_work_id_fkey'
-            columns: ['related_work_id']
-            isOneToOne: false
-            referencedRelation: 'related_works'
-            referencedColumns: ['id']
-          },
-          {
             foreignKeyName: 'reports_short_story_id_fkey'
             columns: ['short_story_id']
             isOneToOne: false
             referencedRelation: 'king_short_stories'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'reports_work_id_fkey'
+            columns: ['work_id']
+            isOneToOne: false
+            referencedRelation: 'work_stats'
+            referencedColumns: ['work_id']
+          },
+          {
+            foreignKeyName: 'reports_work_id_fkey'
+            columns: ['work_id']
+            isOneToOne: false
+            referencedRelation: 'works'
             referencedColumns: ['id']
           }
         ]
@@ -642,42 +504,42 @@ export type Database = {
       series_works: {
         Row: {
           id: string
-          king_work_id: string
           position: number
           series_id: string
+          work_id: string
         }
         Insert: {
           id?: string
-          king_work_id: string
           position: number
           series_id: string
+          work_id: string
         }
         Update: {
           id?: string
-          king_work_id?: string
           position?: number
           series_id?: string
+          work_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: 'series_works_king_work_id_fkey'
-            columns: ['king_work_id']
-            isOneToOne: false
-            referencedRelation: 'king_works'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'series_works_king_work_id_fkey'
-            columns: ['king_work_id']
-            isOneToOne: false
-            referencedRelation: 'work_stats'
-            referencedColumns: ['king_work_id']
-          },
           {
             foreignKeyName: 'series_works_series_id_fkey'
             columns: ['series_id']
             isOneToOne: false
             referencedRelation: 'series'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'series_works_work_id_fkey'
+            columns: ['work_id']
+            isOneToOne: false
+            referencedRelation: 'work_stats'
+            referencedColumns: ['work_id']
+          },
+          {
+            foreignKeyName: 'series_works_work_id_fkey'
+            columns: ['work_id']
+            isOneToOne: false
+            referencedRelation: 'works'
             referencedColumns: ['id']
           }
         ]
@@ -730,6 +592,8 @@ export type Database = {
       }
       suggestions: {
         Row: {
+          admin_comment: string | null
+          admin_comment_updated_at: string | null
           body: string
           created_at: string
           id: string
@@ -739,6 +603,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          admin_comment?: string | null
+          admin_comment_updated_at?: string | null
           body: string
           created_at?: string
           id?: string
@@ -748,6 +614,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          admin_comment?: string | null
+          admin_comment_updated_at?: string | null
           body?: string
           created_at?: string
           id?: string
@@ -806,39 +674,39 @@ export type Database = {
           edition_id: string
           edition_title: string
           id: string
-          king_work_id: string
           user_id: string
+          work_id: string
         }
         Insert: {
           added_at?: string
           edition_id: string
           edition_title: string
           id?: string
-          king_work_id: string
           user_id: string
+          work_id: string
         }
         Update: {
           added_at?: string
           edition_id?: string
           edition_title?: string
           id?: string
-          king_work_id?: string
           user_id?: string
+          work_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: 'user_book_editions_king_work_id_fkey'
-            columns: ['king_work_id']
-            isOneToOne: false
-            referencedRelation: 'king_works'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'user_book_editions_king_work_id_fkey'
-            columns: ['king_work_id']
+            foreignKeyName: 'user_book_editions_work_id_fkey'
+            columns: ['work_id']
             isOneToOne: false
             referencedRelation: 'work_stats'
-            referencedColumns: ['king_work_id']
+            referencedColumns: ['work_id']
+          },
+          {
+            foreignKeyName: 'user_book_editions_work_id_fkey'
+            columns: ['work_id']
+            isOneToOne: false
+            referencedRelation: 'works'
+            referencedColumns: ['id']
           }
         ]
       }
@@ -847,52 +715,52 @@ export type Database = {
           created_at: string
           format: string | null
           id: string
-          king_work_id: string
           note: string | null
           rating: number | null
           read_on: string | null
           read_year: number | null
           started_on: string | null
           user_id: string
+          work_id: string
         }
         Insert: {
           created_at?: string
           format?: string | null
           id?: string
-          king_work_id: string
           note?: string | null
           rating?: number | null
           read_on?: string | null
           read_year?: number | null
           started_on?: string | null
           user_id: string
+          work_id: string
         }
         Update: {
           created_at?: string
           format?: string | null
           id?: string
-          king_work_id?: string
           note?: string | null
           rating?: number | null
           read_on?: string | null
           read_year?: number | null
           started_on?: string | null
           user_id?: string
+          work_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: 'user_book_reads_king_work_id_fkey'
-            columns: ['king_work_id']
-            isOneToOne: false
-            referencedRelation: 'king_works'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'user_book_reads_king_work_id_fkey'
-            columns: ['king_work_id']
+            foreignKeyName: 'user_book_reads_work_id_fkey'
+            columns: ['work_id']
             isOneToOne: false
             referencedRelation: 'work_stats'
-            referencedColumns: ['king_work_id']
+            referencedColumns: ['work_id']
+          },
+          {
+            foreignKeyName: 'user_book_reads_work_id_fkey'
+            columns: ['work_id']
+            isOneToOne: false
+            referencedRelation: 'works'
+            referencedColumns: ['id']
           }
         ]
       }
@@ -902,7 +770,6 @@ export type Database = {
           finished_on: string | null
           format: string | null
           id: string
-          king_work_id: string
           owned: boolean
           read: boolean
           read_year: number | null
@@ -911,13 +778,13 @@ export type Database = {
           via_omnibus_id: string | null
           want_to_read: boolean
           wishlisted: boolean
+          work_id: string
         }
         Insert: {
           currently_reading?: boolean
           finished_on?: string | null
           format?: string | null
           id?: string
-          king_work_id: string
           owned?: boolean
           read?: boolean
           read_year?: number | null
@@ -926,13 +793,13 @@ export type Database = {
           via_omnibus_id?: string | null
           want_to_read?: boolean
           wishlisted?: boolean
+          work_id: string
         }
         Update: {
           currently_reading?: boolean
           finished_on?: string | null
           format?: string | null
           id?: string
-          king_work_id?: string
           owned?: boolean
           read?: boolean
           read_year?: number | null
@@ -941,35 +808,36 @@ export type Database = {
           via_omnibus_id?: string | null
           want_to_read?: boolean
           wishlisted?: boolean
+          work_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: 'user_books_king_work_id_fkey'
-            columns: ['king_work_id']
-            isOneToOne: false
-            referencedRelation: 'king_works'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'user_books_king_work_id_fkey'
-            columns: ['king_work_id']
+            foreignKeyName: 'user_books_via_omnibus_id_fkey'
+            columns: ['via_omnibus_id']
             isOneToOne: false
             referencedRelation: 'work_stats'
-            referencedColumns: ['king_work_id']
+            referencedColumns: ['work_id']
           },
           {
             foreignKeyName: 'user_books_via_omnibus_id_fkey'
             columns: ['via_omnibus_id']
             isOneToOne: false
-            referencedRelation: 'king_works'
+            referencedRelation: 'works'
             referencedColumns: ['id']
           },
           {
-            foreignKeyName: 'user_books_via_omnibus_id_fkey'
-            columns: ['via_omnibus_id']
+            foreignKeyName: 'user_books_work_id_fkey'
+            columns: ['work_id']
             isOneToOne: false
             referencedRelation: 'work_stats'
-            referencedColumns: ['king_work_id']
+            referencedColumns: ['work_id']
+          },
+          {
+            foreignKeyName: 'user_books_work_id_fkey'
+            columns: ['work_id']
+            isOneToOne: false
+            referencedRelation: 'works'
+            referencedColumns: ['id']
           }
         ]
       }
@@ -993,125 +861,6 @@ export type Database = {
           id?: string
         }
         Relationships: []
-      }
-      user_related_work_editions: {
-        Row: {
-          added_at: string
-          edition_id: string
-          edition_title: string
-          id: string
-          related_work_id: string
-          user_id: string
-        }
-        Insert: {
-          added_at?: string
-          edition_id: string
-          edition_title: string
-          id?: string
-          related_work_id: string
-          user_id: string
-        }
-        Update: {
-          added_at?: string
-          edition_id?: string
-          edition_title?: string
-          id?: string
-          related_work_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'user_related_work_editions_related_work_id_fkey'
-            columns: ['related_work_id']
-            isOneToOne: false
-            referencedRelation: 'related_work_stats'
-            referencedColumns: ['related_work_id']
-          },
-          {
-            foreignKeyName: 'user_related_work_editions_related_work_id_fkey'
-            columns: ['related_work_id']
-            isOneToOne: false
-            referencedRelation: 'related_works'
-            referencedColumns: ['id']
-          }
-        ]
-      }
-      user_related_works: {
-        Row: {
-          currently_reading: boolean
-          finished_on: string | null
-          format: string | null
-          id: string
-          note: string | null
-          owned: boolean
-          rating: number | null
-          read: boolean
-          related_work_id: string
-          started_on: string | null
-          user_id: string
-          via_omnibus_id: string | null
-          want_to_read: boolean
-        }
-        Insert: {
-          currently_reading?: boolean
-          finished_on?: string | null
-          format?: string | null
-          id?: string
-          note?: string | null
-          owned?: boolean
-          rating?: number | null
-          read?: boolean
-          related_work_id: string
-          started_on?: string | null
-          user_id: string
-          via_omnibus_id?: string | null
-          want_to_read?: boolean
-        }
-        Update: {
-          currently_reading?: boolean
-          finished_on?: string | null
-          format?: string | null
-          id?: string
-          note?: string | null
-          owned?: boolean
-          rating?: number | null
-          read?: boolean
-          related_work_id?: string
-          started_on?: string | null
-          user_id?: string
-          via_omnibus_id?: string | null
-          want_to_read?: boolean
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'user_related_works_related_work_id_fkey'
-            columns: ['related_work_id']
-            isOneToOne: false
-            referencedRelation: 'related_work_stats'
-            referencedColumns: ['related_work_id']
-          },
-          {
-            foreignKeyName: 'user_related_works_related_work_id_fkey'
-            columns: ['related_work_id']
-            isOneToOne: false
-            referencedRelation: 'related_works'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'user_related_works_via_omnibus_id_fkey'
-            columns: ['via_omnibus_id']
-            isOneToOne: false
-            referencedRelation: 'related_work_stats'
-            referencedColumns: ['related_work_id']
-          },
-          {
-            foreignKeyName: 'user_related_works_via_omnibus_id_fkey'
-            columns: ['via_omnibus_id']
-            isOneToOne: false
-            referencedRelation: 'related_works'
-            referencedColumns: ['id']
-          }
-        ]
       }
       user_short_story_reads: {
         Row: {
@@ -1147,15 +896,152 @@ export type Database = {
             foreignKeyName: 'user_short_story_reads_via_collection_id_fkey'
             columns: ['via_collection_id']
             isOneToOne: false
-            referencedRelation: 'king_works'
-            referencedColumns: ['id']
+            referencedRelation: 'work_stats'
+            referencedColumns: ['work_id']
           },
           {
             foreignKeyName: 'user_short_story_reads_via_collection_id_fkey'
             columns: ['via_collection_id']
             isOneToOne: false
+            referencedRelation: 'works'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+      work_omnibus_works: {
+        Row: {
+          component_work_id: string
+          id: string
+          omnibus_work_id: string
+        }
+        Insert: {
+          component_work_id: string
+          id?: string
+          omnibus_work_id: string
+        }
+        Update: {
+          component_work_id?: string
+          id?: string
+          omnibus_work_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'work_omnibus_works_component_work_id_fkey'
+            columns: ['component_work_id']
+            isOneToOne: false
             referencedRelation: 'work_stats'
-            referencedColumns: ['king_work_id']
+            referencedColumns: ['work_id']
+          },
+          {
+            foreignKeyName: 'work_omnibus_works_component_work_id_fkey'
+            columns: ['component_work_id']
+            isOneToOne: false
+            referencedRelation: 'works'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'work_omnibus_works_omnibus_work_id_fkey'
+            columns: ['omnibus_work_id']
+            isOneToOne: false
+            referencedRelation: 'work_stats'
+            referencedColumns: ['work_id']
+          },
+          {
+            foreignKeyName: 'work_omnibus_works_omnibus_work_id_fkey'
+            columns: ['omnibus_work_id']
+            isOneToOne: false
+            referencedRelation: 'works'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+      works: {
+        Row: {
+          active: boolean
+          bachman: boolean
+          category: string | null
+          co_author: string | null
+          counts_with_id: string | null
+          cover_id: number | null
+          creator: string | null
+          dark_tower: boolean
+          dark_tower_relation: string | null
+          description: string | null
+          edition_year_max: number | null
+          edition_year_min: number | null
+          id: string
+          kind: string
+          open_library_work_key: string | null
+          publish_date: string
+          relation_note: string | null
+          remark: string | null
+          shuffle_position: number | null
+          slug: string
+          title: string
+          type: string | null
+        }
+        Insert: {
+          active?: boolean
+          bachman?: boolean
+          category?: string | null
+          co_author?: string | null
+          counts_with_id?: string | null
+          cover_id?: number | null
+          creator?: string | null
+          dark_tower?: boolean
+          dark_tower_relation?: string | null
+          description?: string | null
+          edition_year_max?: number | null
+          edition_year_min?: number | null
+          id?: string
+          kind: string
+          open_library_work_key?: string | null
+          publish_date: string
+          relation_note?: string | null
+          remark?: string | null
+          shuffle_position?: number | null
+          slug: string
+          title: string
+          type?: string | null
+        }
+        Update: {
+          active?: boolean
+          bachman?: boolean
+          category?: string | null
+          co_author?: string | null
+          counts_with_id?: string | null
+          cover_id?: number | null
+          creator?: string | null
+          dark_tower?: boolean
+          dark_tower_relation?: string | null
+          description?: string | null
+          edition_year_max?: number | null
+          edition_year_min?: number | null
+          id?: string
+          kind?: string
+          open_library_work_key?: string | null
+          publish_date?: string
+          relation_note?: string | null
+          remark?: string | null
+          shuffle_position?: number | null
+          slug?: string
+          title?: string
+          type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'works_counts_with_id_fkey'
+            columns: ['counts_with_id']
+            isOneToOne: false
+            referencedRelation: 'work_stats'
+            referencedColumns: ['work_id']
+          },
+          {
+            foreignKeyName: 'works_counts_with_id_fkey'
+            columns: ['counts_with_id']
+            isOneToOne: false
+            referencedRelation: 'works'
+            referencedColumns: ['id']
           }
         ]
       }
@@ -1174,16 +1060,6 @@ export type Database = {
           finished_count: number | null
           not_started_count: number | null
           on_the_way_count: number | null
-        }
-        Relationships: []
-      }
-      related_work_stats: {
-        Row: {
-          currently_reading_count: number | null
-          owner_count: number | null
-          read_count: number | null
-          related_work_id: string | null
-          want_to_read_count: number | null
         }
         Relationships: []
       }
@@ -1211,6 +1087,8 @@ export type Database = {
       }
       suggestions_with_author: {
         Row: {
+          admin_comment: string | null
+          admin_comment_updated_at: string | null
           body: string | null
           created_at: string | null
           downvote_count: number | null
@@ -1228,12 +1106,13 @@ export type Database = {
       work_stats: {
         Row: {
           currently_reading_count: number | null
-          king_work_id: string | null
+          kind: string | null
           owner_count: number | null
           owners_who_read_count: number | null
           read_count: number | null
           read_through_rate: number | null
           want_to_read_count: number | null
+          work_id: string | null
         }
         Relationships: []
       }

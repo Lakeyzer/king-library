@@ -3,9 +3,13 @@ import { fileURLToPath } from 'node:url'
 
 interface RelatedWorkSeedRow {
   id: string
+  kind: 'related'
   title: string
   creator: string
   category: string
+  // 'omnibus' for a work collecting other related works, null otherwise -
+  // replaces the old is_omnibus flag now that these rows load into works.
+  type: 'omnibus' | null
   publish_date: string | null
   slug: string
   open_library_work_key: string | null

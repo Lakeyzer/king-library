@@ -18,7 +18,7 @@ export interface KingWork {
   // both null (the common case) means no restriction. See supabase-conventions.
   edition_year_min: number | null
   edition_year_max: number | null
-  // Non-null on an "alternate" version of another king_works row (e.g. the
+  // Non-null on an "alternate" version of another King works row (e.g. the
   // original Gunslinger points at its Revised Edition) - the pair counts as
   // one slot toward reading-progress totals. See supabase-conventions.
   counts_with_id: string | null
@@ -30,14 +30,16 @@ const KING_WORK_COLUMNS
 export function useKingWorks() {
   const supabase = useSupabaseClient()
 
-  // Excludes inactive works - see king-works spec "Retrieve all King works
-  // for display". Every browsing/search/homepage consumer goes through this
+  // King works only (the works table also holds related works - see
+  // workPath.ts's WorkKind), and excludes inactive works - see king-works
+  // spec "Retrieve all King works for display". Every browsing/search/homepage consumer goes through this
   // one fetch, so the exclusion is inherited rather than re-implemented per
   // caller.
   const fetchKingWorks = async () => {
     const { data, error } = await supabase
-      .from('king_works')
+      .from('works')
       .select(KING_WORK_COLUMNS)
+      .eq('kind', 'king')
       .eq('active', true)
       .order('publish_date', { ascending: true })
 
@@ -46,13 +48,15 @@ export function useKingWorks() {
     return data as KingWork[]
   }
 
-  // An inactive work's slug resolves the same as no match at all - see
-  // king-works spec "Retrieve a single King work by slug" - so a detail page
-  // built on this 404s automatically without its own inactive check.
+  // An inactive work's slug, or a related work's, resolves the same as no
+  // match at all - see king-works spec "Retrieve a single King work by
+  // slug" - so a detail page built on this 404s automatically without its
+  // own inactive check.
   const fetchKingWorkBySlug = async (slug: string) => {
     const { data, error } = await supabase
-      .from('king_works')
+      .from('works')
       .select(KING_WORK_COLUMNS)
+      .eq('kind', 'king')
       .eq('slug', slug)
       .eq('active', true)
       .maybeSingle()
@@ -64,20 +68,20 @@ export function useKingWorks() {
 
   // The novels collected by an 'omnibus' work (e.g. "The Bachman Books" ->
   // Rage, The Long Walk, Roadwork, The Running Man), via
-  // king_work_omnibus_works. Mirrors useShortStories().fetchShortStoriesForCollection
-  // one join shape over - see supabase-conventions "king_work_omnibus_works".
+  // work_omnibus_works. Mirrors useShortStories().fetchShortStoriesForCollection
+  // one join shape over - see supabase-conventions "work_omnibus_works".
   const fetchComponentWorksForOmnibus = async (omnibusKingWorkId: string) => {
     const { data, error } = await supabase
-      .from('king_work_omnibus_works')
-      .select('king_works!king_work_omnibus_works_component_king_work_id_fkey ( id, title, slug, cover_id, publish_date )')
-      .eq('omnibus_king_work_id', omnibusKingWorkId)
+      .from('work_omnibus_works')
+      .select('works!work_omnibus_works_component_work_id_fkey ( id, title, slug, cover_id, publish_date )')
+      .eq('omnibus_work_id', omnibusKingWorkId)
 
     if (error) throw error
 
     type ComponentWork = { id: string, title: string, slug: string, cover_id: number | null, publish_date: string }
 
-    return (data as unknown as { king_works: ComponentWork | null }[])
-      .map(row => row.king_works)
+    return (data as unknown as { works: ComponentWork | null }[])
+      .map(row => row.works)
       .filter((work): work is ComponentWork => work !== null)
       .sort((a, b) => a.publish_date.localeCompare(b.publish_date))
   }

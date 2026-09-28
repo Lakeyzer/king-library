@@ -12,15 +12,16 @@ setPageSeo({
 
 const user = useSupabaseUser()
 
-const { fetchRelatedWorks, fetchUserRelatedWorks, computeCompletionCount } = useRelatedWorks()
-const { fetchUserEditions } = useRelatedWorkEditions()
+const { fetchRelatedWorks, computeCompletionCount } = useRelatedWorks()
+const { fetchUserBooks } = useBooks()
+const { fetchUserEditions } = useBookshelf()
 
 // Not awaited: only affects the actions component's displayed state, which
 // updates reactively once it resolves - same pattern as user-books on every
 // other browsing page (see nuxt-conventions "BookReadingActions... need
 // their page to pre-fetch status").
-useAsyncData('user-related-works', fetchUserRelatedWorks)
-useAsyncData('user-related-work-editions', fetchUserEditions)
+useAsyncData('user-books', fetchUserBooks)
+useAsyncData('user-editions', fetchUserEditions)
 
 const { data: works } = await useAsyncData('related-works', fetchRelatedWorks)
 
@@ -33,6 +34,17 @@ const items = computed(() =>
 )
 
 const completion = computed(() => computeCompletionCount(works.value ?? []))
+
+// Every comic, Dark Tower or not (e.g. Marvel's The Stand too) - the same
+// set as the profile's Graphic Novels figure (fetchRelatedWorkProfileStats),
+// wider than dark-tower.vue's Dark-Tower-only comicProgress. Omnibuses are
+// left out: marking one read cascades to the comics it collects, which are
+// already counted individually.
+const graphicNovelCompletion = computed(() =>
+  computeCompletionCount(
+    (works.value ?? []).filter(work => work.category === 'comic' && !work.is_omnibus)
+  )
+)
 </script>
 
 <template>
@@ -59,7 +71,6 @@ const completion = computed(() => computeCompletionCount(works.value ?? []))
 
     <template #item-actions="{ item }">
       <BookReadingActions
-        domain="related"
         :work-id="(item as RelatedWork).id"
         :work-title="(item as RelatedWork).title"
         :work-key="(item as RelatedWork).open_library_work_key"
@@ -77,6 +88,13 @@ const completion = computed(() => computeCompletionCount(works.value ?? []))
         :count="completion.count"
         :total="completion.total"
         color="info"
+      />
+      <ProfileProgressBar
+        label="Graphic Novels Read"
+        icon="i-lucide-book-open-check"
+        :count="graphicNovelCompletion.count"
+        :total="graphicNovelCompletion.total"
+        color="warning"
       />
     </template>
   </BibliographyBrowsePage>

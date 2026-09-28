@@ -21,6 +21,7 @@ A personal library app for Stephen King's works. Users can:
 ## Data model notes
 
 - **Canonical King bibliography**: a curated list of "official" Stephen King works (sourced manually from the official Stephen King website), stored in our own DB - this is the source of truth for "what counts as a King book," not something derived automatically from Open Library
+- **One `works` table, labelled by `kind`**: King works (`kind = 'king'`) and Works by Others / By Other Hands works (`kind = 'related'`, e.g. Dark Tower comics, companion books) share `works`, and users track both through the same `user_books` / `user_book_reads` / `user_book_editions` tables. Queries decide which kind they cover: King statistics, recommendations, and `/works` are King-only; `/works-by-others` is related-only; the profile timeline, bookshelf, Currently Reading and Read List show both. See `supabase-conventions`.
 - **Book editions**: when a user adds a book to their collection, they pick a specific _edition_ - editions are fetched live from Open Library (not stored wholesale in our DB; cache/store only what a user has actually selected)
 - **Adaptations**: separate domain from books - needs its own canonical list + external data source once chosen
 

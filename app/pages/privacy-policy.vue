@@ -55,7 +55,9 @@ setPageSeo({
         We use your data to operate your account and the content you've stored,
         display your profile and collection, contribute your activity to
         anonymous site-wide statistics, send transactional emails such as
-        password resets, and protect the security of the service.
+        password resets and updates about suggestions you submitted, and
+        protect the security of the service. You can turn off suggestion
+        update emails at any time in your settings.
       </p>
       <p>
         We do not use your data for advertising, profiling, or any automated
@@ -97,7 +99,9 @@ setPageSeo({
         <li>
           <strong>Service providers</strong> - infrastructure providers
           (currently Supabase) that process data on our behalf under data
-          processing agreements.
+          processing agreements, and our email delivery provider (currently
+          Resend), which receives your email address and the content of an
+          email when we send you an update about a suggestion you submitted.
         </li>
         <li>
           <strong>Legal obligation</strong> - if required by law or court order,

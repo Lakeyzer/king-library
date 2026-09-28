@@ -149,10 +149,10 @@ export function useAdaptations() {
       .from('adaptations')
       .select(
         `${ADAPTATION_COLUMNS},
-        adaptation_works ( king_works ( id, title, slug, type, publish_date, cover_id, active ) ),
+        adaptation_works ( works ( id, title, slug, type, publish_date, cover_id, active ) ),
         adaptation_short_stories ( king_short_stories (
           id, title, type, slug,
-          king_short_story_collections ( king_works ( id, title, slug ) )
+          king_short_story_collections ( works ( id, title, slug ) )
         ) )`
       )
       .eq('slug', slug)
@@ -168,19 +168,19 @@ export function useAdaptations() {
         title: string
         type: string
         slug: string
-        king_short_story_collections: { king_works: { id: string, title: string, slug: string } | null }[]
+        king_short_story_collections: { works: { id: string, title: string, slug: string } | null }[]
       } | null
     }
 
     const { adaptation_works, adaptation_short_stories, ...adaptation } = data as Adaptation & {
-      adaptation_works: { king_works: (AdaptationSourceWork & { active: boolean }) | null }[]
+      adaptation_works: { works: (AdaptationSourceWork & { active: boolean }) | null }[]
       adaptation_short_stories: ShortStoryRow[]
     }
 
     return {
       ...adaptation,
       basedOnWorks: adaptation_works
-        .map(row => row.king_works)
+        .map(row => row.works)
         .filter((work): work is AdaptationSourceWork & { active: boolean } => work !== null && work.active),
       basedOnShortStories: adaptation_short_stories
         .map(row => row.king_short_stories)
@@ -191,7 +191,7 @@ export function useAdaptations() {
           type: story.type,
           slug: story.slug,
           collections: story.king_short_story_collections
-            .map(row => row.king_works)
+            .map(row => row.works)
             .filter((work): work is { id: string, title: string, slug: string } => work !== null)
         }))
     } satisfies AdaptationWithSources
@@ -212,14 +212,14 @@ export function useAdaptations() {
       supabase
         .from('adaptation_works')
         .select('adaptations ( id, title, slug, type, release_year, tmdb_poster_path )')
-        .eq('king_work_id', kingWorkId)
+        .eq('work_id', kingWorkId)
         .eq('adaptations.active', true),
       supabase
         .from('king_short_story_collections')
         .select(
           'king_short_stories ( adaptation_short_stories ( adaptations ( id, title, slug, type, release_year, tmdb_poster_path ) ) )'
         )
-        .eq('king_work_id', kingWorkId)
+        .eq('work_id', kingWorkId)
         .eq('king_short_stories.adaptation_short_stories.adaptations.active', true)
     ])
 
@@ -390,13 +390,13 @@ export function useAdaptations() {
     ] = await Promise.all([
       supabase
         .from('user_books')
-        .select('king_work_id, king_works!user_books_king_work_id_fkey ( title, active )')
+        .select('work_id, works!user_books_work_id_fkey ( title, kind, active )')
         .eq('user_id', userId)
         .eq('read', true),
       supabase
         .from('user_short_story_reads')
         .select(
-          'short_story_id, king_short_stories ( title, king_short_story_collections ( king_works ( title, publish_date ) ) )'
+          'short_story_id, king_short_stories ( title, king_short_story_collections ( works ( title, publish_date ) ) )'
         )
         .eq('user_id', userId),
       supabase
@@ -411,20 +411,22 @@ export function useAdaptations() {
     if (watchedError) throw watchedError
 
     const readWorkRows = (
-      readBooks as unknown as { king_work_id: string, king_works: { title: string, active: boolean } | null }[]
-    ).filter(row => row.king_works?.active)
+      readBooks as unknown as { work_id: string, works: { title: string, kind: string, active: boolean } | null }[]
+    // Only King reads drive this recommendation - a related work read never
+    // becomes a "because you read" reason (see by-other-hands spec).
+    ).filter(row => row.works?.active && row.works.kind === 'king')
     const readShortStoryRows = readShortStories as unknown as {
       short_story_id: string
       king_short_stories: {
         title: string
-        king_short_story_collections: { king_works: { title: string, publish_date: string } | null }[]
+        king_short_story_collections: { works: { title: string, publish_date: string } | null }[]
       } | null
     }[]
 
     if (!readWorkRows.length && !readShortStoryRows.length) return null
 
     const watchedIds = new Set((watchedRows as { adaptation_id: string }[]).map(row => row.adaptation_id))
-    const workTitleById = new Map(readWorkRows.map(row => [row.king_work_id, row.king_works?.title ?? '']))
+    const workTitleById = new Map(readWorkRows.map(row => [row.work_id, row.works?.title ?? '']))
 
     // Prefer the story's earliest collection (per fetchCollectionsForShortStory's
     // same "take the first one" convention) as the recommendation's reason,
@@ -437,7 +439,7 @@ export function useAdaptations() {
       if (!story) continue
 
       const collections = story.king_short_story_collections
-        .map(link => link.king_works)
+        .map(link => link.works)
         .filter((work): work is { title: string, publish_date: string } => work !== null)
         .sort((a, b) => a.publish_date.localeCompare(b.publish_date))
 
@@ -451,8 +453,8 @@ export function useAdaptations() {
       workIds.length
         ? supabase
             .from('adaptation_works')
-            .select('king_work_id, adaptations ( id, title, slug, tmdb_poster_path, release_year, release_date, active )')
-            .in('king_work_id', workIds)
+            .select('work_id, adaptations ( id, title, slug, tmdb_poster_path, release_year, release_date, active )')
+            .in('work_id', workIds)
         : { data: [], error: null },
       shortStoryIds.length
         ? supabase
@@ -468,7 +470,7 @@ export function useAdaptations() {
     const candidatesById = new Map<string, AdaptationRecommendation>()
 
     for (const row of viaWorksResult.data as unknown as {
-      king_work_id: string
+      work_id: string
       adaptations: AdaptationRef | null
     }[]) {
       if (
@@ -484,7 +486,7 @@ export function useAdaptations() {
           tmdbPosterPath: row.adaptations.tmdb_poster_path,
           releaseYear: row.adaptations.release_year,
           releaseDate: row.adaptations.release_date,
-          becauseTitle: workTitleById.get(row.king_work_id) ?? ''
+          becauseTitle: workTitleById.get(row.work_id) ?? ''
         })
       }
     }

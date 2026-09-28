@@ -76,9 +76,7 @@ function onCoverLoad() {
 }
 
 const alt = computed(() => `${props.item.workTitle} cover`)
-const to = computed(() =>
-  props.item.source === 'king' ? `/works/${props.item.workSlug}` : `/works-by-others/${props.item.workSlug}`
-)
+const to = computed(() => workPath(props.item.workKind, props.item.workSlug))
 
 const showRemoveModal = ref(false)
 </script>

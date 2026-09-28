@@ -20,7 +20,5 @@ await loadSeed(
   'adaptation_short_stories',
   new URL('./adaptation_short_stories_seed.json', import.meta.url)
 )
-await loadSeed(
-  'king_work_omnibus_works',
-  new URL('./king_work_omnibus_works_seed.json', import.meta.url)
-)
+// Omnibus links (King and related alike) are loaded by load-related-works.ts,
+// since work_omnibus_works_seed.json needs the related works seeded first.

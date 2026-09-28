@@ -1,4 +1,23 @@
+import type { BadgeProps } from '@nuxt/ui'
+
 export type SuggestionStatus = 'new' | 'rejected' | 'confirmed' | 'applied'
+
+// Shared by the suggestion list and the notification center, so a status
+// badge reads the same everywhere. server/utils/suggestionStatusEmail.ts
+// keeps its own copy of the labels, since server code can't import app/.
+export const SUGGESTION_STATUS_LABEL: Record<SuggestionStatus, string> = {
+  new: 'New',
+  rejected: 'Rejected',
+  confirmed: 'Confirmed',
+  applied: 'Applied'
+}
+
+export const SUGGESTION_STATUS_COLOR: Record<SuggestionStatus, BadgeProps['color']> = {
+  new: 'neutral',
+  rejected: 'error',
+  confirmed: 'info',
+  applied: 'success'
+}
 
 export type SuggestionStatusFilter = SuggestionStatus | 'all'
 
@@ -6,6 +25,7 @@ export type SuggestionSort = 'newest' | 'popular'
 
 export const SUGGESTION_TITLE_MAX_LENGTH = 100
 export const SUGGESTION_BODY_MAX_LENGTH = 1000
+export const SUGGESTION_ADMIN_COMMENT_MAX_LENGTH = 1000
 
 export interface SuggestionListEntry {
   id: string
@@ -20,6 +40,8 @@ export interface SuggestionListEntry {
   score: number
   // null = hasn't voted, true = upvoted, false = downvoted.
   myVote: boolean | null
+  adminComment: string | null
+  adminCommentUpdatedAt: string | null
 }
 
 export interface SuggestionPage {
@@ -27,7 +49,7 @@ export interface SuggestionPage {
   total: number
 }
 
-const SUGGESTION_COLUMNS = 'id, title, body, is_anonymous, status, created_at, username, upvote_count, downvote_count, score, my_vote'
+const SUGGESTION_COLUMNS = 'id, title, body, is_anonymous, status, created_at, username, upvote_count, downvote_count, score, my_vote, admin_comment, admin_comment_updated_at'
 
 interface SuggestionWithAuthorRow {
   id: string
@@ -41,6 +63,8 @@ interface SuggestionWithAuthorRow {
   downvote_count: number
   score: number
   my_vote: boolean | null
+  admin_comment: string | null
+  admin_comment_updated_at: string | null
 }
 
 function toSuggestionListEntry(row: SuggestionWithAuthorRow): SuggestionListEntry {
@@ -55,7 +79,9 @@ function toSuggestionListEntry(row: SuggestionWithAuthorRow): SuggestionListEntr
     upvoteCount: row.upvote_count,
     downvoteCount: row.downvote_count,
     score: row.score,
-    myVote: row.my_vote
+    myVote: row.my_vote,
+    adminComment: row.admin_comment,
+    adminCommentUpdatedAt: row.admin_comment_updated_at
   }
 }
 
@@ -118,15 +144,33 @@ export function useSuggestions() {
     if (error) throw error
   }
 
-  // Base-table write, not through suggestions_with_author - that view is
-  // read-only usage here. Only `status` is grantable to `authenticated` at
-  // the column level (see the create_suggestions_table migration), so this
-  // is the only field this function - or anyone but the row owner - can
-  // ever change on a suggestion.
+  // Goes through a server route rather than a direct update so the author
+  // can be emailed once the change has committed - see the
+  // suggestion-notifications change's design.md "Status change moves to
+  // PATCH /api/suggestions/[id]/status". The in-app notification is created
+  // by a DB trigger either way.
   const updateSuggestionStatus = async (id: string, status: SuggestionStatus) => {
+    await $fetch(`/api/suggestions/${id}/status`, {
+      method: 'PATCH',
+      body: { status }
+    })
+  }
+
+  // Admin-only (the same admin update policy as status, with admin_comment
+  // added to the column-level grant). A blank response is sent as null,
+  // which is how clearing works - the DB rejects a stored blank string.
+  // admin_comment_updated_at is stamped by a DB trigger, and a non-null
+  // response notifies the author through another one.
+  const updateAdminComment = async (id: string, comment: string | null) => {
+    const trimmed = comment?.trim() ?? ''
+
+    if (trimmed.length > SUGGESTION_ADMIN_COMMENT_MAX_LENGTH) {
+      throw new Error(`Response must be at most ${SUGGESTION_ADMIN_COMMENT_MAX_LENGTH} characters`)
+    }
+
     const { error } = await supabase
       .from('suggestions')
-      .update({ status })
+      .update({ admin_comment: trimmed || null })
       .eq('id', id)
 
     if (error) throw error
@@ -180,6 +224,7 @@ export function useSuggestions() {
     fetchSuggestions,
     createSuggestion,
     updateSuggestionStatus,
+    updateAdminComment,
     castVote,
     deleteSuggestion
   }

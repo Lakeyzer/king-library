@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import type { DropdownMenuItem, NavigationMenuItem } from '@nuxt/ui'
+import { SUGGESTION_STATUS_LABEL } from '~/composables/useSuggestions'
+import type { NotificationEntry } from '~/composables/useNotifications'
 
 const links: NavigationMenuItem[] = [
   { label: 'Works', to: '/works', icon: 'i-lucide-book' },
@@ -36,8 +38,66 @@ const { fetchUserBooks } = useBooks()
 const { fetchUserAdaptations } = useAdaptations()
 const { fetchUserEditions: fetchUserBookEditions } = useBookshelf()
 const { fetchUserShortStoryReads } = useShortStories()
-const { fetchUserRelatedWorks } = useRelatedWorks()
-const { fetchUserEditions: fetchUserRelatedWorkEditions } = useRelatedWorkEditions()
+const { unreadCount, fetchUnreadCount, subscribeToUnread } = useNotifications()
+
+// Client-only and best-effort: a failed count just leaves the dot as it
+// was. Runs on mount, on sign-in/out (the watch below), and on every
+// navigation - the fallback for when the Realtime subscription below isn't
+// connected. See the suggestion-notifications change's design.md "Unread
+// state" and "Live unread updates".
+function refreshUnreadCount() {
+  fetchUnreadCount().catch(() => {})
+}
+
+onMounted(refreshUnreadCount)
+watch(() => route.path, refreshUnreadCount)
+
+// Live dot/count updates. Keyed on the user id rather than the whole user
+// object, so a session token refresh doesn't tear down and reopen the
+// socket - only signing in, out, or as someone else does.
+let unsubscribeFromUnread: (() => void) | null = null
+
+// Only fires for notifications created while the app is open - ones that
+// were already waiting on load show just the dot and count.
+function notificationDescription(notification: NotificationEntry) {
+  if (notification.type === 'new_follower') {
+    // actor is null when the realtime profile lookup failed.
+    return notification.actor?.username
+      ? `${notification.actor.username} started following you.`
+      : 'Someone started following you.'
+  }
+
+  return notification.type === 'suggestion_status_changed' && notification.status
+    ? `Your suggestion "${notification.suggestionTitle}" changed to ${SUGGESTION_STATUS_LABEL[notification.status]}.`
+    : `An admin responded to your suggestion "${notification.suggestionTitle}".`
+}
+
+function toastNewNotification(notification: NotificationEntry) {
+  const description = notificationDescription(notification)
+
+  toast.add({
+    title: 'New notification',
+    description,
+    icon: 'i-lucide-bell',
+    actions: [{
+      label: 'View',
+      color: 'neutral',
+      variant: 'outline',
+      onClick: () => {
+        navigateTo('/notifications')
+      }
+    }]
+  })
+}
+
+function resubscribeToUnread() {
+  unsubscribeFromUnread?.()
+  unsubscribeFromUnread = subscribeToUnread({ onNew: toastNewNotification })
+}
+
+onMounted(resubscribeToUnread)
+watch(() => user.value?.sub, resubscribeToUnread)
+onBeforeUnmount(() => unsubscribeFromUnread?.())
 
 // Every per-user reactive store (userBooksByWorkId, userAdaptationsByAdaptationId,
 // readShortStoryIds, etc.) is only populated when a page explicitly calls its
@@ -56,8 +116,7 @@ watch(user, () => {
   fetchUserAdaptations()
   fetchUserBookEditions()
   fetchUserShortStoryReads()
-  fetchUserRelatedWorks()
-  fetchUserRelatedWorkEditions()
+  refreshUnreadCount()
 })
 
 const isSearchOpen = ref(false)
@@ -81,7 +140,8 @@ async function signOut() {
   }
 }
 
-const accountMenuItems: DropdownMenuItem[][] = [
+// computed so the Notifications entry's unread badge stays current.
+const accountMenuItems = computed<DropdownMenuItem[][]>(() => [
   [
     // exact: true - /profile is an empty-path index child of the profile
     // layout route, and without it Vue Router's active-link fallback marks
@@ -93,12 +153,13 @@ const accountMenuItems: DropdownMenuItem[][] = [
     { label: 'Following', icon: 'i-lucide-users', to: '/following' }
   ],
   [
+    { label: 'Notifications', icon: 'i-lucide-bell', to: '/notifications', slot: 'notifications' as const },
     { label: 'Settings', icon: 'i-lucide-settings', to: '/settings' }
   ],
   [
     { label: 'Sign out', icon: 'i-lucide-log-out', onSelect: signOut }
   ]
-]
+])
 </script>
 
 <template>
@@ -151,12 +212,35 @@ const accountMenuItems: DropdownMenuItem[][] = [
         v-if="user"
         :items="accountMenuItems"
       >
+        <!-- The chip sits inside the button (not around it) so the button
+             itself stays the dropdown trigger that gets its ARIA state. -->
         <UButton
           color="neutral"
           variant="ghost"
-          icon="i-lucide-user"
-          aria-label="Account menu"
-        />
+          :aria-label="unreadCount > 0 ? `Account menu, ${unreadCount} unread notifications` : 'Account menu'"
+        >
+          <template #leading>
+            <UChip
+              :show="unreadCount > 0"
+              inset
+            >
+              <UIcon
+                name="i-lucide-user"
+                class="size-5"
+              />
+            </UChip>
+          </template>
+        </UButton>
+
+        <template #notifications-trailing>
+          <UBadge
+            v-if="unreadCount > 0"
+            :label="unreadCount"
+            color="primary"
+            variant="solid"
+            size="sm"
+          />
+        </template>
       </UDropdownMenu>
       <UButton
         v-else

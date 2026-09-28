@@ -51,8 +51,14 @@ const REPORT_STATUS_FILTER_OPTIONS: {
 ]
 
 const user = useSupabaseUser()
-const { fetchSuggestions, updateSuggestionStatus, castVote, isAdmin }
-  = useSuggestions()
+const {
+  fetchSuggestions,
+  updateSuggestionStatus,
+  updateAdminComment,
+  castVote,
+  isAdmin
+} = useSuggestions()
+const toast = useToast()
 // isAdmin above already covers reports too - both composables compute the
 // identical `app_metadata.role === 'admin'` check, so there's no reason to
 // pull a second, redundant copy off useReports().
@@ -98,6 +104,26 @@ async function onCreated() {
 async function onUpdateStatus(id: string, status: SuggestionStatus) {
   await updateSuggestionStatus(id, status)
   await load()
+}
+
+const savingCommentId = ref<string | null>(null)
+
+async function onUpdateComment(id: string, comment: string | null) {
+  savingCommentId.value = id
+
+  try {
+    await updateAdminComment(id, comment)
+    await load()
+  } catch {
+    toast.add({
+      title: 'Could not save the response',
+      description: 'Please try again.',
+      color: 'error',
+      icon: 'i-lucide-circle-alert'
+    })
+  } finally {
+    savingCommentId.value = null
+  }
 }
 
 async function onVote(
@@ -221,7 +247,9 @@ async function onReportDeleted() {
       <SuggestionList
         :suggestions="suggestions"
         :is-admin="isAdmin"
+        :saving-comment-id="savingCommentId"
         @update-status="onUpdateStatus"
+        @update-comment="onUpdateComment"
         @vote="onVote"
         @deleted="onDeleted"
       />

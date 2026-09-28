@@ -24,17 +24,17 @@ const {
   fetchNextDarkTowerRelatedBook
 } = useBooks()
 
-const { fetchOmnibusesWithComponents, fetchRelatedWorks, fetchUserRelatedWorks, computeCompletionCount } = useRelatedWorks()
-const { fetchUserEditions: fetchUserRelatedWorkEditions } = useRelatedWorkEditions()
+const { fetchOmnibusesWithComponents, fetchRelatedWorks, computeCompletionCount } = useRelatedWorks()
+const { fetchUserEditions } = useBookshelf()
 
 // Not awaited: only affects the reading-status/edition buttons' displayed
 // state, which updates reactively once it resolves - same as the works and
-// adaptations pages. Required whenever BookReadingActions (domain="king" or
-// "related") or WorkTile render, per nuxt-conventions "BookReadingActions...
-// need their page to pre-fetch status".
+// adaptations pages. Required whenever BookReadingActions or WorkTile
+// render, per nuxt-conventions "BookReadingActions... need their page to
+// pre-fetch status" - user_books covers the graphic novels (related works)
+// as well as the King works.
 useAsyncData('user-books', fetchUserBooks)
-useAsyncData('user-related-works', fetchUserRelatedWorks)
-useAsyncData('user-related-work-editions', fetchUserRelatedWorkEditions)
+useAsyncData('user-editions', fetchUserEditions)
 
 const [{ data: works }, { data: series }, { data: graphicNovelGroups }, { data: relatedWorksList }] = await Promise.all([
   useAsyncData('dark-tower-works', fetchKingWorks),

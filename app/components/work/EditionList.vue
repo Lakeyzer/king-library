@@ -5,17 +5,14 @@ interface Props {
   workId: string
   /** "vertical" forces the paginated list view at every width; "auto" (default) shows the horizontal scroller at sm+ and falls back to the paginated list below it. */
   orientation?: 'auto' | 'vertical'
-  /** 'king' (default) or 'related' - forwarded to BookEditionToggle, see its own domain doc. */
-  domain?: 'king' | 'related'
-  /** Only show editions published in this year or later - for a king_works row that shares an open_library_work_key with another version of the same book (e.g. a Revised Edition), sourced from king_works.edition_year_min. Null (default) means no lower bound. */
+  /** Only show editions published in this year or later - for a works row that shares an open_library_work_key with another version of the same book (e.g. a Revised Edition), sourced from works.edition_year_min. Null (default) means no lower bound. */
   minEditionYear?: number | null
-  /** Only show editions published in this year or earlier - king_works.edition_year_max. Null (default) means no upper bound. */
+  /** Only show editions published in this year or earlier - works.edition_year_max. Null (default) means no upper bound. */
   maxEditionYear?: number | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
   orientation: 'auto',
-  domain: 'king',
   minEditionYear: null,
   maxEditionYear: null
 })
@@ -362,7 +359,6 @@ function formatEditionMeta(edition: OpenLibraryEdition): string | null {
               :work-id="workId"
               :edition-id="edition.key"
               :edition-title="edition.title"
-              :domain="domain"
               class="absolute right-1 top-1"
             />
           </div>
@@ -451,7 +447,6 @@ function formatEditionMeta(edition: OpenLibraryEdition): string | null {
             :work-id="workId"
             :edition-id="edition.key"
             :edition-title="edition.title"
-            :domain="domain"
             class="shrink-0"
           />
         </li>

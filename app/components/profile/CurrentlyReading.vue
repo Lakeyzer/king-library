@@ -1,15 +1,11 @@
 <script setup lang="ts">
 import type { CurrentlyReadingWork } from '~/composables/useBooks'
-import type { CurrentlyReadingRelatedWork } from '~/composables/useRelatedWorks'
 
-// `source` distinguishes a King work from a Works by Others one - only for
-// building the right /works/ vs /works-by-others/ link and picking which
-// composable BookFinishReadingModal's domain prop should write through.
-// Both finish through the same modal - see profile-showcase's design.md
-// "Currently Reading always includes By Other Hands works".
-export type CurrentlyReadingItem
-  = | (CurrentlyReadingWork & { source: 'king' })
-    | (CurrentlyReadingRelatedWork & { source: 'related' })
+// King and related works alike - `kind` only picks the /works/ vs
+// /works-by-others/ link; both finish through the same modal and the same
+// user_books write (see profile-showcase "Currently Reading always includes
+// By Other Hands works").
+export type CurrentlyReadingItem = CurrentlyReadingWork
 
 interface Props {
   items: CurrentlyReadingItem[]
@@ -19,12 +15,11 @@ interface Props {
 const props = defineProps<Props>()
 
 function itemHref(item: CurrentlyReadingItem) {
-  return item.source === 'king' ? `/works/${item.slug}` : `/works-by-others/${item.slug}`
+  return workPath(item.kind, item.slug)
 }
 
 // `props.items` is a snapshot fetched once by the profile page
-// (fetchCurrentlyReading/fetchCurrentlyReadingRelatedWorks), not derived
-// from useBooks()/useRelatedWorks()'s own reactive state - finishing or
+// (fetchCurrentlyReading), not derived from useBooks()'s own reactive state - finishing or
 // stopping a read here updates that reactive state, but wouldn't otherwise
 // be reflected in this list without a full page refetch. Tracking resolved
 // ids locally and filtering them out is a lighter fix than threading a
@@ -130,11 +125,9 @@ const showFinishModal = computed({
     <BookFinishReadingModal
       v-if="finishingWorkId && finishingWork"
       v-model:open="showFinishModal"
-      :domain="finishingWork.source"
       :work-id="finishingWorkId"
       :work-title="finishingWork.title"
       :initial-format="finishingWork.format"
-      :initial-started-on="finishingWork.source === 'related' ? finishingWork.startedOn : null"
       @resolved="markResolved(finishingWorkId)"
     />
   </div>

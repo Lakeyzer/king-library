@@ -13,15 +13,7 @@ import type {
   ViewingProgress
 } from '~/composables/useAdaptations'
 import type { BookshelfItem } from '~/composables/useBookshelf'
-import type {
-  CurrentlyReadingRelatedWork,
-  ReadingTimelineRelatedEntry,
-  RelatedWorkProfileStats
-} from '~/composables/useRelatedWorks'
-import type { RelatedWorkBookshelfItem } from '~/composables/useRelatedWorkEditions'
-import type { CurrentlyReadingItem } from './CurrentlyReading.vue'
-import type { ReadingTimelineItem } from './ReadingTimeline.vue'
-import type { ProfileBookshelfItem } from './Bookshelf.vue'
+import type { RelatedWorkProfileStats } from '~/composables/useRelatedWorks'
 
 interface Props {
   isOwner: boolean
@@ -30,87 +22,22 @@ interface Props {
   stats: ProfileBookStats
   viewing: ViewingProgress
   shortStoryProgress: CategoryProgress
+  /** Currently Reading, the reading timeline, and the Bookshelf each cover King and related works alike - see profile-showcase "Bookshelf and reading timeline always include By Other Hands works". The King progress cards (stats) never count related works. */
   currentlyReading: CurrentlyReadingWork[]
   readingTimeline: ReadingTimelineEntry[]
   bookshelf: BookshelfItem[]
   relatedWorkStats: RelatedWorkProfileStats
-  relatedCurrentlyReading: CurrentlyReadingRelatedWork[]
-  relatedTimeline: ReadingTimelineRelatedEntry[]
-  relatedBookshelf: RelatedWorkBookshelfItem[]
   bookRecommendation?: BookRecommendation | null
   ownedUnreadRecommendation?: OwnedUnreadRecommendation | null
   adaptationRecommendation?: AdaptationRecommendation | null
   giftIdeaRecommendation?: GiftIdeaRecommendation | null
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   bookRecommendation: null,
   ownedUnreadRecommendation: null,
   adaptationRecommendation: null,
   giftIdeaRecommendation: null
-})
-
-const mergedCurrentlyReading = computed<CurrentlyReadingItem[]>(() => {
-  const items: CurrentlyReadingItem[] = [
-    ...props.currentlyReading.map(item => ({ ...item, source: 'king' as const })),
-    ...props.relatedCurrentlyReading.map(item => ({ ...item, source: 'related' as const }))
-  ]
-  return items.sort((a, b) => (b.startedOn ?? '').localeCompare(a.startedOn ?? ''))
-})
-
-// Same "most recent first" key as useBooks().fetchReadingTimeline's own
-// client-side sort (readOn, falling back to readYear as Jan 1st of that
-// year) - reapplied here since merging two already-sorted lists doesn't
-// keep the combined result sorted on its own. A related entry has no
-// readYear fallback (see ReadingTimelineRelatedEntry), so it sorts by
-// readOn alone.
-function timelineSortKey(entry: { readOn: string | null, readYear: number | null }): string {
-  return entry.readOn ?? (entry.readYear ? `${entry.readYear}-01-01` : '')
-}
-
-// Always merged in, unlike the two progress cards below - see
-// profile-showcase's "Bookshelf and reading timeline always include By
-// Other Hands works".
-const mergedReadingTimeline = computed<ReadingTimelineItem[]>(() => {
-  const kingItems: ReadingTimelineItem[] = props.readingTimeline.map(entry => ({
-    ...entry,
-    source: 'king' as const
-  }))
-
-  const relatedItems: ReadingTimelineItem[] = props.relatedTimeline.map(entry => ({
-    source: 'related' as const,
-    readId: entry.workId,
-    workId: entry.workId,
-    title: entry.title,
-    slug: entry.slug,
-    coverId: entry.coverId,
-    startedOn: entry.startedOn,
-    readOn: entry.readOn,
-    readYear: null,
-    note: entry.note,
-    format: entry.format,
-    rating: entry.rating
-  }))
-
-  return [...kingItems, ...relatedItems].sort((a, b) => timelineSortKey(b).localeCompare(timelineSortKey(a)))
-})
-
-// Always merged in, unlike the two progress cards below - see
-// profile-showcase's "Bookshelf and reading timeline always include By
-// Other Hands works".
-const mergedBookshelf = computed<ProfileBookshelfItem[]>(() => {
-  const kingItems: ProfileBookshelfItem[] = props.bookshelf.map(item => ({ ...item, source: 'king' as const }))
-
-  const relatedItems: ProfileBookshelfItem[] = props.relatedBookshelf.map(item => ({
-    ...item,
-    source: 'related' as const,
-    publishDate: item.publishDate ?? '',
-    seriesId: null,
-    seriesName: null,
-    seriesPosition: null
-  }))
-
-  return [...kingItems, ...relatedItems].sort((a, b) => a.workTitle.localeCompare(b.workTitle))
 })
 </script>
 
@@ -136,7 +63,7 @@ const mergedBookshelf = computed<ProfileBookshelfItem[]>(() => {
         />
       </div>
       <ProfileReadingTimeline
-        :items="mergedReadingTimeline"
+        :items="readingTimeline"
         :is-owner="isOwner"
       />
     </div>
@@ -232,7 +159,7 @@ const mergedBookshelf = computed<ProfileBookshelfItem[]>(() => {
         </div>
 
         <ProfileBookshelf
-          :items="mergedBookshelf"
+          :items="bookshelf"
           :is-owner="isOwner"
         />
       </div>
@@ -246,7 +173,7 @@ const mergedBookshelf = computed<ProfileBookshelfItem[]>(() => {
           Spotlight
         </h2>
         <ProfileCurrentlyReading
-          :items="mergedCurrentlyReading"
+          :items="currentlyReading"
           :is-owner="isOwner"
         />
 

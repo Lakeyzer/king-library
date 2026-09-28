@@ -15,8 +15,10 @@ export function isAuthGatedRoute(path: string) {
     || path === '/profile/read-list'
     || path === '/profile/watch-list'
     || path === '/settings'
+    || path.startsWith('/settings/')
     || path === '/following'
     || path === '/suggestion-box'
+    || path === '/notifications'
     || isCompareRoute
   )
 }

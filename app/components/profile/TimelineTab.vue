@@ -5,50 +5,18 @@ import type { ReadingTimelineItem } from '~/components/profile/ReadingTimeline.v
 const { profile, isOwner } = useViewedProfile()
 
 const { fetchReadingTimeline } = useBooks()
-const { fetchReadingTimelineRelatedWorks } = useRelatedWorks()
 
 // Same useAsyncData key as ReaderChecklistTab's showcase widget - shares
 // its cache rather than firing a second, redundant fetch (see
 // nuxt-conventions "BookReadingActions needs its page to pre-fetch status"
-// for why exact key reuse matters here).
-const [
-  { data: readingTimeline, refresh: refreshTimeline },
-  { data: relatedTimeline }
-] = await Promise.all([
-  useAsyncData(`profile-${profile.id}-reading-timeline`, () => fetchReadingTimeline(profile.id)),
-  useAsyncData(`profile-${profile.id}-related-timeline`, () => fetchReadingTimelineRelatedWorks(profile.id))
-])
+// for why exact key reuse matters here). Covers King and related reads
+// alike, already sorted most recent first.
+const { data: readingTimeline, refresh: refreshTimeline } = await useAsyncData(
+  `profile-${profile.id}-reading-timeline`,
+  () => fetchReadingTimeline(profile.id)
+)
 
-// Same "most recent first" merge as ProfileShowcase's mergedReadingTimeline -
-// see that component's own timelineSortKey for why a related entry has no
-// readYear fallback.
-function timelineSortKey(entry: { readOn: string | null, readYear: number | null }): string {
-  return entry.readOn ?? (entry.readYear ? `${entry.readYear}-01-01` : '')
-}
-
-const timelineItems = computed<ReadingTimelineItem[]>(() => {
-  const kingItems: ReadingTimelineItem[] = (readingTimeline.value ?? []).map(entry => ({
-    ...entry,
-    source: 'king' as const
-  }))
-
-  const relatedItems: ReadingTimelineItem[] = (relatedTimeline.value ?? []).map(entry => ({
-    source: 'related' as const,
-    readId: entry.workId,
-    workId: entry.workId,
-    title: entry.title,
-    slug: entry.slug,
-    coverId: entry.coverId,
-    startedOn: entry.startedOn,
-    readOn: entry.readOn,
-    readYear: null,
-    note: entry.note,
-    format: entry.format,
-    rating: entry.rating
-  }))
-
-  return [...kingItems, ...relatedItems].sort((a, b) => timelineSortKey(b).localeCompare(timelineSortKey(a)))
-})
+const timelineItems = computed<ReadingTimelineItem[]>(() => readingTimeline.value ?? [])
 
 const showSearchModal = ref(false)
 const selectedWork = ref<KingWork | null>(null)

@@ -1,36 +1,28 @@
 <script setup lang="ts">
-import type { AccordionItem, BadgeProps } from '@nuxt/ui'
+import type { AccordionItem } from '@nuxt/ui'
+import { SUGGESTION_STATUS_COLOR, SUGGESTION_STATUS_LABEL } from '~/composables/useSuggestions'
 import type { SuggestionListEntry, SuggestionStatus } from '~/composables/useSuggestions'
 
 interface Props {
   suggestions: SuggestionListEntry[]
   isAdmin: boolean
+  // Id of the suggestion whose admin response is currently being saved.
+  savingCommentId?: string | null
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  savingCommentId: null
+})
 
 const emit = defineEmits<{
   'update-status': [id: string, status: SuggestionStatus]
   'vote': [id: string, isUpvote: boolean, currentVote: boolean | null]
+  'update-comment': [id: string, comment: string | null]
   'deleted': []
 }>()
 
-const STATUS_LABEL: Record<SuggestionStatus, string> = {
-  new: 'New',
-  rejected: 'Rejected',
-  confirmed: 'Confirmed',
-  applied: 'Applied'
-}
-
-const STATUS_COLOR: Record<SuggestionStatus, BadgeProps['color']> = {
-  new: 'neutral',
-  rejected: 'error',
-  confirmed: 'info',
-  applied: 'success'
-}
-
-const STATUS_OPTIONS = (Object.keys(STATUS_LABEL) as SuggestionStatus[]).map(value => ({
-  label: STATUS_LABEL[value],
+const STATUS_OPTIONS = (Object.keys(SUGGESTION_STATUS_LABEL) as SuggestionStatus[]).map(value => ({
+  label: SUGGESTION_STATUS_LABEL[value],
   value
 }))
 
@@ -71,12 +63,26 @@ const ui = { label: 'flex-1 min-w-0' }
           by <NumberMotif :text="item.suggestion.username ?? 'Anonymous'" />
         </span>
         <UBadge
-          :color="STATUS_COLOR[item.suggestion.status]"
+          :color="SUGGESTION_STATUS_COLOR[item.suggestion.status]"
           variant="subtle"
           size="sm"
         >
-          {{ STATUS_LABEL[item.suggestion.status] }}
+          {{ SUGGESTION_STATUS_LABEL[item.suggestion.status] }}
         </UBadge>
+        <!-- Not a control, so it can sit outside the @click.stop cluster
+             below - UTooltip renders its trigger as the icon itself (no
+             extra button), so nothing new is nested in the accordion's
+             trigger button. -->
+        <UTooltip
+          v-if="item.suggestion.adminComment"
+          text="Has an admin response"
+        >
+          <UIcon
+            name="i-lucide-message-square"
+            class="text-primary size-4"
+            aria-label="Has an admin response"
+          />
+        </UTooltip>
 
         <!--
           This whole cluster ends up nested inside AccordionTrigger's own
@@ -171,6 +177,13 @@ const ui = { label: 'flex-1 min-w-0' }
       <p class="text-sm whitespace-pre-wrap">
         <NumberMotif :text="item.suggestion.body" />
       </p>
+
+      <SuggestionAdminResponse
+        :suggestion="item.suggestion"
+        :is-admin="isAdmin"
+        :saving="savingCommentId === item.suggestion.id"
+        @save="(comment) => emit('update-comment', item.suggestion.id, comment)"
+      />
     </template>
   </UAccordion>
 

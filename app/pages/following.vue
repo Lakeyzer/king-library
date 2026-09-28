@@ -1,18 +1,103 @@
 <script setup lang="ts">
+import type { TabsItem } from '@nuxt/ui'
+
 definePageMeta({ layout: false })
 
 const { setPageSeo } = useSeo()
 setPageSeo({
   title: 'Following',
-  description: 'See who you follow on King Library and what they\'re currently reading.'
+  description: 'See who you follow and who follows you on King Library, and what the people you follow are currently reading.'
 })
 
-const { fetchFollowing, fetchFollowingCurrentlyReading } = useFollowing()
+const PAGE_SIZE = 15
 
-const [{ data: following }, { data: currentlyReading }] = await Promise.all([
-  useAsyncData('following-list', () => fetchFollowing()),
+type FollowTab = 'following' | 'followers'
+
+const route = useRoute()
+const router = useRouter()
+const toast = useToast()
+
+// Synced to ?tab= so a link (e.g. the new-follower email) can open the
+// Followers tab. Anything but "followers" reads as the default tab.
+const activeTab = computed<FollowTab>({
+  get: () => route.query.tab === 'followers' ? 'followers' : 'following',
+  set: (tab) => {
+    router.replace({ query: { ...route.query, tab: tab === 'following' ? undefined : tab } })
+  }
+})
+
+const { fetchFollowing, fetchFollowers, fetchFollowingIds, fetchFollowingCurrentlyReading, follow } = useFollowing()
+
+// Each tab keeps its own page.
+const followingPage = ref(1)
+const followersPage = ref(1)
+
+const [
+  { data: following },
+  { data: followers },
+  { data: followingIds },
+  { data: currentlyReading }
+] = await Promise.all([
+  useAsyncData(
+    'following-list',
+    () => fetchFollowing({ page: followingPage.value, pageSize: PAGE_SIZE }),
+    { watch: [followingPage] }
+  ),
+  useAsyncData(
+    'followers-list',
+    () => fetchFollowers({ page: followersPage.value, pageSize: PAGE_SIZE }),
+    { watch: [followersPage] }
+  ),
+  useAsyncData('following-ids', () => fetchFollowingIds()),
   useAsyncData('following-currently-reading', () => fetchFollowingCurrentlyReading())
 ])
+
+// Each count is the list's full total (count: 'exact'), not just the
+// current page, and updates when a list refreshes (e.g. after a follow back).
+const tabs = computed<TabsItem[]>(() => [
+  {
+    label: 'Following',
+    value: 'following',
+    icon: 'i-lucide-user-check',
+    slot: 'following',
+    badge: { label: String(following.value?.total ?? 0), color: 'neutral', variant: 'soft' }
+  },
+  {
+    label: 'Followers',
+    value: 'followers',
+    icon: 'i-lucide-users',
+    slot: 'followers',
+    badge: { label: String(followers.value?.total ?? 0), color: 'neutral', variant: 'soft' }
+  }
+])
+
+const followBackLoadingId = ref<string | null>(null)
+
+function isFollowed(profileId: string) {
+  return followingIds.value?.has(profileId) ?? false
+}
+
+async function followBack(profileId: string) {
+  followBackLoadingId.value = profileId
+
+  try {
+    await follow(profileId)
+    followingIds.value = new Set([...followingIds.value ?? [], profileId])
+    await refreshNuxtData(['following-list', 'following-currently-reading'])
+  } catch {
+    toast.add({
+      title: 'Could not follow this user',
+      color: 'error',
+      icon: 'i-lucide-circle-alert'
+    })
+  } finally {
+    followBackLoadingId.value = null
+  }
+}
+
+function compareUrl(username: string | null) {
+  return `/profile/${(username ?? '').toLowerCase()}/compare`
+}
 </script>
 
 <template>
@@ -21,53 +106,74 @@ const [{ data: following }, { data: currentlyReading }] = await Promise.all([
       Following
     </h1>
 
-    <UEmpty
-      v-if="!following?.length"
-      icon="i-lucide-users"
-      title="You're not following anyone yet"
-      description="Follow other users from their profile to see them here."
-    />
-
-    <ul
-      v-else
-      class="space-y-2"
+    <UTabs
+      v-model="activeTab"
+      :items="tabs"
+      variant="link"
+      class="w-full"
+      :ui="{ content: 'pt-4' }"
     >
-      <li
-        v-for="followedProfile in following"
-        :key="followedProfile.id"
-        class="flex items-center gap-3 rounded-lg p-3 bg-elevated hover:bg-elevated/70"
-      >
-        <NuxtLink
-          :to="`/profile/${(followedProfile.username ?? '').toLowerCase()}`"
-          class="flex min-w-0 flex-1 items-center gap-3"
+      <template #following>
+        <FollowingUserList
+          v-model:page="followingPage"
+          :entries="following?.entries ?? []"
+          :total="following?.total ?? 0"
+          :page-size="PAGE_SIZE"
+          empty-icon="i-lucide-user-check"
+          empty-title="You're not following anyone yet"
+          empty-description="Follow other users from their profile to see them here."
         >
-          <UAvatar
-            :src="followedProfile.avatar_url ?? undefined"
-            icon="i-lucide-user"
-          />
-          <div class="min-w-0">
-            <p class="font-medium text-highlighted truncate">
-              <NumberMotif :text="followedProfile.username ?? ''" />
-            </p>
-            <p
-              v-if="followedProfile.tagline"
-              class="text-muted text-sm truncate"
-            >
-              <NumberMotif :text="followedProfile.tagline" />
-            </p>
-          </div>
-        </NuxtLink>
-        <UButton
-          label="Compare"
-          icon="i-lucide-arrow-left-right"
-          color="neutral"
-          variant="subtle"
-          size="sm"
-          class="shrink-0"
-          :to="`/profile/${(followedProfile.username ?? '').toLowerCase()}/compare`"
-        />
-      </li>
-    </ul>
+          <template #actions="{ profile }">
+            <UButton
+              label="Compare"
+              icon="i-lucide-arrow-left-right"
+              color="neutral"
+              variant="subtle"
+              size="sm"
+              :to="compareUrl(profile.username)"
+            />
+          </template>
+        </FollowingUserList>
+      </template>
+
+      <template #followers>
+        <FollowingUserList
+          v-model:page="followersPage"
+          :entries="followers?.entries ?? []"
+          :total="followers?.total ?? 0"
+          :page-size="PAGE_SIZE"
+          empty-icon="i-lucide-users"
+          empty-title="No followers yet"
+          empty-description="When someone follows you, they'll show up here."
+        >
+          <template #actions="{ profile }">
+            <UBadge
+              v-if="isFollowed(profile.id)"
+              label="Following"
+              icon="i-lucide-check"
+              color="neutral"
+              variant="soft"
+            />
+            <UButton
+              v-else
+              label="Follow back"
+              icon="i-lucide-user-plus"
+              size="sm"
+              :loading="followBackLoadingId === profile.id"
+              @click="followBack(profile.id)"
+            />
+            <UButton
+              label="Compare"
+              icon="i-lucide-arrow-left-right"
+              color="neutral"
+              variant="subtle"
+              size="sm"
+              :to="compareUrl(profile.username)"
+            />
+          </template>
+        </FollowingUserList>
+      </template>
+    </UTabs>
 
     <template #aside>
       <h2 class="font-medium text-highlighted mb-3">

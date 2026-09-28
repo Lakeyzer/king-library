@@ -4,19 +4,12 @@ import type { ReadFormat } from '~/composables/useBooks'
 interface Props {
   workId: string
   workTitle: string
-  /** 'king' (default) writes to user_books via useBooks(); 'related' writes to user_related_works via useRelatedWorks() - see reading-status's "Works by Others share the same reading-status controls". */
-  domain?: 'king' | 'related'
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  domain: 'king'
-})
+const props = defineProps<Props>()
 const open = defineModel<boolean>('open', { default: false })
 
-const { startReading: startReadingBook } = useBooks()
-const { startReading: startReadingRelated } = useRelatedWorks()
-
-const isRelated = computed(() => props.domain === 'related')
+const { startReading } = useBooks()
 
 const startedOn = ref(todayLocalDate())
 const format = ref<ReadFormat | null>(null)
@@ -32,11 +25,7 @@ watch(open, (isOpen) => {
 async function confirm() {
   loading.value = true
   try {
-    if (isRelated.value) {
-      await startReadingRelated(props.workId, startedOn.value, format.value ?? undefined)
-    } else {
-      await startReadingBook(props.workId, startedOn.value, format.value ?? undefined)
-    }
+    await startReading(props.workId, startedOn.value, format.value ?? undefined)
     open.value = false
   } finally {
     loading.value = false
