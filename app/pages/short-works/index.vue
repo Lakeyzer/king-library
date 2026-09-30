@@ -10,8 +10,14 @@ setPageSeo({
     'Browse Stephen King\'s short stories and novellas, see which collections they appear in, and track which ones you\'ve read.'
 })
 
-const { fetchShortStories, fetchCollectionsOverview, fetchUserShortStoryReads }
-  = useShortStories()
+const user = useSupabaseUser()
+
+const {
+  readShortStoryIds,
+  fetchShortStories,
+  fetchCollectionsOverview,
+  fetchUserShortStoryReads
+} = useShortStories()
 const { fetchUserBooks } = useBooks()
 
 // Not awaited: only affects the read-status/owned indicators shown via
@@ -49,6 +55,16 @@ function collectionNoteOf(story: KingShortStory) {
   const titles = collectionsOverview.value?.collectionTitlesByStoryId[story.id]
   return titles?.length ? titles.join(', ') : 'Uncollected'
 }
+
+const statusFilter = computed(() =>
+  user.value
+    ? {
+        doneLabel: 'Read',
+        notDoneLabel: 'Unread',
+        isDone: (story: KingShortStory) => !!readShortStoryIds.value[story.id]
+      }
+    : undefined
+)
 </script>
 
 <template>
@@ -63,6 +79,7 @@ function collectionNoteOf(story: KingShortStory) {
     placeholder-icon="i-lucide-file-text"
     sort-year-label="Original publish year"
     :extra-filter="extraFilter"
+    :status-filter="statusFilter"
     :note-of="collectionNoteOf"
   >
     <template #header-actions>

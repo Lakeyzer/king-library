@@ -13,7 +13,7 @@ setPageSeo({
 const user = useSupabaseUser()
 
 const { fetchRelatedWorks, computeCompletionCount } = useRelatedWorks()
-const { fetchUserBooks } = useBooks()
+const { userBooksByWorkId, fetchUserBooks } = useBooks()
 const { fetchUserEditions } = useBookshelf()
 
 // Not awaited: only affects the actions component's displayed state, which
@@ -45,6 +45,16 @@ const graphicNovelCompletion = computed(() =>
     (works.value ?? []).filter(work => work.category === 'comic' && !work.is_omnibus)
   )
 )
+
+const statusFilter = computed(() =>
+  user.value
+    ? {
+        doneLabel: 'Read',
+        notDoneLabel: 'Unread',
+        isDone: (work: RelatedWork) => !!userBooksByWorkId.value[work.id]?.read
+      }
+    : undefined
+)
 </script>
 
 <template>
@@ -61,6 +71,7 @@ const graphicNovelCompletion = computed(() =>
     :subtitle-of="(work: RelatedWork) => `By ${work.creator}`"
     placeholder-icon="i-lucide-book-open-check"
     sort-year-label="Publish year"
+    :status-filter="statusFilter"
   >
     <template #header-actions>
       <ReportButton

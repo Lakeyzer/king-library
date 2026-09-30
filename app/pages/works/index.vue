@@ -15,6 +15,7 @@ const { fetchKingWorks } = useKingWorks()
 const user = useSupabaseUser()
 
 const {
+  userBooksByWorkId,
   fetchUserBooks,
   fetchWorkHighlights,
   fetchUnreadRecommendation,
@@ -65,6 +66,16 @@ function extraFilter(work: KingWork) {
   if (flagFilter.value === 'darkTower') return work.dark_tower
   return true
 }
+
+const statusFilter = computed(() =>
+  user.value
+    ? {
+        doneLabel: 'Read',
+        notDoneLabel: 'Unread',
+        isDone: (work: KingWork) => !!userBooksByWorkId.value[work.id]?.read
+      }
+    : undefined
+)
 </script>
 
 <template>
@@ -83,6 +94,7 @@ function extraFilter(work: KingWork) {
     placeholder-icon="i-lucide-book"
     sort-year-label="Release year"
     :extra-filter="extraFilter"
+    :status-filter="statusFilter"
     :note-of="(work: KingWork) => work.remark"
   >
     <template #header-actions>
