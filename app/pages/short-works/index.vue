@@ -26,7 +26,9 @@ const { fetchUserBooks } = useBooks()
 // so their owned indicator needs userBooksByWorkId, same as any other work
 // listing.
 useAsyncData('user-short-story-reads', fetchUserShortStoryReads)
+const { fetchOwnWishlist } = useWishlist()
 useAsyncData('user-books', fetchUserBooks)
+useAsyncData('user-wishlist', fetchOwnWishlist)
 
 // Independent fetches, run in parallel rather than one-after-another.
 const [{ data: shortStories }, { data: collectionsOverview }]

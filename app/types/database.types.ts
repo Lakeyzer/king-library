@@ -132,8 +132,8 @@ export type Database = {
           release_year: number
           slug: string
           title: string
-          tmdb_id: number | null
           tmdb_episode_number: number | null
+          tmdb_id: number | null
           tmdb_media_type: string | null
           tmdb_poster_path: string | null
           tmdb_season_number: number | null
@@ -149,8 +149,8 @@ export type Database = {
           release_year: number
           slug: string
           title: string
-          tmdb_id?: number | null
           tmdb_episode_number?: number | null
+          tmdb_id?: number | null
           tmdb_media_type?: string | null
           tmdb_poster_path?: string | null
           tmdb_season_number?: number | null
@@ -166,8 +166,8 @@ export type Database = {
           release_year?: number
           slug?: string
           title?: string
-          tmdb_id?: number | null
           tmdb_episode_number?: number | null
+          tmdb_id?: number | null
           tmdb_media_type?: string | null
           tmdb_poster_path?: string | null
           tmdb_season_number?: number | null
@@ -786,7 +786,6 @@ export type Database = {
           user_id: string
           via_omnibus_id: string | null
           want_to_read: boolean
-          wishlisted: boolean
           work_id: string
         }
         Insert: {
@@ -801,7 +800,6 @@ export type Database = {
           user_id: string
           via_omnibus_id?: string | null
           want_to_read?: boolean
-          wishlisted?: boolean
           work_id: string
         }
         Update: {
@@ -816,7 +814,6 @@ export type Database = {
           user_id?: string
           via_omnibus_id?: string | null
           want_to_read?: boolean
-          wishlisted?: boolean
           work_id?: string
         }
         Relationships: [
@@ -911,6 +908,51 @@ export type Database = {
           {
             foreignKeyName: 'user_short_story_reads_via_collection_id_fkey'
             columns: ['via_collection_id']
+            isOneToOne: false
+            referencedRelation: 'works'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+      user_wishlist_items: {
+        Row: {
+          created_at: string
+          id: string
+          note: string | null
+          tags: string[]
+          updated_at: string
+          user_id: string
+          work_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          tags?: string[]
+          updated_at?: string
+          user_id: string
+          work_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          tags?: string[]
+          updated_at?: string
+          user_id?: string
+          work_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'user_wishlist_items_work_id_fkey'
+            columns: ['work_id']
+            isOneToOne: false
+            referencedRelation: 'work_stats'
+            referencedColumns: ['work_id']
+          },
+          {
+            foreignKeyName: 'user_wishlist_items_work_id_fkey'
+            columns: ['work_id']
             isOneToOne: false
             referencedRelation: 'works'
             referencedColumns: ['id']
@@ -1127,7 +1169,7 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      valid_wishlist_tags: { Args: { tags: string[] }, Returns: boolean }
     }
     Enums: {
       [_ in never]: never

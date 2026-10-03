@@ -38,7 +38,9 @@ const [{ data: componentWorks }, { data: kingWorks }, { data: stats }] = await P
 // Not awaited: only affects the actions/edition buttons' displayed state,
 // which updates reactively once it resolves - see nuxt-conventions
 // "BookReadingActions... need their page to pre-fetch status".
+const { fetchOwnWishlist } = useWishlist()
 useAsyncData('user-books', fetchUserBooks)
+useAsyncData('user-wishlist', fetchOwnWishlist)
 useAsyncData('user-editions', fetchUserEditions)
 
 const publishYear = computed(() =>

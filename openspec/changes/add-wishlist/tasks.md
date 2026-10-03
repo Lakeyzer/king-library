@@ -1,0 +1,38 @@
+## 1. Database
+
+- [x] 1.1 Confirm local Supabase is in sync with hosted (`supabase migration list`), and re-grep `supabase/migrations` for `wishlisted` to confirm no view or function depends on the column. Verify: both sides list the same migrations, and the only hits are the create and merge migrations.
+- [x] 1.2 Create a migration (`supabase migration new add_user_wishlist_items`) that adds the `valid_wishlist_tags(text[])` immutable function, the `user_wishlist_items` table with the note-length, tag-count and tag-format checks, the `(user_id, created_at desc)` and `(work_id)` indexes, and the `stamp_user_wishlist_items_updated_at()` trigger (design decisions 1, 2 and 6). Verify: `supabase migration up` applies cleanly.
+- [x] 1.3 In the same migration, enable RLS and add the four owner/public policies, mirroring `user_books`. Verify locally in SQL: an anon role sees rows of a public profile and none of a private profile, and an authenticated non-owner insert, update or delete is rejected.
+- [x] 1.4 In the same migration, copy `user_books where wishlisted` into `user_wishlist_items`, then drop the `user_books_clear_wishlist_on_owned` trigger, the `clear_wishlist_on_owned()` function and the `user_books.wishlisted` column (design decision 7). Verify: a local row seeded with `wishlisted = true` before applying ends up as one untagged wishlist entry, and `\d user_books` no longer shows the column.
+- [x] 1.5 Verify the check constraints in SQL: inserts with `{'First Printing'}`, `{'a','a'}`, an 11-tag array, a 31-character tag, or a 1001-character note all fail, and `{'first-printing','cemetery-dance'}` succeeds.
+- [x] 1.6 Regenerate `app/types/database.types.ts`. Verify: `user_wishlist_items` is present and `wishlisted` is gone.
+
+## 2. Tags and composable
+
+- [x] 2.1 Add `app/utils/wishlistTags.ts` with the `WISHLIST_PRESET_TAGS` `as const` array (the 15 tags in the wishlist spec), a `WishlistPresetTag` type, `normalizeWishlistTag()` (returns the slug, `null` if empty, or an error marker if longer than 30 characters), and `wishlistTagLabel()` with hand-written preset labels. Verify: `pnpm typecheck` passes, and in a quick REPL/test, "Cemetery Dance" becomes `cemetery-dance`, "First Printing" becomes `first-printing`, and "---" becomes `null`.
+- [x] 2.2 Add `app/composables/useWishlist.ts` with `wishlistItemsByWorkId` state, `fetchOwnWishlist()`, `fetchWishlist(userId)` (joined to `works`, active only, `created_at desc`, returns `kind` for `workPath`), `addWishlistItem`, `updateWishlistItem` and `removeWishlistItem`. Writes normalize and dedupe tags and update the state in place. Add `ownTagSuggestions`, the presets plus the distinct tags from the user's own entries. Verify: `pnpm typecheck` passes, and there are no `supabase.from` calls outside composables.
+- [x] 2.3 Remove `wishlisted` from `UserBook` and `USER_BOOK_COLUMNS` in `app/composables/useBooks.ts`. Verify: `pnpm typecheck` passes and `grep -rn wishlisted app` returns nothing.
+- [x] 2.4 Call `fetchOwnWishlist()` in `AppHeader`'s `watch(user, ...)` alongside the other user-store fetches. Verify: signing out clears the state (the wishlist button reverts to its empty state without a reload).
+
+## 3. Book actions and wishlist modal
+
+- [x] 3.1 Build `app/components/book/WishlistModal.vue`: a list of the viewer's entries for the work with Edit and Remove, an add/edit form with a `UTextarea` note (1000-character counter) and a `UInputMenu multiple create-item` tag input fed by `ownTagSuggestions` with `@create` running through `normalizeWishlistTag()`, a validation message for the length and count limits, a hint that entries are public on a public profile, a single-entry edit mode for use from the profile tab, and footer buttons following the nuxt-conventions modal rule. Verify by hand: add, edit and remove entries, add a custom tag, and see a preset suggested when typing its normalized form.
+- [x] 3.2 Add the wishlist control to `app/components/book/ReadingActions.vue` in compact and expanded modes, next to Shelf. It is highlighted with a count when the viewer has entries, and opens the auth modal when signed out. Update the comment that says there is no wishlist control. Verify by hand on `/works/[slug]` and in a works grid: the control state matches the number of entries.
+- [x] 3.3 Add `await useAsyncData('user-wishlist', fetchOwnWishlist)` next to every existing `user-books` prefetch: `app/pages/index.vue`, `works/index.vue`, `works/[slug].vue`, `works-by-others/index.vue`, `works-by-others/[slug].vue`, `short-works/index.vue`, `dark-tower.vue`, and `app/components/profile/ReadListTab.vue`. Verify: a hard reload of each page shows the correct wishlist state on the first paint.
+- [ ] 3.4 Verify by hand on a By Other Hands work (`/works-by-others/[slug]`) that the wishlist control appears and works the same as on a King work.
+
+## 4. Profile Wishlist tab
+
+- [x] 4.1 Build `app/components/profile/WishlistItem.vue`: a cover thumbnail through the existing cover helper, a title linking to `workPath(kind, slug)`, the note, and tag `UBadge`s with `wishlistTagLabel()`. Owners also get Edit and Remove, which open `BookWishlistModal` in single-entry mode. Verify: `pnpm typecheck` passes.
+- [x] 4.2 Build `app/components/profile/WishlistTab.vue`: fetch `fetchWishlist(profile.id)`, show a row of toggleable tag filter chips built from the tags present (AND matching), the list of `ProfileWishlistItem`, a no-results state with a clear-filter action, and owner/visitor empty states. Verify by hand: filtering by one and by two tags shows only matching entries.
+- [x] 4.3 Add `app/pages/profile/wishlist.vue` and `app/pages/profile/[username]/wishlist.vue`, mirroring the Read List pages (SEO title "Wishlist" / "<username>'s Wishlist"). Verify: both routes render the header plus the tab.
+- [x] 4.4 Insert the Wishlist item as the second entry in `app/components/profile/Tabs.vue`. Verify: the tab order is Reader Checklist, Wishlist, Read List, Watch List, and only the current tab is highlighted.
+- [x] 4.5 Add `/profile/wishlist` to `isAuthGatedRoute()` in `app/utils/authGatedRoutes.ts`. Verify: while signed out, `/profile/wishlist` redirects to sign-in and `/profile/<public-user>/wishlist` renders.
+- [ ] 4.6 Privacy check by hand: while signed out, a public profile's Wishlist tab shows entries read-only with no edit or remove controls. A private profile shows the private state to non-owners and the full list to its owner.
+
+## 5. Docs and checks
+
+- [x] 5.1 Update `.claude/skills/supabase-conventions/SKILL.md`: add a `user_wishlist_items` section (columns, the multiple-entries rule, the tag format constraint, independence from `owned`), remove `wishlisted` from the `user_books` table and invariants, delete the `clear_wishlist_on_owned()` trigger section, remove the "not trying to support wishlisting a specific first edition" and "There is no wishlist UI for any work" lines, add the table to the RLS list and the frontmatter description, and add `useWishlist()` to the composables list. Verify: `grep -n "wishlisted\|clear_wishlist" .claude/skills/supabase-conventions/SKILL.md` returns nothing stale.
+- [x] 5.2 Extend the nuxt-conventions "BookReadingActions ... need their page to pre-fetch status" section to include `fetchOwnWishlist` and the `"user-wishlist"` key. Verify: the section's code sample lists all three fetches.
+- [x] 5.3 Check every new or changed file for the em dash character (U+2014). Verify: `git diff develop --name-only | xargs grep -lP "\x{2014}"` returns nothing.
+- [ ] 5.4 Run `pnpm lint` and `pnpm typecheck`. Verify: both pass. Then report the feature as ready for manual testing. Do not start the dev server.
