@@ -26,7 +26,9 @@ const { fetchUserEditions } = useBookshelf()
 // Not awaited: only affects the reading-status/edition buttons' displayed
 // state, which updates reactively once it resolves - same as the
 // adaptations page.
+const { fetchOwnWishlist } = useWishlist()
 useAsyncData('user-books', fetchUserBooks)
+useAsyncData('user-wishlist', fetchOwnWishlist)
 useAsyncData('user-editions', fetchUserEditions)
 
 // Independent fetches, run in parallel rather than one-after-another -

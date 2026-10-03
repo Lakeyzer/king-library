@@ -34,11 +34,11 @@ defineOptions({ inheritAttrs: false })
 
 const user = useSupabaseUser()
 // Works for King and related works alike - both are tracked in user_books
-// (see reading-status "Works by Others share every reading-status control
-// except the wishlist", and there's no wishlist control here anyway).
+// and user_wishlist_items (see reading-status "Works by Others share every
+// reading-status control").
 //
-// userBooksByWorkId is only populated once something calls
-// fetchUserBooks() - this component
+// userBooksByWorkId and wishlistItemsByWorkId are only populated once
+// something calls fetchUserBooks() / fetchOwnWishlist() - this component
 // does NOT do that itself. Any page rendering this (directly or via
 // WorkTile) must await useAsyncData(...) for the relevant fetch itself, or
 // every tile silently shows neutral status regardless of the user's actual
@@ -46,6 +46,7 @@ const user = useSupabaseUser()
 // page to pre-fetch status" for why this isn't just pushed into this
 // component.
 const { userBooksByWorkId, toggleWantToRead: toggleWantToReadBook, setOwned } = useBooks()
+const { wishlistItemsByWorkId } = useWishlist()
 const { open: openAuthModal } = useAuthModal()
 
 const showEditionsModal = ref(false)
@@ -58,6 +59,17 @@ const isCurrentlyReading = computed(() => bookState.value?.currently_reading ?? 
 const isRead = computed(() => bookState.value?.read ?? false)
 const currentStartedOn = computed(() => bookState.value?.started_on ?? null)
 const currentFormat = computed(() => bookState.value?.format ?? null)
+
+// Independent of ownership and reading status (wishlist "Wishlist is
+// independent of ownership and reading status"), and never blocked for an
+// unreleased work - hunting a pre-order is a legitimate wishlist entry.
+const wishlistCount = computed(() => wishlistItemsByWorkId.value[props.workId]?.length ?? 0)
+const isWishlisted = computed(() => wishlistCount.value > 0)
+const wishlistLabel = computed(() => {
+  if (wishlistCount.value > 1) return `On Wishlist (${wishlistCount.value})`
+  return isWishlisted.value ? 'On Wishlist' : 'Add to Wishlist'
+})
+const showWishlistModal = ref(false)
 
 // A work already being read is left fully actionable (Finish, Stop) - this
 // only stops a read from being started, or logged, before release. Likewise
@@ -209,9 +221,9 @@ const readingDropdownItems = computed<DropdownMenuItem[]>(() => {
   }
 })
 
-// Owning a work is independent of reading status, so Add to Shelf is
-// available in every state - appended here rather than duplicated in each
-// readingDropdownItems branch above. Shown regardless of workKey - see
+// Owning and wishlisting a work are independent of reading status, so Add to
+// Shelf and the wishlist are available in every state - appended here rather
+// than duplicated in each readingDropdownItems branch above. Shown regardless of workKey - see
 // handleShelfClick for the fallback when there's no key to open a picker
 // against.
 const dropdownItems = computed<DropdownMenuItem[]>(() => {
@@ -222,6 +234,11 @@ const dropdownItems = computed<DropdownMenuItem[]>(() => {
       icon: 'i-lucide-library',
       disabled: shelfBlocked.value,
       onSelect: handleShelfClick
+    },
+    {
+      label: wishlistLabel.value,
+      icon: 'i-lucide-heart',
+      onSelect: handleWishlistClick
     }
   ]
 
@@ -237,7 +254,25 @@ const dropdownItems = computed<DropdownMenuItem[]>(() => {
   return items
 })
 
-// Expanded mode caps out at 3 buttons (plus Shelf) by giving each state
+// Small screens only: the stacked button row fits four buttons, so Shelf and
+// Wishlist share one "Collection" button that opens this menu. Larger
+// screens keep them as separate buttons. The handlers already route a
+// signed-out visitor to the sign-in modal.
+const collectionMenuItems = computed<DropdownMenuItem[]>(() => [
+  {
+    label: shelfLabel.value,
+    icon: 'i-lucide-library',
+    disabled: shelfBlocked.value,
+    onSelect: handleShelfClick
+  },
+  {
+    label: wishlistLabel.value,
+    icon: 'i-lucide-heart',
+    onSelect: handleWishlistClick
+  }
+])
+
+// Expanded mode caps out at 3 buttons (plus Shelf and Wishlist) by giving each state
 // exactly one "leftmost" slot and one "read-related" slot, rather than
 // showing every possible action as its own separate control - that
 // approach (still described in the pre-reread-tracking reading-status
@@ -320,6 +355,14 @@ function handleStartOrFinishReading() {
   }
 }
 
+function handleWishlistClick() {
+  if (!user.value) {
+    openAuthModal()
+    return
+  }
+  showWishlistModal.value = true
+}
+
 function handleShelfClick() {
   if (!user.value) {
     openAuthModal()
@@ -345,6 +388,16 @@ function handleShelfClick() {
     >
       <UIcon
         name="i-lucide-library"
+        :class="statusIconClass"
+        class="text-muted"
+      />
+    </UTooltip>
+    <UTooltip
+      v-if="isWishlisted"
+      :text="wishlistLabel"
+    >
+      <UIcon
+        name="i-lucide-heart"
         :class="statusIconClass"
         class="text-muted"
       />
@@ -429,16 +482,18 @@ function handleShelfClick() {
         :title="readingBlocked ? unreleasedTitle : undefined"
         @click="handleReadSlotClick"
       />
-      <IconLabelButton
-        stacked
-        class="flex-1"
-        :label="shelfLabel"
-        icon="i-lucide-library"
-        :filled="isOwned"
-        :disabled="shelfBlocked"
-        :title="shelfBlocked ? unreleasedTitle : undefined"
-        @click="handleShelfClick"
-      />
+      <UDropdownMenu
+        :items="collectionMenuItems"
+        :content="{ align: 'end' }"
+      >
+        <IconLabelButton
+          stacked
+          class="flex-1"
+          label="Collection"
+          icon="i-lucide-library"
+          :filled="isOwned || isWishlisted"
+        />
+      </UDropdownMenu>
     </UFieldGroup>
 
     <div
@@ -476,6 +531,12 @@ function handleShelfClick() {
         :title="shelfBlocked ? unreleasedTitle : undefined"
         @click="handleShelfClick"
       />
+      <IconLabelButton
+        :label="wishlistLabel"
+        icon="i-lucide-heart"
+        :filled="isWishlisted"
+        @click="handleWishlistClick"
+      />
     </div>
   </template>
 
@@ -506,6 +567,11 @@ function handleShelfClick() {
   />
   <BookUnmarkReadModal
     v-model:open="showUnmarkReadModal"
+    :work-id="workId"
+    :work-title="workTitle"
+  />
+  <BookWishlistModal
+    v-model:open="showWishlistModal"
     :work-id="workId"
     :work-title="workTitle"
   />

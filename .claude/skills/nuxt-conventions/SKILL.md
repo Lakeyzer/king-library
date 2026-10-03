@@ -110,19 +110,23 @@ The fix: keep the actual `await` (`useAsyncData`, `fetchProfileByUsername`, etc.
 
 ## `BookReadingActions` / `AdaptationWatchActions` need their page to pre-fetch status
 
-`BookReadingActions.vue` and `AdaptationWatchActions.vue` (and anything built on `WorkTile`/`AdaptationTile`, which render them) don't fetch a user's reading/watch status themselves - they read it out of the shared `userBooksByWorkId` / `userAdaptationsByAdaptationId` state exposed by `useBooks()` / `useAdaptations()`. That state is only populated when something calls `fetchUserBooks()` / `fetchUserAdaptations()`. **Any page that renders these components must call that fetch itself**, or every tile silently renders as if the user has no relationship to the work/adaptation at all (no "On Readlist"/"On Watchlist" tooltip, wrong primary action, etc.) - this isn't a loading-state flicker, it's a permanently wrong result, since nothing on the page ever triggers the fetch.
+`BookReadingActions.vue` and `AdaptationWatchActions.vue` (and anything built on `WorkTile`/`AdaptationTile`, which render them) don't fetch a user's reading/watch status themselves - they read it out of the shared `userBooksByWorkId` / `wishlistItemsByWorkId` / `userAdaptationsByAdaptationId` state exposed by `useBooks()` / `useWishlist()` / `useAdaptations()`. That state is only populated when something calls `fetchUserBooks()` / `fetchOwnWishlist()` / `fetchUserAdaptations()`. **Any page that renders these components must call that fetch itself**, or every tile silently renders as if the user has no relationship to the work/adaptation at all (no "On Readlist"/"On Watchlist" tooltip, wrong primary action, etc.) - this isn't a loading-state flicker, it's a permanently wrong result, since nothing on the page ever triggers the fetch.
 
 ```ts
 const { fetchUserBooks } = useBooks();
 await useAsyncData("user-books", fetchUserBooks);
 
+// BookReadingActions' wishlist control - always alongside user-books.
+const { fetchOwnWishlist } = useWishlist();
+await useAsyncData("user-wishlist", fetchOwnWishlist);
+
 const { fetchUserAdaptations } = useAdaptations();
 await useAsyncData("user-adaptations", fetchUserAdaptations);
 ```
 
-Always use these exact key strings (`"user-books"` / `"user-adaptations"`) - every page already does, so this is what lets Nuxt's `useAsyncData` cache share one fetch across pages/components rather than each page keying its own copy.
+Always use these exact key strings (`"user-books"` / `"user-wishlist"` / `"user-adaptations"`) - every page already does, so this is what lets Nuxt's `useAsyncData` cache share one fetch across pages/components rather than each page keying its own copy.
 
-**Don't try to move this fetch into `BookReadingActions`/`AdaptationWatchActions` themselves** to make it automatic - it looks like it should work (same cache key), but it doesn't by default. `useAsyncData`'s default `dedupe: 'cancel'` only cancels-and-restarts an in-flight call for the same key rather than reusing it, and on the server there's no "already pending" guard at all - so calling it from a component rendered N times in a list (e.g. every tile in a grid) fires N redundant fetches instead of one. Getting single-flight behavior out of a shared component would require explicitly passing `{ dedupe: 'defer' }`, and even then a client-side navigation to a page whose data isn't already cached would flash the neutral/default state on first paint, which the current page-level `await` avoids entirely. If a future page renders these action components, add the two-line fetch above to that page - don't assume it happens automatically.
+**Don't try to move this fetch into `BookReadingActions`/`AdaptationWatchActions` themselves** to make it automatic - it looks like it should work (same cache key), but it doesn't by default. `useAsyncData`'s default `dedupe: 'cancel'` only cancels-and-restarts an in-flight call for the same key rather than reusing it, and on the server there's no "already pending" guard at all - so calling it from a component rendered N times in a list (e.g. every tile in a grid) fires N redundant fetches instead of one. Getting single-flight behavior out of a shared component would require explicitly passing `{ dedupe: 'defer' }`, and even then a client-side navigation to a page whose data isn't already cached would flash the neutral/default state on first paint, which the current page-level `await` avoids entirely. If a future page renders these action components, add the fetches above to that page - don't assume it happens automatically.
 
 ## Modal action buttons: footer placement, order, color, variant
 

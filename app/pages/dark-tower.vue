@@ -33,7 +33,9 @@ const { fetchUserEditions } = useBookshelf()
 // render, per nuxt-conventions "BookReadingActions... need their page to
 // pre-fetch status" - user_books covers the graphic novels (related works)
 // as well as the King works.
+const { fetchOwnWishlist } = useWishlist()
 useAsyncData('user-books', fetchUserBooks)
+useAsyncData('user-wishlist', fetchOwnWishlist)
 useAsyncData('user-editions', fetchUserEditions)
 
 const [{ data: works }, { data: series }, { data: graphicNovelGroups }, { data: relatedWorksList }] = await Promise.all([

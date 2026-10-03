@@ -20,7 +20,9 @@ const { fetchUserEditions } = useBookshelf()
 // updates reactively once it resolves - same pattern as user-books on every
 // other browsing page (see nuxt-conventions "BookReadingActions... need
 // their page to pre-fetch status").
+const { fetchOwnWishlist } = useWishlist()
 useAsyncData('user-books', fetchUserBooks)
+useAsyncData('user-wishlist', fetchOwnWishlist)
 useAsyncData('user-editions', fetchUserEditions)
 
 const { data: works } = await useAsyncData('related-works', fetchRelatedWorks)

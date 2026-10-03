@@ -57,7 +57,9 @@ const [
 // Not awaited: this only affects the reading-status buttons' displayed
 // state, which updates reactively once it resolves - no reason to hold up
 // the rest of the page for it.
+const { fetchOwnWishlist } = useWishlist()
 useAsyncData('user-books', fetchUserBooks)
+useAsyncData('user-wishlist', fetchOwnWishlist)
 useAsyncData('user-editions', fetchUserEditions)
 
 const publishYear = computed(() => Number(work.publish_date.slice(0, 4)))

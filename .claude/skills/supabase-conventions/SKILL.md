@@ -1,6 +1,6 @@
 ---
 name: supabase-conventions
-description: Database schema, RLS policies, and query conventions for the Stephen King Library app's Supabase backend. Use this whenever writing or modifying anything that touches the database - Supabase queries, composables, migrations, RLS policies, seed files, or the tables works (King and related works, labelled by kind), work_omnibus_works, related_work_king_works, adaptations, adaptation_works, adaptation_short_stories, king_short_stories, king_short_story_collections, profiles, user_books, user_book_editions, user_book_reads, user_adaptations, user_short_story_reads, user_follows, notifications, or email_preferences. Also use when adding any feature that reads or writes user collections, wishlists, read status, watch status, short story reads, cover images, or statistics/leaderboards, since these all depend on this schema. Consult this skill before writing a single `supabase.from(...)` call anywhere in the app.
+description: Database schema, RLS policies, and query conventions for the Stephen King Library app's Supabase backend. Use this whenever writing or modifying anything that touches the database - Supabase queries, composables, migrations, RLS policies, seed files, or the tables works (King and related works, labelled by kind), work_omnibus_works, related_work_king_works, adaptations, adaptation_works, adaptation_short_stories, king_short_stories, king_short_story_collections, profiles, user_books, user_book_editions, user_book_reads, user_adaptations, user_short_story_reads, user_wishlist_items, user_follows, notifications, or email_preferences. Also use when adding any feature that reads or writes user collections, wishlists, read status, watch status, short story reads, cover images, or statistics/leaderboards, since these all depend on this schema. Consult this skill before writing a single `supabase.from(...)` call anywhere in the app.
 ---
 
 # Supabase Conventions - Stephen King Library
@@ -33,7 +33,7 @@ All `date` columns (e.g. `publish_date`, `started_on`, `finished_on`) must use I
 Every book lives here - the canonical King bibliography **and** the By Other Hands / Works by Others material (Marvel's Dark Tower comics, companion/reference books, authorized tie-in novels). Each row carries a `kind` label, and **every query decides which kind it covers**:
 
 - `kind = 'king'` - the canonical bibliography. Everything King-specific filters on this: `/works`, `useKingWorks()`, every homepage figure/leaderboard/spotlight, every recommendation and Dark Tower suggestion, profile Overall/Bachman/Dark Tower/Collection progress, the compare page, `dark_tower_journey_stats`, and the Book of the week rotation.
-- `kind = 'related'` - Works by Others. `/works-by-others` and `useRelatedWorks()` filter on this. Tracked exactly like a King work (`user_books`, `user_book_reads`, `user_book_editions`) - no separate per-user tables - but never counted in a King statistic. There is no wishlist UI for any work, so nothing needs a per-kind wishlist rule.
+- `kind = 'related'` - Works by Others. `/works-by-others` and `useRelatedWorks()` filter on this. Tracked exactly like a King work (`user_books`, `user_book_reads`, `user_book_editions`) - no separate per-user tables - but never counted in a King statistic. The wishlist (`user_wishlist_items`) covers both kinds the same way, with no per-kind rule.
 - Lists that intentionally cover **both** kinds: the profile reading timeline, Bookshelf, Currently Reading, Read List, and a user's own `userBooksByWorkId`. They select `kind` and link through `workPath(kind, slug)` (`app/utils/workPath.ts`).
 - `work_stats` covers both kinds and exposes `kind` - filter it to `kind = 'king'` for any King leaderboard or total; a related work's detail page reads its own row directly.
 
@@ -186,7 +186,7 @@ Unique constraint on `(short_story_id, work_id)`. Same seed-file maintenance pat
 
 ### `user_short_story_reads` (read-tracking for individual short stories)
 
-Unlike `user_books`, a short story has exactly one meaningful state - read or not - so this is a **row-existence table**, not a boolean-flags row: a row existing _is_ "has read this story." No `wishlisted`/`want_to_read` equivalent, since wanting to read a story is already covered by wanting to read the collection it's in.
+Unlike `user_books`, a short story has exactly one meaningful state - read or not - so this is a **row-existence table**, not a boolean-flags row: a row existing _is_ "has read this story." No wishlist/`want_to_read` equivalent, since wanting to read a story is already covered by wanting to read the collection it's in.
 
 | column              | type                               | notes |
 | ------------------- | ----------------------------------- | ----- |
@@ -214,7 +214,7 @@ Implemented in `supabase/migrations/20260903120000_create_profiles_table.sql`.
 
 ### `user_books` (join table: user ↔ work - the single source of truth for the relationship)
 
-One row per `(user_id, work_id)`. This is the authoritative record of whether a work is owned, wishlisted, and/or read - **ownership does not require an edition to be selected.** Editions (below) are optional supplementary detail a collector may attach on top of this.
+One row per `(user_id, work_id)`. This is the authoritative record of whether a work is owned and/or read - **ownership does not require an edition to be selected.** Editions (below) are optional supplementary detail a collector may attach on top of this.
 
 | column              | type                       | notes                                                                                                                                                                                                                     |
 | ------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -222,7 +222,6 @@ One row per `(user_id, work_id)`. This is the authoritative record of whether a 
 | `user_id`           | uuid, FK → `auth.users.id` |                                                                                                                                                                                                                           |
 | `work_id`      | uuid, FK → `works.id` |                                                                                                                                                                                                                           |
 | `owned`             | boolean, default `false`   | generic "I own this work" - true whether or not any edition has been picked                                                                                                                                               |
-| `wishlisted`        | boolean, default `false`   | wants to _own_ it (see Triggers: cleared when `owned` becomes true)                                                                                                                                                       |
 | `want_to_read`      | boolean, default `false`   | wants to _read_ it - a separate intent from wanting to own; see Triggers                                                                                                                                                  |
 | `currently_reading` | boolean, default `false`   | supports being mid-read on several works at once - this is a per-row flag, so "reading 3 books" is just 3 rows each with this `true`, no special handling needed                                                          |
 | `started_on`        | date, nullable             | the date the user started reading - **`date`, not `timestamptz`**: this is a calendar date the user picks (e.g. via a native date input), not a moment in time, so there's no time-of-day or timezone to store or convert |
@@ -230,15 +229,14 @@ One row per `(user_id, work_id)`. This is the authoritative record of whether a 
 | `finished_on`       | date, nullable             | the date the user finished reading - same `date`-not-`timestamptz` reasoning as `started_on`                                                                                                                              |
 | `read_year`         | int, nullable              | approximate fallback for when a user wants to log a book as read with only a rough year, not an exact date - independent of `started_on`/`finished_on`, not derived from them; see below                                  |
 
-These are independent booleans, not an enum - a work can be `owned` _and_ `read` _and_ have previously been `wishlisted`; forcing a single `status` would lose that. Unique constraint on `(user_id, work_id)` - this is the one row per user per work.
+These are independent booleans, not an enum - a work can be `owned` _and_ `read` at once; forcing a single `status` would lose that. Unique constraint on `(user_id, work_id)` - this is the one row per user per work.
 
 **Invariants**, all enforced with database triggers, not client-side logic - see "Triggers" below:
 
-- A work is never simultaneously `owned` and `wishlisted`.
 - Marking `read = true` clears both `want_to_read` and `currently_reading`.
 - Marking `currently_reading = true` clears `want_to_read` (you've moved past "want to" into "doing it").
 
-Wishlisting/want-to-read are work-level only (no edition selection) - this app isn't trying to support "wishlist a specific first edition."
+Want-to-read is work-level only (no edition selection). Wishlisting is **not** on `user_books` at all - see `user_wishlist_items` below, which is where "I want a first printing" lives, as a free-text note plus tags rather than a linked edition.
 
 ### Reading dates: three entry points, three different prompts
 
@@ -306,9 +304,28 @@ Zero or more rows per `(user_id, work_id)`, only created when a user chooses to 
 | `added_at`      | timestamptz, default `now()` |                                                                                                                |
 
 - Unique constraint on `(user_id, edition_id)` - stops the exact same edition being added twice. No constraint on `(user_id, work_id)` - multiple editions of the same work are expected.
-- **Adding an edition row must also upsert `user_books.owned = true`** for that `(user_id, work_id)` - two writes, both the composable's responsibility (see "Conventions for composables" below). Never assume an edition row implies ownership without also setting the flag; the flag is what everything else (RLS-gated reads, the ownership stat, the owned/wishlisted trigger) reads from and reacts to.
+- **Adding an edition row must also upsert `user_books.owned = true`** for that `(user_id, work_id)` - two writes, both the composable's responsibility (see "Conventions for composables" below). Never assume an edition row implies ownership without also setting the flag; the flag is what everything else (RLS-gated reads, the ownership stat) reads from and reacts to.
 - **Removing a work's last edition row _does_ flip `owned` back to `false`.** The collection UI (`useBookshelf()`) is the only place `owned` gets set to `true` in the first place, so it's also responsible for clearing it: `removeEdition()` deletes the edition row, then counts the user's remaining edition rows for that work and upserts `owned = false` only when none remain. Removing one of several editions leaves `owned` untouched. This is done as two sequential writes in the composable, not a DB trigger - see `add-book-collection-management`'s design.md "Ownership-clearing lives in the composable, not a DB trigger" for why a trigger doesn't fit (a work can still be legitimately `owned` with zero edition rows, e.g. a user who marks a work owned generically without ever picking an edition, so "0 editions" must not unconditionally imply "not owned" at the schema level).
 - **No cover image column.** Cover art is never stored - see "Cover images" below.
+
+### `user_wishlist_items` (wishlist entries: what a collector is hunting for)
+
+One row per wishlist **entry**, not per work - there is deliberately no unique `(user_id, work_id)`, since a user can hunt a work in several ways at once ("signed first printing" and a separate "cheap reading copy"), each with its own note and tags. Covers King and related works alike.
+
+| column       | type                       | notes                                                                                     |
+| ------------ | -------------------------- | ----------------------------------------------------------------------------------------- |
+| `id`         | uuid, PK                   |                                                                                           |
+| `user_id`    | uuid, FK → `auth.users.id` |                                                                                           |
+| `work_id`    | uuid, FK → `works.id`      |                                                                                           |
+| `note`       | text, nullable             | free text, at most 1000 chars; a blank note is stored as `null`                          |
+| `tags`       | text[], default `'{}'`     | normalized slugs, at most 10, checked by `valid_wishlist_tags()`                          |
+| `created_at` | timestamptz                | Wishlist tab sorts newest first (index `(user_id, created_at desc)`)                      |
+| `updated_at` | timestamptz                | stamped by the `stamp_user_wishlist_items_updated_at()` before-update trigger             |
+
+- **Independent of `user_books`**: wishlisting never creates or changes a `user_books` row, and owning a work never clears its wishlist entries - "I own it, but want a better copy" is the headline use case. (The old `user_books.wishlisted` flag and its `clear_wishlist_on_owned()` trigger were removed for exactly this reason.)
+- **Tags are free-form but shape-checked.** The predefined set (`any`, `hardcover`, `first-printing`, ...) lives only in `app/utils/wishlistTags.ts`, and users can add custom tags, so the DB can't hold an allow-list. `valid_wishlist_tags()` instead enforces the normalized shape: lowercase alphanumeric words joined by single hyphens, 1-30 chars, no duplicates. Always write through `useWishlist()`, which runs `normalizeWishlistTags()` first.
+- Tag filtering and the tag suggestions are client-side over one user's (small) list - no GIN index, no tag table.
+- RLS: the standard owner-or-public four-policy set (see "Row Level Security").
 
 ### `user_adaptations` (join table: user ↔ adaptation)
 
@@ -396,30 +413,9 @@ One boolean column per email type. A missing row means every default - rows are 
 
 ## Triggers
 
-Like RLS, triggers exist to make an invariant hold no matter which code path writes to a table - a composable, a future admin tool, a script - rather than trusting every future write site to remember a rule. Two triggers exist in this schema:
+Like RLS, triggers exist to make an invariant hold no matter which code path writes to a table - a composable, a future admin tool, a script - rather than trusting every future write site to remember a rule. The main ones:
 
 **`handle_new_user()`** - `security definer` function on `auth.users` insert, auto-creates the matching `profiles` row. Never insert into `profiles` from client code (see "Schema" above).
-
-**`clear_wishlist_on_owned()`** - on `user_books`, before insert/update, forces `wishlisted = false` whenever a row is written with `owned = true`. This is what keeps "owned" and "wishlisted" mutually exclusive without any composable needing to know about it.
-
-```sql
-create or replace function clear_wishlist_on_owned()
-returns trigger
-language plpgsql
-as $$
-begin
-  if new.owned = true then
-    new.wishlisted := false;
-  end if;
-  return new;
-end;
-$$;
-
-create trigger user_books_clear_wishlist_on_owned
-  before insert or update on user_books
-  for each row
-  execute function clear_wishlist_on_owned();
-```
 
 **`clear_read_states_on_progress()`** - on `user_books`, before insert/update, enforces the reading-progress invariants: finishing a work clears both `want_to_read` and `currently_reading`; starting a work clears `want_to_read`.
 
@@ -563,7 +559,7 @@ create policy "profiles updatable by owner"
   using (id = auth.uid());
 ```
 
-**`user_books` / `user_book_editions` / `user_book_reads` / `user_adaptations` / `user_short_story_reads`** - the important one. A row is readable if you own it, _or_ if the owner's profile is public. Writes (insert/update/delete) are owner-only, full stop - `is_public` never affects write access. The pattern is identical across all five tables.
+**`user_books` / `user_book_editions` / `user_book_reads` / `user_adaptations` / `user_short_story_reads` / `user_wishlist_items`** - the important one. A row is readable if you own it, _or_ if the owner's profile is public. Writes (insert/update/delete) are owner-only, full stop - `is_public` never affects write access. The pattern is identical across all six tables.
 
 ```sql
 create policy "user_books readable by owner or if profile public"
@@ -588,7 +584,7 @@ create policy "user_books updatable by owner only"
 create policy "user_books deletable by owner only"
   on user_books for delete
   using (user_id = auth.uid());
--- identical four-policy set for user_book_editions, user_book_reads, user_adaptations, and user_short_story_reads
+-- identical four-policy set for user_book_editions, user_book_reads, user_adaptations, user_short_story_reads, and user_wishlist_items
 ```
 
 ### Why this shape
@@ -812,7 +808,7 @@ The composable divides `read_count / total_count` client-side (or in a small SQL
 
 ## Conventions for composables
 
-- One composable per table/domain: `useBooks()` (owned/wishlist/read flags on `user_books`, plus logged-read history on `user_book_reads`), `useBookshelf()` (edition detail on `user_book_editions`), `useAdaptations()` (want-to-watch/watched flags on `user_adaptations`, plus read-only lookups against `adaptations`/`adaptation_works`/`adaptation_short_stories`), `useShortStories()` (read-only lookups against `king_short_stories`/`king_short_story_collections`, plus read tracking on `user_short_story_reads`), `useProfile()`.
+- One composable per table/domain: `useBooks()` (owned/read flags on `user_books`, plus logged-read history on `user_book_reads`), `useWishlist()` (wishlist entries on `user_wishlist_items`), `useBookshelf()` (edition detail on `user_book_editions`), `useAdaptations()` (want-to-watch/watched flags on `user_adaptations`, plus read-only lookups against `adaptations`/`adaptation_works`/`adaptation_short_stories`), `useShortStories()` (read-only lookups against `king_short_stories`/`king_short_story_collections`, plus read tracking on `user_short_story_reads`), `useProfile()`.
 - Building an adaptation's full "based on" list is `useAdaptations()`'s job: query `adaptation_works` and `adaptation_short_stories` for the same `adaptation_id` and merge the two result sets - never assume a given adaptation has rows in only one of the two tables. Check `is_universe_only` on the `adaptations` row itself before treating an empty result from both as a data gap rather than the expected state. For each short-story source, also resolve its parent collection(s) via `king_short_story_collections` → `works` and surface them in the "based on" display (e.g. "Children of the Corn - from Night Shift") so the user sees both the story and the collection.
 - Building a collection's full "adapted in" list is also `useAdaptations()`'s job: query `adaptation_works` where `work_id` matches the collection **and** union in `adaptation_short_stories` joined through `king_short_story_collections` - see "Collection-level adaptation lookup" above. Never show only the direct `adaptation_works` results; that omits every single-story adaptation (e.g. Children of the Corn, Sometimes They Come Back) that makes the collection page worth having.
 - Marking a collection as read (`useBooks()`) never needs to also touch `user_short_story_reads` directly - the DB trigger handles the cascade. Don't duplicate it in the composable.
@@ -822,7 +818,7 @@ The composable divides `read_count / total_count` client-side (or in a small SQL
 - Adding an edition is a two-write operation owned by `useBookshelf()`: insert the `user_book_editions` row, and upsert `owned = true` on the corresponding `user_books` row. Never let a component call one without the other - that's exactly the kind of duplicated logic composables exist to prevent.
 - Composables should accept a `userId` param when reading _someone else's_ public data (e.g. viewing another user's profile page/bookshelf) rather than assuming `auth.uid()` - the RLS policy handles whether that read is actually allowed; the composable shouldn't duplicate that logic.
 - Never write client-side checks like `if (profile.is_public)` to decide whether to _make_ a query - just make the query and let RLS return zero rows if it's not allowed. Duplicating the privacy check in JS invites the two getting out of sync.
-- Status values (`wishlist` / `read`, `watchlist` / `watched`) should be typed as literal union types in TypeScript, not bare strings, and should match the DB constraint exactly (consider a `check` constraint on the column too).
+- Status values (`read`, `watchlist` / `watched`) should be typed as literal union types in TypeScript, not bare strings, and should match the DB constraint exactly (consider a `check` constraint on the column too).
 - Cover URL construction goes through one shared helper (see "Cover images"), never inlined per-component.
 
 ## Migrations & seed files

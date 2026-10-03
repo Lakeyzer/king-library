@@ -21,10 +21,12 @@ const { data: works } = await useAsyncData(`profile-${profile.id}-read-list`, ()
   fetchReadList(profile.id)
 )
 
-// Populates userBooksByWorkId so each item's BookReadingActions reflects
+// Populates userBooksByWorkId (and wishlistItemsByWorkId) so each item's BookReadingActions reflects
 // the *viewer's own* want-to-read/owned/read state for that work - same as
 // every other bibliography-browsing page, regardless of whose list this is.
+const { fetchOwnWishlist } = useWishlist()
 await useAsyncData('user-books', fetchUserBooks)
+await useAsyncData('user-wishlist', fetchOwnWishlist)
 </script>
 
 <template>
