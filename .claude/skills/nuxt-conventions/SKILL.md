@@ -1,6 +1,6 @@
 ---
 name: nuxt-conventions
-description: Component, props, and structure conventions for the Stephen King Library app's Nuxt 3/4 + Vue 3 frontend. Use this whenever creating, naming, or organizing any .vue component, page, or layout, whenever deciding between a Nuxt UI component and a custom one, and whenever writing a component's props. Consult before writing a single new .vue file.
+description: Component, props, and structure conventions for the Stephen King Library app's Nuxt 3/4 + Vue 3 frontend. Use this whenever creating, naming, or organizing any .vue component, page, or layout, whenever deciding between a Nuxt UI component and a custom one, and whenever writing a component's props. Also use whenever adding or changing an icon (any `i-lucide-*` / `i-simple-icons-*` name, `<UIcon>`, or an `icon` prop) - icons must be bundled, see "Icons". Consult before writing a single new .vue file.
 ---
 
 # Nuxt Conventions - Stephen King Library
@@ -146,6 +146,19 @@ Every modal that offers a confirm action and a cancel/dismiss action follows one
 ```
 
 A modal with only a single dismiss button (nothing to confirm) still uses the cancel style (`color="neutral" variant="soft"`) for that button, rather than inventing a third style. A modal that submits through an inline form button in the body (no footer confirm/cancel pair) is a different pattern and isn't bound by this rule.
+
+## Icons: every icon must end up in the client bundle
+
+Icons are bundled at build time (`icon.clientBundle` in `nuxt.config.ts`) instead of fetched on demand from `/api/_nuxt_icon/[collection]`. An icon missing from the bundle still renders, but only by falling back to that API: on the client that's a Vercel function call per collection, and during SSR the server tries to fetch it on every render, logging `[Icon] failed to load icon` and adding time to every request that uses it. That fallback was a real source of Vercel CPU usage, so treat "the icon shows up" as not enough - it also has to be bundled.
+
+The build scans every `.vue` and `.ts` file in `app/` for icon names and bundles what it finds, so most icons are registered automatically. The rules that keep that working:
+
+- **Write icon names as complete string literals** - `'i-lucide-book-open'` in a template prop, a `.ts` config object, a `computed`, anywhere. The scanner matches the literal text.
+- **Never build an icon name at runtime** - no `` `i-lucide-${name}` ``, no `'i-lucide-' + kind`, no name assembled from database values. The scanner can't see these. Map to full literals instead: `const icon = { book: 'i-lucide-book', film: 'i-lucide-clapperboard' }[kind]`.
+- **Icons Nuxt UI uses internally** (chevrons, close buttons, the loading spinner, etc.) live in `node_modules` and aren't scanned - they're listed by hand in `icon.clientBundle.icons` in `nuxt.config.ts`. When you start using a Nuxt UI component the app hasn't used before, or override `ui.icons` in `app.config.ts`, add any of its default icons that aren't already in that list.
+- **Only `lucide` and `simple-icons` are installed** (`@iconify-json/lucide`, `@iconify-json/simple-icons`). Using an icon from any other collection means adding its `@iconify-json/<collection>` package first, otherwise it can't be bundled at all.
+
+To verify after adding icons: `pnpm build` logs `Nuxt Icon client bundle consist of N icons` - the count should go up - and the generated bundle at `node_modules/.cache/nuxt/.nuxt/nuxt-icon-client-bundle.mjs` should contain the new icon's name. In the browser, no request to `/api/_nuxt_icon/...` should appear in the network tab.
 
 ## Open / not yet decided
 
