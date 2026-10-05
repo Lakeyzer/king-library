@@ -8,7 +8,10 @@ setPageSeo({
     'An unofficial Stephen King reading checklist. Build your own bookshelf and track your reading progress, wishlist, and check off books, short works, and adaptations.'
 })
 
+// Only read inside the browser-only fetches below - anything rendered per
+// viewer goes through useViewer() instead (see composables/useViewer.ts).
 const user = useSupabaseUser()
+const { user: viewerUser, isReady: viewerReady } = useViewer()
 const { open: openAuthModal } = useAuthModal()
 
 // Landing here with ?signin=1 means the onboarding middleware just bounced
@@ -34,42 +37,35 @@ const {
   fetchUserAdaptations
 } = useAdaptations()
 
-const [
-  { data: meta },
-  { data: workHighlights },
-  { data: adaptationHighlights }
-] = await Promise.all([
-  useAsyncData('homepage-meta', fetchHomepageMeta),
-  useAsyncData('homepage-work-highlights', fetchWorkHighlights),
-  useAsyncData('homepage-adaptation-highlights', fetchAdaptationHighlights)
-])
+// This page is cached until the next deploy (shared/utils/cachedRoutes.ts),
+// and everything on it below the hero is either a community figure, a
+// date-based highlight (Book of the week / birthdays, picked by the visitor's
+// own date) or personal - so it all loads in the browser (server: false) and
+// the cached HTML is just the hero plus a skeleton. See the page-caching spec.
+const { data: meta } = useAsyncData('homepage-meta', fetchHomepageMeta, { server: false })
+const { data: workHighlights } = useAsyncData('homepage-work-highlights', fetchWorkHighlights, { server: false })
+const { data: adaptationHighlights } = useAsyncData('homepage-adaptation-highlights', fetchAdaptationHighlights, { server: false })
 
 const { fetchOwnWishlist } = useWishlist()
-await useAsyncData('user-books', fetchUserBooks)
-await useAsyncData('user-wishlist', fetchOwnWishlist)
-await useAsyncData('user-adaptations', fetchUserAdaptations)
+useAsyncData('user-books', fetchUserBooks, { server: false })
+useAsyncData('user-wishlist', fetchOwnWishlist, { server: false })
+useAsyncData('user-adaptations', fetchUserAdaptations, { server: false })
 
-const [
-  { data: bookRecommendation },
-  { data: ownedUnreadRecommendation },
-  { data: adaptationRecommendation }
-] = await Promise.all([
-  useAsyncData('book-recommendation', () =>
-    user.value
-      ? fetchUnreadRecommendation(user.value.sub)
-      : Promise.resolve(null)
-  ),
-  useAsyncData('owned-unread-recommendation', () =>
-    user.value
-      ? fetchOwnedUnreadRecommendation(user.value.sub)
-      : Promise.resolve(null)
-  ),
-  useAsyncData('adaptation-recommendation', () =>
-    user.value
-      ? fetchUnwatchedRecommendation(user.value.sub)
-      : Promise.resolve(null)
-  )
-])
+const { data: bookRecommendation } = useAsyncData(
+  'book-recommendation',
+  () => (user.value ? fetchUnreadRecommendation(user.value.sub) : Promise.resolve(null)),
+  { server: false }
+)
+const { data: ownedUnreadRecommendation } = useAsyncData(
+  'owned-unread-recommendation',
+  () => (user.value ? fetchOwnedUnreadRecommendation(user.value.sub) : Promise.resolve(null)),
+  { server: false }
+)
+const { data: adaptationRecommendation } = useAsyncData(
+  'adaptation-recommendation',
+  () => (user.value ? fetchUnwatchedRecommendation(user.value.sub) : Promise.resolve(null)),
+  { server: false }
+)
 
 const readsCountLabel = (count: number) =>
   `${count} ${count === 1 ? 'read' : 'reads'}`
@@ -88,8 +84,12 @@ const wantToWatchCountLabel = (count: number) => `${count} want to watch this`
       orientation="horizontal"
     >
       <div class="flex h-full items-center justify-center lg:justify-end">
+        <USkeleton
+          v-if="!viewerReady"
+          class="h-12 w-72 rounded-md"
+        />
         <UButton
-          v-if="user"
+          v-else-if="viewerUser"
           label="Add to Your Collection"
           icon="i-lucide-library"
           size="xl"
@@ -212,5 +212,7 @@ const wantToWatchCountLabel = (count: number) => `${count} want to watch this`
         </div>
       </div>
     </div>
+
+    <HomepageSkeleton v-else />
   </div>
 </template>

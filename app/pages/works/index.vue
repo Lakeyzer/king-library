@@ -12,10 +12,14 @@ setPageSeo({
 
 const { fetchKingWorks } = useKingWorks()
 
+// Only read inside the browser-only fetches below - anything rendered per
+// viewer goes through useViewer() instead (see composables/useViewer.ts).
 const user = useSupabaseUser()
+const { user: viewerUser } = useViewer()
 
 const {
   userBooksByWorkId,
+  userBooksLoaded,
   fetchUserBooks,
   fetchWorkHighlights,
   fetchUnreadRecommendation,
@@ -23,35 +27,28 @@ const {
 } = useBooks()
 const { fetchUserEditions } = useBookshelf()
 
-// Not awaited: only affects the reading-status/edition buttons' displayed
-// state, which updates reactively once it resolves - same as the
-// adaptations page.
+// This page is cached until the next deploy (shared/utils/cachedRoutes.ts),
+// so only the works list is server-rendered. Personal status, the highlights
+// (community figures + the visitor's-date Book of the week and birthdays) and
+// the recommendations all load in the browser - see the page-caching spec.
 const { fetchOwnWishlist } = useWishlist()
-useAsyncData('user-books', fetchUserBooks)
-useAsyncData('user-wishlist', fetchOwnWishlist)
-useAsyncData('user-editions', fetchUserEditions)
+useAsyncData('user-books', fetchUserBooks, { server: false })
+useAsyncData('user-wishlist', fetchOwnWishlist, { server: false })
+useAsyncData('user-editions', fetchUserEditions, { server: false })
 
-// Independent fetches, run in parallel rather than one-after-another -
-// each depends only on `user`, not on any other result here.
-const [
-  { data: works },
-  { data: workHighlights },
-  { data: bookRecommendation },
-  { data: ownedUnreadRecommendation }
-] = await Promise.all([
-  useAsyncData('works', fetchKingWorks),
-  useAsyncData('works-page-highlights', fetchWorkHighlights),
-  useAsyncData('works-page-recommendation', () =>
-    user.value
-      ? fetchUnreadRecommendation(user.value.sub)
-      : Promise.resolve(null)
-  ),
-  useAsyncData('works-page-owned-unread-recommendation', () =>
-    user.value
-      ? fetchOwnedUnreadRecommendation(user.value.sub)
-      : Promise.resolve(null)
-  )
-])
+const { data: workHighlights } = useAsyncData('works-page-highlights', fetchWorkHighlights, { server: false })
+const { data: bookRecommendation } = useAsyncData(
+  'works-page-recommendation',
+  () => (user.value ? fetchUnreadRecommendation(user.value.sub) : Promise.resolve(null)),
+  { server: false }
+)
+const { data: ownedUnreadRecommendation } = useAsyncData(
+  'works-page-owned-unread-recommendation',
+  () => (user.value ? fetchOwnedUnreadRecommendation(user.value.sub) : Promise.resolve(null)),
+  { server: false }
+)
+
+const { data: works } = await useAsyncData('works', fetchKingWorks)
 
 const readsCountLabel = (count: number) =>
   `${count} ${count === 1 ? 'read' : 'reads'}`
@@ -69,8 +66,10 @@ function extraFilter(work: KingWork) {
   return true
 }
 
+// Offered once the viewer's own reads have loaded - filtering on an empty
+// store would wrongly list every work as unread.
 const statusFilter = computed(() =>
-  user.value
+  viewerUser.value && userBooksLoaded.value
     ? {
         doneLabel: 'Read',
         notDoneLabel: 'Unread',
@@ -130,29 +129,32 @@ const statusFilter = computed(() =>
       />
     </template>
 
-    <template
-      v-if="workHighlights"
-      #sidebar
-    >
-      <WorkRecommendation :recommendation="bookRecommendation ?? null" />
-      <WorkOwnedRecommendation
-        :recommendation="ownedUnreadRecommendation ?? null"
+    <template #sidebar>
+      <HighlightsSkeleton
+        v-if="!workHighlights"
+        :count="4"
       />
-      <WorkLeaderboard
-        title="Most Read Books"
-        icon="i-lucide-trending-up"
-        :items="workHighlights.mostReadBooks"
-        :count-label="readsCountLabel"
-        empty-message="No books have been marked read yet."
-      />
-      <WorkSpotlight
-        title="Book of the Week"
-        icon="i-lucide-sparkles"
-        :work="workHighlights.bookOfTheWeek"
-        empty-message="No book is featured right now."
-      />
-      <WorkBirthday :works="workHighlights.bookBirthdays" />
-      <WorkLeastReadSpotlight :work="workHighlights.leastReadBook" />
+      <template v-else>
+        <WorkRecommendation :recommendation="bookRecommendation ?? null" />
+        <WorkOwnedRecommendation
+          :recommendation="ownedUnreadRecommendation ?? null"
+        />
+        <WorkLeaderboard
+          title="Most Read Books"
+          icon="i-lucide-trending-up"
+          :items="workHighlights.mostReadBooks"
+          :count-label="readsCountLabel"
+          empty-message="No books have been marked read yet."
+        />
+        <WorkSpotlight
+          title="Book of the Week"
+          icon="i-lucide-sparkles"
+          :work="workHighlights.bookOfTheWeek"
+          empty-message="No book is featured right now."
+        />
+        <WorkBirthday :works="workHighlights.bookBirthdays" />
+        <WorkLeastReadSpotlight :work="workHighlights.leastReadBook" />
+      </template>
     </template>
   </BibliographyBrowsePage>
 </template>

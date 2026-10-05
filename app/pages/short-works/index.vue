@@ -10,25 +10,26 @@ setPageSeo({
     'Browse Stephen King\'s short stories and novellas, see which collections they appear in, and track which ones you\'ve read.'
 })
 
-const user = useSupabaseUser()
+const { user: viewerUser } = useViewer()
 
 const {
   readShortStoryIds,
+  shortStoryReadsLoaded,
   fetchShortStories,
   fetchCollectionsOverview,
   fetchUserShortStoryReads
 } = useShortStories()
 const { fetchUserBooks } = useBooks()
 
-// Not awaited: only affects the read-status/owned indicators shown via
-// ShortStoryReadingActions and WorkTile, which update reactively once they
-// resolve - same as the adaptations page. Collections are King works rows,
-// so their owned indicator needs userBooksByWorkId, same as any other work
-// listing.
-useAsyncData('user-short-story-reads', fetchUserShortStoryReads)
+// Browser-only (the page is cached until the next deploy - see the
+// page-caching spec): the read-status/owned indicators shown via
+// ShortStoryReadingActions and WorkTile fill in once these resolve.
+// Collections are King works rows, so their owned indicator needs
+// userBooksByWorkId, same as any other work listing.
+useAsyncData('user-short-story-reads', fetchUserShortStoryReads, { server: false })
 const { fetchOwnWishlist } = useWishlist()
-useAsyncData('user-books', fetchUserBooks)
-useAsyncData('user-wishlist', fetchOwnWishlist)
+useAsyncData('user-books', fetchUserBooks, { server: false })
+useAsyncData('user-wishlist', fetchOwnWishlist, { server: false })
 
 // Independent fetches, run in parallel rather than one-after-another.
 const [{ data: shortStories }, { data: collectionsOverview }]
@@ -58,8 +59,10 @@ function collectionNoteOf(story: KingShortStory) {
   return titles?.length ? titles.join(', ') : 'Uncollected'
 }
 
+// Offered once the viewer's own reads have loaded - filtering on an empty
+// store would wrongly list every story as unread.
 const statusFilter = computed(() =>
-  user.value
+  viewerUser.value && shortStoryReadsLoaded.value
     ? {
         doneLabel: 'Read',
         notDoneLabel: 'Unread',

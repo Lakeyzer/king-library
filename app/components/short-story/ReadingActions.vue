@@ -13,7 +13,13 @@ const props = withDefaults(defineProps<Props>(), {
 defineOptions({ inheritAttrs: false })
 
 const user = useSupabaseUser()
-const { readShortStoryIds, toggleRead } = useShortStories()
+const { readShortStoryIds, shortStoryReadsLoaded, toggleRead } = useShortStories()
+
+// A placeholder until we know this viewer's real read status - same
+// reasoning as BookReadingActions' isLoading (page-caching "Content never
+// shows a wrong state while loading").
+const { isReady: viewerReady } = useViewer()
+const isLoading = computed(() => !viewerReady.value || (!!user.value && !shortStoryReadsLoaded.value))
 const { open: openAuthModal } = useAuthModal()
 
 const isRead = computed(() => readShortStoryIds.value[props.shortStoryId] ?? false)
@@ -43,8 +49,15 @@ const dropdownItems = computed<DropdownMenuItem[]>(() => [
 </script>
 
 <template>
+  <USkeleton
+    v-if="isLoading"
+    class="rounded-md"
+    :class="mode === 'compact' ? 'size-8' : 'h-9 w-36'"
+    v-bind="$attrs"
+  />
+
   <div
-    v-if="mode === 'compact'"
+    v-else-if="mode === 'compact'"
     class="flex items-center gap-1"
     v-bind="$attrs"
   >

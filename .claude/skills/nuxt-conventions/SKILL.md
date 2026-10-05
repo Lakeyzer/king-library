@@ -1,6 +1,6 @@
 ---
 name: nuxt-conventions
-description: Component, props, and structure conventions for the Stephen King Library app's Nuxt 3/4 + Vue 3 frontend. Use this whenever creating, naming, or organizing any .vue component, page, or layout, whenever deciding between a Nuxt UI component and a custom one, and whenever writing a component's props. Also use whenever adding or changing an icon (any `i-lucide-*` / `i-simple-icons-*` name, `<UIcon>`, or an `icon` prop) - icons must be bundled, see "Icons". Consult before writing a single new .vue file.
+description: Component, props, and structure conventions for the Stephen King Library app's Nuxt 3/4 + Vue 3 frontend. Use this whenever creating, naming, or organizing any .vue component, page, or layout, whenever deciding between a Nuxt UI component and a custom one, and whenever writing a component's props. Also use whenever adding or changing an icon (any `i-lucide-*` / `i-simple-icons-*` name, `<UIcon>`, or an `icon` prop) - icons must be bundled, see "Icons". Also use whenever adding or changing a page or data fetch on a cached public page (`/`, `/works`, `/adaptations`, `/short-works`, `/works-by-others`, their detail pages, `/dark-tower`) - see "Cached public pages". Consult before writing a single new .vue file.
 ---
 
 # Nuxt Conventions - Stephen King Library
@@ -124,6 +124,8 @@ const { fetchUserAdaptations } = useAdaptations();
 await useAsyncData("user-adaptations", fetchUserAdaptations);
 ```
 
+**On a cached public page these fetches are `{ server: false }` and not awaited** (see "Cached public pages" below) - the components show a loading placeholder until their store is loaded, so there's no flash of a wrong state to avoid. The awaited form above is for the non-cached pages (e.g. the public profile tabs).
+
 Always use these exact key strings (`"user-books"` / `"user-wishlist"` / `"user-adaptations"`) - every page already does, so this is what lets Nuxt's `useAsyncData` cache share one fetch across pages/components rather than each page keying its own copy.
 
 **Don't try to move this fetch into `BookReadingActions`/`AdaptationWatchActions` themselves** to make it automatic - it looks like it should work (same cache key), but it doesn't by default. `useAsyncData`'s default `dedupe: 'cancel'` only cancels-and-restarts an in-flight call for the same key rather than reusing it, and on the server there's no "already pending" guard at all - so calling it from a component rendered N times in a list (e.g. every tile in a grid) fires N redundant fetches instead of one. Getting single-flight behavior out of a shared component would require explicitly passing `{ dedupe: 'defer' }`, and even then a client-side navigation to a page whose data isn't already cached would flash the neutral/default state on first paint, which the current page-level `await` avoids entirely. If a future page renders these action components, add the fetches above to that page - don't assume it happens automatically.
@@ -159,6 +161,19 @@ The build scans every `.vue` and `.ts` file in `app/` for icon names and bundles
 - **Only `lucide` and `simple-icons` are installed** (`@iconify-json/lucide`, `@iconify-json/simple-icons`). Using an icon from any other collection means adding its `@iconify-json/<collection>` package first, otherwise it can't be bundled at all.
 
 To verify after adding icons: `pnpm build` logs `Nuxt Icon client bundle consist of N icons` - the count should go up - and the generated bundle at `node_modules/.cache/nuxt/.nuxt/nuxt-icon-client-bundle.mjs` should contain the new icon's name. In the browser, no request to `/api/_nuxt_icon/...` should appear in the network tab.
+
+## Cached public pages: nothing per-viewer or time-dependent in the server render
+
+`/`, the `/works`, `/adaptations`, `/short-works` and `/works-by-others` browse and detail pages, and `/dark-tower` are served from Vercel's CDN and **kept until the next deploy** (ISR, `isr: { expiration: false }`). The list lives in `shared/utils/cachedRoutes.ts` - the route rules, the cookie-stripping server middleware and `useViewer()` all read it, so add or remove a cached page there and nowhere else. See the `cache-public-pages` change and the page-caching spec for the full reasoning.
+
+Because one rendered copy is served to every visitor for days, a cached page's server render may only contain **catalog content that changes through a reseed + deploy** (titles, descriptions, covers, relationships, TMDb details, SEO metadata). Everything else loads in the browser:
+
+- **Per-viewer data** (`user-books`, `user-wishlist`, `user-editions`, `user-adaptations`, `user-short-story-reads`, recommendations, progress): `useAsyncData(key, fetcher, { server: false })`, not awaited.
+- **Community figures** (counts, leaderboards, spotlights, journey stats) and **anything date-dependent** (Book of the week, birthdays): also `{ server: false }`, for every visitor - otherwise they'd freeze until the next deploy.
+- **Rendering per viewer**: use `useViewer()`, never `useSupabaseUser()`, in anything a template renders (`v-if="user"`, signed-in-only filters, buttons). The Supabase client knows the user *before* hydration, so a template branching on `useSupabaseUser()` won't match the cached HTML. `useSupabaseUser()` is still fine inside fetchers and click handlers.
+- **While loading, show a placeholder (`USkeleton`), never an empty or zero state.** Status controls check the store's loaded flag (`userBooksLoaded`, `wishlistLoaded`, `userEditionsLoaded`, `userAdaptationsLoaded`, `shortStoryReadsLoaded` - see `useViewerStoreLoaded()`); community sections check their own `data`. A section that only shows when there's something to show (e.g. a recommendation) just stays hidden until loaded.
+
+The server middleware strips the session cookie on these routes, so a mistake here can't cache one user's data for everyone - the worst case is a section that's stuck empty (or frozen) until the next deploy. `pnpm dev` renders these routes the same anonymous way, so check view source there: it should contain no personal data, counts or leaderboards.
 
 ## Open / not yet decided
 

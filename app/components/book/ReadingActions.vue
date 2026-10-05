@@ -45,8 +45,18 @@ const user = useSupabaseUser()
 // reading state - see nuxt-conventions "BookReadingActions... need their
 // page to pre-fetch status" for why this isn't just pushed into this
 // component.
-const { userBooksByWorkId, toggleWantToRead: toggleWantToReadBook, setOwned } = useBooks()
-const { wishlistItemsByWorkId } = useWishlist()
+const { userBooksByWorkId, userBooksLoaded, toggleWantToRead: toggleWantToReadBook, setOwned } = useBooks()
+const { wishlistItemsByWorkId, wishlistLoaded } = useWishlist()
+
+// A placeholder until we know this viewer's real status - never a neutral
+// "Mark as Read" on a book they've read while their data is still on its way
+// (page-caching "Content never shows a wrong state while loading"). Before
+// hydration finishes on a cached page we don't know yet whether anyone is
+// signed in at all, so that's a placeholder too.
+const { isReady: viewerReady } = useViewer()
+const isLoading = computed(() =>
+  !viewerReady.value || (!!user.value && !(userBooksLoaded.value && wishlistLoaded.value))
+)
 const { open: openAuthModal } = useAuthModal()
 
 const showEditionsModal = ref(false)
@@ -377,8 +387,15 @@ function handleShelfClick() {
 </script>
 
 <template>
+  <USkeleton
+    v-if="mode === 'compact' && isLoading"
+    class="rounded-md"
+    :class="size === 'sm' ? 'size-7' : 'size-8'"
+    v-bind="$attrs"
+  />
+
   <div
-    v-if="mode === 'compact'"
+    v-else-if="mode === 'compact'"
     class="flex items-center gap-1"
     v-bind="$attrs"
   >
@@ -447,6 +464,23 @@ function handleShelfClick() {
       />
     </UDropdownMenu>
   </div>
+
+  <template v-else-if="isLoading">
+    <USkeleton
+      class="hidden h-15 rounded-md max-sm:block max-sm:w-full"
+      v-bind="$attrs"
+    />
+    <div
+      class="hidden flex-nowrap gap-2 sm:flex"
+      v-bind="$attrs"
+    >
+      <USkeleton
+        v-for="index in 5"
+        :key="index"
+        class="h-9 w-32 rounded-md"
+      />
+    </div>
+  </template>
 
   <template v-else>
     <UFieldGroup

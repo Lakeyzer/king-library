@@ -34,8 +34,7 @@ const [
   { data: adaptations },
   { data: relatedWorks },
   { data: shortStories },
-  { data: componentWorks },
-  { data: stats }
+  { data: componentWorks }
 ] = await Promise.all([
   useAsyncData(`work-${slug}-adaptations`, () =>
     fetchAdaptationsForWork(work.id)
@@ -50,17 +49,19 @@ const [
   ),
   useAsyncData(`work-${slug}-component-works`, () =>
     isOmnibus ? fetchComponentWorksForOmnibus(work.id) : Promise.resolve([])
-  ),
-  useAsyncData(`work-${slug}-stats`, () => fetchWorkStats(work.id))
+  )
 ])
 
-// Not awaited: this only affects the reading-status buttons' displayed
-// state, which updates reactively once it resolves - no reason to hold up
-// the rest of the page for it.
+// This page is cached until the next deploy (shared/utils/cachedRoutes.ts),
+// so the community counts and the viewer's own status load in the browser -
+// the counts are then always current, including right after the viewer's own
+// action. See the page-caching spec.
+const { data: stats } = useAsyncData(`work-${slug}-stats`, () => fetchWorkStats(work.id), { server: false })
+
 const { fetchOwnWishlist } = useWishlist()
-useAsyncData('user-books', fetchUserBooks)
-useAsyncData('user-wishlist', fetchOwnWishlist)
-useAsyncData('user-editions', fetchUserEditions)
+useAsyncData('user-books', fetchUserBooks, { server: false })
+useAsyncData('user-wishlist', fetchOwnWishlist, { server: false })
+useAsyncData('user-editions', fetchUserEditions, { server: false })
 
 const publishYear = computed(() => Number(work.publish_date.slice(0, 4)))
 
@@ -278,54 +279,57 @@ setPageSeo({
           />
         </template>
 
-        <template
-          v-if="stats"
-          #stats
-        >
-          <div class="flex items-center gap-1.5">
-            <UIcon
-              name="i-lucide-book-open"
-              class="size-4"
-            />
-            <span><strong class="text-highlighted"><NumberMotif :text="stats.currently_reading_count" /></strong> <GlitchLetter
-              text="reading"
-              letter="n"
-              :active="isMisery"
-            /></span>
-          </div>
-          <div class="flex items-center gap-1.5">
-            <UIcon
-              name="i-lucide-bookmark"
-              class="size-4"
-            />
-            <span><strong class="text-highlighted"><NumberMotif :text="stats.want_to_read_count" /></strong> <GlitchLetter
-              text="want to read"
-              letter="n"
-              :active="isMisery"
-            /></span>
-          </div>
-          <div class="flex items-center gap-1.5">
-            <UIcon
-              name="i-lucide-circle-check"
-              class="size-4"
-            />
-            <span><strong class="text-highlighted"><NumberMotif :text="stats.read_count" /></strong> <GlitchLetter
-              text="read"
-              letter="n"
-              :active="isMisery"
-            /></span>
-          </div>
-          <div class="flex items-center gap-1.5">
-            <UIcon
-              name="i-lucide-library"
-              class="size-4"
-            />
-            <span><strong class="text-highlighted"><NumberMotif :text="stats.owner_count" /></strong> <GlitchLetter
-              text="owned"
-              letter="n"
-              :active="isMisery"
-            /></span>
-          </div>
+        <template #stats>
+          <USkeleton
+            v-if="!stats"
+            class="h-5 w-80 max-w-full"
+          />
+          <template v-else>
+            <div class="flex items-center gap-1.5">
+              <UIcon
+                name="i-lucide-book-open"
+                class="size-4"
+              />
+              <span><strong class="text-highlighted"><NumberMotif :text="stats.currently_reading_count" /></strong> <GlitchLetter
+                text="reading"
+                letter="n"
+                :active="isMisery"
+              /></span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <UIcon
+                name="i-lucide-bookmark"
+                class="size-4"
+              />
+              <span><strong class="text-highlighted"><NumberMotif :text="stats.want_to_read_count" /></strong> <GlitchLetter
+                text="want to read"
+                letter="n"
+                :active="isMisery"
+              /></span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <UIcon
+                name="i-lucide-circle-check"
+                class="size-4"
+              />
+              <span><strong class="text-highlighted"><NumberMotif :text="stats.read_count" /></strong> <GlitchLetter
+                text="read"
+                letter="n"
+                :active="isMisery"
+              /></span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <UIcon
+                name="i-lucide-library"
+                class="size-4"
+              />
+              <span><strong class="text-highlighted"><NumberMotif :text="stats.owner_count" /></strong> <GlitchLetter
+                text="owned"
+                letter="n"
+                :active="isMisery"
+              /></span>
+            </div>
+          </template>
         </template>
       </DetailHero>
     </template>

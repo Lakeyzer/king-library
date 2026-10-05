@@ -10,10 +10,14 @@ setPageSeo({
     'Browse every movie and TV adaptation of Stephen King\'s work, and track what you\'ve watched and what\'s on your watchlist.'
 })
 
+// Only read inside the browser-only fetches below - anything rendered per
+// viewer goes through useViewer() instead (see composables/useViewer.ts).
 const user = useSupabaseUser()
+const { user: viewerUser } = useViewer()
 
 const {
   userAdaptationsByAdaptationId,
+  userAdaptationsLoaded,
   fetchAdaptations,
   fetchAdaptationHighlights,
   fetchUnwatchedRecommendation,
@@ -24,20 +28,20 @@ const { data: adaptations } = await useAsyncData(
   fetchAdaptations
 )
 
-// Not awaited: only affects the watch-status buttons' displayed state,
-// which updates reactively once it resolves - same as the adaptation
-// detail page.
-useAsyncData('user-adaptations', fetchUserAdaptations)
-const { data: adaptationHighlights } = await useAsyncData(
+// This page is cached until the next deploy (shared/utils/cachedRoutes.ts),
+// so only the adaptations list is server-rendered. Watch status, the
+// leaderboards (community figures) and the recommendation load in the
+// browser - see the page-caching spec.
+useAsyncData('user-adaptations', fetchUserAdaptations, { server: false })
+const { data: adaptationHighlights } = useAsyncData(
   'adaptations-page-highlights',
-  fetchAdaptationHighlights
+  fetchAdaptationHighlights,
+  { server: false }
 )
-const { data: adaptationRecommendation } = await useAsyncData(
+const { data: adaptationRecommendation } = useAsyncData(
   'adaptations-page-recommendation',
-  () =>
-    user.value
-      ? fetchUnwatchedRecommendation(user.value.sub)
-      : Promise.resolve(null)
+  () => (user.value ? fetchUnwatchedRecommendation(user.value.sub) : Promise.resolve(null)),
+  { server: false }
 )
 
 // A single anthology episode is listed under its own title, with its series
@@ -51,8 +55,10 @@ const episodeSubtitle = (adaptation: Adaptation) => {
 const watchedCountLabel = (count: number) =>
   `${count} ${count === 1 ? 'watch' : 'watches'}`
 
+// Offered once the viewer's own watch status has loaded - filtering on an
+// empty store would wrongly list everything as unwatched.
 const statusFilter = computed(() =>
-  user.value
+  viewerUser.value && userAdaptationsLoaded.value
     ? {
         doneLabel: 'Watched',
         notDoneLabel: 'Unwatched',
@@ -98,27 +104,30 @@ const statusFilter = computed(() =>
       />
     </template>
 
-    <template
-      v-if="adaptationHighlights"
-      #sidebar
-    >
-      <AdaptationRecommendation
-        :recommendation="adaptationRecommendation ?? null"
+    <template #sidebar>
+      <HighlightsSkeleton
+        v-if="!adaptationHighlights"
+        :count="2"
       />
-      <AdaptationLeaderboard
-        title="Most Watched Adaptations"
-        icon="i-lucide-clapperboard"
-        :items="adaptationHighlights.mostWatchedAdaptations"
-        :count-label="watchedCountLabel"
-        empty-message="No adaptations have been marked watched yet."
-      />
-      <AdaptationLeaderboard
-        title="Least Watched Adaptations"
-        icon="i-lucide-trending-down"
-        :items="adaptationHighlights.leastWatchedAdaptations"
-        :count-label="watchedCountLabel"
-        empty-message="No adaptations tracked yet."
-      />
+      <template v-else>
+        <AdaptationRecommendation
+          :recommendation="adaptationRecommendation ?? null"
+        />
+        <AdaptationLeaderboard
+          title="Most Watched Adaptations"
+          icon="i-lucide-clapperboard"
+          :items="adaptationHighlights.mostWatchedAdaptations"
+          :count-label="watchedCountLabel"
+          empty-message="No adaptations have been marked watched yet."
+        />
+        <AdaptationLeaderboard
+          title="Least Watched Adaptations"
+          icon="i-lucide-trending-down"
+          :items="adaptationHighlights.leastWatchedAdaptations"
+          :count-label="watchedCountLabel"
+          empty-message="No adaptations tracked yet."
+        />
+      </template>
     </template>
   </BibliographyBrowsePage>
 </template>

@@ -28,6 +28,12 @@ const links: NavigationMenuItem[] = [
 ]
 
 const user = useSupabaseUser()
+// The account menu vs. sign-in button is the one thing here rendered per
+// viewer, so it goes through useViewer(): on a cached page that's a
+// placeholder until hydration finishes, then the real control - never a
+// "Sign in" flash for a signed-in visitor (app-shell "Header authentication
+// entry point shows a loading state").
+const { user: viewerUser, isReady: viewerReady } = useViewer()
 const supabase = useSupabaseClient()
 const route = useRoute()
 const { open: openAuthModal } = useAuthModal()
@@ -211,8 +217,14 @@ const accountMenuItems = computed<DropdownMenuItem[][]>(() => [
         <UColorModeButton />
       </UTooltip>
 
+      <!-- Sized like the account button, the control signed-in (returning)
+           visitors end up with. -->
+      <USkeleton
+        v-if="!viewerReady"
+        class="size-9 rounded-md"
+      />
       <UDropdownMenu
-        v-if="user"
+        v-else-if="viewerUser"
         :items="accountMenuItems"
       >
         <!-- The chip sits inside the button (not around it) so the button

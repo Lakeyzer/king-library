@@ -25,23 +25,28 @@ if (!workData.value) {
 
 const work = workData.value
 
-const [{ data: componentWorks }, { data: kingWorks }, { data: stats }] = await Promise.all([
+const [{ data: componentWorks }, { data: kingWorks }] = await Promise.all([
   useAsyncData(`works-by-others-${slug}-components`, () =>
     work.is_omnibus ? fetchComponentWorksForOmnibus(work.id) : Promise.resolve([])
   ),
   useAsyncData(`works-by-others-${slug}-king-works`, () =>
     fetchKingWorksForRelatedWork(work.id)
-  ),
-  useAsyncData(`works-by-others-${slug}-stats`, () => fetchRelatedWorkStats(work.id))
+  )
 ])
 
-// Not awaited: only affects the actions/edition buttons' displayed state,
-// which updates reactively once it resolves - see nuxt-conventions
-// "BookReadingActions... need their page to pre-fetch status".
+// This page is cached until the next deploy (shared/utils/cachedRoutes.ts),
+// so the community counts and the viewer's own status load in the browser -
+// see the page-caching spec and nuxt-conventions "BookReadingActions... need
+// their page to pre-fetch status".
+const { data: stats } = useAsyncData(
+  `works-by-others-${slug}-stats`,
+  () => fetchRelatedWorkStats(work.id),
+  { server: false }
+)
 const { fetchOwnWishlist } = useWishlist()
-useAsyncData('user-books', fetchUserBooks)
-useAsyncData('user-wishlist', fetchOwnWishlist)
-useAsyncData('user-editions', fetchUserEditions)
+useAsyncData('user-books', fetchUserBooks, { server: false })
+useAsyncData('user-wishlist', fetchOwnWishlist, { server: false })
+useAsyncData('user-editions', fetchUserEditions, { server: false })
 
 const publishYear = computed(() =>
   work.publish_date ? Number(work.publish_date.slice(0, 4)) : null
@@ -169,38 +174,41 @@ setPageSeo({
           />
         </template>
 
-        <template
-          v-if="stats"
-          #stats
-        >
-          <div class="flex items-center gap-1.5">
-            <UIcon
-              name="i-lucide-book-open"
-              class="size-4"
-            />
-            <span><strong class="text-highlighted"><NumberMotif :text="stats.currently_reading_count" /></strong> reading</span>
-          </div>
-          <div class="flex items-center gap-1.5">
-            <UIcon
-              name="i-lucide-bookmark"
-              class="size-4"
-            />
-            <span><strong class="text-highlighted"><NumberMotif :text="stats.want_to_read_count" /></strong> want to read</span>
-          </div>
-          <div class="flex items-center gap-1.5">
-            <UIcon
-              name="i-lucide-circle-check"
-              class="size-4"
-            />
-            <span><strong class="text-highlighted"><NumberMotif :text="stats.read_count" /></strong> read</span>
-          </div>
-          <div class="flex items-center gap-1.5">
-            <UIcon
-              name="i-lucide-library"
-              class="size-4"
-            />
-            <span><strong class="text-highlighted"><NumberMotif :text="stats.owner_count" /></strong> owned</span>
-          </div>
+        <template #stats>
+          <USkeleton
+            v-if="!stats"
+            class="h-5 w-80 max-w-full"
+          />
+          <template v-else>
+            <div class="flex items-center gap-1.5">
+              <UIcon
+                name="i-lucide-book-open"
+                class="size-4"
+              />
+              <span><strong class="text-highlighted"><NumberMotif :text="stats.currently_reading_count" /></strong> reading</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <UIcon
+                name="i-lucide-bookmark"
+                class="size-4"
+              />
+              <span><strong class="text-highlighted"><NumberMotif :text="stats.want_to_read_count" /></strong> want to read</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <UIcon
+                name="i-lucide-circle-check"
+                class="size-4"
+              />
+              <span><strong class="text-highlighted"><NumberMotif :text="stats.read_count" /></strong> read</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <UIcon
+                name="i-lucide-library"
+                class="size-4"
+              />
+              <span><strong class="text-highlighted"><NumberMotif :text="stats.owner_count" /></strong> owned</span>
+            </div>
+          </template>
         </template>
       </DetailHero>
     </template>
