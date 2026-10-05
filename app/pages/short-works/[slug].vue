@@ -18,10 +18,11 @@ if (!storyData.value) {
 
 const story = storyData.value
 
-// Not awaited: this only affects the reading-status button's displayed
-// state, which updates reactively once it resolves - same as user-books on
-// the work detail page.
-useAsyncData('user-short-story-reads', fetchUserShortStoryReads)
+// Browser-only: the page is cached until the next deploy
+// (shared/utils/cachedRoutes.ts), so the viewer's read status can't be in its
+// HTML - see the page-caching spec. The reading-status button shows a
+// placeholder until it resolves.
+useAsyncData('user-short-story-reads', fetchUserShortStoryReads, { server: false })
 
 const { data: collections } = await useAsyncData(`short-story-${slug}-collections`, () =>
   fetchCollectionsForShortStory(story.id)

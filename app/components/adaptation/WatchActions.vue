@@ -27,7 +27,13 @@ const user = useSupabaseUser()
 // state - see nuxt-conventions "BookReadingActions / AdaptationWatchActions
 // need their page to pre-fetch status" for why this isn't just pushed into
 // this component.
-const { userAdaptationsByAdaptationId, toggleWantToWatch, markWatched, unmarkWatched } = useAdaptations()
+const { userAdaptationsByAdaptationId, userAdaptationsLoaded, toggleWantToWatch, markWatched, unmarkWatched } = useAdaptations()
+
+// A placeholder until we know this viewer's real watch status - same
+// reasoning as BookReadingActions' isLoading (page-caching "Content never
+// shows a wrong state while loading").
+const { isReady: viewerReady } = useViewer()
+const isLoading = computed(() => !viewerReady.value || (!!user.value && !userAdaptationsLoaded.value))
 const { open: openAuthModal } = useAuthModal()
 
 const userAdaptation = computed(() => userAdaptationsByAdaptationId.value[props.adaptationId])
@@ -126,8 +132,14 @@ const dropdownItems = computed<DropdownMenuItem[]>(() => {
 </script>
 
 <template>
+  <USkeleton
+    v-if="mode === 'compact' && isLoading"
+    class="size-8 rounded-md"
+    v-bind="$attrs"
+  />
+
   <div
-    v-if="mode === 'compact'"
+    v-else-if="mode === 'compact'"
     class="flex items-center gap-1"
     v-bind="$attrs"
   >
@@ -162,6 +174,23 @@ const dropdownItems = computed<DropdownMenuItem[]>(() => {
       />
     </UDropdownMenu>
   </div>
+
+  <template v-else-if="isLoading">
+    <USkeleton
+      class="hidden h-15 rounded-md max-sm:block max-sm:w-full"
+      v-bind="$attrs"
+    />
+    <div
+      class="hidden flex-nowrap gap-2 sm:flex"
+      v-bind="$attrs"
+    >
+      <USkeleton
+        v-for="index in 2"
+        :key="index"
+        class="h-9 w-44 rounded-md"
+      />
+    </div>
+  </template>
 
   <template v-else>
     <UFieldGroup

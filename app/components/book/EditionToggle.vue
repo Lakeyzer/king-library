@@ -9,7 +9,13 @@ const props = defineProps<Props>()
 
 const user = useSupabaseUser()
 // King and related works alike - both record editions in user_book_editions.
-const { isEditionAdded, addEdition, removeEdition } = useBookshelf()
+const { isEditionAdded, userEditionsLoaded, addEdition, removeEdition } = useBookshelf()
+
+// A placeholder until we know whether this viewer already has the edition -
+// never a "+" on one that's on their shelf (page-caching "Content never shows
+// a wrong state while loading").
+const { isReady: viewerReady } = useViewer()
+const isLoading = computed(() => !viewerReady.value || (!!user.value && !userEditionsLoaded.value))
 const { open: openAuthModal } = useAuthModal()
 
 const added = computed(() => isEditionAdded(props.workId, props.editionId))
@@ -38,7 +44,12 @@ async function toggle() {
 </script>
 
 <template>
+  <USkeleton
+    v-if="isLoading"
+    class="size-6 shrink-0 rounded-full"
+  />
   <UButton
+    v-else
     :icon="added ? 'i-lucide-check' : 'i-lucide-plus'"
     :color="added ? 'success' : 'neutral'"
     :variant="added ? 'solid' : 'soft'"

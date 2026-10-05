@@ -57,6 +57,7 @@ export function useWishlist() {
   // (nuxt-conventions "BookReadingActions ... need their page to pre-fetch
   // status").
   const wishlistItemsByWorkId = useState<Record<string, WishlistItem[]>>('wishlistItemsByWorkId', () => ({}))
+  const { loaded: wishlistLoaded, markLoaded: markWishlistLoaded } = useViewerStoreLoaded('wishlist')
 
   const setWorkItems = (workId: string, items: WishlistItem[]) => {
     const rest = Object.fromEntries(Object.entries(wishlistItemsByWorkId.value).filter(([id]) => id !== workId))
@@ -81,6 +82,7 @@ export function useWishlist() {
     const byWorkId: Record<string, WishlistItem[]> = {}
     for (const row of rows) (byWorkId[row.work_id] ??= []).push(row)
     wishlistItemsByWorkId.value = byWorkId
+    markWishlistLoaded(user.value.sub)
 
     return rows
   }
@@ -178,6 +180,7 @@ export function useWishlist() {
 
   return {
     wishlistItemsByWorkId,
+    wishlistLoaded,
     ownTagSuggestions,
     fetchOwnWishlist,
     fetchWishlist,

@@ -126,6 +126,7 @@ export function useAdaptations() {
     'userAdaptationsByAdaptationId',
     () => ({})
   )
+  const { loaded: userAdaptationsLoaded, markLoaded: markUserAdaptationsLoaded } = useViewerStoreLoaded('userAdaptations')
 
   // Excludes inactive adaptations - see adaptations spec "Retrieve all
   // adaptations for display". Every browsing/search/homepage consumer goes
@@ -615,6 +616,7 @@ export function useAdaptations() {
 
     const rows = data as UserAdaptation[]
     userAdaptationsByAdaptationId.value = Object.fromEntries(rows.map(row => [row.adaptation_id, row]))
+    markUserAdaptationsLoaded(user.value.sub)
 
     return rows
   }
@@ -699,6 +701,7 @@ export function useAdaptations() {
     fetchWatchList,
     fetchWatchedDiff,
     userAdaptationsByAdaptationId,
+    userAdaptationsLoaded,
     fetchUserAdaptations,
     toggleWantToWatch,
     markWatched,

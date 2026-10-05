@@ -13,9 +13,13 @@ setPageSeo({
 const { fetchKingWorks } = useKingWorks()
 const { fetchAllSeries } = useSeries()
 
+// Only read inside the browser-only fetches below - anything rendered per
+// viewer goes through useViewer() instead (see composables/useViewer.ts).
 const user = useSupabaseUser()
+const { user: viewerUser } = useViewer()
 
 const {
+  userBooksLoaded,
   fetchUserBooks,
   fetchProfileBookStats,
   fetchDarkTowerRelatedProgress,
@@ -27,16 +31,19 @@ const {
 const { fetchOmnibusesWithComponents, fetchRelatedWorks, computeCompletionCount } = useRelatedWorks()
 const { fetchUserEditions } = useBookshelf()
 
-// Not awaited: only affects the reading-status/edition buttons' displayed
-// state, which updates reactively once it resolves - same as the works and
-// adaptations pages. Required whenever BookReadingActions or WorkTile
-// render, per nuxt-conventions "BookReadingActions... need their page to
-// pre-fetch status" - user_books covers the graphic novels (related works)
-// as well as the King works.
+// This page is cached until the next deploy (shared/utils/cachedRoutes.ts),
+// so only the catalog (works, series, graphic novels) is server-rendered -
+// everything personal and the journey stats load in the browser. See the
+// page-caching spec.
+//
+// Required whenever BookReadingActions or WorkTile render, per
+// nuxt-conventions "BookReadingActions... need their page to pre-fetch
+// status" - user_books covers the graphic novels (related works) as well as
+// the King works.
 const { fetchOwnWishlist } = useWishlist()
-useAsyncData('user-books', fetchUserBooks)
-useAsyncData('user-wishlist', fetchOwnWishlist)
-useAsyncData('user-editions', fetchUserEditions)
+useAsyncData('user-books', fetchUserBooks, { server: false })
+useAsyncData('user-wishlist', fetchOwnWishlist, { server: false })
+useAsyncData('user-editions', fetchUserEditions, { server: false })
 
 const [{ data: works }, { data: series }, { data: graphicNovelGroups }, { data: relatedWorksList }] = await Promise.all([
   useAsyncData('dark-tower-works', fetchKingWorks),
@@ -94,37 +101,41 @@ const relatedWorks = computed<KingWork[]>(() =>
 // rest of the sidebar below.
 const { data: journeyStats } = useAsyncData(
   'dark-tower-journey-stats',
-  fetchDarkTowerJourneyStats
+  fetchDarkTowerJourneyStats,
+  { server: false }
 )
 
 // Sidebar content is signed-in only (per dark-tower-page spec's four
 // "Signed-in visitor sees/is suggested..." requirements) - each fetch
 // resolves to null/empty for a signed-out visitor rather than running.
-const [
-  { data: darkTowerProgress },
-  { data: relatedProgress },
-  { data: nextCoreBook },
-  { data: nextRelatedBook }
-] = await Promise.all([
-  useAsyncData('dark-tower-progress', () =>
-    user.value
-      ? fetchProfileBookStats(user.value.sub).then(stats => stats.darkTower)
-      : Promise.resolve(null)
-  ),
-  useAsyncData('dark-tower-related-progress', () =>
-    user.value
-      ? fetchDarkTowerRelatedProgress(user.value.sub)
-      : Promise.resolve(null)
-  ),
-  useAsyncData('dark-tower-next-book', () =>
-    user.value ? fetchNextDarkTowerBook(user.value.sub) : Promise.resolve(null)
-  ),
-  useAsyncData('dark-tower-next-related-book', () =>
-    user.value
-      ? fetchNextDarkTowerRelatedBook(user.value.sub)
-      : Promise.resolve(null)
-  )
-])
+const { data: darkTowerProgress } = useAsyncData(
+  'dark-tower-progress',
+  () => (user.value ? fetchProfileBookStats(user.value.sub).then(stats => stats.darkTower) : Promise.resolve(null)),
+  { server: false }
+)
+const { data: relatedProgress } = useAsyncData(
+  'dark-tower-related-progress',
+  () => (user.value ? fetchDarkTowerRelatedProgress(user.value.sub) : Promise.resolve(null)),
+  { server: false }
+)
+const { data: nextCoreBook } = useAsyncData(
+  'dark-tower-next-book',
+  () => (user.value ? fetchNextDarkTowerBook(user.value.sub) : Promise.resolve(null)),
+  { server: false }
+)
+const { data: nextRelatedBook } = useAsyncData(
+  'dark-tower-next-related-book',
+  () => (user.value ? fetchNextDarkTowerRelatedBook(user.value.sub) : Promise.resolve(null)),
+  { server: false }
+)
+
+// Progress bars show placeholders until every figure behind them is in -
+// never an empty or partial progress value (page-caching "Content never
+// shows a wrong state while loading"). The suggestion cards need no
+// placeholder: they render nothing until they have a work.
+const progressLoaded = computed(() =>
+  !!darkTowerProgress.value && !!relatedProgress.value && userBooksLoaded.value
+)
 </script>
 
 <template>
@@ -174,11 +185,25 @@ const [
         </div>
 
         <div class="flex w-full flex-col gap-6 lg:w-96 lg:shrink-0">
-          <DarkTowerJourneyStats :stats="journeyStats ?? null" />
+          <DarkTowerJourneyStats
+            v-if="journeyStats"
+            :stats="journeyStats"
+          />
+          <USkeleton
+            v-else
+            class="h-40 rounded-lg"
+          />
 
-          <template v-if="user">
+          <template v-if="viewerUser">
+            <template v-if="!progressLoaded">
+              <USkeleton
+                v-for="index in 3"
+                :key="index"
+                class="h-16 rounded-lg"
+              />
+            </template>
             <ProfileProgressBar
-              v-if="darkTowerProgress"
+              v-if="progressLoaded && darkTowerProgress"
               label="Dark Tower"
               icon="i-lucide-rose"
               :count="darkTowerProgress.count"
@@ -186,7 +211,7 @@ const [
               color="error"
             />
             <ProfileProgressBar
-              v-if="relatedProgress"
+              v-if="progressLoaded && relatedProgress"
               label="Dark Tower Related"
               icon="i-lucide-link"
               :count="relatedProgress.count"
@@ -194,6 +219,7 @@ const [
               color="info"
             />
             <ProfileProgressBar
+              v-if="progressLoaded"
               label="Graphic Novels Read"
               icon="i-lucide-book-open-check"
               :count="comicProgress.count"

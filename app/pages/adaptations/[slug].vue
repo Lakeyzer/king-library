@@ -29,20 +29,22 @@ const episodeRef: TmdbEpisodeRef | undefined
 
 const { fetchAdaptationStats, fetchUserAdaptations } = useAdaptations()
 
-// tmdb (a live third-party call, the slowest of the two by far) and stats
-// (our own DB) are independent - run them together instead of sequentially.
-const [{ data: tmdb }, { data: stats }] = await Promise.all([
-  useAsyncData(`adaptation-${slug}-tmdb`, () =>
-    adaptation.tmdb_id && adaptation.tmdb_media_type
-      ? fetchTmdbDetails(adaptation.tmdb_media_type, adaptation.tmdb_id, episodeRef)
-      : Promise.resolve(null)
-  ),
-  useAsyncData(`adaptation-${slug}-stats`, () => fetchAdaptationStats(adaptation.id))
-])
+// TMDb details stay server-rendered: they barely change, and the page is
+// cached until the next deploy anyway (shared/utils/cachedRoutes.ts).
+const { data: tmdb } = await useAsyncData(`adaptation-${slug}-tmdb`, () =>
+  adaptation.tmdb_id && adaptation.tmdb_media_type
+    ? fetchTmdbDetails(adaptation.tmdb_media_type, adaptation.tmdb_id, episodeRef)
+    : Promise.resolve(null)
+)
 
-// Not awaited: only affects the watch-status buttons' displayed state,
-// which updates reactively once it resolves.
-useAsyncData('user-adaptations', fetchUserAdaptations)
+// The community counts and the viewer's own watch status load in the browser,
+// so they're always current on the cached page - see the page-caching spec.
+const { data: stats } = useAsyncData(
+  `adaptation-${slug}-stats`,
+  () => fetchAdaptationStats(adaptation.id),
+  { server: false }
+)
+useAsyncData('user-adaptations', fetchUserAdaptations, { server: false })
 
 const posterSrc = computed(() =>
   adaptation.tmdb_poster_path
@@ -244,32 +246,35 @@ setPageSeo({
           />
         </template>
 
-        <template
-          v-if="stats"
-          #stats
-        >
-          <div class="flex items-center gap-1.5">
-            <UIcon
-              name="i-lucide-bookmark"
-              class="size-4"
-            />
-            <span><strong class="text-highlighted"><NumberMotif :text="stats.want_to_watch_count" /></strong> <GlitchLetter
-              text="want to watch"
-              letter="n"
-              :active="isMisery"
-            /></span>
-          </div>
-          <div class="flex items-center gap-1.5">
-            <UIcon
-              name="i-lucide-circle-check"
-              class="size-4"
-            />
-            <span><strong class="text-highlighted"><NumberMotif :text="stats.watched_count" /></strong> <GlitchLetter
-              text="watched"
-              letter="n"
-              :active="isMisery"
-            /></span>
-          </div>
+        <template #stats>
+          <USkeleton
+            v-if="!stats"
+            class="h-5 w-64 max-w-full"
+          />
+          <template v-else>
+            <div class="flex items-center gap-1.5">
+              <UIcon
+                name="i-lucide-bookmark"
+                class="size-4"
+              />
+              <span><strong class="text-highlighted"><NumberMotif :text="stats.want_to_watch_count" /></strong> <GlitchLetter
+                text="want to watch"
+                letter="n"
+                :active="isMisery"
+              /></span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <UIcon
+                name="i-lucide-circle-check"
+                class="size-4"
+              />
+              <span><strong class="text-highlighted"><NumberMotif :text="stats.watched_count" /></strong> <GlitchLetter
+                text="watched"
+                letter="n"
+                :active="isMisery"
+              /></span>
+            </div>
+          </template>
         </template>
       </DetailHero>
     </template>

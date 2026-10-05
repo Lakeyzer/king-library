@@ -57,6 +57,7 @@ export function useShortStories() {
   // ids the user has a row for, same Record<id, ...> shape as
   // userBooksByWorkId/userAdaptationsByAdaptationId elsewhere.
   const readShortStoryIds = useState<Record<string, boolean>>('readShortStoryIds', () => ({}))
+  const { loaded: shortStoryReadsLoaded, markLoaded: markShortStoryReadsLoaded } = useViewerStoreLoaded('shortStoryReads')
 
   const fetchShortStories = async () => {
     const { data, error } = await supabase
@@ -190,6 +191,7 @@ export function useShortStories() {
     readShortStoryIds.value = Object.fromEntries(
       (data as { short_story_id: string }[]).map(row => [row.short_story_id, true])
     )
+    markShortStoryReadsLoaded(user.value.sub)
   }
 
   // Powers the profile showcase's Short Works progress card - same
@@ -252,6 +254,7 @@ export function useShortStories() {
     fetchCollectionsForShortStory,
     fetchCollectionsOverview,
     readShortStoryIds,
+    shortStoryReadsLoaded,
     fetchUserShortStoryReads,
     fetchShortStoryProgress,
     toggleRead
