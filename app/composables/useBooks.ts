@@ -168,7 +168,6 @@ export interface UserBook {
   user_id: string
   work_id: string
   owned: boolean
-  wishlisted: boolean
   want_to_read: boolean
   currently_reading: boolean
   started_on: string | null
@@ -178,7 +177,7 @@ export interface UserBook {
   format: ReadFormat | null
 }
 
-const USER_BOOK_COLUMNS = 'id, user_id, work_id, owned, wishlisted, want_to_read, currently_reading, started_on, read, finished_on, read_year, format'
+const USER_BOOK_COLUMNS = 'id, user_id, work_id, owned, want_to_read, currently_reading, started_on, read, finished_on, read_year, format'
 
 const USER_BOOK_READ_COLUMNS = 'id, user_id, work_id, started_on, read_on, read_year, note, format, rating, created_at'
 

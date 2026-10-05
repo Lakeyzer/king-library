@@ -40,7 +40,24 @@ export default defineNuxtConfig({
     '/confirm': { ssr: false },
     // The password recovery link's tokens arrive in the URL fragment, which never
     // reaches the server - the Supabase client can only read it client-side.
-    '/reset-password': { ssr: false }
+    '/reset-password': { ssr: false },
+    // Signed-in-only pages: no SEO or link-preview value, so render them client-side
+    // and let their Supabase queries go straight from the browser instead of costing
+    // Vercel function CPU. The public /profile/[username] pages (Showcase, Wishlist,
+    // Read List, Watch List, Timeline) deliberately keep SSR so shared links get the right
+    // title/description - only their sign-in-required compare route is listed here.
+    '/profile': { ssr: false },
+    '/profile/wishlist': { ssr: false },
+    '/profile/read-list': { ssr: false },
+    '/profile/watch-list': { ssr: false },
+    '/profile/timeline': { ssr: false },
+    '/profile/*/compare': { ssr: false },
+    '/settings': { ssr: false },
+    '/settings/**': { ssr: false },
+    '/following': { ssr: false },
+    '/notifications': { ssr: false },
+    '/onboarding': { ssr: false },
+    '/suggestion-box': { ssr: false }
   },
 
   compatibilityDate: '2026-06-30',
@@ -51,6 +68,34 @@ export default defineNuxtConfig({
         commaDangle: 'never',
         braceStyle: '1tbs'
       }
+    }
+  },
+
+  icon: {
+    // Ship every icon the app uses inside the client bundle instead of fetching
+    // them on demand from /api/_nuxt_icon/[collection] - each of those requests is
+    // a Vercel function invocation (and often a cold start). The scan picks up
+    // literal icon names in our own source (.ts included, for icons set in
+    // composables/utils); `icons` adds Nuxt UI's built-in defaults (chevrons,
+    // close buttons, spinners...), which live in node_modules and aren't scanned.
+    // Any icon missing from both still falls back to the API, so this is safe - but
+    // costly, so keep icons bundled: see the nuxt-conventions skill, "Icons".
+    clientBundle: {
+      scan: {
+        globInclude: ['**/*.{vue,ts}']
+      },
+      icons: [
+        'lucide:arrow-down', 'lucide:arrow-left', 'lucide:arrow-right', 'lucide:arrow-up',
+        'lucide:arrow-up-right', 'lucide:check', 'lucide:chevron-down', 'lucide:chevron-left',
+        'lucide:chevron-right', 'lucide:chevron-up', 'lucide:chevrons-left', 'lucide:chevrons-right',
+        'lucide:circle-alert', 'lucide:circle-check', 'lucide:circle-x', 'lucide:copy',
+        'lucide:copy-check', 'lucide:ellipsis', 'lucide:eye', 'lucide:eye-off', 'lucide:file',
+        'lucide:folder', 'lucide:folder-open', 'lucide:grip-vertical', 'lucide:hash', 'lucide:info',
+        'lucide:lightbulb', 'lucide:loader-circle', 'lucide:menu', 'lucide:minus', 'lucide:monitor',
+        'lucide:moon', 'lucide:panel-left-close', 'lucide:panel-left-open', 'lucide:plus',
+        'lucide:rotate-ccw', 'lucide:search', 'lucide:square', 'lucide:star', 'lucide:sun',
+        'lucide:terminal', 'lucide:triangle-alert', 'lucide:upload', 'lucide:x'
+      ]
     }
   },
 

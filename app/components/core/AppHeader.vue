@@ -38,6 +38,7 @@ const { fetchUserBooks } = useBooks()
 const { fetchUserAdaptations } = useAdaptations()
 const { fetchUserEditions: fetchUserBookEditions } = useBookshelf()
 const { fetchUserShortStoryReads } = useShortStories()
+const { fetchOwnWishlist } = useWishlist()
 const { unreadCount, fetchUnreadCount, subscribeToUnread } = useNotifications()
 
 // Client-only and best-effort: a failed count just leaves the dot as it
@@ -116,6 +117,7 @@ watch(user, () => {
   fetchUserAdaptations()
   fetchUserBookEditions()
   fetchUserShortStoryReads()
+  fetchOwnWishlist()
   refreshUnreadCount()
 })
 
@@ -148,6 +150,7 @@ const accountMenuItems = computed<DropdownMenuItem[][]>(() => [
     // this "active" on /profile/read-list and /profile/watch-list too (see
     // ProfileTabs.vue for the full explanation).
     { label: 'Profile', icon: 'i-lucide-user', to: '/profile', exact: true },
+    { label: 'Wishlist', icon: 'i-lucide-heart', to: '/profile/wishlist' },
     { label: 'Read List', icon: 'i-lucide-book-open-check', to: '/profile/read-list' },
     { label: 'Watch List', icon: 'i-lucide-clapperboard', to: '/profile/watch-list' },
     { label: 'Following', icon: 'i-lucide-users', to: '/following' }

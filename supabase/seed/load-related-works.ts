@@ -8,9 +8,11 @@ await loadSeed('works', new URL('./related_works.json', import.meta.url))
 // loaded here, once both kinds of works exist.
 await loadSeed(
   'work_omnibus_works',
-  new URL('./work_omnibus_works_seed.json', import.meta.url)
+  new URL('./work_omnibus_works_seed.json', import.meta.url),
+  { prune: true }
 )
 await loadSeed(
   'related_work_king_works',
-  new URL('./related_work_king_works_seed.json', import.meta.url)
+  new URL('./related_work_king_works_seed.json', import.meta.url),
+  { prune: true }
 )

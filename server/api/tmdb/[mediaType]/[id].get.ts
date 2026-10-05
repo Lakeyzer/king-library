@@ -9,7 +9,7 @@ function parseEpisodePart(value: unknown): number | null {
   return parsed
 }
 
-export default defineEventHandler(async (event) => {
+export default defineCachedEventHandler(async (event) => {
   const mediaType = getRouterParam(event, 'mediaType')
   const id = getRouterParam(event, 'id')
 
@@ -49,4 +49,13 @@ export default defineEventHandler(async (event) => {
     const statusCode = (error as { statusCode?: number }).statusCode ?? 502
     throw createError({ statusCode, statusMessage: 'Failed to fetch TMDb details' })
   }
+}, {
+  // TMDb details (overview, rating, runtime...) barely change, so cache them for a
+  // day: warm function instances reuse the result during SSR, and the s-maxage /
+  // stale-while-revalidate headers this sets let Vercel's CDN answer client-side
+  // requests without invoking the function at all. The cache key is the full
+  // request path including the season/episode query; thrown errors are never cached.
+  name: 'tmdb-details',
+  maxAge: 60 * 60 * 24,
+  swr: true
 })

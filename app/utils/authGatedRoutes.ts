@@ -4,7 +4,7 @@
 // visitor stranded on one of these without a navigation ever happening to
 // re-run the middleware).
 export function isAuthGatedRoute(path: string) {
-  // Unlike the other by-username profile routes (Showcase, Read List, Watch
+  // Unlike the other by-username profile routes (Showcase, Wishlist, Read List, Watch
   // List - all viewable by anyone), a compare route always needs "your side"
   // of the comparison, so it requires sign-in the same as the own-shortcut
   // routes below rather than being publicly viewable.
@@ -12,6 +12,7 @@ export function isAuthGatedRoute(path: string) {
 
   return (
     path === '/profile'
+    || path === '/profile/wishlist'
     || path === '/profile/read-list'
     || path === '/profile/watch-list'
     || path === '/settings'

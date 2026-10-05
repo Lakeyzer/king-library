@@ -13,6 +13,7 @@ setPageSeo({
 const user = useSupabaseUser()
 
 const {
+  userAdaptationsByAdaptationId,
   fetchAdaptations,
   fetchAdaptationHighlights,
   fetchUnwatchedRecommendation,
@@ -49,6 +50,17 @@ const episodeSubtitle = (adaptation: Adaptation) => {
 
 const watchedCountLabel = (count: number) =>
   `${count} ${count === 1 ? 'watch' : 'watches'}`
+
+const statusFilter = computed(() =>
+  user.value
+    ? {
+        doneLabel: 'Watched',
+        notDoneLabel: 'Unwatched',
+        isDone: (adaptation: Adaptation) =>
+          !!userAdaptationsByAdaptationId.value[adaptation.id]?.watched
+      }
+    : undefined
+)
 </script>
 
 <template>
@@ -68,6 +80,7 @@ const watchedCountLabel = (count: number) =>
     :subtitle-of="episodeSubtitle"
     placeholder-icon="i-lucide-film"
     sort-year-label="Release year"
+    :status-filter="statusFilter"
   >
     <template #header-actions>
       <ReportButton

@@ -44,7 +44,9 @@ const [
   useAsyncData('homepage-adaptation-highlights', fetchAdaptationHighlights)
 ])
 
+const { fetchOwnWishlist } = useWishlist()
 await useAsyncData('user-books', fetchUserBooks)
+await useAsyncData('user-wishlist', fetchOwnWishlist)
 await useAsyncData('user-adaptations', fetchUserAdaptations)
 
 const [

@@ -28,6 +28,12 @@ const props = withDefaults(
     emptyDescription?: string
     /** Hides the sort field/direction controls. The list still sorts internally (by year, ascending) for a stable order - only the user-facing control disappears. */
     showSort?: boolean
+    /** Adds an "All / done / not done" filter (e.g. Read/Unread, Watched/Unwatched). Pages pass it only for a signed-in user, so signed-out visitors get no control and no filtering. */
+    statusFilter?: {
+      doneLabel: string
+      notDoneLabel: string
+      isDone: (item: T) => boolean
+    }
   }>(),
   { showSort: true }
 )
@@ -42,6 +48,22 @@ const typeOptions = computed(() => {
     ...types.map(type => ({ label: formatTypeLabel(type), value: type }))
   ]
 })
+
+const statusFilterValue = ref<'all' | 'done' | 'notDone'>('all')
+
+const statusOptions = computed(() => [
+  { label: 'All', value: 'all' },
+  { label: props.statusFilter?.doneLabel ?? '', value: 'done' },
+  { label: props.statusFilter?.notDoneLabel ?? '', value: 'notDone' }
+])
+
+// Signing out removes the control - never leave a now-invisible filter applied.
+watch(
+  () => props.statusFilter,
+  (statusFilter) => {
+    if (!statusFilter) statusFilterValue.value = 'all'
+  }
+)
 
 const sortOptions = computed(() => [
   { label: 'Title', value: 'title' },
@@ -72,6 +94,10 @@ const filteredItems = computed(() => {
     if (typeFilter.value !== 'all' && item.type !== typeFilter.value)
       return false
     if (props.extraFilter && !props.extraFilter(item)) return false
+    if (props.statusFilter && statusFilterValue.value !== 'all') {
+      const done = props.statusFilter.isDone(item)
+      if (statusFilterValue.value === 'done' ? !done : done) return false
+    }
     return true
   })
 
@@ -130,26 +156,39 @@ const filteredItems = computed(() => {
             <slot name="extra-filters" />
           </div>
           <div
-            v-if="showSort"
-            class="flex items-center gap-1 mb-4"
+            v-if="showSort || statusFilter"
+            class="flex items-center gap-4 mb-4"
           >
             <USelect
-              v-if="sortOptions.length > 1"
-              v-model="sortBy"
-              :items="sortOptions"
-              icon="i-lucide-arrow-up-down"
-              class="grow"
-              aria-label="Sort field"
+              v-if="statusFilter"
+              v-model="statusFilterValue"
+              icon="i-lucide-circle-check"
+              :items="statusOptions"
+              :aria-label="`${statusFilter.doneLabel} status`"
+              class="w-40"
             />
-            <UButton
-              color="neutral"
-              variant="subtle"
-              :icon="
-                sortDir === 'asc' ? 'i-lucide-arrow-up' : 'i-lucide-arrow-down'
-              "
-              aria-label="Toggle sort direction"
-              @click="toggleSortDir"
-            />
+            <div
+              v-if="showSort"
+              class="flex items-center gap-1 grow"
+            >
+              <USelect
+                v-if="sortOptions.length > 1"
+                v-model="sortBy"
+                :items="sortOptions"
+                icon="i-lucide-arrow-up-down"
+                class="grow"
+                aria-label="Sort field"
+              />
+              <UButton
+                color="neutral"
+                variant="subtle"
+                :icon="
+                  sortDir === 'asc' ? 'i-lucide-arrow-up' : 'i-lucide-arrow-down'
+                "
+                aria-label="Toggle sort direction"
+                @click="toggleSortDir"
+              />
+            </div>
           </div>
           <p
             v-if="isRoom217Search && !filteredItems.length"
