@@ -10,20 +10,20 @@ setPageSeo({
     'Dark Tower comics and graphic novels, companion/reference books, and authorized tie-in novels - material connected to Stephen King\'s work but not written by him.'
 })
 
-const user = useSupabaseUser()
+const { user: viewerUser } = useViewer()
 
 const { fetchRelatedWorks, computeCompletionCount } = useRelatedWorks()
-const { userBooksByWorkId, fetchUserBooks } = useBooks()
+const { userBooksByWorkId, userBooksLoaded, fetchUserBooks } = useBooks()
 const { fetchUserEditions } = useBookshelf()
 
-// Not awaited: only affects the actions component's displayed state, which
-// updates reactively once it resolves - same pattern as user-books on every
-// other browsing page (see nuxt-conventions "BookReadingActions... need
+// Browser-only (the page is cached until the next deploy - see the
+// page-caching spec): the actions component and the progress sidebar fill
+// in once these resolve (see nuxt-conventions "BookReadingActions... need
 // their page to pre-fetch status").
 const { fetchOwnWishlist } = useWishlist()
-useAsyncData('user-books', fetchUserBooks)
-useAsyncData('user-wishlist', fetchOwnWishlist)
-useAsyncData('user-editions', fetchUserEditions)
+useAsyncData('user-books', fetchUserBooks, { server: false })
+useAsyncData('user-wishlist', fetchOwnWishlist, { server: false })
+useAsyncData('user-editions', fetchUserEditions, { server: false })
 
 const { data: works } = await useAsyncData('related-works', fetchRelatedWorks)
 
@@ -48,8 +48,10 @@ const graphicNovelCompletion = computed(() =>
   )
 )
 
+// Offered once the viewer's own reads have loaded - filtering on an empty
+// store would wrongly list every work as unread.
 const statusFilter = computed(() =>
-  user.value
+  viewerUser.value && userBooksLoaded.value
     ? {
         doneLabel: 'Read',
         notDoneLabel: 'Unread',
@@ -92,23 +94,32 @@ const statusFilter = computed(() =>
     </template>
 
     <template
-      v-if="user"
+      v-if="viewerUser"
       #sidebar
     >
-      <ProfileProgressBar
-        label="Works by Others Read"
-        icon="i-lucide-feather"
-        :count="completion.count"
-        :total="completion.total"
-        color="info"
-      />
-      <ProfileProgressBar
-        label="Graphic Novels Read"
-        icon="i-lucide-book-open-check"
-        :count="graphicNovelCompletion.count"
-        :total="graphicNovelCompletion.total"
-        color="warning"
-      />
+      <template v-if="!userBooksLoaded">
+        <USkeleton
+          v-for="index in 2"
+          :key="index"
+          class="h-16 rounded-lg"
+        />
+      </template>
+      <template v-else>
+        <ProfileProgressBar
+          label="Works by Others Read"
+          icon="i-lucide-feather"
+          :count="completion.count"
+          :total="completion.total"
+          color="info"
+        />
+        <ProfileProgressBar
+          label="Graphic Novels Read"
+          icon="i-lucide-book-open-check"
+          :count="graphicNovelCompletion.count"
+          :total="graphicNovelCompletion.total"
+          color="warning"
+        />
+      </template>
     </template>
   </BibliographyBrowsePage>
 </template>

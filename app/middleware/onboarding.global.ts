@@ -24,6 +24,20 @@ export default defineNuxtRouteMiddleware(async (to) => {
   const hasUsername = !!profile.value?.username
 
   if (!hasUsername && to.path !== '/onboarding') {
+    // On a cached public page the server rendered with no session, so this
+    // redirect only happens in the browser - while that cached HTML is still
+    // hydrating. Redirecting mid-hydration makes Vue hydrate the onboarding
+    // page against the cached page's markup, which mangles the layout (e.g.
+    // the centered container goes full width). Let hydration finish first,
+    // then navigate like any client-side route change.
+    const nuxtApp = useNuxtApp()
+    if (import.meta.client && nuxtApp.isHydrating && nuxtApp.payload.serverRendered) {
+      nuxtApp.hooks.hookOnce('app:suspense:resolve', () =>
+        nuxtApp.runWithContext(() => navigateTo('/onboarding', { replace: true }))
+      )
+      return
+    }
+
     return navigateTo('/onboarding')
   }
 

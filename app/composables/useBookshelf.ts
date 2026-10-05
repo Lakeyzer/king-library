@@ -76,6 +76,7 @@ export function useBookshelf() {
   // user has added, mirroring useBooks()'s userBooksByWorkId shape/pattern -
   // see design.md "One toggle component, three call sites".
   const userEditionsByWorkId = useState<Record<string, Set<string>>>('userEditionsByWorkId', () => ({}))
+  const { loaded: userEditionsLoaded, markLoaded: markUserEditionsLoaded } = useViewerStoreLoaded('userEditions')
 
   const fetchUserEditions = async () => {
     if (!user.value) {
@@ -98,6 +99,7 @@ export function useBookshelf() {
       grouped[row.work_id] = existing
     }
     userEditionsByWorkId.value = grouped
+    markUserEditionsLoaded(user.value.sub)
 
     return rows
   }
@@ -239,6 +241,7 @@ export function useBookshelf() {
 
   return {
     userEditionsByWorkId,
+    userEditionsLoaded,
     fetchUserEditions,
     isEditionAdded,
     addEdition,

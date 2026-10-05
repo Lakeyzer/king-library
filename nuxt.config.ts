@@ -1,4 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import { CACHED_ROUTE_PATTERNS } from './shared/utils/cachedRoutes'
+
 export default defineNuxtConfig({
   modules: [
     '@nuxtjs/supabase',
@@ -57,7 +59,16 @@ export default defineNuxtConfig({
     '/following': { ssr: false },
     '/notifications': { ssr: false },
     '/onboarding': { ssr: false },
-    '/suggestion-box': { ssr: false }
+    '/suggestion-box': { ssr: false },
+    // Never changes between deploys, so it's built once as static HTML.
+    '/privacy-policy': { prerender: true },
+    // Public catalog pages, served from Vercel's CDN and kept until the next deploy
+    // (ISR with no expiry) - see shared/utils/cachedRoutes.ts and the page-caching spec.
+    // allowQuery: [] gives one cache entry per path, so ?utm_*/?fbclid variants share it
+    // instead of each rendering its own copy (Nitro adds its own __isr_route param).
+    ...Object.fromEntries(
+      CACHED_ROUTE_PATTERNS.map(pattern => [pattern, { isr: { expiration: false, allowQuery: [] } }])
+    )
   },
 
   compatibilityDate: '2026-06-30',

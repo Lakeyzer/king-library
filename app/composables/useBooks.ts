@@ -240,6 +240,7 @@ export function useBooks() {
   const supabase = useSupabaseClient()
   const user = useSupabaseUser()
   const userBooksByWorkId = useState<Record<string, UserBook>>('userBooksByWorkId', () => ({}))
+  const { loaded: userBooksLoaded, markLoaded: markUserBooksLoaded } = useViewerStoreLoaded('userBooks')
 
   const fetchUserBooks = async () => {
     if (!user.value) {
@@ -256,6 +257,7 @@ export function useBooks() {
 
     const rows = data as UserBook[]
     userBooksByWorkId.value = Object.fromEntries(rows.map(row => [row.work_id, row]))
+    markUserBooksLoaded(user.value.sub)
 
     return rows
   }
@@ -1380,6 +1382,7 @@ export function useBooks() {
 
   return {
     userBooksByWorkId,
+    userBooksLoaded,
     fetchUserBooks,
     fetchWorkStats,
     fetchProfileBookStats,
