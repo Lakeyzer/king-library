@@ -71,11 +71,11 @@
 
 ## 9. Post-release verification (production)
 
-- [ ] 9.1 After deploy, run `curl -sI https://www.king-library.com/works/the-stand` twice. Verify the second response shows `x-vercel-cache: HIT` and neither has `set-cookie`. Repeat for `/`, `/adaptations` and a query-string variant (`/works?utm_source=x`, which should HIT the same entry).
+- [x] 9.1 After deploy, run `curl -sI https://www.king-library.com/works/the-stand` twice. Verify the second response shows `x-vercel-cache: HIT` and neither has `set-cookie`. Repeat for `/`, `/adaptations` and a query-string variant (`/works?utm_source=x`, which should HIT the same entry).
 - [ ] 9.2 Signed in on production, verify that:
   - status controls and counts fill in after placeholders on a detail page
   - view source contains no personal data or counts
   - a new account without a username is sent to `/onboarding`
   - `/profile/<username>` link previews still show the profile's title
-- [ ] 9.3 Request an unknown `/works/does-not-exist` twice and inspect `x-vercel-cache` to see how Vercel treats non-200 ISR responses. Record the result in design.md's risks. If a 5xx response would be cached until the next deploy, add error-response handling before relying on it.
-- [ ] 9.4 After 2-3 days, compare Vercel Observability (Active CPU per day, per-route cache hit rate) with the pre-change baseline (about 6-14 min/day, 0% hits on public routes).
+- [x] 9.3 Request an unknown `/works/does-not-exist` twice and inspect `x-vercel-cache` to see how Vercel treats non-200 ISR responses. Record the result in design.md's risks. If a 5xx response would be cached until the next deploy, add error-response handling before relying on it.
+- [x] 9.4 After 2-3 days, compare Vercel Observability (Active CPU per day, per-route cache hit rate) with the pre-change baseline (about 6-14 min/day, 0% hits on public routes).
