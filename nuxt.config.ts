@@ -62,6 +62,10 @@ export default defineNuxtConfig({
     '/suggestion-box': { ssr: false },
     // Never changes between deploys, so it's built once as static HTML.
     '/privacy-policy': { prerender: true },
+    // Lists slugs from the seed-file-driven tables, which only change through a
+    // reseed + deploy - so it's cached until the next deploy like the public pages,
+    // instead of re-querying Supabase on every crawler fetch.
+    '/sitemap.xml': { isr: { expiration: false, allowQuery: [] } },
     // Public catalog pages, served from Vercel's CDN and kept until the next deploy
     // (ISR with no expiry) - see shared/utils/cachedRoutes.ts and the page-caching spec.
     // allowQuery: [] gives one cache entry per path, so ?utm_*/?fbclid variants share it
