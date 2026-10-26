@@ -680,6 +680,15 @@ export type Database = {
       user_book_editions: {
         Row: {
           added_at: string
+          copy_book_club: boolean
+          copy_dust_jacket: boolean
+          copy_edition: number | null
+          copy_format: string | null
+          copy_limited: boolean
+          copy_limited_number: string | null
+          copy_limited_size: number | null
+          copy_printing: number | null
+          copy_signed: boolean
           edition_id: string
           edition_title: string
           id: string
@@ -688,6 +697,15 @@ export type Database = {
         }
         Insert: {
           added_at?: string
+          copy_book_club?: boolean
+          copy_dust_jacket?: boolean
+          copy_edition?: number | null
+          copy_format?: string | null
+          copy_limited?: boolean
+          copy_limited_number?: string | null
+          copy_limited_size?: number | null
+          copy_printing?: number | null
+          copy_signed?: boolean
           edition_id: string
           edition_title: string
           id?: string
@@ -696,6 +714,15 @@ export type Database = {
         }
         Update: {
           added_at?: string
+          copy_book_club?: boolean
+          copy_dust_jacket?: boolean
+          copy_edition?: number | null
+          copy_format?: string | null
+          copy_limited?: boolean
+          copy_limited_number?: string | null
+          copy_limited_size?: number | null
+          copy_printing?: number | null
+          copy_signed?: boolean
           edition_id?: string
           edition_title?: string
           id?: string
@@ -775,6 +802,15 @@ export type Database = {
       }
       user_books: {
         Row: {
+          copy_book_club: boolean
+          copy_dust_jacket: boolean
+          copy_edition: number | null
+          copy_format: string | null
+          copy_limited: boolean
+          copy_limited_number: string | null
+          copy_limited_size: number | null
+          copy_printing: number | null
+          copy_signed: boolean
           currently_reading: boolean
           finished_on: string | null
           format: string | null
@@ -789,6 +825,15 @@ export type Database = {
           work_id: string
         }
         Insert: {
+          copy_book_club?: boolean
+          copy_dust_jacket?: boolean
+          copy_edition?: number | null
+          copy_format?: string | null
+          copy_limited?: boolean
+          copy_limited_number?: string | null
+          copy_limited_size?: number | null
+          copy_printing?: number | null
+          copy_signed?: boolean
           currently_reading?: boolean
           finished_on?: string | null
           format?: string | null
@@ -803,6 +848,15 @@ export type Database = {
           work_id: string
         }
         Update: {
+          copy_book_club?: boolean
+          copy_dust_jacket?: boolean
+          copy_edition?: number | null
+          copy_format?: string | null
+          copy_limited?: boolean
+          copy_limited_number?: string | null
+          copy_limited_size?: number | null
+          copy_printing?: number | null
+          copy_signed?: boolean
           currently_reading?: boolean
           finished_on?: string | null
           format?: string | null

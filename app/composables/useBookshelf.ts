@@ -1,6 +1,7 @@
+import type { CopyDetails } from '~/utils/copyFormat'
 import type { WorkKind } from '~/utils/workPath'
 
-export interface UserBookEdition {
+export interface UserBookEdition extends CopyDetails {
   id: string
   user_id: string
   work_id: string
@@ -9,7 +10,7 @@ export interface UserBookEdition {
   added_at: string
 }
 
-const USER_BOOK_EDITION_COLUMNS = 'id, user_id, work_id, edition_id, edition_title, added_at'
+const USER_BOOK_EDITION_COLUMNS = `id, user_id, work_id, edition_id, edition_title, added_at, ${COPY_DETAILS_COLUMNS}` as const
 
 // One tile per added edition, plus one fallback-cover tile per work marked
 // owned with zero editions picked - King and related works alike, see
@@ -25,7 +26,9 @@ const USER_BOOK_EDITION_COLUMNS = 'id, user_id, work_id, edition_id, edition_tit
 // membership. Populated from useSeries().seriesByWorkId - see design.md
 // "One useSeries composable, consumed by useBookshelf". `workKind` (not to be
 // confused with the tile's own `kind`) picks the work's detail page via
-// workPath().
+// workPath(). `copyDetails` comes from the edition row for an edition tile
+// and from user_books for a work tile - see supabase-conventions "Copy
+// details".
 export interface BookshelfEditionItem {
   kind: 'edition'
   editionRowId: string
@@ -37,6 +40,7 @@ export interface BookshelfEditionItem {
   openLibraryWorkKey: string | null
   editionId: string
   editionTitle: string
+  copyDetails: CopyDetails
   seriesId: string | null
   seriesName: string | null
   seriesPosition: number | null
@@ -50,6 +54,7 @@ export interface BookshelfWorkItem {
   workKind: WorkKind
   publishDate: string
   openLibraryWorkKey: string | null
+  copyDetails: CopyDetails
   seriesId: string | null
   seriesName: string | null
   seriesPosition: number | null
@@ -111,18 +116,28 @@ export function useBookshelf() {
   // supabase-conventions "user_book_editions" and design.md "One toggle
   // component, three call sites". The owned write is delegated to
   // useBooks().setOwned rather than written here, keeping user_books writes
-  // inside its own composable.
-  const addEdition = async (workId: string, edition: { key: string, title: string }) => {
+  // inside its own composable. `details` are the copy's starting copy
+  // details (a guessed format, or carried over from the work's edition-less
+  // details) - stored on insert, so skipping the copy-details form that
+  // follows still keeps them. Returns the new row so that form can target it.
+  const addEdition = async (
+    workId: string,
+    edition: { key: string, title: string },
+    details: CopyDetails = EMPTY_COPY_DETAILS
+  ) => {
     if (!user.value) throw new Error('Not signed in')
 
-    const { error: editionError } = await supabase
+    const { data, error: editionError } = await supabase
       .from('user_book_editions')
       .insert({
         user_id: user.value.sub,
         work_id: workId,
         edition_id: edition.key,
-        edition_title: edition.title
+        edition_title: edition.title,
+        ...normalizeCopyDetails(details)
       })
+      .select(USER_BOOK_EDITION_COLUMNS)
+      .single()
 
     if (editionError) throw editionError
 
@@ -131,6 +146,24 @@ export function useBookshelf() {
     userEditionsByWorkId.value = { ...userEditionsByWorkId.value, [workId]: nextSet }
 
     await setOwned(workId, true)
+
+    return data as UserBookEdition
+  }
+
+  const updateEditionDetails = async (editionRowId: string, details: CopyDetails) => {
+    if (!user.value) throw new Error('Not signed in')
+
+    const { data, error } = await supabase
+      .from('user_book_editions')
+      .update(normalizeCopyDetails(details))
+      .eq('id', editionRowId)
+      .eq('user_id', user.value.sub)
+      .select(USER_BOOK_EDITION_COLUMNS)
+      .single()
+
+    if (error) throw error
+
+    return data as UserBookEdition
   }
 
   // Removing a work's last edition un-owns it - see design.md "Ownership-
@@ -170,12 +203,12 @@ export function useBookshelf() {
       supabase
         .from('user_book_editions')
         .select(
-          'id, edition_id, edition_title, works ( id, kind, title, slug, publish_date, open_library_work_key, active )'
+          `id, edition_id, edition_title, ${COPY_DETAILS_COLUMNS}, works ( id, kind, title, slug, publish_date, open_library_work_key, active )` as const
         )
         .eq('user_id', userId),
       supabase
         .from('user_books')
-        .select('works!user_books_work_id_fkey ( id, kind, title, slug, publish_date, open_library_work_key, active )')
+        .select(`${COPY_DETAILS_COLUMNS}, works!user_books_work_id_fkey ( id, kind, title, slug, publish_date, open_library_work_key, active )` as const)
         .eq('user_id', userId)
         .eq('owned', true),
       fetchAllSeries()
@@ -192,12 +225,12 @@ export function useBookshelf() {
     }
 
     const editionItems: BookshelfEditionItem[] = (
-      editionRows as unknown as {
+      editionRows as unknown as (CopyDetails & {
         id: string
         edition_id: string
         edition_title: string
         works: WorkRef | null
-      }[]
+      })[]
     )
       .filter(
         (row): row is typeof row & { works: WorkRef } => row.works !== null && row.works.active
@@ -213,13 +246,14 @@ export function useBookshelf() {
         openLibraryWorkKey: row.works.open_library_work_key,
         editionId: row.edition_id,
         editionTitle: row.edition_title,
+        copyDetails: pickCopyDetails(row),
         ...seriesFieldsFor(row.works.id)
       }))
 
     const workIdsWithEditions = new Set(editionItems.map(item => item.workId))
 
     const workItems: BookshelfWorkItem[] = (
-      ownedRows as unknown as { works: WorkRef | null }[]
+      ownedRows as unknown as (CopyDetails & { works: WorkRef | null })[]
     )
       .filter(
         (row): row is typeof row & { works: WorkRef } => row.works !== null && row.works.active
@@ -233,6 +267,7 @@ export function useBookshelf() {
         workKind: row.works.kind,
         publishDate: row.works.publish_date,
         openLibraryWorkKey: row.works.open_library_work_key,
+        copyDetails: pickCopyDetails(row),
         ...seriesFieldsFor(row.works.id)
       }))
 
@@ -245,6 +280,7 @@ export function useBookshelf() {
     fetchUserEditions,
     isEditionAdded,
     addEdition,
+    updateEditionDetails,
     removeEdition,
     fetchBookshelf
   }
