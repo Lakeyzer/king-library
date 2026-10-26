@@ -1,3 +1,4 @@
+import type { CopyDetails } from '~/utils/copyFormat'
 import type { WorkKind } from '~/utils/workPath'
 
 export interface CategoryProgress {
@@ -163,7 +164,10 @@ export interface WorkStats {
   read_through_rate: number | null
 }
 
-export interface UserBook {
+// copy_* (from CopyDetails) are the edition-less copy details - see
+// supabase-conventions "Copy details". Distinct from `format`, which is the
+// current reading session's format.
+export interface UserBook extends CopyDetails {
   id: string
   user_id: string
   work_id: string
@@ -177,7 +181,7 @@ export interface UserBook {
   format: ReadFormat | null
 }
 
-const USER_BOOK_COLUMNS = 'id, user_id, work_id, owned, want_to_read, currently_reading, started_on, read, finished_on, read_year, format'
+const USER_BOOK_COLUMNS = `id, user_id, work_id, owned, want_to_read, currently_reading, started_on, read, finished_on, read_year, format, ${COPY_DETAILS_COLUMNS}` as const
 
 const USER_BOOK_READ_COLUMNS = 'id, user_id, work_id, started_on, read_on, read_year, note, format, rating, created_at'
 
@@ -1380,6 +1384,29 @@ export function useBooks() {
     return row
   }
 
+  // Copy details for an owned work with no edition picked - an update, not
+  // an upsert, since the row already exists once the work is owned.
+  // Normalized so a non-physical format never sends edition/printing/signed,
+  // which the database's copy_physical_only check would reject.
+  const setCopyDetails = async (workId: string, details: CopyDetails) => {
+    if (!user.value) throw new Error('Not signed in')
+
+    const { data, error } = await supabase
+      .from('user_books')
+      .update(normalizeCopyDetails(details))
+      .eq('user_id', user.value.sub)
+      .eq('work_id', workId)
+      .select(USER_BOOK_COLUMNS)
+      .single()
+
+    if (error) throw error
+
+    const row = data as UserBook
+    userBooksByWorkId.value = { ...userBooksByWorkId.value, [workId]: row }
+
+    return row
+  }
+
   return {
     userBooksByWorkId,
     userBooksLoaded,
@@ -1408,6 +1435,7 @@ export function useBooks() {
     updateLoggedRead,
     deleteLoggedRead,
     unmarkRead,
-    setOwned
+    setOwned,
+    setCopyDetails
   }
 }
