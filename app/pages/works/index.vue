@@ -11,6 +11,7 @@ setPageSeo({
 })
 
 const { fetchKingWorks } = useKingWorks()
+const { fetchAllSeries } = useSeries()
 
 // Only read inside the browser-only fetches below - anything rendered per
 // viewer goes through useViewer() instead (see composables/useViewer.ts).
@@ -48,22 +49,33 @@ const { data: ownedUnreadRecommendation } = useAsyncData(
   { server: false }
 )
 
-const { data: works } = await useAsyncData('works', fetchKingWorks)
+// Series are catalog content (they only change with a reseed + deploy), so
+// they're server-rendered alongside the works on this cached page.
+const [{ data: works }, { data: series }] = await Promise.all([
+  useAsyncData('works', fetchKingWorks),
+  useAsyncData('works-series', fetchAllSeries)
+])
 
 const readsCountLabel = (count: number) =>
   `${count} ${count === 1 ? 'read' : 'reads'}`
 
-const flagOptions = [
-  { label: 'All', value: 'all' },
-  { label: 'Bachman', value: 'bachman' },
-  { label: 'Dark Tower', value: 'darkTower' }
-]
-const flagFilter = ref<'all' | 'bachman' | 'darkTower'>('all')
+const seriesOptions = computed(() => [
+  { label: 'All works', value: 'all' },
+  ...(series.value ?? []).map(one => ({ label: one.name, value: one.id }))
+])
+const seriesFilter = ref('all')
 
+const selectedSeriesMemberIds = computed(() => {
+  const selected = (series.value ?? []).find(one => one.id === seriesFilter.value)
+  return selected ? new Set(selected.members.map(member => member.workId)) : null
+})
+
+// An alternate text (counts_with_id) shows with its series member, so the
+// original Gunslinger stays under Dark Tower next to the Revised Edition.
 function extraFilter(work: KingWork) {
-  if (flagFilter.value === 'bachman') return work.bachman
-  if (flagFilter.value === 'darkTower') return work.dark_tower
-  return true
+  const memberIds = selectedSeriesMemberIds.value
+  if (!memberIds) return true
+  return memberIds.has(work.id) || (work.counts_with_id !== null && memberIds.has(work.counts_with_id))
 }
 
 // Offered once the viewer's own reads have loaded - filtering on an empty
@@ -106,15 +118,12 @@ const statusFilter = computed(() =>
     </template>
 
     <template #extra-filters>
-      <URadioGroup
-        v-model="flagFilter"
-        :items="flagOptions"
-        orientation="horizontal"
-        variant="table"
-        indicator="hidden"
-        size="sm"
-        class="grow"
-        :ui="{ fieldset: 'w-full', item: 'flex-1 justify-center' }"
+      <USelect
+        v-model="seriesFilter"
+        icon="i-lucide-layers"
+        :items="seriesOptions"
+        aria-label="Series"
+        class="w-full sm:w-56"
       />
     </template>
 

@@ -26,10 +26,13 @@ const canCompare = !isSelfCompare && !isPrivate
 const { fetchProfileBookStats, fetchReadDiff, fetchOwnedDiff } = useBooks()
 const { fetchViewingProgress, fetchWatchedDiff } = useAdaptations()
 const { fetchShortStoryProgress } = useShortStories()
+const { fetchSeriesProgress } = useSeries()
 
 const [
   { data: ownStats },
   { data: targetStats },
+  { data: ownSeries },
+  { data: targetSeries },
   { data: ownViewing },
   { data: targetViewing },
   { data: ownShortStories },
@@ -43,6 +46,12 @@ const [
   ),
   useAsyncData(`compare-${own.id}-${target.id}-target-book-stats`, () =>
     canCompare ? fetchProfileBookStats(target.id) : Promise.resolve(null)
+  ),
+  useAsyncData(`compare-${own.id}-${target.id}-own-series`, () =>
+    canCompare ? fetchSeriesProgress(own.id) : Promise.resolve(null)
+  ),
+  useAsyncData(`compare-${own.id}-${target.id}-target-series`, () =>
+    canCompare ? fetchSeriesProgress(target.id) : Promise.resolve(null)
   ),
   useAsyncData(`compare-${own.id}-${target.id}-own-viewing`, () =>
     canCompare ? fetchViewingProgress(own.id) : Promise.resolve(null)
@@ -78,6 +87,15 @@ const ACTIVITY_CATEGORIES = [
 type ActivityCategory = (typeof ACTIVITY_CATEGORIES)[number]['value']
 
 const selectedActivityCategories = ref<ActivityCategory[]>(['read', 'owned', 'watched'])
+
+// Paired by series id rather than list position - both lists come from the
+// same fetchAllSeries order, but the id makes the pairing explicit.
+const seriesComparison = computed(() =>
+  (ownSeries.value ?? []).map(own => ({
+    own,
+    target: (targetSeries.value ?? []).find(one => one.id === own.id) ?? { count: 0, total: own.total }
+  }))
+)
 
 const ownTotalActivity = computed(() => {
   if (!ownStats.value || !ownViewing.value) return 0
@@ -125,7 +143,7 @@ useSeoMeta({ title: `${own.username} vs ${target.username} - Compare` })
       title="This profile is private"
       description="The owner of this profile has chosen to keep it private."
     />
-    <template v-else-if="ownStats && targetStats && ownViewing && targetViewing && ownShortStories && targetShortStories && readDiff && ownedDiff && watchedDiff">
+    <template v-else-if="ownStats && targetStats && ownSeries && targetSeries && ownViewing && targetViewing && ownShortStories && targetShortStories && readDiff && ownedDiff && watchedDiff">
       <div class="flex flex-col gap-3">
         <div class="flex items-center justify-between gap-2">
           <h2 class="flex items-center gap-2 text-base font-semibold text-highlighted">
@@ -187,37 +205,16 @@ useSeoMeta({ title: `${own.username} vs ${target.username} - Compare` })
           <span>Reading Progress</span>
         </h2>
 
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <ProfileCompareProgressCard
             title="Overall Bibliography"
             icon="i-lucide-book-open"
-            class="md:col-span-2 lg:col-span-1"
             :own-label="own.username ?? ''"
             :own-count="ownStats.overall.count"
             :own-total="ownStats.overall.total"
             :target-label="target.username ?? ''"
             :target-count="targetStats.overall.count"
             :target-total="targetStats.overall.total"
-          />
-          <ProfileCompareProgressCard
-            title="Bachman Books"
-            icon="i-lucide-user-round"
-            :own-label="own.username ?? ''"
-            :own-count="ownStats.bachman.count"
-            :own-total="ownStats.bachman.total"
-            :target-label="target.username ?? ''"
-            :target-count="targetStats.bachman.count"
-            :target-total="targetStats.bachman.total"
-          />
-          <ProfileCompareProgressCard
-            title="Dark Tower"
-            icon="i-lucide-rose"
-            :own-label="own.username ?? ''"
-            :own-count="ownStats.darkTower.count"
-            :own-total="ownStats.darkTower.total"
-            :target-label="target.username ?? ''"
-            :target-count="targetStats.darkTower.count"
-            :target-total="targetStats.darkTower.total"
           />
           <ProfileCompareProgressCard
             title="Short Works"
@@ -242,13 +239,38 @@ useSeoMeta({ title: `${own.username} vs ${target.username} - Compare` })
           <ProfileCompareProgressCard
             title="Collection"
             icon="i-lucide-library"
-            class="md:col-span-2 lg:col-span-1"
             :own-label="own.username ?? ''"
             :own-count="ownStats.collection.count"
             :own-total="ownStats.collection.total"
             :target-label="target.username ?? ''"
             :target-count="targetStats.collection.count"
             :target-total="targetStats.collection.total"
+          />
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-3">
+        <h2 class="flex items-center gap-2 text-base font-semibold text-highlighted">
+          <UIcon
+            name="i-lucide-layers"
+            class="size-5"
+          />
+          <span>Series</span>
+        </h2>
+
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-6">
+          <ProfileCompareProgressCard
+            v-for="(series, index) in seriesComparison"
+            :key="series.own.id"
+            :class="seriesCardClass(index)"
+            :title="series.own.name"
+            :icon="seriesIcon(series.own.name)"
+            :own-label="own.username ?? ''"
+            :own-count="series.own.count"
+            :own-total="series.own.total"
+            :target-label="target.username ?? ''"
+            :target-count="series.target.count"
+            :target-total="series.target.total"
           />
         </div>
       </div>

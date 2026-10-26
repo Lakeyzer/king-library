@@ -148,7 +148,7 @@ const visibleItems = computed(() => {
 // column 1 - gives that expected reading order deterministically, at the
 // cost of balancing by tile *count* rather than real height.
 const COLUMN_BREAKPOINTS = [
-  { minWidth: 1024, columns: 5 }, // lg
+  { minWidth: 1024, columns: 4 }, // lg
   { minWidth: 640, columns: 3 }, // sm
   { minWidth: 0, columns: 2 }
 ]

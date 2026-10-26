@@ -121,25 +121,6 @@ The system SHALL show, on the same line as the Reading Journey heading and end-j
 - **WHEN** a visitor activates the Reading Journey heading's timeline link
 - **THEN** they are taken to the profile owner's dedicated Reading Timeline page
 
-### Requirement: Reading progress bars for overall, Bachman, and Dark Tower
-The system SHALL display, on a showcase, three reading-progress indicators: overall progress (the profile owner's count of active King works marked read out of all active King works), Bachman progress (count of active Bachman-flagged King works marked read out of all active Bachman-flagged King works), and Dark Tower progress (count of active Dark-Tower-flagged King works marked read out of all active Dark-Tower-flagged King works). Inactive King works SHALL be excluded from both the read count and the total in every indicator.
-
-#### Scenario: Overall progress reflects total read count
-- **WHEN** a showcase is displayed for a profile owner who has marked some active King works read
-- **THEN** the overall progress indicator shows their read count out of the total number of active King works
-
-#### Scenario: Bachman progress counts only Bachman-flagged works
-- **WHEN** a showcase is displayed
-- **THEN** the Bachman progress indicator's read count and total are both restricted to active King works with the Bachman flag set
-
-#### Scenario: Dark Tower progress counts only Dark-Tower-flagged works
-- **WHEN** a showcase is displayed
-- **THEN** the Dark Tower progress indicator's read count and total are both restricted to active King works with the Dark Tower flag set
-
-#### Scenario: An inactive work is excluded from progress
-- **WHEN** a profile owner has read a King work that is later marked inactive
-- **THEN** that work no longer contributes to the read count or the total of any progress indicator
-
 ### Requirement: Adaptation viewing progress
 The system SHALL display, on a showcase, a viewing-progress indicator showing the profile owner's count of active adaptations marked watched out of the total number of active adaptations. Inactive adaptations SHALL be excluded from both the watched count and the total.
 
@@ -224,7 +205,7 @@ The system SHALL show, next to the Bookshelf heading, the total count of tiles i
 - **THEN** the count shown next to the Bookshelf heading still reflects the full collection
 
 ### Requirement: Bookshelf uses a responsive masonry grid
-The system SHALL lay out the Bookshelf as a masonry grid, showing 2 columns at the smallest supported viewport width and 5 columns at the largest.
+The system SHALL lay out the Bookshelf as a masonry grid, showing 2 columns at the smallest supported viewport width and 4 columns at the largest.
 
 #### Scenario: Smallest supported viewport
 - **WHEN** a showcase is displayed at the smallest supported viewport width
@@ -232,7 +213,7 @@ The system SHALL lay out the Bookshelf as a masonry grid, showing 2 columns at t
 
 #### Scenario: Largest viewport
 - **WHEN** a showcase is displayed at the largest viewport width
-- **THEN** the Bookshelf grid shows 5 columns
+- **THEN** the Bookshelf grid shows 4 columns
 
 ### Requirement: Bookshelf can be searched by title
 The system SHALL let a visitor filter the Bookshelf's tiles by matching text against the owning King work's title.
@@ -417,15 +398,19 @@ The system SHALL show a visitor who is not the profile's owner a recommendation 
 - **THEN** no gift-idea recommendation card is shown, regardless of which King works they've read or own
 
 ### Requirement: King progress indicators and collection ignore By Other Hands works
-The system SHALL count only King works in the showcase's Overall Bibliography, Bachman Books, Dark Tower, and Collection indicators, in both the count and the total. A By Other Hands work the profile owner has read or owns SHALL NOT change any of these four indicators, including a By Other Hands work flagged as Dark Tower.
+The system SHALL count only King works in the showcase's Overall Bibliography and Collection indicators, in both the count and the total. A By Other Hands work the profile owner has read or owns SHALL NOT change either indicator. Series progress bars are not King-only: they count every counted member of their series, of either kind (see the king-series capability's per-series reading progress).
 
 #### Scenario: A read By Other Hands work leaves Overall Bibliography unchanged
 - **WHEN** a showcase is displayed for a profile owner who has read a By Other Hands work
 - **THEN** the Overall Bibliography indicator's read count and total count only King works
 
 #### Scenario: A read Dark Tower comic leaves the Dark Tower indicator unchanged
-- **WHEN** a showcase is displayed for a profile owner who has read a Dark Tower By Other Hands comic
-- **THEN** the Dark Tower indicator's read count and total count only King works
+- **WHEN** a showcase is displayed for a profile owner who has read a Dark Tower By Other Hands comic that is not a Dark Tower series member
+- **THEN** the Dark Tower series bar's read count and total are unchanged
+
+#### Scenario: A By Other Hands series member counts toward its series bar
+- **WHEN** a showcase is displayed for a profile owner who has read Gwendy's Magic Feather
+- **THEN** the Gwendy's Trilogy series bar counts it, while the Overall Bibliography indicator does not
 
 #### Scenario: An owned By Other Hands work leaves Collection unchanged
 - **WHEN** a showcase is displayed for a profile owner who owns a By Other Hands work
@@ -589,3 +574,67 @@ Filters SHALL combine with each other and with the title search, so a tile is vi
 #### Scenario: Filters match nothing
 - **WHEN** the active filters match no tile in the collection
 - **THEN** the Bookshelf shows its no-matches state
+
+### Requirement: Non-owner visitor can navigate to a profile comparison
+The system SHALL show a "Compare" control in a profile's header to a signed-in visitor who is not that profile's owner, shown only when the profile is public, linking to that profile's compare route (see the profile-compare capability). The system SHALL NOT show this control to a signed-out visitor or to the profile's own owner.
+
+#### Scenario: Signed-in visitor sees the Compare control on a public profile
+- **WHEN** a signed-in visitor who does not own the profile views a public profile's header
+- **THEN** a "Compare" control is shown alongside the follow control, linking to that profile's compare route
+
+#### Scenario: Signed-out visitor does not see the Compare control
+- **WHEN** a signed-out visitor views any profile's header
+- **THEN** no "Compare" control is shown
+
+#### Scenario: Profile owner does not see the Compare control on their own profile
+- **WHEN** the profile owner views their own header
+- **THEN** no "Compare" control is shown
+
+#### Scenario: Compare control is hidden on a private profile
+- **WHEN** a signed-in visitor who does not own the profile views a private profile's header
+- **THEN** no "Compare" control is shown
+
+### Requirement: Overall bibliography reading progress bar
+The system SHALL display, on a showcase's Reading Progress section, an overall reading-progress indicator: the profile owner's count of active King works marked read out of all active King works. Inactive King works SHALL be excluded from both the read count and the total. The Reading Progress section SHALL NOT include Bachman or Dark Tower indicators; those are shown as series in the Series section instead.
+
+#### Scenario: Overall progress reflects total read count
+- **WHEN** a showcase is displayed for a profile owner who has marked some active King works read
+- **THEN** the overall progress indicator shows their read count out of the total number of active King works
+
+#### Scenario: Reading Progress no longer shows Bachman or Dark Tower bars
+- **WHEN** a showcase is displayed
+- **THEN** the Reading Progress section shows Overall Bibliography, Short Works, Adaptations Watched, and Collection, and no Bachman Books or Dark Tower indicator
+
+#### Scenario: An inactive work is excluded from progress
+- **WHEN** a profile owner has read a King work that is later marked inactive
+- **THEN** that work no longer contributes to the read count or the total of the overall progress indicator
+
+### Requirement: Series section shows one progress bar per series
+The system SHALL display, on a showcase, a "Series" section with one reading-progress bar for every series in the canonical series list, labeled with the series' name and showing the profile owner's per-series reading progress (see the king-series capability). Bars SHALL appear in the same display order the series list is returned in (see the king-series capability), and every series SHALL have a bar even when the owner has read none of its members. The section is subject to the same private-profile rules as the rest of the showcase.
+
+#### Scenario: Every series has a bar
+- **WHEN** a showcase is displayed
+- **THEN** the Series section shows a bar for each of Dark Tower, Bachman Books, Talisman, Hodges & Holly, and Gwendy's Trilogy, in that order
+
+#### Scenario: A series with nothing read still shows
+- **WHEN** a showcase is displayed for a profile owner who has read no Talisman book
+- **THEN** the Talisman bar is shown with a read count of 0 out of its total
+
+#### Scenario: A newly added series appears without a code change
+- **WHEN** a new series is added to the canonical series data
+- **THEN** the Series section shows a bar for it, after the series that have a set place, with a default icon if none has been assigned to it
+
+### Requirement: Series bars are laid out by screen size
+The system SHALL lay out the Series section's bars as follows. At large screen widths, the first two series (Dark Tower and Bachman Books) SHALL share the first row at half width each, and the remaining series SHALL follow three to a row. At medium screen widths, the first series (Dark Tower) SHALL take the first row on its own at full width, and the remaining series SHALL follow two to a row. At small screen widths, every bar SHALL take a row of its own.
+
+#### Scenario: Large screen
+- **WHEN** a showcase's Series section is viewed at a large screen width
+- **THEN** the first row shows Dark Tower and Bachman Books side by side, and the second row shows Talisman, Hodges & Holly, and Gwendy's Trilogy
+
+#### Scenario: Medium screen
+- **WHEN** a showcase's Series section is viewed at a medium screen width
+- **THEN** Dark Tower fills the first row, Bachman Books and Talisman share the second, and Hodges & Holly and Gwendy's Trilogy share the third
+
+#### Scenario: Small screen
+- **WHEN** a showcase's Series section is viewed at a small screen width
+- **THEN** each series bar takes a full-width row of its own
