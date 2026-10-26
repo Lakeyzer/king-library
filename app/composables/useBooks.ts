@@ -8,8 +8,6 @@ export interface CategoryProgress {
 
 export interface ProfileBookStats {
   overall: CategoryProgress
-  bachman: CategoryProgress
-  darkTower: CategoryProgress
   collection: CategoryProgress
 }
 
@@ -285,14 +283,14 @@ export function useBooks() {
   // function powers both the owner's own showcase and a public profile's.
   const fetchProfileBookStats = async (userId: string): Promise<ProfileBookStats> => {
     const [{ data: works, error: worksError }, { data: userBooks, error: booksError }] = await Promise.all([
-      supabase.from('works').select('id, type, dark_tower, bachman, counts_with_id').eq('kind', 'king').eq('active', true),
+      supabase.from('works').select('id, type, counts_with_id').eq('kind', 'king').eq('active', true),
       supabase.from('user_books').select('work_id, read, owned').eq('user_id', userId)
     ])
 
     if (worksError) throw worksError
     if (booksError) throw booksError
 
-    const allWorks = works as { id: string, type: string, dark_tower: boolean, bachman: boolean, counts_with_id: string | null }[]
+    const allWorks = works as { id: string, type: string, counts_with_id: string | null }[]
     const rows = userBooks as { work_id: string, read: boolean, owned: boolean }[]
 
     // An 'omnibus' (e.g. "The Bachman Books") never counts toward reading
@@ -317,21 +315,17 @@ export function useBooks() {
     // other (they aren't).
     const progressGroupId = (work: { id: string, counts_with_id: string | null }) => work.counts_with_id ?? work.id
 
-    const progressFor = (predicate: (work: { dark_tower: boolean, bachman: boolean }) => boolean): CategoryProgress => {
-      const inCategory = progressEligibleWorks.filter(predicate)
-      const readGroupIds = new Set(
-        inCategory.filter(work => readWorkIds.has(work.id)).map(progressGroupId)
-      )
-      return {
-        count: readGroupIds.size,
-        total: new Set(inCategory.map(progressGroupId)).size
-      }
-    }
+    // Bachman and Dark Tower progress are series progress now - see
+    // useSeries().fetchSeriesProgress.
+    const readGroupIds = new Set(
+      progressEligibleWorks.filter(work => readWorkIds.has(work.id)).map(progressGroupId)
+    )
 
     return {
-      overall: progressFor(() => true),
-      bachman: progressFor(work => work.bachman),
-      darkTower: progressFor(work => work.dark_tower),
+      overall: {
+        count: readGroupIds.size,
+        total: new Set(progressEligibleWorks.map(progressGroupId)).size
+      },
       collection: {
         count: allWorks.filter(work => ownedWorkIds.has(work.id)).length,
         total: allWorks.length
@@ -339,7 +333,7 @@ export function useBooks() {
     }
   }
 
-  // Mirrors fetchProfileBookStats' progressFor helper, but scoped to the
+  // Mirrors fetchProfileBookStats' overall progress calculation, but scoped to the
   // Dark Tower page's "Related Works" set (works with a non-null
   // dark_tower_relation) rather than the core-8 dark_tower flag - kept out
   // of ProfileBookStats/fetchProfileBookStats itself since this category

@@ -33,4 +33,4 @@
 
 ## 5. Manual verification
 
-- [ ] 5.1 Walk through the full flow as a signed-in user: open another public profile, click Compare, confirm all five progress categories and all three diff-list pairs (read, owned, watched) render correctly, then resize the browser across the `sm` breakpoint and confirm every block switches between row and column layout.
+- [x] 5.1 Walk through the full flow as a signed-in user: open another public profile, click Compare, confirm all five progress categories and all three diff-list pairs (read, owned, watched) render correctly, then resize the browser across the `sm` breakpoint and confirm every block switches between row and column layout.

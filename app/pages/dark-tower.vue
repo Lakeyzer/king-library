@@ -11,7 +11,7 @@ setPageSeo({
 })
 
 const { fetchKingWorks } = useKingWorks()
-const { fetchAllSeries } = useSeries()
+const { fetchAllSeries, fetchSeriesProgress } = useSeries()
 
 // Only read inside the browser-only fetches below - anything rendered per
 // viewer goes through useViewer() instead (see composables/useViewer.ts).
@@ -21,7 +21,6 @@ const { user: viewerUser } = useViewer()
 const {
   userBooksLoaded,
   fetchUserBooks,
-  fetchProfileBookStats,
   fetchDarkTowerRelatedProgress,
   fetchDarkTowerJourneyStats,
   fetchNextDarkTowerBook,
@@ -110,7 +109,11 @@ const { data: journeyStats } = useAsyncData(
 // resolves to null/empty for a signed-out visitor rather than running.
 const { data: darkTowerProgress } = useAsyncData(
   'dark-tower-progress',
-  () => (user.value ? fetchProfileBookStats(user.value.sub).then(stats => stats.darkTower) : Promise.resolve(null)),
+  // Same Dark Tower series figure as the profile's Dark Tower series bar -
+  // looked up by name, like the core-series list above.
+  () => (user.value
+    ? fetchSeriesProgress(user.value.sub).then(series => series.find(one => one.name === 'Dark Tower') ?? null)
+    : Promise.resolve(null)),
   { server: false }
 )
 const { data: relatedProgress } = useAsyncData(
