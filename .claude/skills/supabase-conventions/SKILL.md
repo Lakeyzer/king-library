@@ -32,7 +32,7 @@ All `date` columns (e.g. `publish_date`, `started_on`, `finished_on`) must use I
 
 Every book lives here - the canonical King bibliography **and** the By Other Hands / Works by Others material (Marvel's Dark Tower comics, companion/reference books, authorized tie-in novels). Each row carries a `kind` label, and **every query decides which kind it covers**:
 
-- `kind = 'king'` - the canonical bibliography. Everything King-specific filters on this: `/works`, `useKingWorks()`, every homepage figure/leaderboard/spotlight, every recommendation and Dark Tower suggestion, profile Overall/Bachman/Dark Tower/Collection progress, the compare page, `dark_tower_journey_stats`, and the Book of the week rotation.
+- `kind = 'king'` - the canonical bibliography. Everything King-specific filters on this: `/works`, `useKingWorks()`, every homepage figure/leaderboard/spotlight, every recommendation and Dark Tower suggestion, profile Overall/Collection progress (and the same figures on the compare page), `dark_tower_journey_stats`, and the Book of the week rotation. Series progress (`useSeries().fetchSeriesProgress`, which now covers Bachman and Dark Tower too) is the exception: `series_works` members can be either kind (e.g. Gwendy's Magic Feather), and every active, non-omnibus member counts.
 - `kind = 'related'` - Works by Others. `/works-by-others` and `useRelatedWorks()` filter on this. Tracked exactly like a King work (`user_books`, `user_book_reads`, `user_book_editions`) - no separate per-user tables - but never counted in a King statistic. The wishlist (`user_wishlist_items`) covers both kinds the same way, with no per-kind rule.
 - Lists that intentionally cover **both** kinds: the profile reading timeline, Bookshelf, Currently Reading, Read List, and a user's own `userBooksByWorkId`. They select `kind` and link through `workPath(kind, slug)` (`app/utils/workPath.ts`).
 - `work_stats` covers both kinds and exposes `kind` - filter it to `kind = 'king'` for any King leaderboard or total; a related work's detail page reads its own row directly.
@@ -228,6 +228,250 @@ One row per `(user_id, work_id)`. This is the authoritative record of whether a 
 | `read`              | boolean, default `false`   |                                                                                                                                                                                                                           |
 | `finished_on`       | date, nullable             | the date the user finished reading - same `date`-not-`timestamptz` reasoning as `started_on`                                                                                                                              |
 | `read_year`         | int, nullable              | approximate fallback for when a user wants to log a book as read with only a rough year, not an exact date - independent of `started_on`/`finished_on`, not derived from them; see below                                  |
+| `format`            | text, nullable             | the **current reading session's** format (`physical` / `audiobook` / `ebook`), written by `startReading()` - not the owned copy's format; see `copy_format` |
+| `copy_format`       | text, nullable             | edition-less copy details: `paperback` / `hardcover` / `audiobook` / `ebook`. Only meaningful while the work has no `user_book_editions` rows - see "Copy details" under `user_book_editions` |
+| `copy_edition`      | int, nullable              | edition-less copy details: edition number, >= 1, physical formats only |
+| `copy_printing`     | int, nullable              | edition-less copy details: printing number, >= 1, physical formats only |
+| `copy_signed`       | boolean, default `false`   | edition-less copy details: signed copy, physical formats only |
+| `copy_dust_jacket`  | boolean, default `false`   | edition-less copy details: dust jacket present, hardcover only |
+| `copy_book_club`    | boolean, default `false`   | edition-less copy details: book club edition, hardcover only - never gets a gold/silver mark |
+| `copy_limited`      | boolean, default `false`   | edition-less copy details: limited edition, physical formats only |
+| `copy_limited_number` | text, nullable           | edition-less copy details: numbered ("123") or lettered ("AA") copy, `^[A-Z0-9]{1,6}---
+name: supabase-conventions
+description: Database schema, RLS policies, and query conventions for the Stephen King Library app's Supabase backend. Use this whenever writing or modifying anything that touches the database - Supabase queries, composables, migrations, RLS policies, seed files, or the tables works (King and related works, labelled by kind), work_omnibus_works, related_work_king_works, adaptations, adaptation_works, adaptation_short_stories, king_short_stories, king_short_story_collections, profiles, user_books, user_book_editions, user_book_reads, user_adaptations, user_short_story_reads, user_wishlist_items, user_follows, notifications, or email_preferences. Also use when adding any feature that reads or writes user collections, wishlists, read status, watch status, short story reads, cover images, or statistics/leaderboards, since these all depend on this schema. Consult this skill before writing a single `supabase.from(...)` call anywhere in the app.
+---
+
+# Supabase Conventions - Stephen King Library
+
+This skill is the source of truth for the database schema and how to interact with it. Do not invent tables, columns, or RLS policies that aren't described here - if a feature needs something not covered, stop and ask rather than improvising a schema change.
+
+## Core rule: queries only via composables
+
+No `.vue` file ever calls `supabase.from(...)` directly. Every table gets a composable (e.g. `useBooks`, `useAdaptations`, `useProfile`) that wraps reads/writes for that table. This keeps RLS-dependent query logic (see below) in one place instead of scattered across components.
+
+## Local development & deployment workflow
+
+Any task that touches migrations, RLS policies, triggers, or seed data follows this sequence - the hosted Supabase project is never the first place a schema change is tried:
+
+1. **Develop and test against a local Supabase instance in Docker** (`supabase start`), not directly against the hosted project. Write migrations, apply them locally, load seed data locally, and verify the feature works there first.
+2. **Treat the local Supabase instance as persistent, not disposable.** Stopping it between sessions is fine (`supabase stop`, which preserves the Docker volume) - tearing it down in a way that discards that volume is not. The local instance should never need to be rebuilt from scratch as a routine step; `supabase start` should resume the existing state, migrations and seed data already applied.
+3. **Keep local in sync with hosted, or ahead of it - never behind.** Before starting new schema work, confirm local has every migration hosted has (`supabase migration list` shows both sides) - hosted should only ever move ahead of local via a push that originated from local in the first place, so drift shouldn't happen in normal use, but check rather than assume if something seems off. While a feature is in progress, it's expected and fine for local to be ahead of hosted (new migrations applied locally, not yet pushed) - that gap is exactly what "test locally before touching hosted" means.
+4. **Prefer `supabase migration up` over `supabase db reset` for applying a new migration locally.** `migration up` applies only the pending migration(s) against the existing local database, leaving every other table's rows - including `auth.users`, `profiles`, and every `user_*` table - untouched. `supabase db reset` wipes the *entire* local database (every table, every schema, not just the one being changed) and reapplies all migrations plus `supabase/seed.sql` from scratch; it does **not** rerun the `seed:*` scripts in `package.json`, so a `works`/bibliography reseed still needs a manual `pnpm run seed:*` afterward. A `db reset` also silently deletes the local session of whoever is signed in (their `auth.users` row disappears, so their existing browser session becomes a token for a user that no longer exists, and a `.single()` profile lookup then throws "Cannot coerce the result to a single JSON object" until they sign in again) and deletes their local `user_books`/read-tracking test data. Only reach for `db reset` when local state is actually suspect and a from-scratch rebuild is the goal - **never as a convenience for applying one migration**, and always say so explicitly before running it, since it discards the current user's local session and data.
+   - If a new `not null` column can't be added to an already-populated table without a default (the common case for a seed-file-driven table like `works`), don't reach for `db reset` to sidestep that - split it into two migrations instead: one that adds the column nullable, a `pnpm run seed:*` to backfill it via the existing upsert, then a second migration that sets `not null` (and drops the old column, if any). This keeps the change to one migration-only table, with zero blast radius on `auth.users`/`profiles`/`user_*` tables.
+5. **Local dev and the deployed app point at permanently separate Supabase targets - nothing gets switched.** `.env` (or `.env.local`, gitignored) holds local Supabase's URL and anon key from `supabase status`, and never changes - running `pnpm dev` always talks to local Supabase. The deployed app never reads that file at all; it gets hosted's URL and anon key from Vercel's own environment variables, configured once in the Vercel dashboard, not something this workflow touches. Because the two are already separate, "ask the person to test" just means asking them to run `pnpm dev` - no config change needed first, and none needed to revert afterward.
+6. **Never write to the hosted/linked project without asking first.** Once the person confirms local testing looks good and gives an explicit go-ahead, push the migrations (and re-seed if needed) to hosted - this should happen _before_ merging the feature branch to main, since Vercel auto-deploys on merge and the deployed code shouldn't go live expecting a schema hosted doesn't have yet. Treat the go-ahead as a distinct, explicit checkpoint, not something implied by an earlier "looks good" in the conversation - local Docker is the sandbox for iterating freely, but the hosted project holds real data other features may already depend on.
+7. **`supabase db reset` is a local-only command - never run it, in any form, against the hosted/linked project.** This project's local CLI is linked to the hosted "King Library" project (`supabase status` shows `linked_project`), so `--linked` (or any `--db-url` pointing at hosted) is available on several commands - but there is no legitimate reason to ever pass it to `db reset`: hosted holds real user data, and a full reset there is unrecoverable data loss, not a "sync" operation. The only sanctioned way to change hosted's schema is an additive `supabase db push` (see 6 above), and the only sanctioned way to change hosted's seed-file-driven table contents is the `seed:*:hosted` / `backfill:*` scripts - both already require the explicit go-ahead in 6. If a task ever seems to call for resetting or wiping hosted, that's a sign to stop and ask, not a variant of a local command to run with a different flag.
+
+## Schema
+
+All `date` columns (e.g. `publish_date`, `started_on`, `finished_on`) must use ISO 8601 format: `YYYY-MM-DD`. This applies to values in seed files, migration defaults, and any date the client sends to the database. Never use locale-specific formats, slashes, or two-digit years.
+
+### `works` (seed-file-driven, read-only at runtime)
+
+Every book lives here - the canonical King bibliography **and** the By Other Hands / Works by Others material (Marvel's Dark Tower comics, companion/reference books, authorized tie-in novels). Each row carries a `kind` label, and **every query decides which kind it covers**:
+
+- `kind = 'king'` - the canonical bibliography. Everything King-specific filters on this: `/works`, `useKingWorks()`, every homepage figure/leaderboard/spotlight, every recommendation and Dark Tower suggestion, profile Overall/Collection progress (and the same figures on the compare page), `dark_tower_journey_stats`, and the Book of the week rotation. Series progress (`useSeries().fetchSeriesProgress`, which now covers Bachman and Dark Tower too) is the exception: `series_works` members can be either kind (e.g. Gwendy's Magic Feather), and every active, non-omnibus member counts.
+- `kind = 'related'` - Works by Others. `/works-by-others` and `useRelatedWorks()` filter on this. Tracked exactly like a King work (`user_books`, `user_book_reads`, `user_book_editions`) - no separate per-user tables - but never counted in a King statistic. The wishlist (`user_wishlist_items`) covers both kinds the same way, with no per-kind rule.
+- Lists that intentionally cover **both** kinds: the profile reading timeline, Bookshelf, Currently Reading, Read List, and a user's own `userBooksByWorkId`. They select `kind` and link through `workPath(kind, slug)` (`app/utils/workPath.ts`).
+- `work_stats` covers both kinds and exposes `kind` - filter it to `kind = 'king'` for any King leaderboard or total; a related work's detail page reads its own row directly.
+
+**When adding a query against `works`, `user_books`, `user_book_reads`, `user_book_editions` or `work_stats`, decide which kind it covers and filter on `kind` (or join a kind-filtered works list), or say in a comment that both kinds are intended.** Forgetting this silently lets related works into King stats.
+
+`works_kind_shape_check` ties the per-kind columns together: a King row needs `type` and `shuffle_position` and has no `creator`/`category`/`relation_note`; a related row needs `creator` and `category`, has no `shuffle_position`, and `type` is either null or `'omnibus'`. `kind` has no default - every seed row states it.
+
+
+| column                  | type                     | notes                                                                                                                                                                                                                                                                          |
+| ----------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `id`                    | uuid, PK                 |                                                                                                                                                                                                                                                                                |
+| `title`                 | text                     |                                                                                                                                                                                                                                                                                |
+| `type`                  | text                     | `novel` / `short_story` / `collection` / etc.                                                                                                                                                                                                                                  |
+| `publish_date`          | date                     |                                                                                                                                                                                                                                                                                |
+| `slug`                  | text, unique             | kebab-case version of `title`, used for URL routing (e.g. `the-stand` → `/works/the-stand`). Apostrophes are stripped; other non-alphanumeric characters become hyphens. Set in the seed file - never computed at runtime.                                                     |
+| `open_library_work_key` | text, nullable           | for matching against Open Library search                                                                                                                                                                                                                                       |
+| `cover_id`              | integer, nullable        | Open Library numeric cover id, used to build `https://covers.openlibrary.org/b/id/{cover_id}-{size}.jpg` for the works-browsing table thumbnail. See "Cover images" below - this is a narrow, explicit exception to the "don't store a cover id" rule, not a general precedent |
+| `dark_tower`            | boolean, default `false` | `true` only for works that are part of the core Dark Tower series - not for works merely connected to it (see `dark_tower_relation`)                                                                                                                                           |
+| `bachman`               | boolean, default `false` | `true` for works published under the Richard Bachman pseudonym                                                                                                                                                                                                                 |
+| `dark_tower_relation`   | text, nullable           | free-text note on how the work connects to the Dark Tower series (for series-proper works and for outside works sharing characters/settings/events with it); `null` means no connection worth noting                                                                           |
+| `remark`                | text, nullable           | free-text note shown on the `/works` table and a work's `/works/[slug]` page - for telling two rows of the same book apart (e.g. which Gunslinger/Stand text this row is) so a user marking a work read picks the right row. `null` for the overwhelming majority of works. |
+| `edition_year_min`      | integer, nullable        | restricts the "Add to Shelf" Open Library edition picker to editions published in this year or later. Paired with `edition_year_max` for a work that shares an `open_library_work_key` with another version of the same book split by publication year (e.g. Gunslinger's 2003 Revised Edition sets `edition_year_min = 2003`). Both null (the common case) means no restriction. |
+| `edition_year_max`      | integer, nullable        | mirror of `edition_year_min` - restricts to editions published in this year or earlier (e.g. the original Gunslinger sets `edition_year_max = 2002`).                                                                                                                         |
+| `counts_with_id`        | uuid, nullable, FK → `works.id`, `on delete set null` | set on an "alternate" row to group it with the "primary" row it represents another version of (e.g. the original Gunslinger's `counts_with_id` points at its Revised Edition) - the pair counts as **one** slot toward reading-progress totals (`fetchProfileBookStats`, `dark_tower_journey_stats`), and reading either row satisfies that slot. Does **not** cascade the `read` flag between the two rows - each row's own read status still reflects only what the user did to it directly. The "primary" row leaves this `null`. |
+| `kind`                  | text, not null, no default | `'king'` or `'related'` - see above |
+| `creator`               | text, nullable           | related only (required there): who made it, e.g. "Peter David, Robin Furth & Jae Lee" |
+| `category`              | text, nullable           | related only (required there): `comic` / `reference` / `tie_in_novel` - the Works by Others page's type filter |
+| `relation_note`         | text, nullable           | related only: how the work connects to King's own |
+
+Maintained in `supabase/seed/king_works.json` (King rows) and `supabase/seed/related_works.json` (related rows), both loaded into `works` (`seed:king-works`, then `seed:related-works`, which also loads `work_omnibus_works_seed.json` and `related_work_king_works_seed.json` since those link both kinds), checked into the repo. Adding a new King book = editing the seed file + redeploying the seed - **never** a runtime insert/update from the app, and there is no UI for editing this table.
+
+**Two rows for one book (alternate editions/texts).** When a book has two meaningfully different published texts (e.g. the Gunslinger's 1982 original vs. 2003 Revised Edition, or the Stand's 1978 original vs. 1990 Complete & Uncut Edition), model it as two King `works` rows rather than one - each is independently shelvable, ownable, and read-trackable, and a user may legitimately own/read either or both. Share `open_library_work_key` between the two only when Open Library tracks them under the same work; use `edition_year_min`/`edition_year_max` to split which of that work's editions each row's "Add to Shelf" picker offers, and set `remark` on both rows explaining which text each one is. Use `counts_with_id` (see above) only when the two additionally shouldn't count as two separate books toward reading-progress totals - this isn't automatic just because two rows represent the same underlying story; decide per case (the two Gunslinger rows use it, the two Stand rows currently don't).
+
+### `work_omnibus_works` (seed-file-driven - links an omnibus to the works it collects)
+
+`(omnibus_work_id, component_work_id)`, both FK → `works.id`, unique together. An omnibus is any `works` row with `type = 'omnibus'`, King (e.g. "The Bachman Books") or related (e.g. Marvel's "Beginnings"); the link is always within one kind (a seed authoring convention, not DB-enforced). Marking an omnibus read cascades `read = true` onto its components via `cascade_book_reads_on_omnibus_read()` (tagging them with `user_books.via_omnibus_id`), and unmarking uncascades only what that omnibus marked (`uncascade_book_reads_on_omnibus_unread()`). The cascade never writes `user_book_reads`, so a cascaded component has no timeline entry of its own. Omnibuses are excluded from reading-progress denominators, since their components are counted individually.
+
+### `related_work_king_works` (seed-file-driven - links a related work to the King works it connects to)
+
+`(related_work_id, king_work_id)`, both FK → `works.id`, unique together. The column names describe each side's role (the related work, the King work it's about), not separate tables. Powers the "Related Works" sections on `/works/[slug]` and `/works-by-others/[slug]`; since both columns reference `works`, embeds must name the FK (`works!related_work_king_works_related_work_id_fkey`).
+
+### `adaptations` (seed-file-driven, read-only at runtime)
+
+| column             | type                     | notes                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| ------------------ | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`               | uuid, PK                 |                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `title`            | text                     |                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `type`             | text                     | `movie` / `series` / `miniseries` / `tv_movie`                                                                                                                                                                                                                                                                                                                                                                                         |
+| `release_year`     | int                      |                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `slug`             | text, unique             | kebab-case version of `title`, used for URL routing (e.g. `misery` → `/adaptations/misery`). When multiple adaptations share a title, the release year is appended to all entries in that group (e.g. `carrie-1976`, `carrie-2013`, `the-shining-1980`). Set in the seed file. |
+| `tmdb_id`          | int, nullable            | numeric TMDb id, for matching against TMDb                                                                                                                                                                                                                                                                                                                                                                                             |
+| `tmdb_media_type`  | text, nullable           | `movie` or `tv` - TMDb keeps separate ID namespaces for movies and TV shows, so `tmdb_id` alone is ambiguous for building an API call or a link; this says which endpoint it belongs to                                                                                                                                                                                                                                                |
+| `tmdb_poster_path` | text, nullable           | TMDb's own poster path (e.g. `/abc123.jpg`), used to build `https://image.tmdb.org/t/p/{size}{tmdb_poster_path}` for the adaptations-browsing table thumbnail. Same narrow exception as `works.cover_id` - see "Cover images" below                                                                                                                                                                                               |
+| `is_universe_only` | boolean, default `false` | `true` for adaptations that draw on King's characters, settings, or "universe" without adapting a specific plot - e.g. Castle Rock, Kingdom Hospital, Golden Years, The Diary of Ellen Rimbauer. These rows have **no** entries in `adaptation_works` or `adaptation_short_stories` (see below); the flag is what a UI checks before showing an empty "based on" section as "loosely set in King's universe" rather than as a data gap |
+| `notes`            | text, nullable           | free-text context for loose, composite, or non-obvious adaptations - which specific stories an anthology episode draws from, why something is marked `is_universe_only`, etc. `null` when the adaptation is a straightforward single-source case that doesn't need explaining                                                                                                                                                          |
+
+Same maintenance pattern as `works`: seed file in the repo (`supabase/seed/adaptations.json`), redeployed on change, no runtime CRUD. Its relationship to source material is handled entirely by `adaptation_works` and `adaptation_short_stories` below, not by a column on this table.
+
+### `adaptation_works` (seed-file-driven, read-only at runtime - links adaptations to works)
+
+A proper many-to-many join, not a single FK column on `adaptations`, because some adaptations draw on more than one work (King's universe is heavily cross-referential - a nullable single `work_id` would force picking one "primary" source and lose the rest).
+
+| column          | type                        | notes |
+| --------------- | --------------------------- | ----- |
+| `id`            | uuid, PK                    |       |
+| `adaptation_id` | uuid, FK → `adaptations.id` |       |
+| `work_id`  | uuid, FK → `works.id`  |       |
+
+Unique constraint on `(adaptation_id, work_id)`. Same seed-file maintenance pattern as `works`/`adaptations` - this is curated bibliography data, not user data, so it's maintained in `supabase/seed/adaptation_works.json` and redeployed on change, never written at runtime.
+
+### `adaptation_short_stories` (seed-file-driven, read-only at runtime - links adaptations to short stories)
+
+The same join, one table over, for adaptations sourced from an individual short story or novella rather than a full book/collection. This is a distinct, common case - The Shawshank Redemption (from the novella "Rita Hayworth and Shawshank Redemption"), Stand By Me (from "The Body"), Creepshow (from five separate Night Shift/Skeleton Crew/uncollected stories) - and matters for stats: without it, an adaptation like Shawshank would appear to have no source in `adaptation_works` at all, since its source was never a `works` row to begin with.
+
+| column           | type                               | notes |
+| ---------------- | ---------------------------------- | ----- |
+| `id`             | uuid, PK                           |       |
+| `adaptation_id`  | uuid, FK → `adaptations.id`        |       |
+| `short_story_id` | uuid, FK → `king_short_stories.id` |       |
+
+Unique constraint on `(adaptation_id, short_story_id)`. Same seed-file maintenance pattern - `supabase/seed/adaptation_short_stories.json`, no runtime CRUD.
+
+**Collection implication:** a short story always belongs to one or more collections via `king_short_story_collections`. An adaptation of a short story is therefore implicitly related to every collection that contains it - this relationship is **not** duplicated as an explicit row in `adaptation_works` (that would create redundant, potentially drifting data). Instead it is derived at query time by joining through `king_short_story_collections` (see "Collection-level adaptation lookup" below). A collection's detail page must traverse this join to surface all adaptations whose source stories appear in it.
+
+Kept as its own table rather than folding into `adaptation_works` with a nullable `short_story_id` alongside a nullable `work_id`, or a polymorphic `source_type`/`source_id` pair on one shared table - this schema already prefers explicit typed FKs over polymorphic associations elsewhere (see `king_short_story_collections`), and a single join table with two nullable target columns would let a row reference neither or both, which is exactly the kind of state a schema shouldn't be able to represent in the first place.
+
+An adaptation can have rows in `adaptation_works`, `adaptation_short_stories`, both (uncommon, but not disallowed - nothing stops an adaptation from citing both a full work and a specific short story as sources), or neither (`is_universe_only = true` on `adaptations`, see above).
+
+A work's or short story's detail page queries the matching table filtered by `work_id`/`short_story_id` to list its adaptations. An adaptation's detail page queries **both** `adaptation_works` and `adaptation_short_stories` filtered by `adaptation_id` and combines the results to build its full "based on" list.
+
+### Collection-level adaptation lookup
+
+A `works` row of `type = 'collection'` can be related to adaptations in two distinct ways - both must be queried to show the full picture:
+
+1. **Direct**: `adaptation_works` rows where `work_id` matches the collection (e.g. Creepshow, which draws on several Night Shift / Skeleton Crew stories and is explicitly linked to both collections as a whole).
+2. **Via short stories**: `adaptation_short_stories` rows for stories that belong to the collection, reached through `king_short_story_collections`.
+
+**Do not add explicit `adaptation_works` rows to represent the collection link** when the adaptation is already in `adaptation_short_stories` - that would duplicate the relationship and require keeping two rows in sync whenever a story's collection membership changes.
+
+Instead, derive the collection relationship at query time. The pattern, used both in composables and in the `adaptation_vs_source_stats` view family:
+
+```sql
+-- All adaptations touching a given collection (direct + via its short stories)
+select aw.adaptation_id, 'direct' as link_type
+from adaptation_works aw
+where aw.work_id = $collection_id
+
+union
+
+select ass.adaptation_id, 'via_short_story' as link_type
+from adaptation_short_stories ass
+join king_short_story_collections ksc on ksc.short_story_id = ass.short_story_id
+where ksc.work_id = $collection_id;
+```
+
+The `link_type` tag is optional but useful for display: a "direct" link might show as "Adaptation of this collection"; a "via_short_story" link might show as "Adaptation of a story in this collection" (with the specific short story title resolved from `king_short_stories`).
+
+Similarly, an adaptation's own detail page should show the collection context for its short-story sources - not just the story title, but also "appears in: Night Shift". `useAdaptations()` resolves this by joining `adaptation_short_stories` → `king_short_story_collections` → `works` for any short-story source, and including the collection title alongside the story title in the "based on" list.
+
+### `king_short_stories` (seed-file-driven, read-only at runtime)
+
+Short stories are **not** rows in `works` - that table represents things a user independently collects (owns/wishlists/reads as a standalone unit), and a short story only exists _inside_ a collection, never acquired on its own. Mixing them in would break the "1 row = 1 shelf-able thing" semantics `user_books` is built around.
+
+| column                  | type                     | notes                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| ----------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                    | uuid, PK                 |                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `title`                 | text                     |                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `type`                  | text                     | `short_story` or `novella` - distinguishes shorter pieces from novella-length ones (e.g. "The Boogeyman" vs. "The Body"). Looser than `works.type`: everything in this table is, by definition, a piece that only exists inside a collection rather than being independently shelved, so this column exists purely for display/filtering, not to gate any behavior the way `works.type = 'collection'` does elsewhere |
+| `original_publish_year` | int, nullable            |                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `first_published_in`    | text, nullable           | magazine/anthology if it debuted outside a King collection                                                                                                                                                                                                                                                                                                                                                                      |
+| `dark_tower`            | boolean, default `false` | same meaning as `works.dark_tower` - counts toward Dark Tower completion tracking (see "Reading progress by category" below)                                                                                                                                                                                                                                                                                               |
+| `dark_tower_relation`   | text, nullable           | same meaning as `works.dark_tower_relation`                                                                                                                                                                                                                                                                                                                                                                                |
+
+**No `bachman` column here** - Richard Bachman was a pseudonym used for novels only; no short story was ever published under it. Adding a column that can never meaningfully be `true` would just be clutter. Revisit only if that historical fact turns out to be wrong.
+
+Same seed-file maintenance pattern as `works` - `supabase/seed/king_short_stories.json`, no runtime CRUD.
+
+### `king_short_story_collections` (seed-file-driven, links short stories to the collections containing them)
+
+Many-to-many, not a single FK on `king_short_stories`, because stories get reprinted across multiple collections over the years (e.g. a story could appear in its original collection and later in a "best of" anthology).
+
+| column                | type                               | notes                                                                                                                                                                                                                                                                                |
+| --------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `id`                  | uuid, PK                           |                                                                                                                                                                                                                                                                                      |
+| `short_story_id`      | uuid, FK → `king_short_stories.id` |                                                                                                                                                                                                                                                                                      |
+| `work_id`        | uuid, FK → `works.id`         | expected to reference a row where `type = 'collection'` - this is a seed-file authoring convention, not a DB-enforced constraint (Postgres can't easily check a value against another table's column without a trigger, and it's not worth one for curated, developer-authored data) |
+| `order_in_collection` | int, nullable                      |                                                                                                                                                                                                                                                                                      |
+
+Unique constraint on `(short_story_id, work_id)`. Same seed-file maintenance pattern, no runtime CRUD. A story's detail page shows "appears in: X, Y" by querying this filtered on `short_story_id`.
+
+### `user_short_story_reads` (read-tracking for individual short stories)
+
+Unlike `user_books`, a short story has exactly one meaningful state - read or not - so this is a **row-existence table**, not a boolean-flags row: a row existing _is_ "has read this story." No wishlist/`want_to_read` equivalent, since wanting to read a story is already covered by wanting to read the collection it's in.
+
+| column              | type                               | notes |
+| ------------------- | ----------------------------------- | ----- |
+| `id`                | uuid, PK                           |       |
+| `user_id`           | uuid, FK → `auth.users.id`         |       |
+| `short_story_id`    | uuid, FK → `king_short_stories.id` |       |
+| `read_at`           | timestamptz, default `now()`       |       |
+| `via_collection_id` | uuid, nullable, FK → `works.id`, `on delete set null` | which collection's read-cascade created this row, if any - `null` means the user marked this story read directly. See `cascade_short_story_reads_on_collection_read()`/`uncascade_short_story_reads_on_collection_unread()` below. |
+
+Unique constraint on `(user_id, short_story_id)`. Same reread limitation as `user_books`/`user_adaptations`: `read_at` holds only the most recent value, no history - see the note under `user_books` above.
+
+### `profiles` (public directory of users)
+
+| column       | type                           | notes                                                                                                                                                              |
+| ------------ | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `id`         | uuid, PK, FK → `auth.users.id` |                                                                                                                                                                    |
+| `username`   | text, unique, nullable         | `null` until the user completes onboarding - enforced format via a `check` constraint (3–24 lowercase letters/digits/underscore), see `user-onboarding` capability |
+| `avatar_url` | text, nullable                 |                                                                                                                                                                    |
+| `is_public`  | boolean, default `true`        | gates visibility of this user's **collections** (see RLS below) - the profile row itself (username) is always readable                                             |
+| `created_at` | timestamptz, default `now()`   |                                                                                                                                                                    |
+
+`auth.users` is never exposed to the client directly (it holds emails, password hashes, etc.), which is exactly why `profiles` exists - it's the public-safe mirror. A row is created automatically via a trigger on `auth.users` insert (`handle_new_user()` function, `SECURITY DEFINER`) - never insert into `profiles` from client code.
+
+Implemented in `supabase/migrations/20260903120000_create_profiles_table.sql`.
+
+### `user_books` (join table: user ↔ work - the single source of truth for the relationship)
+
+One row per `(user_id, work_id)`. This is the authoritative record of whether a work is owned and/or read - **ownership does not require an edition to be selected.** Editions (below) are optional supplementary detail a collector may attach on top of this.
+
+| column              | type                       | notes                                                                                                                                                                                                                     |
+| ------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                | uuid, PK                   |                                                                                                                                                                                                                           |
+| `user_id`           | uuid, FK → `auth.users.id` |                                                                                                                                                                                                                           |
+| `work_id`      | uuid, FK → `works.id` |                                                                                                                                                                                                                           |
+| `owned`             | boolean, default `false`   | generic "I own this work" - true whether or not any edition has been picked                                                                                                                                               |
+| `want_to_read`      | boolean, default `false`   | wants to _read_ it - a separate intent from wanting to own; see Triggers                                                                                                                                                  |
+| `currently_reading` | boolean, default `false`   | supports being mid-read on several works at once - this is a per-row flag, so "reading 3 books" is just 3 rows each with this `true`, no special handling needed                                                          |
+| `started_on`        | date, nullable             | the date the user started reading - **`date`, not `timestamptz`**: this is a calendar date the user picks (e.g. via a native date input), not a moment in time, so there's no time-of-day or timezone to store or convert |
+| `read`              | boolean, default `false`   |                                                                                                                                                                                                                           |
+| `finished_on`       | date, nullable             | the date the user finished reading - same `date`-not-`timestamptz` reasoning as `started_on`                                                                                                                              |
+| `read_year`         | int, nullable              | approximate fallback for when a user wants to log a book as read with only a rough year, not an exact date - independent of `started_on`/`finished_on`, not derived from them; see below                                  |
+| `format`            | text, nullable             | the **current reading session's** format (`physical` / `audiobook` / `ebook`), written by `startReading()` - not the owned copy's format; see `copy_format` |
+| `copy_format`       | text, nullable             | edition-less copy details: `paperback` / `hardcover` / `audiobook` / `ebook`. Only meaningful while the work has no `user_book_editions` rows - see "Copy details" under `user_book_editions` |
+| `copy_edition`      | int, nullable              | edition-less copy details: edition number, >= 1, physical formats only |
+| `copy_printing`     | int, nullable              | edition-less copy details: printing number, >= 1, physical formats only |
+, limited only |
+| `copy_limited_size` | int, nullable              | edition-less copy details: copies in the limited run, >= 1, limited only. Every `copy_*` column is cleared when `owned` flips to `false` - see `clear_copy_details_on_unowned()` under Triggers |
 
 These are independent booleans, not an enum - a work can be `owned` _and_ `read` at once; forcing a single `status` would lose that. Unique constraint on `(user_id, work_id)` - this is the one row per user per work.
 
@@ -302,11 +546,572 @@ Zero or more rows per `(user_id, work_id)`, only created when a user chooses to 
 | `edition_id`    | text                         | Open Library edition key (e.g. `OL7353617M`) - required, since every row is a specific edition the user picked |
 | `edition_title` | text                         | denormalized title snapshot, paired with `edition_id`                                                          |
 | `added_at`      | timestamptz, default `now()` |                                                                                                                |
+| `copy_format`   | text, nullable               | `paperback` / `hardcover` / `audiobook` / `ebook` - guessed from Open Library's `physical_format` on add (`inferCopyFormat()` in `app/utils/copyFormat.ts`), user-correctable |
+| `copy_edition`  | int, nullable                | edition number, >= 1, physical formats only |
+| `copy_printing` | int, nullable                | printing number, >= 1, physical formats only |
+| `copy_signed`   | boolean, default `false`     | signed copy, physical formats only |
+| `copy_dust_jacket` | boolean, default `false`  | dust jacket present, hardcover only |
+| `copy_book_club` | boolean, default `false`    | book club edition, hardcover only - never gets a gold/silver mark |
+| `copy_limited`  | boolean, default `false`     | limited edition, physical formats only |
+| `copy_limited_number` | text, nullable         | numbered ("123") or lettered ("AA") copy, `^[A-Z0-9]{1,6}---
+name: supabase-conventions
+description: Database schema, RLS policies, and query conventions for the Stephen King Library app's Supabase backend. Use this whenever writing or modifying anything that touches the database - Supabase queries, composables, migrations, RLS policies, seed files, or the tables works (King and related works, labelled by kind), work_omnibus_works, related_work_king_works, adaptations, adaptation_works, adaptation_short_stories, king_short_stories, king_short_story_collections, profiles, user_books, user_book_editions, user_book_reads, user_adaptations, user_short_story_reads, user_wishlist_items, user_follows, notifications, or email_preferences. Also use when adding any feature that reads or writes user collections, wishlists, read status, watch status, short story reads, cover images, or statistics/leaderboards, since these all depend on this schema. Consult this skill before writing a single `supabase.from(...)` call anywhere in the app.
+---
+
+# Supabase Conventions - Stephen King Library
+
+This skill is the source of truth for the database schema and how to interact with it. Do not invent tables, columns, or RLS policies that aren't described here - if a feature needs something not covered, stop and ask rather than improvising a schema change.
+
+## Core rule: queries only via composables
+
+No `.vue` file ever calls `supabase.from(...)` directly. Every table gets a composable (e.g. `useBooks`, `useAdaptations`, `useProfile`) that wraps reads/writes for that table. This keeps RLS-dependent query logic (see below) in one place instead of scattered across components.
+
+## Local development & deployment workflow
+
+Any task that touches migrations, RLS policies, triggers, or seed data follows this sequence - the hosted Supabase project is never the first place a schema change is tried:
+
+1. **Develop and test against a local Supabase instance in Docker** (`supabase start`), not directly against the hosted project. Write migrations, apply them locally, load seed data locally, and verify the feature works there first.
+2. **Treat the local Supabase instance as persistent, not disposable.** Stopping it between sessions is fine (`supabase stop`, which preserves the Docker volume) - tearing it down in a way that discards that volume is not. The local instance should never need to be rebuilt from scratch as a routine step; `supabase start` should resume the existing state, migrations and seed data already applied.
+3. **Keep local in sync with hosted, or ahead of it - never behind.** Before starting new schema work, confirm local has every migration hosted has (`supabase migration list` shows both sides) - hosted should only ever move ahead of local via a push that originated from local in the first place, so drift shouldn't happen in normal use, but check rather than assume if something seems off. While a feature is in progress, it's expected and fine for local to be ahead of hosted (new migrations applied locally, not yet pushed) - that gap is exactly what "test locally before touching hosted" means.
+4. **Prefer `supabase migration up` over `supabase db reset` for applying a new migration locally.** `migration up` applies only the pending migration(s) against the existing local database, leaving every other table's rows - including `auth.users`, `profiles`, and every `user_*` table - untouched. `supabase db reset` wipes the *entire* local database (every table, every schema, not just the one being changed) and reapplies all migrations plus `supabase/seed.sql` from scratch; it does **not** rerun the `seed:*` scripts in `package.json`, so a `works`/bibliography reseed still needs a manual `pnpm run seed:*` afterward. A `db reset` also silently deletes the local session of whoever is signed in (their `auth.users` row disappears, so their existing browser session becomes a token for a user that no longer exists, and a `.single()` profile lookup then throws "Cannot coerce the result to a single JSON object" until they sign in again) and deletes their local `user_books`/read-tracking test data. Only reach for `db reset` when local state is actually suspect and a from-scratch rebuild is the goal - **never as a convenience for applying one migration**, and always say so explicitly before running it, since it discards the current user's local session and data.
+   - If a new `not null` column can't be added to an already-populated table without a default (the common case for a seed-file-driven table like `works`), don't reach for `db reset` to sidestep that - split it into two migrations instead: one that adds the column nullable, a `pnpm run seed:*` to backfill it via the existing upsert, then a second migration that sets `not null` (and drops the old column, if any). This keeps the change to one migration-only table, with zero blast radius on `auth.users`/`profiles`/`user_*` tables.
+5. **Local dev and the deployed app point at permanently separate Supabase targets - nothing gets switched.** `.env` (or `.env.local`, gitignored) holds local Supabase's URL and anon key from `supabase status`, and never changes - running `pnpm dev` always talks to local Supabase. The deployed app never reads that file at all; it gets hosted's URL and anon key from Vercel's own environment variables, configured once in the Vercel dashboard, not something this workflow touches. Because the two are already separate, "ask the person to test" just means asking them to run `pnpm dev` - no config change needed first, and none needed to revert afterward.
+6. **Never write to the hosted/linked project without asking first.** Once the person confirms local testing looks good and gives an explicit go-ahead, push the migrations (and re-seed if needed) to hosted - this should happen _before_ merging the feature branch to main, since Vercel auto-deploys on merge and the deployed code shouldn't go live expecting a schema hosted doesn't have yet. Treat the go-ahead as a distinct, explicit checkpoint, not something implied by an earlier "looks good" in the conversation - local Docker is the sandbox for iterating freely, but the hosted project holds real data other features may already depend on.
+7. **`supabase db reset` is a local-only command - never run it, in any form, against the hosted/linked project.** This project's local CLI is linked to the hosted "King Library" project (`supabase status` shows `linked_project`), so `--linked` (or any `--db-url` pointing at hosted) is available on several commands - but there is no legitimate reason to ever pass it to `db reset`: hosted holds real user data, and a full reset there is unrecoverable data loss, not a "sync" operation. The only sanctioned way to change hosted's schema is an additive `supabase db push` (see 6 above), and the only sanctioned way to change hosted's seed-file-driven table contents is the `seed:*:hosted` / `backfill:*` scripts - both already require the explicit go-ahead in 6. If a task ever seems to call for resetting or wiping hosted, that's a sign to stop and ask, not a variant of a local command to run with a different flag.
+
+## Schema
+
+All `date` columns (e.g. `publish_date`, `started_on`, `finished_on`) must use ISO 8601 format: `YYYY-MM-DD`. This applies to values in seed files, migration defaults, and any date the client sends to the database. Never use locale-specific formats, slashes, or two-digit years.
+
+### `works` (seed-file-driven, read-only at runtime)
+
+Every book lives here - the canonical King bibliography **and** the By Other Hands / Works by Others material (Marvel's Dark Tower comics, companion/reference books, authorized tie-in novels). Each row carries a `kind` label, and **every query decides which kind it covers**:
+
+- `kind = 'king'` - the canonical bibliography. Everything King-specific filters on this: `/works`, `useKingWorks()`, every homepage figure/leaderboard/spotlight, every recommendation and Dark Tower suggestion, profile Overall/Collection progress (and the same figures on the compare page), `dark_tower_journey_stats`, and the Book of the week rotation. Series progress (`useSeries().fetchSeriesProgress`, which now covers Bachman and Dark Tower too) is the exception: `series_works` members can be either kind (e.g. Gwendy's Magic Feather), and every active, non-omnibus member counts.
+- `kind = 'related'` - Works by Others. `/works-by-others` and `useRelatedWorks()` filter on this. Tracked exactly like a King work (`user_books`, `user_book_reads`, `user_book_editions`) - no separate per-user tables - but never counted in a King statistic. The wishlist (`user_wishlist_items`) covers both kinds the same way, with no per-kind rule.
+- Lists that intentionally cover **both** kinds: the profile reading timeline, Bookshelf, Currently Reading, Read List, and a user's own `userBooksByWorkId`. They select `kind` and link through `workPath(kind, slug)` (`app/utils/workPath.ts`).
+- `work_stats` covers both kinds and exposes `kind` - filter it to `kind = 'king'` for any King leaderboard or total; a related work's detail page reads its own row directly.
+
+**When adding a query against `works`, `user_books`, `user_book_reads`, `user_book_editions` or `work_stats`, decide which kind it covers and filter on `kind` (or join a kind-filtered works list), or say in a comment that both kinds are intended.** Forgetting this silently lets related works into King stats.
+
+`works_kind_shape_check` ties the per-kind columns together: a King row needs `type` and `shuffle_position` and has no `creator`/`category`/`relation_note`; a related row needs `creator` and `category`, has no `shuffle_position`, and `type` is either null or `'omnibus'`. `kind` has no default - every seed row states it.
+
+
+| column                  | type                     | notes                                                                                                                                                                                                                                                                          |
+| ----------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `id`                    | uuid, PK                 |                                                                                                                                                                                                                                                                                |
+| `title`                 | text                     |                                                                                                                                                                                                                                                                                |
+| `type`                  | text                     | `novel` / `short_story` / `collection` / etc.                                                                                                                                                                                                                                  |
+| `publish_date`          | date                     |                                                                                                                                                                                                                                                                                |
+| `slug`                  | text, unique             | kebab-case version of `title`, used for URL routing (e.g. `the-stand` → `/works/the-stand`). Apostrophes are stripped; other non-alphanumeric characters become hyphens. Set in the seed file - never computed at runtime.                                                     |
+| `open_library_work_key` | text, nullable           | for matching against Open Library search                                                                                                                                                                                                                                       |
+| `cover_id`              | integer, nullable        | Open Library numeric cover id, used to build `https://covers.openlibrary.org/b/id/{cover_id}-{size}.jpg` for the works-browsing table thumbnail. See "Cover images" below - this is a narrow, explicit exception to the "don't store a cover id" rule, not a general precedent |
+| `dark_tower`            | boolean, default `false` | `true` only for works that are part of the core Dark Tower series - not for works merely connected to it (see `dark_tower_relation`)                                                                                                                                           |
+| `bachman`               | boolean, default `false` | `true` for works published under the Richard Bachman pseudonym                                                                                                                                                                                                                 |
+| `dark_tower_relation`   | text, nullable           | free-text note on how the work connects to the Dark Tower series (for series-proper works and for outside works sharing characters/settings/events with it); `null` means no connection worth noting                                                                           |
+| `remark`                | text, nullable           | free-text note shown on the `/works` table and a work's `/works/[slug]` page - for telling two rows of the same book apart (e.g. which Gunslinger/Stand text this row is) so a user marking a work read picks the right row. `null` for the overwhelming majority of works. |
+| `edition_year_min`      | integer, nullable        | restricts the "Add to Shelf" Open Library edition picker to editions published in this year or later. Paired with `edition_year_max` for a work that shares an `open_library_work_key` with another version of the same book split by publication year (e.g. Gunslinger's 2003 Revised Edition sets `edition_year_min = 2003`). Both null (the common case) means no restriction. |
+| `edition_year_max`      | integer, nullable        | mirror of `edition_year_min` - restricts to editions published in this year or earlier (e.g. the original Gunslinger sets `edition_year_max = 2002`).                                                                                                                         |
+| `counts_with_id`        | uuid, nullable, FK → `works.id`, `on delete set null` | set on an "alternate" row to group it with the "primary" row it represents another version of (e.g. the original Gunslinger's `counts_with_id` points at its Revised Edition) - the pair counts as **one** slot toward reading-progress totals (`fetchProfileBookStats`, `dark_tower_journey_stats`), and reading either row satisfies that slot. Does **not** cascade the `read` flag between the two rows - each row's own read status still reflects only what the user did to it directly. The "primary" row leaves this `null`. |
+| `kind`                  | text, not null, no default | `'king'` or `'related'` - see above |
+| `creator`               | text, nullable           | related only (required there): who made it, e.g. "Peter David, Robin Furth & Jae Lee" |
+| `category`              | text, nullable           | related only (required there): `comic` / `reference` / `tie_in_novel` - the Works by Others page's type filter |
+| `relation_note`         | text, nullable           | related only: how the work connects to King's own |
+
+Maintained in `supabase/seed/king_works.json` (King rows) and `supabase/seed/related_works.json` (related rows), both loaded into `works` (`seed:king-works`, then `seed:related-works`, which also loads `work_omnibus_works_seed.json` and `related_work_king_works_seed.json` since those link both kinds), checked into the repo. Adding a new King book = editing the seed file + redeploying the seed - **never** a runtime insert/update from the app, and there is no UI for editing this table.
+
+**Two rows for one book (alternate editions/texts).** When a book has two meaningfully different published texts (e.g. the Gunslinger's 1982 original vs. 2003 Revised Edition, or the Stand's 1978 original vs. 1990 Complete & Uncut Edition), model it as two King `works` rows rather than one - each is independently shelvable, ownable, and read-trackable, and a user may legitimately own/read either or both. Share `open_library_work_key` between the two only when Open Library tracks them under the same work; use `edition_year_min`/`edition_year_max` to split which of that work's editions each row's "Add to Shelf" picker offers, and set `remark` on both rows explaining which text each one is. Use `counts_with_id` (see above) only when the two additionally shouldn't count as two separate books toward reading-progress totals - this isn't automatic just because two rows represent the same underlying story; decide per case (the two Gunslinger rows use it, the two Stand rows currently don't).
+
+### `work_omnibus_works` (seed-file-driven - links an omnibus to the works it collects)
+
+`(omnibus_work_id, component_work_id)`, both FK → `works.id`, unique together. An omnibus is any `works` row with `type = 'omnibus'`, King (e.g. "The Bachman Books") or related (e.g. Marvel's "Beginnings"); the link is always within one kind (a seed authoring convention, not DB-enforced). Marking an omnibus read cascades `read = true` onto its components via `cascade_book_reads_on_omnibus_read()` (tagging them with `user_books.via_omnibus_id`), and unmarking uncascades only what that omnibus marked (`uncascade_book_reads_on_omnibus_unread()`). The cascade never writes `user_book_reads`, so a cascaded component has no timeline entry of its own. Omnibuses are excluded from reading-progress denominators, since their components are counted individually.
+
+### `related_work_king_works` (seed-file-driven - links a related work to the King works it connects to)
+
+`(related_work_id, king_work_id)`, both FK → `works.id`, unique together. The column names describe each side's role (the related work, the King work it's about), not separate tables. Powers the "Related Works" sections on `/works/[slug]` and `/works-by-others/[slug]`; since both columns reference `works`, embeds must name the FK (`works!related_work_king_works_related_work_id_fkey`).
+
+### `adaptations` (seed-file-driven, read-only at runtime)
+
+| column             | type                     | notes                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| ------------------ | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`               | uuid, PK                 |                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `title`            | text                     |                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `type`             | text                     | `movie` / `series` / `miniseries` / `tv_movie`                                                                                                                                                                                                                                                                                                                                                                                         |
+| `release_year`     | int                      |                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `slug`             | text, unique             | kebab-case version of `title`, used for URL routing (e.g. `misery` → `/adaptations/misery`). When multiple adaptations share a title, the release year is appended to all entries in that group (e.g. `carrie-1976`, `carrie-2013`, `the-shining-1980`). Set in the seed file. |
+| `tmdb_id`          | int, nullable            | numeric TMDb id, for matching against TMDb                                                                                                                                                                                                                                                                                                                                                                                             |
+| `tmdb_media_type`  | text, nullable           | `movie` or `tv` - TMDb keeps separate ID namespaces for movies and TV shows, so `tmdb_id` alone is ambiguous for building an API call or a link; this says which endpoint it belongs to                                                                                                                                                                                                                                                |
+| `tmdb_poster_path` | text, nullable           | TMDb's own poster path (e.g. `/abc123.jpg`), used to build `https://image.tmdb.org/t/p/{size}{tmdb_poster_path}` for the adaptations-browsing table thumbnail. Same narrow exception as `works.cover_id` - see "Cover images" below                                                                                                                                                                                               |
+| `is_universe_only` | boolean, default `false` | `true` for adaptations that draw on King's characters, settings, or "universe" without adapting a specific plot - e.g. Castle Rock, Kingdom Hospital, Golden Years, The Diary of Ellen Rimbauer. These rows have **no** entries in `adaptation_works` or `adaptation_short_stories` (see below); the flag is what a UI checks before showing an empty "based on" section as "loosely set in King's universe" rather than as a data gap |
+| `notes`            | text, nullable           | free-text context for loose, composite, or non-obvious adaptations - which specific stories an anthology episode draws from, why something is marked `is_universe_only`, etc. `null` when the adaptation is a straightforward single-source case that doesn't need explaining                                                                                                                                                          |
+
+Same maintenance pattern as `works`: seed file in the repo (`supabase/seed/adaptations.json`), redeployed on change, no runtime CRUD. Its relationship to source material is handled entirely by `adaptation_works` and `adaptation_short_stories` below, not by a column on this table.
+
+### `adaptation_works` (seed-file-driven, read-only at runtime - links adaptations to works)
+
+A proper many-to-many join, not a single FK column on `adaptations`, because some adaptations draw on more than one work (King's universe is heavily cross-referential - a nullable single `work_id` would force picking one "primary" source and lose the rest).
+
+| column          | type                        | notes |
+| --------------- | --------------------------- | ----- |
+| `id`            | uuid, PK                    |       |
+| `adaptation_id` | uuid, FK → `adaptations.id` |       |
+| `work_id`  | uuid, FK → `works.id`  |       |
+
+Unique constraint on `(adaptation_id, work_id)`. Same seed-file maintenance pattern as `works`/`adaptations` - this is curated bibliography data, not user data, so it's maintained in `supabase/seed/adaptation_works.json` and redeployed on change, never written at runtime.
+
+### `adaptation_short_stories` (seed-file-driven, read-only at runtime - links adaptations to short stories)
+
+The same join, one table over, for adaptations sourced from an individual short story or novella rather than a full book/collection. This is a distinct, common case - The Shawshank Redemption (from the novella "Rita Hayworth and Shawshank Redemption"), Stand By Me (from "The Body"), Creepshow (from five separate Night Shift/Skeleton Crew/uncollected stories) - and matters for stats: without it, an adaptation like Shawshank would appear to have no source in `adaptation_works` at all, since its source was never a `works` row to begin with.
+
+| column           | type                               | notes |
+| ---------------- | ---------------------------------- | ----- |
+| `id`             | uuid, PK                           |       |
+| `adaptation_id`  | uuid, FK → `adaptations.id`        |       |
+| `short_story_id` | uuid, FK → `king_short_stories.id` |       |
+
+Unique constraint on `(adaptation_id, short_story_id)`. Same seed-file maintenance pattern - `supabase/seed/adaptation_short_stories.json`, no runtime CRUD.
+
+**Collection implication:** a short story always belongs to one or more collections via `king_short_story_collections`. An adaptation of a short story is therefore implicitly related to every collection that contains it - this relationship is **not** duplicated as an explicit row in `adaptation_works` (that would create redundant, potentially drifting data). Instead it is derived at query time by joining through `king_short_story_collections` (see "Collection-level adaptation lookup" below). A collection's detail page must traverse this join to surface all adaptations whose source stories appear in it.
+
+Kept as its own table rather than folding into `adaptation_works` with a nullable `short_story_id` alongside a nullable `work_id`, or a polymorphic `source_type`/`source_id` pair on one shared table - this schema already prefers explicit typed FKs over polymorphic associations elsewhere (see `king_short_story_collections`), and a single join table with two nullable target columns would let a row reference neither or both, which is exactly the kind of state a schema shouldn't be able to represent in the first place.
+
+An adaptation can have rows in `adaptation_works`, `adaptation_short_stories`, both (uncommon, but not disallowed - nothing stops an adaptation from citing both a full work and a specific short story as sources), or neither (`is_universe_only = true` on `adaptations`, see above).
+
+A work's or short story's detail page queries the matching table filtered by `work_id`/`short_story_id` to list its adaptations. An adaptation's detail page queries **both** `adaptation_works` and `adaptation_short_stories` filtered by `adaptation_id` and combines the results to build its full "based on" list.
+
+### Collection-level adaptation lookup
+
+A `works` row of `type = 'collection'` can be related to adaptations in two distinct ways - both must be queried to show the full picture:
+
+1. **Direct**: `adaptation_works` rows where `work_id` matches the collection (e.g. Creepshow, which draws on several Night Shift / Skeleton Crew stories and is explicitly linked to both collections as a whole).
+2. **Via short stories**: `adaptation_short_stories` rows for stories that belong to the collection, reached through `king_short_story_collections`.
+
+**Do not add explicit `adaptation_works` rows to represent the collection link** when the adaptation is already in `adaptation_short_stories` - that would duplicate the relationship and require keeping two rows in sync whenever a story's collection membership changes.
+
+Instead, derive the collection relationship at query time. The pattern, used both in composables and in the `adaptation_vs_source_stats` view family:
+
+```sql
+-- All adaptations touching a given collection (direct + via its short stories)
+select aw.adaptation_id, 'direct' as link_type
+from adaptation_works aw
+where aw.work_id = $collection_id
+
+union
+
+select ass.adaptation_id, 'via_short_story' as link_type
+from adaptation_short_stories ass
+join king_short_story_collections ksc on ksc.short_story_id = ass.short_story_id
+where ksc.work_id = $collection_id;
+```
+
+The `link_type` tag is optional but useful for display: a "direct" link might show as "Adaptation of this collection"; a "via_short_story" link might show as "Adaptation of a story in this collection" (with the specific short story title resolved from `king_short_stories`).
+
+Similarly, an adaptation's own detail page should show the collection context for its short-story sources - not just the story title, but also "appears in: Night Shift". `useAdaptations()` resolves this by joining `adaptation_short_stories` → `king_short_story_collections` → `works` for any short-story source, and including the collection title alongside the story title in the "based on" list.
+
+### `king_short_stories` (seed-file-driven, read-only at runtime)
+
+Short stories are **not** rows in `works` - that table represents things a user independently collects (owns/wishlists/reads as a standalone unit), and a short story only exists _inside_ a collection, never acquired on its own. Mixing them in would break the "1 row = 1 shelf-able thing" semantics `user_books` is built around.
+
+| column                  | type                     | notes                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| ----------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                    | uuid, PK                 |                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `title`                 | text                     |                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `type`                  | text                     | `short_story` or `novella` - distinguishes shorter pieces from novella-length ones (e.g. "The Boogeyman" vs. "The Body"). Looser than `works.type`: everything in this table is, by definition, a piece that only exists inside a collection rather than being independently shelved, so this column exists purely for display/filtering, not to gate any behavior the way `works.type = 'collection'` does elsewhere |
+| `original_publish_year` | int, nullable            |                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `first_published_in`    | text, nullable           | magazine/anthology if it debuted outside a King collection                                                                                                                                                                                                                                                                                                                                                                      |
+| `dark_tower`            | boolean, default `false` | same meaning as `works.dark_tower` - counts toward Dark Tower completion tracking (see "Reading progress by category" below)                                                                                                                                                                                                                                                                                               |
+| `dark_tower_relation`   | text, nullable           | same meaning as `works.dark_tower_relation`                                                                                                                                                                                                                                                                                                                                                                                |
+
+**No `bachman` column here** - Richard Bachman was a pseudonym used for novels only; no short story was ever published under it. Adding a column that can never meaningfully be `true` would just be clutter. Revisit only if that historical fact turns out to be wrong.
+
+Same seed-file maintenance pattern as `works` - `supabase/seed/king_short_stories.json`, no runtime CRUD.
+
+### `king_short_story_collections` (seed-file-driven, links short stories to the collections containing them)
+
+Many-to-many, not a single FK on `king_short_stories`, because stories get reprinted across multiple collections over the years (e.g. a story could appear in its original collection and later in a "best of" anthology).
+
+| column                | type                               | notes                                                                                                                                                                                                                                                                                |
+| --------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `id`                  | uuid, PK                           |                                                                                                                                                                                                                                                                                      |
+| `short_story_id`      | uuid, FK → `king_short_stories.id` |                                                                                                                                                                                                                                                                                      |
+| `work_id`        | uuid, FK → `works.id`         | expected to reference a row where `type = 'collection'` - this is a seed-file authoring convention, not a DB-enforced constraint (Postgres can't easily check a value against another table's column without a trigger, and it's not worth one for curated, developer-authored data) |
+| `order_in_collection` | int, nullable                      |                                                                                                                                                                                                                                                                                      |
+
+Unique constraint on `(short_story_id, work_id)`. Same seed-file maintenance pattern, no runtime CRUD. A story's detail page shows "appears in: X, Y" by querying this filtered on `short_story_id`.
+
+### `user_short_story_reads` (read-tracking for individual short stories)
+
+Unlike `user_books`, a short story has exactly one meaningful state - read or not - so this is a **row-existence table**, not a boolean-flags row: a row existing _is_ "has read this story." No wishlist/`want_to_read` equivalent, since wanting to read a story is already covered by wanting to read the collection it's in.
+
+| column              | type                               | notes |
+| ------------------- | ----------------------------------- | ----- |
+| `id`                | uuid, PK                           |       |
+| `user_id`           | uuid, FK → `auth.users.id`         |       |
+| `short_story_id`    | uuid, FK → `king_short_stories.id` |       |
+| `read_at`           | timestamptz, default `now()`       |       |
+| `via_collection_id` | uuid, nullable, FK → `works.id`, `on delete set null` | which collection's read-cascade created this row, if any - `null` means the user marked this story read directly. See `cascade_short_story_reads_on_collection_read()`/`uncascade_short_story_reads_on_collection_unread()` below. |
+
+Unique constraint on `(user_id, short_story_id)`. Same reread limitation as `user_books`/`user_adaptations`: `read_at` holds only the most recent value, no history - see the note under `user_books` above.
+
+### `profiles` (public directory of users)
+
+| column       | type                           | notes                                                                                                                                                              |
+| ------------ | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `id`         | uuid, PK, FK → `auth.users.id` |                                                                                                                                                                    |
+| `username`   | text, unique, nullable         | `null` until the user completes onboarding - enforced format via a `check` constraint (3–24 lowercase letters/digits/underscore), see `user-onboarding` capability |
+| `avatar_url` | text, nullable                 |                                                                                                                                                                    |
+| `is_public`  | boolean, default `true`        | gates visibility of this user's **collections** (see RLS below) - the profile row itself (username) is always readable                                             |
+| `created_at` | timestamptz, default `now()`   |                                                                                                                                                                    |
+
+`auth.users` is never exposed to the client directly (it holds emails, password hashes, etc.), which is exactly why `profiles` exists - it's the public-safe mirror. A row is created automatically via a trigger on `auth.users` insert (`handle_new_user()` function, `SECURITY DEFINER`) - never insert into `profiles` from client code.
+
+Implemented in `supabase/migrations/20260903120000_create_profiles_table.sql`.
+
+### `user_books` (join table: user ↔ work - the single source of truth for the relationship)
+
+One row per `(user_id, work_id)`. This is the authoritative record of whether a work is owned and/or read - **ownership does not require an edition to be selected.** Editions (below) are optional supplementary detail a collector may attach on top of this.
+
+| column              | type                       | notes                                                                                                                                                                                                                     |
+| ------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                | uuid, PK                   |                                                                                                                                                                                                                           |
+| `user_id`           | uuid, FK → `auth.users.id` |                                                                                                                                                                                                                           |
+| `work_id`      | uuid, FK → `works.id` |                                                                                                                                                                                                                           |
+| `owned`             | boolean, default `false`   | generic "I own this work" - true whether or not any edition has been picked                                                                                                                                               |
+| `want_to_read`      | boolean, default `false`   | wants to _read_ it - a separate intent from wanting to own; see Triggers                                                                                                                                                  |
+| `currently_reading` | boolean, default `false`   | supports being mid-read on several works at once - this is a per-row flag, so "reading 3 books" is just 3 rows each with this `true`, no special handling needed                                                          |
+| `started_on`        | date, nullable             | the date the user started reading - **`date`, not `timestamptz`**: this is a calendar date the user picks (e.g. via a native date input), not a moment in time, so there's no time-of-day or timezone to store or convert |
+| `read`              | boolean, default `false`   |                                                                                                                                                                                                                           |
+| `finished_on`       | date, nullable             | the date the user finished reading - same `date`-not-`timestamptz` reasoning as `started_on`                                                                                                                              |
+| `read_year`         | int, nullable              | approximate fallback for when a user wants to log a book as read with only a rough year, not an exact date - independent of `started_on`/`finished_on`, not derived from them; see below                                  |
+| `format`            | text, nullable             | the **current reading session's** format (`physical` / `audiobook` / `ebook`), written by `startReading()` - not the owned copy's format; see `copy_format` |
+| `copy_format`       | text, nullable             | edition-less copy details: `paperback` / `hardcover` / `audiobook` / `ebook`. Only meaningful while the work has no `user_book_editions` rows - see "Copy details" under `user_book_editions` |
+| `copy_edition`      | int, nullable              | edition-less copy details: edition number, >= 1, physical formats only |
+| `copy_printing`     | int, nullable              | edition-less copy details: printing number, >= 1, physical formats only |
+| `copy_signed`       | boolean, default `false`   | edition-less copy details: signed copy, physical formats only |
+| `copy_dust_jacket`  | boolean, default `false`   | edition-less copy details: dust jacket present, hardcover only |
+| `copy_book_club`    | boolean, default `false`   | edition-less copy details: book club edition, hardcover only - never gets a gold/silver mark |
+| `copy_limited`      | boolean, default `false`   | edition-less copy details: limited edition, physical formats only |
+| `copy_limited_number` | text, nullable           | edition-less copy details: numbered ("123") or lettered ("AA") copy, `^[A-Z0-9]{1,6}---
+name: supabase-conventions
+description: Database schema, RLS policies, and query conventions for the Stephen King Library app's Supabase backend. Use this whenever writing or modifying anything that touches the database - Supabase queries, composables, migrations, RLS policies, seed files, or the tables works (King and related works, labelled by kind), work_omnibus_works, related_work_king_works, adaptations, adaptation_works, adaptation_short_stories, king_short_stories, king_short_story_collections, profiles, user_books, user_book_editions, user_book_reads, user_adaptations, user_short_story_reads, user_wishlist_items, user_follows, notifications, or email_preferences. Also use when adding any feature that reads or writes user collections, wishlists, read status, watch status, short story reads, cover images, or statistics/leaderboards, since these all depend on this schema. Consult this skill before writing a single `supabase.from(...)` call anywhere in the app.
+---
+
+# Supabase Conventions - Stephen King Library
+
+This skill is the source of truth for the database schema and how to interact with it. Do not invent tables, columns, or RLS policies that aren't described here - if a feature needs something not covered, stop and ask rather than improvising a schema change.
+
+## Core rule: queries only via composables
+
+No `.vue` file ever calls `supabase.from(...)` directly. Every table gets a composable (e.g. `useBooks`, `useAdaptations`, `useProfile`) that wraps reads/writes for that table. This keeps RLS-dependent query logic (see below) in one place instead of scattered across components.
+
+## Local development & deployment workflow
+
+Any task that touches migrations, RLS policies, triggers, or seed data follows this sequence - the hosted Supabase project is never the first place a schema change is tried:
+
+1. **Develop and test against a local Supabase instance in Docker** (`supabase start`), not directly against the hosted project. Write migrations, apply them locally, load seed data locally, and verify the feature works there first.
+2. **Treat the local Supabase instance as persistent, not disposable.** Stopping it between sessions is fine (`supabase stop`, which preserves the Docker volume) - tearing it down in a way that discards that volume is not. The local instance should never need to be rebuilt from scratch as a routine step; `supabase start` should resume the existing state, migrations and seed data already applied.
+3. **Keep local in sync with hosted, or ahead of it - never behind.** Before starting new schema work, confirm local has every migration hosted has (`supabase migration list` shows both sides) - hosted should only ever move ahead of local via a push that originated from local in the first place, so drift shouldn't happen in normal use, but check rather than assume if something seems off. While a feature is in progress, it's expected and fine for local to be ahead of hosted (new migrations applied locally, not yet pushed) - that gap is exactly what "test locally before touching hosted" means.
+4. **Prefer `supabase migration up` over `supabase db reset` for applying a new migration locally.** `migration up` applies only the pending migration(s) against the existing local database, leaving every other table's rows - including `auth.users`, `profiles`, and every `user_*` table - untouched. `supabase db reset` wipes the *entire* local database (every table, every schema, not just the one being changed) and reapplies all migrations plus `supabase/seed.sql` from scratch; it does **not** rerun the `seed:*` scripts in `package.json`, so a `works`/bibliography reseed still needs a manual `pnpm run seed:*` afterward. A `db reset` also silently deletes the local session of whoever is signed in (their `auth.users` row disappears, so their existing browser session becomes a token for a user that no longer exists, and a `.single()` profile lookup then throws "Cannot coerce the result to a single JSON object" until they sign in again) and deletes their local `user_books`/read-tracking test data. Only reach for `db reset` when local state is actually suspect and a from-scratch rebuild is the goal - **never as a convenience for applying one migration**, and always say so explicitly before running it, since it discards the current user's local session and data.
+   - If a new `not null` column can't be added to an already-populated table without a default (the common case for a seed-file-driven table like `works`), don't reach for `db reset` to sidestep that - split it into two migrations instead: one that adds the column nullable, a `pnpm run seed:*` to backfill it via the existing upsert, then a second migration that sets `not null` (and drops the old column, if any). This keeps the change to one migration-only table, with zero blast radius on `auth.users`/`profiles`/`user_*` tables.
+5. **Local dev and the deployed app point at permanently separate Supabase targets - nothing gets switched.** `.env` (or `.env.local`, gitignored) holds local Supabase's URL and anon key from `supabase status`, and never changes - running `pnpm dev` always talks to local Supabase. The deployed app never reads that file at all; it gets hosted's URL and anon key from Vercel's own environment variables, configured once in the Vercel dashboard, not something this workflow touches. Because the two are already separate, "ask the person to test" just means asking them to run `pnpm dev` - no config change needed first, and none needed to revert afterward.
+6. **Never write to the hosted/linked project without asking first.** Once the person confirms local testing looks good and gives an explicit go-ahead, push the migrations (and re-seed if needed) to hosted - this should happen _before_ merging the feature branch to main, since Vercel auto-deploys on merge and the deployed code shouldn't go live expecting a schema hosted doesn't have yet. Treat the go-ahead as a distinct, explicit checkpoint, not something implied by an earlier "looks good" in the conversation - local Docker is the sandbox for iterating freely, but the hosted project holds real data other features may already depend on.
+7. **`supabase db reset` is a local-only command - never run it, in any form, against the hosted/linked project.** This project's local CLI is linked to the hosted "King Library" project (`supabase status` shows `linked_project`), so `--linked` (or any `--db-url` pointing at hosted) is available on several commands - but there is no legitimate reason to ever pass it to `db reset`: hosted holds real user data, and a full reset there is unrecoverable data loss, not a "sync" operation. The only sanctioned way to change hosted's schema is an additive `supabase db push` (see 6 above), and the only sanctioned way to change hosted's seed-file-driven table contents is the `seed:*:hosted` / `backfill:*` scripts - both already require the explicit go-ahead in 6. If a task ever seems to call for resetting or wiping hosted, that's a sign to stop and ask, not a variant of a local command to run with a different flag.
+
+## Schema
+
+All `date` columns (e.g. `publish_date`, `started_on`, `finished_on`) must use ISO 8601 format: `YYYY-MM-DD`. This applies to values in seed files, migration defaults, and any date the client sends to the database. Never use locale-specific formats, slashes, or two-digit years.
+
+### `works` (seed-file-driven, read-only at runtime)
+
+Every book lives here - the canonical King bibliography **and** the By Other Hands / Works by Others material (Marvel's Dark Tower comics, companion/reference books, authorized tie-in novels). Each row carries a `kind` label, and **every query decides which kind it covers**:
+
+- `kind = 'king'` - the canonical bibliography. Everything King-specific filters on this: `/works`, `useKingWorks()`, every homepage figure/leaderboard/spotlight, every recommendation and Dark Tower suggestion, profile Overall/Collection progress (and the same figures on the compare page), `dark_tower_journey_stats`, and the Book of the week rotation. Series progress (`useSeries().fetchSeriesProgress`, which now covers Bachman and Dark Tower too) is the exception: `series_works` members can be either kind (e.g. Gwendy's Magic Feather), and every active, non-omnibus member counts.
+- `kind = 'related'` - Works by Others. `/works-by-others` and `useRelatedWorks()` filter on this. Tracked exactly like a King work (`user_books`, `user_book_reads`, `user_book_editions`) - no separate per-user tables - but never counted in a King statistic. The wishlist (`user_wishlist_items`) covers both kinds the same way, with no per-kind rule.
+- Lists that intentionally cover **both** kinds: the profile reading timeline, Bookshelf, Currently Reading, Read List, and a user's own `userBooksByWorkId`. They select `kind` and link through `workPath(kind, slug)` (`app/utils/workPath.ts`).
+- `work_stats` covers both kinds and exposes `kind` - filter it to `kind = 'king'` for any King leaderboard or total; a related work's detail page reads its own row directly.
+
+**When adding a query against `works`, `user_books`, `user_book_reads`, `user_book_editions` or `work_stats`, decide which kind it covers and filter on `kind` (or join a kind-filtered works list), or say in a comment that both kinds are intended.** Forgetting this silently lets related works into King stats.
+
+`works_kind_shape_check` ties the per-kind columns together: a King row needs `type` and `shuffle_position` and has no `creator`/`category`/`relation_note`; a related row needs `creator` and `category`, has no `shuffle_position`, and `type` is either null or `'omnibus'`. `kind` has no default - every seed row states it.
+
+
+| column                  | type                     | notes                                                                                                                                                                                                                                                                          |
+| ----------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `id`                    | uuid, PK                 |                                                                                                                                                                                                                                                                                |
+| `title`                 | text                     |                                                                                                                                                                                                                                                                                |
+| `type`                  | text                     | `novel` / `short_story` / `collection` / etc.                                                                                                                                                                                                                                  |
+| `publish_date`          | date                     |                                                                                                                                                                                                                                                                                |
+| `slug`                  | text, unique             | kebab-case version of `title`, used for URL routing (e.g. `the-stand` → `/works/the-stand`). Apostrophes are stripped; other non-alphanumeric characters become hyphens. Set in the seed file - never computed at runtime.                                                     |
+| `open_library_work_key` | text, nullable           | for matching against Open Library search                                                                                                                                                                                                                                       |
+| `cover_id`              | integer, nullable        | Open Library numeric cover id, used to build `https://covers.openlibrary.org/b/id/{cover_id}-{size}.jpg` for the works-browsing table thumbnail. See "Cover images" below - this is a narrow, explicit exception to the "don't store a cover id" rule, not a general precedent |
+| `dark_tower`            | boolean, default `false` | `true` only for works that are part of the core Dark Tower series - not for works merely connected to it (see `dark_tower_relation`)                                                                                                                                           |
+| `bachman`               | boolean, default `false` | `true` for works published under the Richard Bachman pseudonym                                                                                                                                                                                                                 |
+| `dark_tower_relation`   | text, nullable           | free-text note on how the work connects to the Dark Tower series (for series-proper works and for outside works sharing characters/settings/events with it); `null` means no connection worth noting                                                                           |
+| `remark`                | text, nullable           | free-text note shown on the `/works` table and a work's `/works/[slug]` page - for telling two rows of the same book apart (e.g. which Gunslinger/Stand text this row is) so a user marking a work read picks the right row. `null` for the overwhelming majority of works. |
+| `edition_year_min`      | integer, nullable        | restricts the "Add to Shelf" Open Library edition picker to editions published in this year or later. Paired with `edition_year_max` for a work that shares an `open_library_work_key` with another version of the same book split by publication year (e.g. Gunslinger's 2003 Revised Edition sets `edition_year_min = 2003`). Both null (the common case) means no restriction. |
+| `edition_year_max`      | integer, nullable        | mirror of `edition_year_min` - restricts to editions published in this year or earlier (e.g. the original Gunslinger sets `edition_year_max = 2002`).                                                                                                                         |
+| `counts_with_id`        | uuid, nullable, FK → `works.id`, `on delete set null` | set on an "alternate" row to group it with the "primary" row it represents another version of (e.g. the original Gunslinger's `counts_with_id` points at its Revised Edition) - the pair counts as **one** slot toward reading-progress totals (`fetchProfileBookStats`, `dark_tower_journey_stats`), and reading either row satisfies that slot. Does **not** cascade the `read` flag between the two rows - each row's own read status still reflects only what the user did to it directly. The "primary" row leaves this `null`. |
+| `kind`                  | text, not null, no default | `'king'` or `'related'` - see above |
+| `creator`               | text, nullable           | related only (required there): who made it, e.g. "Peter David, Robin Furth & Jae Lee" |
+| `category`              | text, nullable           | related only (required there): `comic` / `reference` / `tie_in_novel` - the Works by Others page's type filter |
+| `relation_note`         | text, nullable           | related only: how the work connects to King's own |
+
+Maintained in `supabase/seed/king_works.json` (King rows) and `supabase/seed/related_works.json` (related rows), both loaded into `works` (`seed:king-works`, then `seed:related-works`, which also loads `work_omnibus_works_seed.json` and `related_work_king_works_seed.json` since those link both kinds), checked into the repo. Adding a new King book = editing the seed file + redeploying the seed - **never** a runtime insert/update from the app, and there is no UI for editing this table.
+
+**Two rows for one book (alternate editions/texts).** When a book has two meaningfully different published texts (e.g. the Gunslinger's 1982 original vs. 2003 Revised Edition, or the Stand's 1978 original vs. 1990 Complete & Uncut Edition), model it as two King `works` rows rather than one - each is independently shelvable, ownable, and read-trackable, and a user may legitimately own/read either or both. Share `open_library_work_key` between the two only when Open Library tracks them under the same work; use `edition_year_min`/`edition_year_max` to split which of that work's editions each row's "Add to Shelf" picker offers, and set `remark` on both rows explaining which text each one is. Use `counts_with_id` (see above) only when the two additionally shouldn't count as two separate books toward reading-progress totals - this isn't automatic just because two rows represent the same underlying story; decide per case (the two Gunslinger rows use it, the two Stand rows currently don't).
+
+### `work_omnibus_works` (seed-file-driven - links an omnibus to the works it collects)
+
+`(omnibus_work_id, component_work_id)`, both FK → `works.id`, unique together. An omnibus is any `works` row with `type = 'omnibus'`, King (e.g. "The Bachman Books") or related (e.g. Marvel's "Beginnings"); the link is always within one kind (a seed authoring convention, not DB-enforced). Marking an omnibus read cascades `read = true` onto its components via `cascade_book_reads_on_omnibus_read()` (tagging them with `user_books.via_omnibus_id`), and unmarking uncascades only what that omnibus marked (`uncascade_book_reads_on_omnibus_unread()`). The cascade never writes `user_book_reads`, so a cascaded component has no timeline entry of its own. Omnibuses are excluded from reading-progress denominators, since their components are counted individually.
+
+### `related_work_king_works` (seed-file-driven - links a related work to the King works it connects to)
+
+`(related_work_id, king_work_id)`, both FK → `works.id`, unique together. The column names describe each side's role (the related work, the King work it's about), not separate tables. Powers the "Related Works" sections on `/works/[slug]` and `/works-by-others/[slug]`; since both columns reference `works`, embeds must name the FK (`works!related_work_king_works_related_work_id_fkey`).
+
+### `adaptations` (seed-file-driven, read-only at runtime)
+
+| column             | type                     | notes                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| ------------------ | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`               | uuid, PK                 |                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `title`            | text                     |                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `type`             | text                     | `movie` / `series` / `miniseries` / `tv_movie`                                                                                                                                                                                                                                                                                                                                                                                         |
+| `release_year`     | int                      |                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `slug`             | text, unique             | kebab-case version of `title`, used for URL routing (e.g. `misery` → `/adaptations/misery`). When multiple adaptations share a title, the release year is appended to all entries in that group (e.g. `carrie-1976`, `carrie-2013`, `the-shining-1980`). Set in the seed file. |
+| `tmdb_id`          | int, nullable            | numeric TMDb id, for matching against TMDb                                                                                                                                                                                                                                                                                                                                                                                             |
+| `tmdb_media_type`  | text, nullable           | `movie` or `tv` - TMDb keeps separate ID namespaces for movies and TV shows, so `tmdb_id` alone is ambiguous for building an API call or a link; this says which endpoint it belongs to                                                                                                                                                                                                                                                |
+| `tmdb_poster_path` | text, nullable           | TMDb's own poster path (e.g. `/abc123.jpg`), used to build `https://image.tmdb.org/t/p/{size}{tmdb_poster_path}` for the adaptations-browsing table thumbnail. Same narrow exception as `works.cover_id` - see "Cover images" below                                                                                                                                                                                               |
+| `is_universe_only` | boolean, default `false` | `true` for adaptations that draw on King's characters, settings, or "universe" without adapting a specific plot - e.g. Castle Rock, Kingdom Hospital, Golden Years, The Diary of Ellen Rimbauer. These rows have **no** entries in `adaptation_works` or `adaptation_short_stories` (see below); the flag is what a UI checks before showing an empty "based on" section as "loosely set in King's universe" rather than as a data gap |
+| `notes`            | text, nullable           | free-text context for loose, composite, or non-obvious adaptations - which specific stories an anthology episode draws from, why something is marked `is_universe_only`, etc. `null` when the adaptation is a straightforward single-source case that doesn't need explaining                                                                                                                                                          |
+
+Same maintenance pattern as `works`: seed file in the repo (`supabase/seed/adaptations.json`), redeployed on change, no runtime CRUD. Its relationship to source material is handled entirely by `adaptation_works` and `adaptation_short_stories` below, not by a column on this table.
+
+### `adaptation_works` (seed-file-driven, read-only at runtime - links adaptations to works)
+
+A proper many-to-many join, not a single FK column on `adaptations`, because some adaptations draw on more than one work (King's universe is heavily cross-referential - a nullable single `work_id` would force picking one "primary" source and lose the rest).
+
+| column          | type                        | notes |
+| --------------- | --------------------------- | ----- |
+| `id`            | uuid, PK                    |       |
+| `adaptation_id` | uuid, FK → `adaptations.id` |       |
+| `work_id`  | uuid, FK → `works.id`  |       |
+
+Unique constraint on `(adaptation_id, work_id)`. Same seed-file maintenance pattern as `works`/`adaptations` - this is curated bibliography data, not user data, so it's maintained in `supabase/seed/adaptation_works.json` and redeployed on change, never written at runtime.
+
+### `adaptation_short_stories` (seed-file-driven, read-only at runtime - links adaptations to short stories)
+
+The same join, one table over, for adaptations sourced from an individual short story or novella rather than a full book/collection. This is a distinct, common case - The Shawshank Redemption (from the novella "Rita Hayworth and Shawshank Redemption"), Stand By Me (from "The Body"), Creepshow (from five separate Night Shift/Skeleton Crew/uncollected stories) - and matters for stats: without it, an adaptation like Shawshank would appear to have no source in `adaptation_works` at all, since its source was never a `works` row to begin with.
+
+| column           | type                               | notes |
+| ---------------- | ---------------------------------- | ----- |
+| `id`             | uuid, PK                           |       |
+| `adaptation_id`  | uuid, FK → `adaptations.id`        |       |
+| `short_story_id` | uuid, FK → `king_short_stories.id` |       |
+
+Unique constraint on `(adaptation_id, short_story_id)`. Same seed-file maintenance pattern - `supabase/seed/adaptation_short_stories.json`, no runtime CRUD.
+
+**Collection implication:** a short story always belongs to one or more collections via `king_short_story_collections`. An adaptation of a short story is therefore implicitly related to every collection that contains it - this relationship is **not** duplicated as an explicit row in `adaptation_works` (that would create redundant, potentially drifting data). Instead it is derived at query time by joining through `king_short_story_collections` (see "Collection-level adaptation lookup" below). A collection's detail page must traverse this join to surface all adaptations whose source stories appear in it.
+
+Kept as its own table rather than folding into `adaptation_works` with a nullable `short_story_id` alongside a nullable `work_id`, or a polymorphic `source_type`/`source_id` pair on one shared table - this schema already prefers explicit typed FKs over polymorphic associations elsewhere (see `king_short_story_collections`), and a single join table with two nullable target columns would let a row reference neither or both, which is exactly the kind of state a schema shouldn't be able to represent in the first place.
+
+An adaptation can have rows in `adaptation_works`, `adaptation_short_stories`, both (uncommon, but not disallowed - nothing stops an adaptation from citing both a full work and a specific short story as sources), or neither (`is_universe_only = true` on `adaptations`, see above).
+
+A work's or short story's detail page queries the matching table filtered by `work_id`/`short_story_id` to list its adaptations. An adaptation's detail page queries **both** `adaptation_works` and `adaptation_short_stories` filtered by `adaptation_id` and combines the results to build its full "based on" list.
+
+### Collection-level adaptation lookup
+
+A `works` row of `type = 'collection'` can be related to adaptations in two distinct ways - both must be queried to show the full picture:
+
+1. **Direct**: `adaptation_works` rows where `work_id` matches the collection (e.g. Creepshow, which draws on several Night Shift / Skeleton Crew stories and is explicitly linked to both collections as a whole).
+2. **Via short stories**: `adaptation_short_stories` rows for stories that belong to the collection, reached through `king_short_story_collections`.
+
+**Do not add explicit `adaptation_works` rows to represent the collection link** when the adaptation is already in `adaptation_short_stories` - that would duplicate the relationship and require keeping two rows in sync whenever a story's collection membership changes.
+
+Instead, derive the collection relationship at query time. The pattern, used both in composables and in the `adaptation_vs_source_stats` view family:
+
+```sql
+-- All adaptations touching a given collection (direct + via its short stories)
+select aw.adaptation_id, 'direct' as link_type
+from adaptation_works aw
+where aw.work_id = $collection_id
+
+union
+
+select ass.adaptation_id, 'via_short_story' as link_type
+from adaptation_short_stories ass
+join king_short_story_collections ksc on ksc.short_story_id = ass.short_story_id
+where ksc.work_id = $collection_id;
+```
+
+The `link_type` tag is optional but useful for display: a "direct" link might show as "Adaptation of this collection"; a "via_short_story" link might show as "Adaptation of a story in this collection" (with the specific short story title resolved from `king_short_stories`).
+
+Similarly, an adaptation's own detail page should show the collection context for its short-story sources - not just the story title, but also "appears in: Night Shift". `useAdaptations()` resolves this by joining `adaptation_short_stories` → `king_short_story_collections` → `works` for any short-story source, and including the collection title alongside the story title in the "based on" list.
+
+### `king_short_stories` (seed-file-driven, read-only at runtime)
+
+Short stories are **not** rows in `works` - that table represents things a user independently collects (owns/wishlists/reads as a standalone unit), and a short story only exists _inside_ a collection, never acquired on its own. Mixing them in would break the "1 row = 1 shelf-able thing" semantics `user_books` is built around.
+
+| column                  | type                     | notes                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| ----------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                    | uuid, PK                 |                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `title`                 | text                     |                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `type`                  | text                     | `short_story` or `novella` - distinguishes shorter pieces from novella-length ones (e.g. "The Boogeyman" vs. "The Body"). Looser than `works.type`: everything in this table is, by definition, a piece that only exists inside a collection rather than being independently shelved, so this column exists purely for display/filtering, not to gate any behavior the way `works.type = 'collection'` does elsewhere |
+| `original_publish_year` | int, nullable            |                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `first_published_in`    | text, nullable           | magazine/anthology if it debuted outside a King collection                                                                                                                                                                                                                                                                                                                                                                      |
+| `dark_tower`            | boolean, default `false` | same meaning as `works.dark_tower` - counts toward Dark Tower completion tracking (see "Reading progress by category" below)                                                                                                                                                                                                                                                                                               |
+| `dark_tower_relation`   | text, nullable           | same meaning as `works.dark_tower_relation`                                                                                                                                                                                                                                                                                                                                                                                |
+
+**No `bachman` column here** - Richard Bachman was a pseudonym used for novels only; no short story was ever published under it. Adding a column that can never meaningfully be `true` would just be clutter. Revisit only if that historical fact turns out to be wrong.
+
+Same seed-file maintenance pattern as `works` - `supabase/seed/king_short_stories.json`, no runtime CRUD.
+
+### `king_short_story_collections` (seed-file-driven, links short stories to the collections containing them)
+
+Many-to-many, not a single FK on `king_short_stories`, because stories get reprinted across multiple collections over the years (e.g. a story could appear in its original collection and later in a "best of" anthology).
+
+| column                | type                               | notes                                                                                                                                                                                                                                                                                |
+| --------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `id`                  | uuid, PK                           |                                                                                                                                                                                                                                                                                      |
+| `short_story_id`      | uuid, FK → `king_short_stories.id` |                                                                                                                                                                                                                                                                                      |
+| `work_id`        | uuid, FK → `works.id`         | expected to reference a row where `type = 'collection'` - this is a seed-file authoring convention, not a DB-enforced constraint (Postgres can't easily check a value against another table's column without a trigger, and it's not worth one for curated, developer-authored data) |
+| `order_in_collection` | int, nullable                      |                                                                                                                                                                                                                                                                                      |
+
+Unique constraint on `(short_story_id, work_id)`. Same seed-file maintenance pattern, no runtime CRUD. A story's detail page shows "appears in: X, Y" by querying this filtered on `short_story_id`.
+
+### `user_short_story_reads` (read-tracking for individual short stories)
+
+Unlike `user_books`, a short story has exactly one meaningful state - read or not - so this is a **row-existence table**, not a boolean-flags row: a row existing _is_ "has read this story." No wishlist/`want_to_read` equivalent, since wanting to read a story is already covered by wanting to read the collection it's in.
+
+| column              | type                               | notes |
+| ------------------- | ----------------------------------- | ----- |
+| `id`                | uuid, PK                           |       |
+| `user_id`           | uuid, FK → `auth.users.id`         |       |
+| `short_story_id`    | uuid, FK → `king_short_stories.id` |       |
+| `read_at`           | timestamptz, default `now()`       |       |
+| `via_collection_id` | uuid, nullable, FK → `works.id`, `on delete set null` | which collection's read-cascade created this row, if any - `null` means the user marked this story read directly. See `cascade_short_story_reads_on_collection_read()`/`uncascade_short_story_reads_on_collection_unread()` below. |
+
+Unique constraint on `(user_id, short_story_id)`. Same reread limitation as `user_books`/`user_adaptations`: `read_at` holds only the most recent value, no history - see the note under `user_books` above.
+
+### `profiles` (public directory of users)
+
+| column       | type                           | notes                                                                                                                                                              |
+| ------------ | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `id`         | uuid, PK, FK → `auth.users.id` |                                                                                                                                                                    |
+| `username`   | text, unique, nullable         | `null` until the user completes onboarding - enforced format via a `check` constraint (3–24 lowercase letters/digits/underscore), see `user-onboarding` capability |
+| `avatar_url` | text, nullable                 |                                                                                                                                                                    |
+| `is_public`  | boolean, default `true`        | gates visibility of this user's **collections** (see RLS below) - the profile row itself (username) is always readable                                             |
+| `created_at` | timestamptz, default `now()`   |                                                                                                                                                                    |
+
+`auth.users` is never exposed to the client directly (it holds emails, password hashes, etc.), which is exactly why `profiles` exists - it's the public-safe mirror. A row is created automatically via a trigger on `auth.users` insert (`handle_new_user()` function, `SECURITY DEFINER`) - never insert into `profiles` from client code.
+
+Implemented in `supabase/migrations/20260903120000_create_profiles_table.sql`.
+
+### `user_books` (join table: user ↔ work - the single source of truth for the relationship)
+
+One row per `(user_id, work_id)`. This is the authoritative record of whether a work is owned and/or read - **ownership does not require an edition to be selected.** Editions (below) are optional supplementary detail a collector may attach on top of this.
+
+| column              | type                       | notes                                                                                                                                                                                                                     |
+| ------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                | uuid, PK                   |                                                                                                                                                                                                                           |
+| `user_id`           | uuid, FK → `auth.users.id` |                                                                                                                                                                                                                           |
+| `work_id`      | uuid, FK → `works.id` |                                                                                                                                                                                                                           |
+| `owned`             | boolean, default `false`   | generic "I own this work" - true whether or not any edition has been picked                                                                                                                                               |
+| `want_to_read`      | boolean, default `false`   | wants to _read_ it - a separate intent from wanting to own; see Triggers                                                                                                                                                  |
+| `currently_reading` | boolean, default `false`   | supports being mid-read on several works at once - this is a per-row flag, so "reading 3 books" is just 3 rows each with this `true`, no special handling needed                                                          |
+| `started_on`        | date, nullable             | the date the user started reading - **`date`, not `timestamptz`**: this is a calendar date the user picks (e.g. via a native date input), not a moment in time, so there's no time-of-day or timezone to store or convert |
+| `read`              | boolean, default `false`   |                                                                                                                                                                                                                           |
+| `finished_on`       | date, nullable             | the date the user finished reading - same `date`-not-`timestamptz` reasoning as `started_on`                                                                                                                              |
+| `read_year`         | int, nullable              | approximate fallback for when a user wants to log a book as read with only a rough year, not an exact date - independent of `started_on`/`finished_on`, not derived from them; see below                                  |
+| `format`            | text, nullable             | the **current reading session's** format (`physical` / `audiobook` / `ebook`), written by `startReading()` - not the owned copy's format; see `copy_format` |
+| `copy_format`       | text, nullable             | edition-less copy details: `paperback` / `hardcover` / `audiobook` / `ebook`. Only meaningful while the work has no `user_book_editions` rows - see "Copy details" under `user_book_editions` |
+| `copy_edition`      | int, nullable              | edition-less copy details: edition number, >= 1, physical formats only |
+| `copy_printing`     | int, nullable              | edition-less copy details: printing number, >= 1, physical formats only |
+, limited only |
+| `copy_limited_size` | int, nullable              | edition-less copy details: copies in the limited run, >= 1, limited only. Every `copy_*` column is cleared when `owned` flips to `false` - see `clear_copy_details_on_unowned()` under Triggers |
+
+These are independent booleans, not an enum - a work can be `owned` _and_ `read` at once; forcing a single `status` would lose that. Unique constraint on `(user_id, work_id)` - this is the one row per user per work.
+
+**Invariants**, all enforced with database triggers, not client-side logic - see "Triggers" below:
+
+- Marking `read = true` clears both `want_to_read` and `currently_reading`.
+- Marking `currently_reading = true` clears `want_to_read` (you've moved past "want to" into "doing it").
+
+Want-to-read is work-level only (no edition selection). Wishlisting is **not** on `user_books` at all - see `user_wishlist_items` below, which is where "I want a first printing" lives, as a free-text note plus tags rather than a linked edition.
+
+### Reading dates: three entry points, three different prompts
+
+`started_on`, `finished_on`, and `read_year` are populated by three distinct UI flows, and the composable needs to handle each differently rather than treating "set a date" as one generic action:
+
+1. **Starting a read** (`currently_reading` flips to `true`): a modal prompts for a start date, prefilled with today (the user's local today, computed client-side - never server "now," which could be a different calendar day depending on timezone). The date is expected to always be provided here - the modal defaults it rather than allowing a true skip, since starting-to-read is the one moment a date is naturally at hand.
+2. **Finishing a currently-reading book** (a "Finished" action on a book that's `currently_reading`): a modal prompts for an end date, same prefill behavior, and sets `read = true`, `finished_on = <chosen date>`. `started_on` is left untouched - it already holds the date set in step 1.
+3. **Marking read directly**, bypassing `currently_reading` entirely: a modal offers a full date range (`started_on` + `finished_on`) **or** just `read_year`, and either or both can be skipped entirely. All three of `started_on`, `finished_on`, and `read_year` stay `nullable` at the DB level specifically to support this - a `read = true` row with all three `null` is valid and expected, not a data-quality problem to flag.
+4. **Reading again**, once a work is already marked read: reuses the same prompt shape as "marking read directly" (dates optional, plus note/format/rating - see `user_book_reads` below), without requiring the work to be unmarked first.
+
+No DB constraint ties `read_year` to `finished_on` (e.g. requiring them to agree, or deriving one from the other) - a user might reasonably supply a year without a precise date, or a precise date without bothering to fill in a redundant year. When both are present and a display needs a single "year read," compute it at query time as `coalesce(extract(year from finished_on), read_year)` rather than trying to keep the two in sync at write time.
+
+**`user_books`' own date/read columns still hold only the current/most-recent reading cycle** - every read-completing action (finish, mark-read-directly, read-again) upserts `read = true` and refreshes `started_on`/`finished_on`/`read_year` to reflect that latest read, same as before. Full reread history - every distinct read, including ones with a note, format, or rating - lives in `user_book_reads` (below), not in these columns. Don't retrofit history into these single-value fields; add a `user_book_reads` row instead.
+
+### `user_book_reads` (read-tracking history: one row per logged read)
+
+Unlike `user_books` (one row per `(user_id, work_id)`, the current/most-recent read summary), this table preserves **every** distinct read as its own record - no unique constraint on `(user_id, work_id)`, since rereads are the point.
+
+| column         | type                          | notes                                                                                                  |
+| -------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `id`           | uuid, PK                      |                                                                                                         |
+| `user_id`      | uuid, FK → `auth.users.id`    |                                                                                                         |
+| `work_id` | uuid, FK → `works.id`    |                                                                                                         |
+| `started_on`   | date, nullable                | mirrors `user_books.started_on`'s optionality - the start of this specific logged read, independent of every other row for the same work                                                    |
+| `read_on`      | date, nullable                | mirrors `user_books.finished_on`'s optionality - `coalesce(finished_on, started_on)` when both exist    |
+| `read_year`    | int, nullable                 | same fallback role as `user_books.read_year`                                                            |
+| `note`         | text, nullable                | free-text, max 200 characters (`check` constraint)                                                     |
+| `format`       | text, nullable                | one of `physical` / `audiobook` / `ebook` (`check` constraint) - not tied to `user_book_editions`       |
+| `rating`       | int, nullable                 | 1–5 (`check` constraint) - a personal rating for that specific read, not a per-work average             |
+| `created_at`   | timestamptz, default `now()`  |                                                                                                         |
+
+**Every read-completing action does two writes**, same two-write pattern already used for adding an edition (see `user_book_editions` below): upsert `user_books` (`read = true`, refresh `started_on`/`finished_on`/`read_year`) **and** insert one `user_book_reads` row, its own `started_on` set to whatever start date applies to that specific read (the value just written to `user_books.started_on`, whether newly supplied or, for `finishReading`, the one already set from when the read began). Both are the composable's responsibility - no trigger, for the same reasons a trigger is avoided for ownership-clearing below.
+
+**Unmarking a work as read never touches `user_book_reads`** - it only flips `user_books.read` back to `false` (existing behavior, dates untouched). Logged reads are permanent history: a work can show `read = false` on `user_books` while still having past logged reads on its timeline.
+
+Same four-policy owner-or-public-profile RLS pattern as `user_books`/`user_book_editions`/`user_adaptations`/`user_short_story_reads` (see "Row Level Security" below).
+
+### Building a reading timeline
+
+A timeline is a plain query against `user_book_reads` (not `user_books` - that only ever has the current/most-recent read per work), one row per logged read, joined to `works` for title/slug/cover and filtered to active works:
+
+```sql
+select ubr.id, ubr.work_id, ubr.started_on, ubr.read_on, ubr.read_year, ubr.note, ubr.format, ubr.rating,
+       k.title, k.slug, k.cover_id
+from user_book_reads ubr
+join works k on k.id = ubr.work_id
+where ubr.user_id = $1
+  and k.active
+order by coalesce(ubr.read_on, (ubr.read_year || '-01-01')::date) desc nulls last;
+```
+
+A work read more than once appears as multiple entries, one per logged read - this is deliberate (see `add-reread-tracking`'s design.md), not a duplicate to dedupe. Rows with only `read_year` (no exact date) sort using the same `read_year`-as-January-1st approximation as before - reasonable for "recent activity first," but still worth revisiting for a `read_year`-only entry from the current year vs. an exact date from years ago.
+
+### `user_book_editions` (optional detail: specific copies of an owned work)
+
+Zero or more rows per `(user_id, work_id)`, only created when a user chooses to record a specific edition. **This table never determines ownership on its own** - "does the user own this work" is always answered by `user_books.owned`, never by checking for rows here. A non-collector can own a work with zero rows in this table; a collector can have several.
+
+| column          | type                         | notes                                                                                                          |
+| --------------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `id`            | uuid, PK                     |                                                                                                                |
+| `user_id`       | uuid, FK → `auth.users.id`   |                                                                                                                |
+| `work_id`  | uuid, FK → `works.id`   |                                                                                                                |
+| `edition_id`    | text                         | Open Library edition key (e.g. `OL7353617M`) - required, since every row is a specific edition the user picked |
+| `edition_title` | text                         | denormalized title snapshot, paired with `edition_id`                                                          |
+| `added_at`      | timestamptz, default `now()` |                                                                                                                |
+| `copy_format`   | text, nullable               | `paperback` / `hardcover` / `audiobook` / `ebook` - guessed from Open Library's `physical_format` on add (`inferCopyFormat()` in `app/utils/copyFormat.ts`), user-correctable |
+| `copy_edition`  | int, nullable                | edition number, >= 1, physical formats only |
+| `copy_printing` | int, nullable                | printing number, >= 1, physical formats only |
+, limited only |
+| `copy_limited_size` | int, nullable            | copies in the limited run, >= 1, limited only |
 
 - Unique constraint on `(user_id, edition_id)` - stops the exact same edition being added twice. No constraint on `(user_id, work_id)` - multiple editions of the same work are expected.
 - **Adding an edition row must also upsert `user_books.owned = true`** for that `(user_id, work_id)` - two writes, both the composable's responsibility (see "Conventions for composables" below). Never assume an edition row implies ownership without also setting the flag; the flag is what everything else (RLS-gated reads, the ownership stat) reads from and reacts to.
 - **Removing a work's last edition row _does_ flip `owned` back to `false`.** The collection UI (`useBookshelf()`) is the only place `owned` gets set to `true` in the first place, so it's also responsible for clearing it: `removeEdition()` deletes the edition row, then counts the user's remaining edition rows for that work and upserts `owned = false` only when none remain. Removing one of several editions leaves `owned` untouched. This is done as two sequential writes in the composable, not a DB trigger - see `add-book-collection-management`'s design.md "Ownership-clearing lives in the composable, not a DB trigger" for why a trigger doesn't fit (a work can still be legitimately `owned` with zero edition rows, e.g. a user who marks a work owned generically without ever picking an edition, so "0 editions" must not unconditionally imply "not owned" at the schema level).
 - **No cover image column.** Cover art is never stored - see "Cover images" below.
+- **Copy details** (every `copy_*` column) live under the same names on both this table (an edition tile) and `user_books` (an edition-less owned work), so one `CopyDetails` type (`app/utils/copyFormat.ts`) and one form serve both. Three checks on each table keep them consistent: `*_copy_physical_only` (edition/printing/signed/limited need `paperback` or `hardcover`), `*_copy_hardcover_only` (dust jacket and book club need `hardcover`) and `*_copy_limited_details` (limited number and size need `copy_limited`). Write through `normalizeCopyDetails()`, which clears whatever those checks rule out. The shelf's gold/silver mark is derived (`copyMark()`), never stored.
 
 ### `user_wishlist_items` (wishlist entries: what a collector is hunting for)
 
@@ -442,7 +1247,9 @@ create trigger user_books_clear_read_states
   execute function clear_read_states_on_progress();
 ```
 
-Both triggers run on the same table and touch disjoint columns, so order between them doesn't matter. Composables should never duplicate either of these by also clearing the flags manually in the same call - the triggers already guarantee it, and doing both invites the two definitions drifting apart later.
+**`clear_copy_details_on_unowned()`** - on `user_books`, before update: when `owned` goes from `true` to `false`, clears every `copy_*` column (format, edition, printing, the collector flags and the limited number/size), so an un-owned work's edition-less copy details never resurface when it's owned again. Covers every un-own path (shelf remove, the "On my shelf" checkbox, `removeEdition()` dropping the last edition) without each one remembering it.
+
+These `user_books` triggers touch disjoint columns, so order between them doesn't matter. Composables should never duplicate either of these by also clearing the flags manually in the same call - the triggers already guarantee it, and doing both invites the two definitions drifting apart later.
 
 **`clear_want_to_watch_on_watched()`** - on `user_adaptations`, before insert/update, forces `want_to_watch = false` whenever a row is written with `watched = true`. Same pattern as the book triggers, one table over.
 

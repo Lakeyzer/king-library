@@ -82,5 +82,95 @@
     "series_id": "c5222670-e5fb-49df-9026-22ec55019e7f",
     "work_id": "6df5aeea-19b1-4fc5-8173-6b3b5974c56a",
     "position": 3
+  },
+  {
+    "id": "07147be7-7293-43a0-97d3-baa8a58b3adc",
+    "series_id": "ff48f845-7a65-40a2-87ca-7154397f4fff",
+    "work_id": "20ecdda3-77b0-4774-b304-6c52d76c2a47",
+    "position": 1
+  },
+  {
+    "id": "df388bfc-3bb2-423d-bece-836fee403c8d",
+    "series_id": "ff48f845-7a65-40a2-87ca-7154397f4fff",
+    "work_id": "c5d94528-614c-47e8-a99d-4cc57788f3ea",
+    "position": 2
+  },
+  {
+    "id": "900ca3c7-fec8-406e-989f-fcefd2a50912",
+    "series_id": "ff48f845-7a65-40a2-87ca-7154397f4fff",
+    "work_id": "9f4fc7e1-4cbe-492e-8683-543616307c17",
+    "position": 3
+  },
+  {
+    "id": "a81a6558-f81f-4f4d-ba10-83856fcccac1",
+    "series_id": "ff48f845-7a65-40a2-87ca-7154397f4fff",
+    "work_id": "afab78d0-7ec6-4f52-b5ca-1bf01191747f",
+    "position": 4
+  },
+  {
+    "id": "3f2d458c-a872-4c0d-a231-6283d79636c1",
+    "series_id": "ff48f845-7a65-40a2-87ca-7154397f4fff",
+    "work_id": "4ff7928c-7714-4c5d-9369-502f14f08412",
+    "position": 5
+  },
+  {
+    "id": "6a4ed5ea-4113-4ec7-a1e8-87632c49b089",
+    "series_id": "ff48f845-7a65-40a2-87ca-7154397f4fff",
+    "work_id": "05aca202-667d-4c28-bd32-320a195c9e48",
+    "position": 6
+  },
+  {
+    "id": "14ead6c5-e062-476e-8078-405b9dc4c092",
+    "series_id": "ff48f845-7a65-40a2-87ca-7154397f4fff",
+    "work_id": "fdfe038e-cd44-444e-93b0-d788da9cfed5",
+    "position": 7
+  },
+  {
+    "id": "d863f743-0aeb-4c88-ba29-45e063f1293a",
+    "series_id": "578cd738-d2ed-40bc-b02b-d90156e2b92e",
+    "work_id": "865368bf-3e90-4f99-b4ec-2b05b4e0c1f3",
+    "position": 4
+  },
+  {
+    "id": "1b23aa3c-1f48-4c9d-8fd9-147770dc400b",
+    "series_id": "578cd738-d2ed-40bc-b02b-d90156e2b92e",
+    "work_id": "d1dec749-9f18-4bf5-acfc-23779b5727a9",
+    "position": 5
+  },
+  {
+    "id": "e2038df5-4499-4c32-9232-30454636f9e9",
+    "series_id": "578cd738-d2ed-40bc-b02b-d90156e2b92e",
+    "work_id": "d0cec3c8-d3e9-4b29-a201-28dd85c1458b",
+    "position": 6
+  },
+  {
+    "id": "5ae8331a-797a-44be-a702-3f82f2eaf4c7",
+    "series_id": "578cd738-d2ed-40bc-b02b-d90156e2b92e",
+    "work_id": "65ec57d1-c122-44bc-af01-c1f02e95b613",
+    "position": 7
+  },
+  {
+    "id": "a575e2ca-07f3-4f31-a5f3-81497b586fdf",
+    "series_id": "f6f8b8eb-7940-4481-91aa-ee13662771b7",
+    "work_id": "d3192a42-9872-4be3-9983-0e81cd81483b",
+    "position": 1
+  },
+  {
+    "id": "a5c5d8fd-bc1a-4037-805d-25d380c46663",
+    "series_id": "f6f8b8eb-7940-4481-91aa-ee13662771b7",
+    "work_id": "61297b47-3eb4-4f1d-b86d-134b2955b2ad",
+    "position": 2
+  },
+  {
+    "id": "aeb4fe89-afec-4cbf-a1c2-e98e778093e8",
+    "series_id": "f6f8b8eb-7940-4481-91aa-ee13662771b7",
+    "work_id": "7c6d6f25-6d1c-407f-8806-31923abb6956",
+    "position": 3
+  },
+  {
+    "id": "1f13aa49-7053-4abe-b0f6-eac2c1172043",
+    "series_id": "ff48f845-7a65-40a2-87ca-7154397f4fff",
+    "work_id": "2f3ae52c-cd3a-466e-bf1b-2f7985660352",
+    "position": 8
   }
 ]

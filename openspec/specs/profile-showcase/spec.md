@@ -121,25 +121,6 @@ The system SHALL show, on the same line as the Reading Journey heading and end-j
 - **WHEN** a visitor activates the Reading Journey heading's timeline link
 - **THEN** they are taken to the profile owner's dedicated Reading Timeline page
 
-### Requirement: Reading progress bars for overall, Bachman, and Dark Tower
-The system SHALL display, on a showcase, three reading-progress indicators: overall progress (the profile owner's count of active King works marked read out of all active King works), Bachman progress (count of active Bachman-flagged King works marked read out of all active Bachman-flagged King works), and Dark Tower progress (count of active Dark-Tower-flagged King works marked read out of all active Dark-Tower-flagged King works). Inactive King works SHALL be excluded from both the read count and the total in every indicator.
-
-#### Scenario: Overall progress reflects total read count
-- **WHEN** a showcase is displayed for a profile owner who has marked some active King works read
-- **THEN** the overall progress indicator shows their read count out of the total number of active King works
-
-#### Scenario: Bachman progress counts only Bachman-flagged works
-- **WHEN** a showcase is displayed
-- **THEN** the Bachman progress indicator's read count and total are both restricted to active King works with the Bachman flag set
-
-#### Scenario: Dark Tower progress counts only Dark-Tower-flagged works
-- **WHEN** a showcase is displayed
-- **THEN** the Dark Tower progress indicator's read count and total are both restricted to active King works with the Dark Tower flag set
-
-#### Scenario: An inactive work is excluded from progress
-- **WHEN** a profile owner has read a King work that is later marked inactive
-- **THEN** that work no longer contributes to the read count or the total of any progress indicator
-
 ### Requirement: Adaptation viewing progress
 The system SHALL display, on a showcase, a viewing-progress indicator showing the profile owner's count of active adaptations marked watched out of the total number of active adaptations. Inactive adaptations SHALL be excluded from both the watched count and the total.
 
@@ -209,7 +190,7 @@ The system SHALL display, on a showcase, a Bookshelf grid with one tile for each
 - **THEN** no tile for that work appears on the Bookshelf
 
 ### Requirement: Bookshelf heading shows the tile count
-The system SHALL show, next to the Bookshelf heading, the total count of tiles in the profile owner's collection, independent of any search filter applied to the Bookshelf.
+The system SHALL show, next to the Bookshelf heading, the total count of tiles in the profile owner's collection. The count SHALL NOT change when a search or any copy-details filter is applied to the Bookshelf.
 
 #### Scenario: Heading count matches the collection
 - **WHEN** a showcase's Bookshelf is displayed with a given number of tiles in the collection
@@ -219,8 +200,12 @@ The system SHALL show, next to the Bookshelf heading, the total count of tiles i
 - **WHEN** a profile owner's Bookshelf search filters the visible tiles down to fewer than the full collection
 - **THEN** the count shown next to the Bookshelf heading still reflects the full collection, not just the filtered tiles
 
+#### Scenario: Heading count is unaffected by active copy-details filters
+- **WHEN** a visitor's copy-details filters narrow the visible tiles down to fewer than the full collection
+- **THEN** the count shown next to the Bookshelf heading still reflects the full collection
+
 ### Requirement: Bookshelf uses a responsive masonry grid
-The system SHALL lay out the Bookshelf as a masonry grid, showing 2 columns at the smallest supported viewport width and 5 columns at the largest.
+The system SHALL lay out the Bookshelf as a masonry grid, showing 2 columns at the smallest supported viewport width and 4 columns at the largest.
 
 #### Scenario: Smallest supported viewport
 - **WHEN** a showcase is displayed at the smallest supported viewport width
@@ -228,7 +213,7 @@ The system SHALL lay out the Bookshelf as a masonry grid, showing 2 columns at t
 
 #### Scenario: Largest viewport
 - **WHEN** a showcase is displayed at the largest viewport width
-- **THEN** the Bookshelf grid shows 5 columns
+- **THEN** the Bookshelf grid shows 4 columns
 
 ### Requirement: Bookshelf can be searched by title
 The system SHALL let a visitor filter the Bookshelf's tiles by matching text against the owning King work's title.
@@ -413,15 +398,19 @@ The system SHALL show a visitor who is not the profile's owner a recommendation 
 - **THEN** no gift-idea recommendation card is shown, regardless of which King works they've read or own
 
 ### Requirement: King progress indicators and collection ignore By Other Hands works
-The system SHALL count only King works in the showcase's Overall Bibliography, Bachman Books, Dark Tower, and Collection indicators, in both the count and the total. A By Other Hands work the profile owner has read or owns SHALL NOT change any of these four indicators, including a By Other Hands work flagged as Dark Tower.
+The system SHALL count only King works in the showcase's Overall Bibliography and Collection indicators, in both the count and the total. A By Other Hands work the profile owner has read or owns SHALL NOT change either indicator. Series progress bars are not King-only: they count every counted member of their series, of either kind (see the king-series capability's per-series reading progress).
 
 #### Scenario: A read By Other Hands work leaves Overall Bibliography unchanged
 - **WHEN** a showcase is displayed for a profile owner who has read a By Other Hands work
 - **THEN** the Overall Bibliography indicator's read count and total count only King works
 
 #### Scenario: A read Dark Tower comic leaves the Dark Tower indicator unchanged
-- **WHEN** a showcase is displayed for a profile owner who has read a Dark Tower By Other Hands comic
-- **THEN** the Dark Tower indicator's read count and total count only King works
+- **WHEN** a showcase is displayed for a profile owner who has read a Dark Tower By Other Hands comic that is not a Dark Tower series member
+- **THEN** the Dark Tower series bar's read count and total are unchanged
+
+#### Scenario: A By Other Hands series member counts toward its series bar
+- **WHEN** a showcase is displayed for a profile owner who has read Gwendy's Magic Feather
+- **THEN** the Gwendy's Trilogy series bar counts it, while the Overall Bibliography indicator does not
 
 #### Scenario: An owned By Other Hands work leaves Collection unchanged
 - **WHEN** a showcase is displayed for a profile owner who owns a By Other Hands work
@@ -437,3 +426,215 @@ The system SHALL consider only King works for the showcase's owned-unread recomm
 #### Scenario: A wanted, unowned By Other Hands work is not a gift idea
 - **WHEN** a visitor who is not the profile owner views a public showcase whose owner wants to read a By Other Hands work they do not own, and has no such King work
 - **THEN** no gift-idea recommendation card is shown
+
+### Requirement: Bookshelf tiles show a spine
+The system SHALL show every Bookshelf tile as a book with a spine: a bar down the left edge of the cover that runs its full height. The spine SHALL show the copy's format label (Paperback, Hardcover, Audiobook or Ebook) rotated 90 degrees clockwise, the way a spine title reads. When no format is set, the spine SHALL show the work's title instead. A label longer than the spine's free height SHALL be cut off with an ellipsis rather than overlapping the marks. The copy's limited edition indicator, signed indicator and gold or silver mark SHALL be shown at the foot of the spine, in that order from top to bottom. The spine SHALL be visible to every visitor who can see the Bookshelf.
+
+#### Scenario: Copy with a format
+- **WHEN** the Bookshelf shows a Hardcover copy
+- **THEN** its tile has a spine reading "Hardcover", turned 90 degrees clockwise
+
+#### Scenario: Copy without a format
+- **WHEN** the Bookshelf shows a copy with no format set
+- **THEN** its tile has a spine showing the work's title, turned 90 degrees clockwise and cut off with an ellipsis if it does not fit
+
+#### Scenario: Marks sit on the spine
+- **WHEN** the Bookshelf shows a signed first edition, first printing
+- **THEN** the gold mark and the signed indicator are shown at the foot of its spine
+
+### Requirement: Bookshelf marks first-edition copies in gold or silver
+The system SHALL show a mark on a Bookshelf tile when its copy is a Paperback or Hardcover with edition number 1:
+- a gold mark when the printing number is 1
+- a silver mark when the printing number is 2 or more, or not set
+
+No mark SHALL be shown for any other copy. That includes a later edition, a copy with no edition number, a copy with no format, an Audiobook or Ebook, and a book club edition (which collectors do not count as a true first, even with edition 1 and printing 1). The mark SHALL be visible to every visitor who can see the Bookshelf. It SHALL have an accessible label: "First edition, first printing" for gold, "First edition, later printing" for silver with a printing number, and "First edition" for silver with no printing number.
+
+#### Scenario: First edition, first printing
+- **WHEN** the Bookshelf shows a Hardcover copy with edition 1 and printing 1
+- **THEN** its tile shows the gold mark
+
+#### Scenario: First edition, later printing
+- **WHEN** the Bookshelf shows a Paperback copy with edition 1 and printing 4
+- **THEN** its tile shows the silver mark
+
+#### Scenario: First edition with unknown printing
+- **WHEN** the Bookshelf shows a Hardcover copy with edition 1 and no printing number
+- **THEN** its tile shows the silver mark, labelled "First edition"
+
+#### Scenario: Later edition
+- **WHEN** the Bookshelf shows a Hardcover copy with edition 2 and printing 1
+- **THEN** its tile shows no mark
+
+#### Scenario: Book club edition
+- **WHEN** the Bookshelf shows a Hardcover book club edition with edition 1 and printing 1
+- **THEN** its tile shows no mark
+
+#### Scenario: Visitor sees the marks
+- **WHEN** a visitor who is not the profile owner views a public profile's Bookshelf containing a first edition, first printing
+- **THEN** that tile shows the gold mark
+
+### Requirement: Bookshelf marks signed copies
+The system SHALL show a signed indicator, with the accessible label "Signed", on every Bookshelf tile whose copy is marked signed. This SHALL work alongside any gold or silver mark and SHALL be visible to every visitor who can see the Bookshelf.
+
+#### Scenario: Signed first printing
+- **WHEN** the Bookshelf shows a signed Hardcover copy with edition 1 and printing 1
+- **THEN** its tile shows both the gold mark and the signed indicator
+
+#### Scenario: Unsigned copy
+- **WHEN** the Bookshelf shows a copy that is not marked signed
+- **THEN** its tile shows no signed indicator
+
+### Requirement: Bookshelf marks limited edition copies
+The system SHALL show a limited edition indicator on every Bookshelf tile whose copy is marked as a limited edition, visible to every visitor who can see the Bookshelf. Its accessible label SHALL describe as much of the edition as is recorded:
+- "Limited edition, #123 of 750" for a numbered copy with an edition size
+- "Lettered copy AA of 26" for a lettered copy with an edition size
+- the same without " of N" when no edition size is recorded
+- "Limited edition of 500" when only the edition size is recorded
+- "Limited edition" when neither is recorded
+
+Book club edition SHALL NOT show an indicator on the tile.
+
+#### Scenario: Numbered limited edition
+- **WHEN** the Bookshelf shows a limited edition copy numbered 123 of 750
+- **THEN** its tile shows the limited edition indicator, labelled "Limited edition, #123 of 750"
+
+#### Scenario: Lettered limited edition
+- **WHEN** the Bookshelf shows a limited edition copy lettered AA of 26
+- **THEN** its tile shows the limited edition indicator, labelled "Lettered copy AA of 26"
+
+#### Scenario: Not a limited edition
+- **WHEN** the Bookshelf shows a copy that is not marked as a limited edition
+- **THEN** its tile shows no limited edition indicator
+
+### Requirement: Bookshelf marks copies with a dust jacket
+The system SHALL mark every Bookshelf tile whose copy has a dust jacket with an upright open-book icon on the spine directly after its label. The marker SHALL be visible to every visitor who can see the Bookshelf, and SHALL have the accessible label "Dust jacket".
+
+#### Scenario: Hardcover with a dust jacket
+- **WHEN** the Bookshelf shows a Hardcover copy marked as having a dust jacket
+- **THEN** its spine shows the dust jacket icon directly after the "Hardcover" label
+
+#### Scenario: Copy without a dust jacket
+- **WHEN** the Bookshelf shows a copy not marked as having a dust jacket
+- **THEN** its spine shows no dust jacket icon
+
+### Requirement: Bookshelf owner can edit a tile's copy details
+The system SHALL show the profile owner an edit control on each Bookshelf tile, and only the profile owner. It SHALL open the copy-details form for that tile's copy (per the book-collection capability's copy-details rules), pre-filled with the copy's current details. Saving SHALL update the tile, including its marks, without a page reload.
+
+#### Scenario: Owner edits a tile
+- **WHEN** the profile owner opens a tile's edit control, changes the printing from 2 to 1 on a first-edition Hardcover, and saves
+- **THEN** the copy's details are updated and the tile's silver mark becomes a gold mark
+
+#### Scenario: Owner edits an edition-less tile
+- **WHEN** the profile owner opens the edit control on a tile for a work owned with no edition and sets its format to Ebook
+- **THEN** that work's copy details are updated to Ebook
+
+#### Scenario: Owner cancels an edit
+- **WHEN** the profile owner opens a tile's edit control, changes a value, and closes the form without saving
+- **THEN** the copy's details and the tile are unchanged
+
+#### Scenario: Visitor sees no edit control
+- **WHEN** a visitor who is not the profile owner views that profile's Bookshelf
+- **THEN** no edit control is shown on any tile
+
+### Requirement: Bookshelf can be filtered by copy details
+The system SHALL let any visitor to the Bookshelf filter its tiles by:
+- format: Paperback, Hardcover, Audiobook, Ebook or Not set, choosing any combination
+- edition: any, first edition (edition 1), or later edition (edition 2 or more)
+- printing: any, first printing (printing 1), or later printing (printing 2 or more)
+- signed only
+- dust jacket only
+- limited editions only
+
+Filters SHALL combine with each other and with the title search, so a tile is visible only if it matches all of them. A tile with no edition number SHALL NOT match a first or later edition filter, and a tile with no printing number SHALL NOT match a first or later printing filter. When filters and search together match nothing, the Bookshelf SHALL show its no-matches state. Series grouping SHALL apply after these filters, the same way it applies after the search.
+
+#### Scenario: Filtering by format
+- **WHEN** a visitor filters the Bookshelf to Hardcover
+- **THEN** only tiles whose copy format is Hardcover remain visible
+
+#### Scenario: Filtering to first edition, first printing
+- **WHEN** a visitor sets the edition filter to first edition and the printing filter to first printing
+- **THEN** only copies with edition 1 and printing 1 remain visible
+
+#### Scenario: Filters combine with search
+- **WHEN** a visitor filters to Paperback and searches for "Carrie"
+- **THEN** only Paperback tiles whose work title matches "Carrie" remain visible
+
+#### Scenario: Unknown values excluded by specific filters
+- **WHEN** a visitor sets the printing filter to later printing
+- **THEN** tiles with no printing number are hidden
+
+#### Scenario: Filtering to signed copies
+- **WHEN** a visitor turns on the signed-only filter
+- **THEN** only tiles whose copy is marked signed remain visible
+
+#### Scenario: Filtering to limited editions
+- **WHEN** a visitor turns on the limited-editions-only filter
+- **THEN** only tiles whose copy is marked as a limited edition remain visible
+
+#### Scenario: Filters match nothing
+- **WHEN** the active filters match no tile in the collection
+- **THEN** the Bookshelf shows its no-matches state
+
+### Requirement: Non-owner visitor can navigate to a profile comparison
+The system SHALL show a "Compare" control in a profile's header to a signed-in visitor who is not that profile's owner, shown only when the profile is public, linking to that profile's compare route (see the profile-compare capability). The system SHALL NOT show this control to a signed-out visitor or to the profile's own owner.
+
+#### Scenario: Signed-in visitor sees the Compare control on a public profile
+- **WHEN** a signed-in visitor who does not own the profile views a public profile's header
+- **THEN** a "Compare" control is shown alongside the follow control, linking to that profile's compare route
+
+#### Scenario: Signed-out visitor does not see the Compare control
+- **WHEN** a signed-out visitor views any profile's header
+- **THEN** no "Compare" control is shown
+
+#### Scenario: Profile owner does not see the Compare control on their own profile
+- **WHEN** the profile owner views their own header
+- **THEN** no "Compare" control is shown
+
+#### Scenario: Compare control is hidden on a private profile
+- **WHEN** a signed-in visitor who does not own the profile views a private profile's header
+- **THEN** no "Compare" control is shown
+
+### Requirement: Overall bibliography reading progress bar
+The system SHALL display, on a showcase's Reading Progress section, an overall reading-progress indicator: the profile owner's count of active King works marked read out of all active King works. Inactive King works SHALL be excluded from both the read count and the total. The Reading Progress section SHALL NOT include Bachman or Dark Tower indicators; those are shown as series in the Series section instead.
+
+#### Scenario: Overall progress reflects total read count
+- **WHEN** a showcase is displayed for a profile owner who has marked some active King works read
+- **THEN** the overall progress indicator shows their read count out of the total number of active King works
+
+#### Scenario: Reading Progress no longer shows Bachman or Dark Tower bars
+- **WHEN** a showcase is displayed
+- **THEN** the Reading Progress section shows Overall Bibliography, Short Works, Adaptations Watched, and Collection, and no Bachman Books or Dark Tower indicator
+
+#### Scenario: An inactive work is excluded from progress
+- **WHEN** a profile owner has read a King work that is later marked inactive
+- **THEN** that work no longer contributes to the read count or the total of the overall progress indicator
+
+### Requirement: Series section shows one progress bar per series
+The system SHALL display, on a showcase, a "Series" section with one reading-progress bar for every series in the canonical series list, labeled with the series' name and showing the profile owner's per-series reading progress (see the king-series capability). Bars SHALL appear in the same display order the series list is returned in (see the king-series capability), and every series SHALL have a bar even when the owner has read none of its members. The section is subject to the same private-profile rules as the rest of the showcase.
+
+#### Scenario: Every series has a bar
+- **WHEN** a showcase is displayed
+- **THEN** the Series section shows a bar for each of Dark Tower, Bachman Books, Talisman, Hodges & Holly, and Gwendy's Trilogy, in that order
+
+#### Scenario: A series with nothing read still shows
+- **WHEN** a showcase is displayed for a profile owner who has read no Talisman book
+- **THEN** the Talisman bar is shown with a read count of 0 out of its total
+
+#### Scenario: A newly added series appears without a code change
+- **WHEN** a new series is added to the canonical series data
+- **THEN** the Series section shows a bar for it, after the series that have a set place, with a default icon if none has been assigned to it
+
+### Requirement: Series bars are laid out by screen size
+The system SHALL lay out the Series section's bars as follows. At large screen widths, the first two series (Dark Tower and Bachman Books) SHALL share the first row at half width each, and the remaining series SHALL follow three to a row. At medium screen widths, the first series (Dark Tower) SHALL take the first row on its own at full width, and the remaining series SHALL follow two to a row. At small screen widths, every bar SHALL take a row of its own.
+
+#### Scenario: Large screen
+- **WHEN** a showcase's Series section is viewed at a large screen width
+- **THEN** the first row shows Dark Tower and Bachman Books side by side, and the second row shows Talisman, Hodges & Holly, and Gwendy's Trilogy
+
+#### Scenario: Medium screen
+- **WHEN** a showcase's Series section is viewed at a medium screen width
+- **THEN** Dark Tower fills the first row, Bachman Books and Talisman share the second, and Hodges & Holly and Gwendy's Trilogy share the third
+
+#### Scenario: Small screen
+- **WHEN** a showcase's Series section is viewed at a small screen width
+- **THEN** each series bar takes a full-width row of its own

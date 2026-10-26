@@ -22,9 +22,11 @@ const { fetchViewingProgress, fetchUnwatchedRecommendation } = useAdaptations()
 const { fetchBookshelf } = useBookshelf()
 const { fetchShortStoryProgress } = useShortStories()
 const { fetchRelatedWorkProfileStats } = useRelatedWorks()
+const { fetchSeriesProgress } = useSeries()
 
 const [
   { data: stats },
+  { data: seriesProgress },
   { data: viewing },
   { data: shortStoryProgress },
   { data: currentlyReading },
@@ -33,6 +35,7 @@ const [
   { data: relatedWorkStats }
 ] = await Promise.all([
   useAsyncData(`profile-${profile.id}-book-stats`, () => fetchProfileBookStats(profile.id)),
+  useAsyncData(`profile-${profile.id}-series-progress`, () => fetchSeriesProgress(profile.id)),
   useAsyncData(`profile-${profile.id}-viewing-progress`, () => fetchViewingProgress(profile.id)),
   useAsyncData(`profile-${profile.id}-short-story-progress`, () => fetchShortStoryProgress(profile.id)),
   useAsyncData(`profile-${profile.id}-currently-reading`, () => fetchCurrentlyReading(profile.id)),
@@ -77,10 +80,11 @@ const { data: giftIdeaRecommendation } = await useAsyncData(
 
 <template>
   <ProfileShowcase
-    v-if="stats && viewing && shortStoryProgress && currentlyReading && readingTimeline && relatedWorkStats"
+    v-if="stats && seriesProgress && viewing && shortStoryProgress && currentlyReading && readingTimeline && relatedWorkStats"
     :is-owner="isOwner"
     :timeline-path="timelinePath"
     :stats="stats"
+    :series-progress="seriesProgress"
     :viewing="viewing"
     :short-story-progress="shortStoryProgress"
     :currently-reading="currentlyReading"

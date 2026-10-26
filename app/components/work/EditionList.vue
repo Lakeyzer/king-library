@@ -359,6 +359,7 @@ function formatEditionMeta(edition: OpenLibraryEdition): string | null {
               :work-id="workId"
               :edition-id="edition.key"
               :edition-title="edition.title"
+              :physical-format="edition.physicalFormat"
               class="absolute right-1 top-1"
             />
           </div>
@@ -447,6 +448,7 @@ function formatEditionMeta(edition: OpenLibraryEdition): string | null {
             :work-id="workId"
             :edition-id="edition.key"
             :edition-title="edition.title"
+            :physical-format="edition.physicalFormat"
             class="shrink-0"
           />
         </li>

@@ -32,9 +32,9 @@ export default defineNuxtRouteMiddleware(async (to) => {
     // then navigate like any client-side route change.
     const nuxtApp = useNuxtApp()
     if (import.meta.client && nuxtApp.isHydrating && nuxtApp.payload.serverRendered) {
-      nuxtApp.hooks.hookOnce('app:suspense:resolve', () =>
-        nuxtApp.runWithContext(() => navigateTo('/onboarding', { replace: true }))
-      )
+      nuxtApp.hooks.hookOnce('app:suspense:resolve', async () => {
+        await nuxtApp.runWithContext(() => navigateTo('/onboarding', { replace: true }))
+      })
       return
     }
 

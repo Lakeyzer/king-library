@@ -14,12 +14,15 @@ import type {
 } from '~/composables/useAdaptations'
 import type { BookshelfItem } from '~/composables/useBookshelf'
 import type { RelatedWorkProfileStats } from '~/composables/useRelatedWorks'
+import type { SeriesProgress } from '~/composables/useSeries'
 
 interface Props {
   isOwner: boolean
   /** Path to this profile owner's dedicated Reading Timeline page - see the reading-timeline capability. */
   timelinePath: string
   stats: ProfileBookStats
+  /** One entry per series, already in display order. Unlike the King progress cards, a series bar counts its By Other Hands members too - see profile-showcase "Series section shows one progress bar per series". */
+  seriesProgress: SeriesProgress[]
   viewing: ViewingProgress
   shortStoryProgress: CategoryProgress
   /** Currently Reading, the reading timeline, and the Bookshelf each cover King and related works alike - see profile-showcase "Bookshelf and reading timeline always include By Other Hands works". The King progress cards (stats) never count related works. */
@@ -78,7 +81,7 @@ withDefaults(defineProps<Props>(), {
           Reading Progress
         </h2>
 
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <ProfileProgressBar
             label="Overall Bibliography"
             icon="i-lucide-book-open"
@@ -87,43 +90,49 @@ withDefaults(defineProps<Props>(), {
             color="primary"
           />
           <ProfileProgressBar
-            label="Bachman Books"
-            icon="i-lucide-user-round"
-            :count="stats.bachman.count"
-            :total="stats.bachman.total"
-            color="warning"
-          />
-          <ProfileProgressBar
-            label="Dark Tower"
-            icon="i-lucide-rose"
-            :count="stats.darkTower.count"
-            :total="stats.darkTower.total"
-            color="error"
-          />
-        </div>
-
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <ProfileProgressBar
             label="Short Works"
             icon="i-lucide-file-text"
             :count="shortStoryProgress.count"
             :total="shortStoryProgress.total"
-            color="success"
+            color="primary"
           />
           <ProfileProgressBar
             label="Adaptations Watched"
             icon="i-lucide-film"
             :count="viewing.count"
             :total="viewing.total"
-            color="secondary"
+            color="primary"
           />
           <ProfileProgressBar
             label="Collection"
             icon="i-lucide-library"
             :count="stats.collection.count"
             :total="stats.collection.total"
-            color="info"
+            color="primary"
           />
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <h2 class="heading-2 flex items-center gap-2">
+            <UIcon
+              name="i-lucide-layers"
+              class="size-5"
+            />
+            Series
+          </h2>
+
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-6">
+            <ProfileProgressBar
+              v-for="(series, index) in seriesProgress"
+              :key="series.id"
+              :class="seriesCardClass(index)"
+              :label="series.name"
+              :icon="seriesIcon(series.name)"
+              :count="series.count"
+              :total="series.total"
+              color="secondary"
+            />
+          </div>
         </div>
 
         <div
@@ -153,7 +162,7 @@ withDefaults(defineProps<Props>(), {
               icon="i-lucide-rose"
               :count="relatedWorkStats.comics.count"
               :total="relatedWorkStats.comics.total"
-              color="warning"
+              color="info"
             />
           </div>
         </div>

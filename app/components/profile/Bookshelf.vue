@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { BookshelfEditionItem, BookshelfItem, BookshelfWorkItem } from '~/composables/useBookshelf'
+import type { CopyDetails, CopyFormat } from '~/utils/copyFormat'
 
 // useBookshelf()'s items cover King and related works alike - `workKind`
 // tells BookshelfTile which detail page to link to (see profile-showcase
@@ -38,7 +39,76 @@ function handleRemoved(item: ProfileBookshelfItem) {
   localItems.value = localItems.value.filter(other => itemKey(other) !== itemKey(item))
 }
 
+// Same reasoning as handleRemoved - patch the snapshot so the tile's marks
+// (and any active filter) reflect an edit without a reload.
+function handleUpdated(item: ProfileBookshelfItem, copyDetails: CopyDetails) {
+  localItems.value = localItems.value.map(other =>
+    itemKey(other) === itemKey(item) ? { ...other, copyDetails } : other
+  )
+}
+
 const search = ref('')
+
+// Copy-details filters - see profile-showcase "Bookshelf can be filtered by
+// copy details". All of them, and the title search, must match. A missing
+// edition/printing number never matches "first" or "later".
+type FormatFilter = CopyFormat | 'not-set'
+type OrdinalFilter = 'any' | 'first' | 'later'
+
+const formatFilterItems: { label: string, value: FormatFilter, icon: string }[] = [
+  ...COPY_FORMAT_OPTIONS,
+  { label: 'Not set', value: 'not-set', icon: 'i-lucide-circle-dashed' }
+]
+const ordinalFilterItems = (noun: string) => [
+  { label: 'Any', value: 'any' },
+  { label: `First ${noun}`, value: 'first' },
+  { label: `Later ${noun}`, value: 'later' }
+]
+const editionFilterItems = ordinalFilterItems('edition')
+const printingFilterItems = ordinalFilterItems('printing')
+
+const formatFilter = ref<FormatFilter[]>([])
+const editionFilter = ref<OrdinalFilter>('any')
+const printingFilter = ref<OrdinalFilter>('any')
+const signedOnly = ref(false)
+const dustJacketOnly = ref(false)
+const limitedOnly = ref(false)
+
+const activeFilterCount = computed(
+  () =>
+    (formatFilter.value.length ? 1 : 0)
+    + (editionFilter.value !== 'any' ? 1 : 0)
+    + (printingFilter.value !== 'any' ? 1 : 0)
+    + (signedOnly.value ? 1 : 0)
+    + (dustJacketOnly.value ? 1 : 0)
+    + (limitedOnly.value ? 1 : 0)
+)
+
+function clearFilters() {
+  formatFilter.value = []
+  editionFilter.value = 'any'
+  printingFilter.value = 'any'
+  signedOnly.value = false
+  dustJacketOnly.value = false
+  limitedOnly.value = false
+}
+
+function matchesOrdinal(filter: OrdinalFilter, value: number | null) {
+  if (filter === 'any') return true
+  if (value === null) return false
+  return filter === 'first' ? value === 1 : value >= 2
+}
+
+function matchesFilters(item: ProfileBookshelfItem) {
+  const details = item.copyDetails
+  if (formatFilter.value.length && !formatFilter.value.includes(details.copy_format ?? 'not-set')) return false
+  if (!matchesOrdinal(editionFilter.value, details.copy_edition)) return false
+  if (!matchesOrdinal(printingFilter.value, details.copy_printing)) return false
+  if (signedOnly.value && !details.copy_signed) return false
+  if (dustJacketOnly.value && !details.copy_dust_jacket) return false
+  if (limitedOnly.value && !details.copy_limited) return false
+  return true
+}
 
 type SortField = 'title' | 'year'
 const sortOptions = [
@@ -54,9 +124,9 @@ function toggleSortDir() {
 
 const visibleItems = computed(() => {
   const term = search.value.trim().toLowerCase()
-  const filtered = term
-    ? localItems.value.filter(item => item.workTitle.toLowerCase().includes(term))
-    : localItems.value
+  const filtered = localItems.value.filter(
+    item => (!term || item.workTitle.toLowerCase().includes(term)) && matchesFilters(item)
+  )
 
   const sorted = [...filtered]
   sorted.sort((a, b) => {
@@ -78,7 +148,7 @@ const visibleItems = computed(() => {
 // column 1 - gives that expected reading order deterministically, at the
 // cost of balancing by tile *count* rather than real height.
 const COLUMN_BREAKPOINTS = [
-  { minWidth: 1024, columns: 5 }, // lg
+  { minWidth: 1024, columns: 4 }, // lg
   { minWidth: 640, columns: 3 }, // sm
   { minWidth: 0, columns: 2 }
 ]
@@ -189,6 +259,80 @@ const displayedColumns = computed(() => (groupSeries.value ? groupedColumns.valu
             @click="toggleSortDir"
           />
         </div>
+        <UPopover>
+          <UButton
+            label="Filters"
+            icon="i-lucide-filter"
+            color="neutral"
+            variant="subtle"
+            size="sm"
+          >
+            <template
+              v-if="activeFilterCount"
+              #trailing
+            >
+              <UBadge
+                :label="String(activeFilterCount)"
+                size="sm"
+                class="rounded-full"
+              />
+            </template>
+          </UButton>
+
+          <template #content>
+            <div class="flex w-64 flex-col gap-3 p-3">
+              <UFormField label="Format">
+                <USelectMenu
+                  v-model="formatFilter"
+                  :items="formatFilterItems"
+                  value-key="value"
+                  multiple
+                  :search-input="false"
+                  placeholder="Any format"
+                  size="sm"
+                  class="w-full"
+                />
+              </UFormField>
+              <UFormField label="Edition">
+                <USelect
+                  v-model="editionFilter"
+                  :items="editionFilterItems"
+                  size="sm"
+                  class="w-full"
+                />
+              </UFormField>
+              <UFormField label="Printing">
+                <USelect
+                  v-model="printingFilter"
+                  :items="printingFilterItems"
+                  size="sm"
+                  class="w-full"
+                />
+              </UFormField>
+              <UCheckbox
+                v-model="signedOnly"
+                label="Signed only"
+              />
+              <UCheckbox
+                v-model="dustJacketOnly"
+                label="Dust jacket only"
+              />
+              <UCheckbox
+                v-model="limitedOnly"
+                label="Limited editions only"
+              />
+              <UButton
+                label="Clear filters"
+                color="neutral"
+                variant="soft"
+                size="sm"
+                class="self-start"
+                :disabled="!activeFilterCount"
+                @click="clearFilters"
+              />
+            </div>
+          </template>
+        </UPopover>
         <UCheckbox
           v-model="groupSeries"
           label="Group series"
@@ -208,7 +352,7 @@ const displayedColumns = computed(() => (groupSeries.value ? groupedColumns.valu
         v-if="!visibleItems.length"
         icon="i-lucide-search-x"
         title="No matches"
-        description="No book on your shelf matches that search."
+        description="No book on the shelf matches your search or filters."
       />
 
       <div
@@ -226,6 +370,7 @@ const displayedColumns = computed(() => (groupSeries.value ? groupedColumns.valu
             :item="item"
             :is-owner="isOwner"
             @removed="handleRemoved(item)"
+            @updated="(details) => handleUpdated(item, details)"
           />
         </div>
       </div>
