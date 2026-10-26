@@ -606,5 +606,21 @@
     "active": true,
     "dark_tower": false,
     "type": null
+  },
+  {
+    "id": "cd388ead-747a-43c8-8664-374001343b0f",
+    "kind": "related",
+    "title": "Bare Bones: Conversations on Terror with Stephen King",
+    "creator": "Tim Underwood & Chuck Miller",
+    "category": "reference",
+    "publish_date": "1988-01-01",
+    "slug": "bare-bones",
+    "open_library_work_key": "OL81595W",
+    "cover_id": 12373644,
+    "description": "A collection of interviews with Stephen King from the late 1970s and 1980s, in which he talks about his life, his writing habits, his influences, and the horror genre.",
+    "relation_note": "Interviews with King, edited and compiled by Tim Underwood and Chuck Miller - King is the subject, not the author.",
+    "active": true,
+    "dark_tower": false,
+    "type": null
   }
 ]
