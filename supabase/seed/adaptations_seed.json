@@ -1243,5 +1243,18 @@
     "slug": "carrie-2002",
     "active": true,
     "release_date": "2002-11-04"
+  },
+  {
+    "id": "df5ad2c5-f99e-4206-976b-f2f2d05299f5",
+    "title": "A Story of Derry",
+    "type": "tv_movie",
+    "release_year": 2026,
+    "tmdb_id": 1813355,
+    "is_universe_only": false,
+    "tmdb_media_type": "movie",
+    "tmdb_poster_path": "/4PtzGcegF5Po1NmDAW9IklyvAUh.jpg",
+    "slug": "a-story-of-derry",
+    "active": true,
+    "release_date": "2026-10-31"
   }
 ]
