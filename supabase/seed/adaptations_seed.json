@@ -371,6 +371,20 @@
     "release_date": "1992-03-05"
   },
   {
+    "id": "422c97c5-048c-4365-b9c5-469aae9d4c79",
+    "title": "Sleepwalkers",
+    "type": "movie",
+    "release_year": 1992,
+    "tmdb_id": 11428,
+    "is_universe_only": true,
+    "notes": "Original screenplay written by King, not adapted from a published work.",
+    "tmdb_media_type": "movie",
+    "tmdb_poster_path": null,
+    "slug": "sleepwalkers",
+    "active": true,
+    "release_date": "1992-04-10"
+  },
+  {
     "id": "cdbb0796-b168-467c-b7c5-68a8966fb868",
     "title": "The Tommyknockers",
     "type": "miniseries",
