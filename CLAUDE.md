@@ -72,6 +72,7 @@ If a future `git-workflow` skill is added, branch-naming and PR conventions belo
 - Use Nuxt UI components before building custom ones
 - All Supabase queries go through composables - no direct `supabase.from(...)` calls inside `.vue` files
 - Row Level Security is mandatory on every table containing user data - never disable RLS to "make it work"
+- Commits are authored by Keyzer, never by Claude, and carry no `Co-Authored-By` or other AI attribution trailers
 - No em dash (`—`) anywhere in this project - code, comments, docs, seed data, UI copy. Use a plain hyphen (`-`) instead.
 
 ## Where to look for more detail
