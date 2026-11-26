@@ -53,6 +53,17 @@ When a release is requested, the sequence is:
 3. **Merge the branch into `main`** - this is what triggers Vercel's auto-deploy; no manual deploy step exists or is needed.
 4. **Tag the merge commit** `vX.Y.Z` and push the tag.
 
+### Content changes (seed data only, zero code)
+
+A change that only touches `supabase/seed/*.json` (adding a book, adaptation, short story or link row, fixing a title or date) skips branches, PRs and version bumps:
+
+1. **Update the seed files** - every new or changed row, plus any join-table rows (`adaptation_works`, `related_work_king_works`, ...) for the relationships it should show.
+2. **Commit straight to `develop`.**
+3. **Seed hosted Supabase** with the matching `seed:*:hosted` script (`seed:bibliography:hosted` covers adaptations and short stories, `seed:king-works:hosted` / `seed:related-works:hosted` cover `works`). This needs the hosted service role key, so it runs on Keyzer's machine, not from a cloud session.
+4. **Clear the Vercel cache for each affected route** by tag via the Vercel MCP's `invalidate_by_tags` (project `king-library`, target `production`) - the section tag of the list page (e.g. `section:/adaptations`) plus the `route:` tag of every detail page whose content or relationships changed (e.g. the source work's page). See `nuxt-conventions` "Cached public pages" for the tag scheme.
+
+If the change needs any code (a new column, a page that should show a relationship it doesn't render yet), it's a normal feature branch + release instead.
+
 If a future `git-workflow` skill is added, branch-naming and PR conventions belong there - but the version-bump → push-schema → merge sequence stays here, since it's the core release contract for this project, not a git-mechanics detail.
 
 ## Core conventions (always apply)
