@@ -612,6 +612,20 @@
     "release_date": "2001-09-28"
   },
   {
+    "id": "aa9b4a63-8754-4500-a2a0-32dddf4087d3",
+    "title": "Rose Red",
+    "type": "miniseries",
+    "release_year": 2002,
+    "tmdb_id": 19654,
+    "is_universe_only": true,
+    "notes": "Original teleplay written by King, not adapted from a published work.",
+    "tmdb_media_type": "tv",
+    "tmdb_poster_path": null,
+    "slug": "rose-red",
+    "active": true,
+    "release_date": "2002-01-27"
+  },
+  {
     "id": "bef821b2-3d94-4c41-b5eb-3239765c02ef",
     "title": "The Dead Zone",
     "type": "series",
